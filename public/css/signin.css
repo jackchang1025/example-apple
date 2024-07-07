@@ -1,0 +1,328 @@
+a, button {
+    border: none !important;
+    border-width: 0px !important;
+    margin: 0px;
+    padding: 0px;
+    border: 0px !important;
+    -webkit-tap-highlight-color: transparent;
+    outline: none !important;
+}
+
+#sign-in.has-focus{
+    top: 23px!important;
+}
+
+#sign-in.has-focus-password {
+    top: 79px!important;
+    transition: .125s !important;
+}
+
+.spinner-container.password-spinner {
+    top: 93px!important;
+}
+
+.spinner-container.focus {
+    z-index: 100;
+}
+
+#sign-in.has-focus-password-blur{
+    top: 73px!important;
+    transition: .125s !important;
+}
+
+.spinner-hide {
+    display: none;
+}
+
+#sign_in_form .account-name.select-focus, #sign_in_form .password.select-focus {
+    z-index: 100;
+}
+
+.verify-password {
+    color: #86868b !important;
+    -webkit-text-fill-color: #86868b !important;
+    background-color: rgba(0,0,0,.02) !important;
+}
+
+.signin-error.hide {
+    display: none;
+}
+
+.account-label-custom-blur {
+    -webkit-text-size-adjust: 100% !important;
+    -webkit-tap-highlight-color: rgba(0,0,0,0) !important;
+    font-synthesis: none !important;
+    direction: ltr !important;
+    -webkit-font-smoothing: antialiased !important;
+    text-rendering: optimizeLegibility !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+    quotes: "「" "」" !important;
+    font-style: normal !important;
+    position: absolute !important;
+    pointer-events: none !important;
+    transition-timing-function: ease-in !important;
+    transition-duration: .125s !important;
+    top: 1.05882rem !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    max-width: calc(100% - 32px) !important;
+    left: 1rem !important;
+    font-size: 17px !important;
+    line-height: 1.23536 !important;
+    font-weight: 400 !important;
+    font-family: SF Pro Text,SF Pro Icons,Helvetica Neue,Helvetica,Arial,sans-serif !important;
+    color: #86868b !important;
+    letter-spacing: 0 !important;
+    z-index: 3 !important;
+}
+
+.account-label-custom-focus {
+    -webkit-text-size-adjust: 100% !important;
+    -webkit-tap-highlight-color: rgba(0,0,0,0) !important;
+    font-synthesis: none !important;
+    direction: ltr !important;
+    -webkit-font-smoothing: antialiased !important;
+    text-rendering: optimizeLegibility !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+    quotes: "「" "」" !important;
+    font-style: normal !important;
+    position: absolute !important;
+    pointer-events: none !important;
+    transition-timing-function: ease-in !important;
+    transition-duration: .125s !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    max-width: calc(100% - 32px) !important;
+    left: 1rem !important;
+    color: #86868b !important;
+    font-size: 12px !important;
+    line-height: 1.33337 !important;
+    font-weight: 400 !important;
+    font-family: SF Pro Text,SF Pro Icons,Helvetica Neue,Helvetica,Arial,sans-serif !important;
+    top: .58824rem !important;
+    letter-spacing: 0 !important;
+    z-index: 3 !important;
+}
+
+
+@keyframes opacity-60-25-0-12 {
+	0% {
+    opacity: 0.25;
+    }
+
+    0.01% {
+        opacity: 0.25;
+    }
+
+    0.02% {
+        opacity: 1;
+    }
+
+    60.01% {
+        opacity: 0.25;
+    }
+
+    100% {
+        opacity: 0.25;
+    }
+}
+
+@keyframes opacity-60-25-1-12 {
+	0% {
+    opacity: 0.25;
+    }
+    8.34333% {
+        opacity: 0.25;
+    }
+    8.35333% {
+        opacity: 1;
+    }
+    68.3433% {
+        opacity: 0.25;
+    }
+    100% {
+        opacity: 0.25;
+    }
+}
+
+@keyframes opacity-60-25-2-12 {
+	0% {
+    opacity: 0.25;
+    }
+    16.6767% {
+        opacity: 0.25;
+    }
+    16.6867% {
+        opacity: 1;
+    }
+    76.6767% {
+        opacity: 0.25;
+    }
+    100% {
+        opacity: 0.25;
+    }
+}
+
+@keyframes opacity-60-25-3-12 {
+	0% {
+    opacity: 0.25;
+    }
+    25.01% {
+        opacity: 0.25;
+    }
+    25.02% {
+        opacity: 1;
+    }
+    85.01% {
+        opacity: 0.25;
+    }
+    100% {
+        opacity: 0.25;
+    }
+}
+
+@keyframes opacity-60-25-4-12 {
+    0% {
+        opacity: 0.25;
+    }
+    33.3433% {
+        opacity: 0.25;
+    }
+    33.3533% {
+        opacity: 1;
+    }
+    93.3433% {
+        opacity: 0.25;
+    }
+    100% {
+        opacity: 0.25;
+    }
+}
+
+@keyframes opacity-60-25-5-12 {
+  0% {
+    opacity: 0.270958;
+  }
+  41.6767% {
+      opacity: 0.25;
+  }
+  41.6867% {
+      opacity: 1;
+  }
+  1.67667% {
+      opacity: 0.25;
+  }
+  100% {
+      opacity: 0.270958;
+  }
+}
+
+@keyframes opacity-60-25-6-12 {
+  0% {
+    opacity: 0.375125;
+  }
+  50.01% {
+      opacity: 0.25;
+  }
+  50.02% {
+      opacity: 1;
+  }
+  10.01% {
+      opacity: 0.25;
+  }
+  100% {
+      opacity: 0.375125;
+  }
+}
+
+@keyframes opacity-60-25-7-12 {
+  0% {
+    opacity: 0.479292;
+  }
+  58.3433% {
+      opacity: 0.25;
+  }
+  58.3533% {
+      opacity: 1;
+  }
+  18.3433% {
+      opacity: 0.25;
+  }
+  100% {
+      opacity: 0.479292;
+  }
+}
+
+@keyframes opacity-60-25-8-12 {
+  0% {
+    opacity: 0.583458;
+  }
+  66.6767% {
+      opacity: 0.25;
+  }
+  66.6867% {
+      opacity: 1;
+  }
+  26.6767% {
+      opacity: 0.25;
+  }
+  100% {
+      opacity: 0.583458;
+  }
+}
+
+@keyframes opacity-60-25-9-12 {
+  0% {
+    opacity: 0.687625;
+  }
+  75.01% {
+      opacity: 0.25;
+  }
+  75.02% {
+      opacity: 1;
+  }
+  35.01% {
+      opacity: 0.25;
+  }
+  100% {
+      opacity: 0.687625;
+  }
+}
+
+@keyframes opacity-60-25-10-12 {
+  0% {
+    opacity: 0.791792;
+  }
+  83.3433% {
+      opacity: 0.25;
+  }
+  83.3533% {
+      opacity: 1;
+  }
+  43.3433% {
+      opacity: 0.25;
+  }
+  100% {
+      opacity: 0.791792;
+  }
+}
+
+@keyframes opacity-60-25-11-12 {
+  0% {
+    opacity: 0.895958;
+  }
+  91.6767% {
+      opacity: 0.25;
+  }
+  91.6867% {
+      opacity: 1;
+  }
+  51.6767% {
+      opacity: 0.25;
+  }
+  100% {
+      opacity: 0.895958;
+  }
+}

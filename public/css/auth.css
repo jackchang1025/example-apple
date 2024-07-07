@@ -1,0 +1,14 @@
+.pop-container.error.hide, .other-options-popover-container.hide, 
+.verifying-code.hide, .verifying-code-text.hide, .lite-theme-override.hide{
+    display: none;
+}
+
+a, button {
+    border: none !important;
+    border-width: 0px !important;
+    margin: 0px;
+    padding: 0px;
+    border: 0px !important;
+    outline: none !important;
+    -webkit-tap-highlight-color: transparent;
+}
