@@ -28,10 +28,9 @@ class PhoneResource extends Resource
                     ->maxLength(255),
                 Forms\Components\TextInput::make('phone_address')
                     ->required(),
-                Forms\Components\TextInput::make('country_code')
+                Forms\Components\TextInput::make('country_code')->default('US')
                     ->required(),
-                Forms\Components\TextInput::make('country_dial_code')
-                    ->required(),
+                Forms\Components\TextInput::make('country_dial_code'),
                 Forms\Components\Select::make('status')
                     ->options(['normal' => '正常', 'invalid' => '失效','bound'=>'已绑定']) //normal:正常,invalid:失效,bound:已绑定
                     ->required(),

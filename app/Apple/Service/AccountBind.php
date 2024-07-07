@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\Apple\Service;
 
 use App\Apple\Service\Exception\PhoneCodeException;
-use App\Apple\Service\HttpClient;
 use App\Models\Account;
 use App\Models\Phone;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Psr\Log\LoggerInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
-class AccountBind
+class AccountBind implements ShouldQueue
 {
     // 定义类常量
     private const MAX_RETRY_ATTEMPTS = 10;        // 最大重试次数

