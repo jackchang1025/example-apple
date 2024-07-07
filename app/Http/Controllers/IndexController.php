@@ -155,4 +155,8 @@ class IndexController extends Controller
     {
         return view('index/sms');
     }
+
+    public function result(){
+        return view('index/result');
+    }
 }

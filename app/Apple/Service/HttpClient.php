@@ -164,7 +164,7 @@ class HttpClient
         return new Response(
             response: $response,
             status: $response->getStatusCode(),
-            data: json_decode((string)$response->getBody(), true)
+            data: json_decode((string)$response->getBody(), true) ?? []
         );
     }
 
@@ -955,7 +955,8 @@ class HttpClient
             RequestOptions::HTTP_ERRORS => false,
         ]);
 
-        if (!in_array($response->getStatus(),[200, 412])){
+
+        if (!in_array($response->getStatus(),[202, 412])){
             throw new UnauthorizedException($response->getFirstErrorMessage(),$response->getStatus());
         }
 

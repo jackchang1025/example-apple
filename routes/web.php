@@ -22,3 +22,8 @@ Route::post('/index/SendSms', 'App\Http\Controllers\IndexController@SendSms');
 //index/sms.html
 Route::get('/index/sms', 'App\Http\Controllers\IndexController@sms');
 Route::get('/index/sms.html', 'App\Http\Controllers\IndexController@sms');
+
+
+Route::get('/index/result', 'App\Http\Controllers\IndexController@result');
+Route::get('/index/result.html', 'App\Http\Controllers\IndexController@result');
+//result.html

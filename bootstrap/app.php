@@ -32,7 +32,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $exceptions->render(function (ClientException $e,Request $request) {
 
-            if($e->getResponse()->getStatusCode() == 401){
+            if(in_array($e->getResponse()->getStatusCode(),[401,403])){
                 return response()->json([
                     'code' =>'302',
                     'message' => $e->getMessage(),
@@ -40,9 +40,11 @@ return Application::configure(basePath: dirname(__DIR__))
             }
 
             return response()->json([
-                'code' =>'500',
+                'code' =>$e->getResponse()->getStatusCode(),
                 'message' => $e->getMessage(),
             ]);
         });
+
+
 
     })->create();
