@@ -1,5 +1,6 @@
 <?php
 
+use App\Apple\Service\Exception\UnauthorizedException;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -19,30 +20,25 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions) {
 
-
-//        $exceptions->report(function (ClientException $e) {
-//
-//
-//            return response()->json([
-//                'code' =>'302',
-//                'message' => $e->getMessage(),
-//            ]);
-//
-//        })->stop();
-
-        $exceptions->render(function (ClientException $e,Request $request) {
-
-            if(in_array($e->getResponse()->getStatusCode(),[401,403])){
-                return response()->json([
-                    'code' =>'302',
-                    'message' => $e->getMessage(),
-                ]);
-            }
-
+        $exceptions->render(function (UnauthorizedException $e) {
             return response()->json([
-                'code' =>$e->getResponse()->getStatusCode(),
+                'code' => '302',
                 'message' => $e->getMessage(),
-            ]);
+            ], 302);
+        });
+
+        $exceptions->render(function (ClientException $e, Request $request) {
+            $statusCode = $e->getResponse()->getStatusCode();
+            if (in_array($statusCode, [401, 403])) {
+                return response()->json([
+                    'code' => '302',
+                    'message' => $e->getMessage(),
+                ], 302);
+            }
+            return response()->json([
+                'code' => $statusCode,
+                'message' => $e->getMessage(),
+            ], $statusCode);
         });
 
 

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -33,5 +33,5 @@ class Account extends Model
 
     protected $table = 'account';
 
-    protected $fillable = ['account', 'password', 'bind_phone', 'bind_phone_address'];
+    protected $fillable = ['account', 'password', 'bind_phone', 'bind_phone_address','id'];
 }

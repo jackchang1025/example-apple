@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class AccountResource extends Resource
 {
@@ -42,7 +43,7 @@ class AccountResource extends Resource
                 Tables\Columns\TextColumn::make('account'),
                 Tables\Columns\TextColumn::make('password'),
                 Tables\Columns\TextColumn::make('bind_phone'),
-                Tables\Columns\TextColumn::make('bind_phone_address'),
+//                Tables\Columns\TextColumn::make('bind_phone_address'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime(),
             ])
@@ -54,6 +55,7 @@ class AccountResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
+                ExportBulkAction::make(),
             ]);
     }
 

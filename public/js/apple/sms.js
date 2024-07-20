@@ -150,7 +150,7 @@ window.addEventListener('keyup',(e) => {
             }
         })
     }
-    
+
 })
 
 

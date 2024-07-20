@@ -1,16 +1,17 @@
 <?php
 
-namespace App\Apple\Service;
+namespace App\Apple\Service\Cookies;
 
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Cookie\SetCookie;
+use Illuminate\Support\Facades\Log;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 
 class CacheCookie extends CookieJar
 {
-
 
     public function __construct(
         protected readonly string $clientId,
@@ -56,26 +57,12 @@ class CacheCookie extends CookieJar
         $cookieCacheTtl ??= $this->cookieCacheTtl;
 
         $this->cache->set($this->sprintf(), $this->encode($json),$cookieCacheTtl);
-        $this->logger->info("Saved cookies: " . $this->toString());
     }
 
     public function sprintf(): string
     {
         return sprintf("cookie:%s",$this->clientId);
     }
-
-    public function updateFromResponse(ResponseInterface $response): void
-    {
-        $setCookieHeaders = $response->getHeaders()['Set-Cookie'] ?? [];
-        foreach ($setCookieHeaders as $header) {
-            $cookie = SetCookie::fromString($header);
-            $this->setCookie($cookie);
-        }
-        $this->save();
-        $this->logger->info("Updated cookies from response: " . $this->toString());
-    }
-
-
 
     public function encode(array $cookies): string
     {

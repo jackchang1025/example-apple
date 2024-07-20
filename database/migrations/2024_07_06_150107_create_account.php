@@ -17,8 +17,10 @@ return new class extends Migration
 
             $table->string('account')->comment('账号');
             $table->string('password')->comment('密码');
-            $table->string('bind_phone')->comment('绑定的手机号码');
-            $table->string('bind_phone_address')->comment('绑定的手机号码所在地址');
+            $table->string('bind_phone')->comment('绑定的手机号码')->nullable();
+            $table->string('bind_phone_address')->comment('绑定的手机号码所在地址')->nullable();
+
+            $table->unique('account');
         });
     }
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Apple\Service;
+namespace App\Apple\Service\User;
 
 class Config
 {
@@ -17,6 +17,16 @@ class Config
         protected array $phoneInfo = []
     ) {
 
+    }
+
+    public function toArray(): array
+    {
+        return get_object_vars($this);
+    }
+
+    public static function fromArray(array $data): self
+    {
+        return new self(...$data);
     }
 
     public function setPhoneInfo(array $phoneInfo): void
@@ -79,5 +89,4 @@ class Config
     {
         $this->XAppleIDSessionId = $XAppleIDSessionId;
     }
-
 }

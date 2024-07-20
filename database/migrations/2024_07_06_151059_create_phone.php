@@ -19,7 +19,11 @@ return new class extends Migration
             $table->string('phone_address')->comment('手机号地址');
             $table->string('country_code')->comment('国家码')->default('US');
             $table->string('country_dial_code')->comment('区号')->default('+1');
-            $table->string('status')->default('normal')->comment('{normal:正常,invalid:失效,bound:已绑定}');
+
+            $table->enum('status', ['normal', 'invalid', 'bound','Binding'])->default('normal')->comment('{normal:正常,invalid:失效,bound:已绑定,Binding:绑定中}');
+
+            // 创建一个复合唯一索引
+            $table->unique(['phone', 'country_code']);
         });
     }
 
