@@ -12,7 +12,12 @@ composer install --ignore-platform-reqs
 #### 修改配置 .env 文件
 
 cp .env.example .env
+
+
 1. 修改数据库配置
+
+执行命令  ```vi .env``` 
+
 修改 .env 文件中数据库配置，时区，APP_URL ，项目 APP_ENV，APP_DEBUG 等
 ```bash
 DB_CONNECTION=mysql
@@ -69,17 +74,24 @@ server {
 修改 supervisord.conf 文件, 将 horizon 设置为守护进程，并设置日志文件，一般不需要修改
 ```bash
 [program:horizon]
-process_name=%(program_name)s
 command=php /var/www/html/artisan horizon
-user=%(ENV_SUPERVISOR_PHP_USER)s
 autostart=true
 autorestart=true
 redirect_stderr=true
 stdout_logfile=/var/www/html/storage/logs/horizon.log
 stopwaitsecs=3600
 ```
+
+### 修改文件权限
+
+请替换成你的项目地址
+
+RUN chown -R www-data:www-data /var/www/html \
+&& chmod -R 755 /var/www/html/storage
+
 ### 启动项目
 ####  运行容器 docker-compose up -d --build 
+
 
 #### 进入容器
 docker-compose exec laravel.test bash 

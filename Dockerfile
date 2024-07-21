@@ -54,7 +54,17 @@ RUN apt-get update \
 
 RUN setcap "cap_net_bind_service=+ep" /usr/bin/php8.3
 
+# 复制项目文件
+COPY . .
 
+# 安装项目依赖
+RUN #composer install --no-dev --optimize-autoloader
+
+# 安装项目特定的 PHP 扩展（如果有的话）
+# 例如：RUN pecl install redis && docker-php-ext-enable redis
+
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html/storage
 
 COPY start-container /usr/local/bin/start-container
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
