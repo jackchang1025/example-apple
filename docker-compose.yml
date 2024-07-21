@@ -1,24 +1,19 @@
 services:
     laravel.test:
         build:
-            context: ./vendor/laravel/sail/runtimes/8.3
+            context: .
             dockerfile: Dockerfile
-            args:
-                WWWGROUP: '${WWWGROUP}'
         image: sail-8.3/app
         extra_hosts:
             - 'host.docker.internal:host-gateway'
-        ports:
-            - '${APP_PORT:-80}:80'
-            - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
         environment:
-            WWWUSER: '${WWWUSER}'
             LARAVEL_SAIL: 1
             XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
             XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
             IGNITION_LOCAL_SITES_PATH: '${PWD}'
         volumes:
             - '.:/var/www/html'
+            - './docker/php/www.conf:/etc/php/8.3/fpm/pool.d/www.conf'
         networks:
             - sail
         depends_on:
@@ -27,6 +22,17 @@ services:
             - meilisearch
             - mailpit
             - selenium
+    nginx:
+        image: nginx:alpine
+        ports:
+            - '${APP_PORT:-80}:80'
+        volumes:
+            - '.:/var/www/html'
+            - './nginx.conf:/etc/nginx/conf.d/default.conf:ro'
+        depends_on:
+            - laravel.test
+        networks:
+            - sail
     mysql:
         image: 'mysql/mysql-server:8.0'
         ports:
