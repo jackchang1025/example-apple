@@ -43,9 +43,9 @@ class AccountResource extends Resource
                 Tables\Columns\TextColumn::make('account'),
                 Tables\Columns\TextColumn::make('password'),
                 Tables\Columns\TextColumn::make('bind_phone'),
-//                Tables\Columns\TextColumn::make('bind_phone_address'),
+                Tables\Columns\TextColumn::make('bind_phone_address')->hidden(),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime(),
+                    ->dateTime('Y-m-d H:i'),
             ])
             ->filters([
                 //

@@ -12,11 +12,8 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Ysfkaya\FilamentPhoneInput\Forms\PhoneInput;
-use Ysfkaya\FilamentPhoneInput\Infolists\PhoneEntry;
 use Ysfkaya\FilamentPhoneInput\PhoneInputNumberType;
 use Ysfkaya\FilamentPhoneInput\Tables\PhoneColumn;
 
@@ -56,11 +53,7 @@ class PhoneResource extends Resource
                     ->helperText('请输入有效的URL地址'),
 
                 Forms\Components\Select::make('status')
-                    ->options([
-                        'normal' => '正常',
-                        'invalid' => '失效',
-                        'bound' => '已绑定'
-                    ])
+                    ->options(Phone::STATUS)
                     ->default('normal')
                     ->required(),
 
@@ -74,13 +67,15 @@ class PhoneResource extends Resource
         return $table
             ->columns([
                 PhoneColumn::make('phone')->displayFormat(PhoneInputNumberType::E164),//->countryColumn('country_code')
-//                Tables\Columns\TextColumn::make('phone'),
-//                Tables\Columns\TextColumn::make('phone_address'),
+                Tables\Columns\TextColumn::make('phone_address')->hidden(),
                 Tables\Columns\TextColumn::make('country_code'),
-//                Tables\Columns\TextColumn::make('country_dial_code'),
-                Tables\Columns\TextColumn::make('status'),
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->formatStateUsing(fn (string $state): string => Phone::STATUS[$state] ?? $state)
+                    ->color(fn (string $state): string => Phone::STATUS_COLOR[$state] ?? 'secondary'),
+
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime(),
+                    ->dateTime('Y-m-d H:i:s'),
             ])
             ->filters([
                 //

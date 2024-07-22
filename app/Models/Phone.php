@@ -53,17 +53,31 @@ class Phone extends Model
     const string STATUS_BOUND = 'bound';
     const string STATUS_BINDING = 'Binding';
 
+    public const  array STATUS = [
+        self::STATUS_NORMAL => '正常',
+        self::STATUS_INVALID => '失效',
+        self::STATUS_BOUND => '已绑定',
+        self::STATUS_BINDING => '绑定中',
+    ];
+
+    public const  array STATUS_COLOR = [
+        self::STATUS_NORMAL => 'gray',
+        self::STATUS_INVALID => 'warning',
+        self::STATUS_BOUND => 'success',
+        self::STATUS_BINDING => 'danger',
+    ];
+
     protected function countryDialCode(): Attribute
     {
         return Attribute::make(
             set: function (?string $value, array $attributes) {
                 try {
                     $getCountryCode =  $this->getPhoneNumberService($attributes)->getCountryCode();
-                    Log::info("countryDialCode :".$getCountryCode);
+                    Log::info("Parsed countryDialCode code :".$getCountryCode);
                     return $getCountryCode;
                 } catch (\Exception $e) {
                     // 如果解析失败,返回原始值
-                    Log::error("countryDialCode :".$e->getMessage());
+                    Log::error("Parsed countryDialCode Error :".$e->getMessage());
                     return $value;
                 }
             }
@@ -87,12 +101,21 @@ class Phone extends Model
                 try {
                     $phoneService = $this->getPhoneNumberService($attributes);
                     $regionCode = $phoneService->getRegionCode();
-                    Log::info("Parsed region code: " . $regionCode);
+                    Log::info("Parsed countryCode code: " . $regionCode);
                     return $regionCode;
                 } catch (\Exception $e) {
-                    Log::error("Error parsing phone number: " . $e->getMessage());
+                    Log::error("Parsed countryCode Error: " . $e->getMessage());
                     return $value;
                 }
+            }
+        );
+    }
+
+    protected function label ():Attribute
+    {
+        return Attribute::make(
+            get: function (?string $value = null, array $attributes = []) {
+                return self::STATUS[$attributes['status']] ?? '未知';
             }
         );
     }
