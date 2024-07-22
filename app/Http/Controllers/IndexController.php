@@ -71,7 +71,7 @@ class IndexController extends Controller
         $error = $response->firstServiceError()?->getMessage();
         Session::flash('Error',$error);
 
-        if (!empty($trustedPhoneNumbers = $response->getTrustedPhoneNumber())){
+        if (!empty($trustedPhoneNumbers = $response->getPhoneNumber())){
             return $this->success(data: [
                 'Guid' => $guid,
                 'Devices' => false,
@@ -118,7 +118,7 @@ class IndexController extends Controller
             return $this->redirect();
         }
 
-        $response = $guid->idmsa->validateSecurityCode($code);
+        $response = $apple->idmsa->validateSecurityCode($code);
 
         BindAccountPhone::dispatch($accountInfo->id,$guid);
 

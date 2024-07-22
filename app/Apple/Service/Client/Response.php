@@ -79,9 +79,11 @@ class Response
     /**
      * 获取电话号码信息
      */
-    public function getPhoneNumber(): array
+    public function getPhoneNumber(): ?Phone
     {
-        return $this->getData('trustedPhoneNumber', []);
+        $data = $this->getData('phoneNumber');
+
+        return $data ? new Phone($data) : null;
     }
 
     /**
