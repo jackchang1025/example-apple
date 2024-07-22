@@ -18,7 +18,7 @@ cp .env.example .env
 
 执行命令  ```vi .env``` 
 
-修改 .env 文件中数据库配置，时区，APP_URL ，项目 APP_ENV，APP_DEBUG 等
+修改 .env 文件中数据库配置，，APP_URL 设置为你的域名 APP_ENV 设置为 production
 ```bash
 DB_CONNECTION=mysql
 DB_HOST=mysql
@@ -41,11 +41,9 @@ REDIS_PORT=6379
 QUEUE_CONNECTION=redis
 ```
 
-5. 修改 nginx 监听端口
-```APP_PORT=80```
-
 ### 配置域名
-将 server_name 修改为 项目解析域名, 修改 root 为容器中项目根目录
+1. 将 server_name 修改为 项目解析域名, 
+2. 修改 root 为容器中项目根目录（一般需要修改）
 ```bash
 server {
     listen 80;
@@ -86,12 +84,11 @@ stopwaitsecs=3600
 
 请替换成你的项目地址
 
-RUN chown -R www-data:www-data /var/www/html \
+chown -R www-data:www-data /var/www/html \
 && chmod -R 755 /var/www/html/storage
 
 ### 启动项目
 ####  运行容器 docker-compose up -d --build 
-
 
 #### 进入容器
 docker-compose exec laravel.test bash 
@@ -102,6 +99,14 @@ php artisan key:generate
 php artisan migrate
 #### 创建管理员账号
 php artisan make:filament-user
+
+#### 验证队列是否执行：
+php artisan horizon
+
+#### 后台地址 http://your_domain/admin/
+
+请将 your_domain 替换成你的域名
+
 
 
 
