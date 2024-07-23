@@ -2,6 +2,7 @@
 
 namespace App\Apple\Service;
 
+use App\Apple\Proxy\ProxyManager;
 use App\Apple\Service\Client\AppleIdClient;
 use App\Apple\Service\Client\ClientFactory;
 use App\Apple\Service\Client\IdmsaClient;
@@ -17,7 +18,8 @@ readonly class AppleFactory
         private UserFactory $userFactory,
         private CookieManagerFactory $cookieManagerFactory,
         private ClientFactory $clientFactory,
-        private LoggerInterface $logger
+        private LoggerInterface $logger,
+        protected ProxyManager $proxyManager,
     ) {}
 
     public function create(string $guid): Apple
@@ -25,9 +27,11 @@ readonly class AppleFactory
         $user = $this->userFactory->create($guid);
         $cookieJar = $this->cookieManagerFactory->create($guid);
 
-        $idmsaClient = new IdmsaClient($this->clientFactory, $cookieJar, $this->logger,$user);
-        $appleIdClient = new AppleIdClient($this->clientFactory, $cookieJar,$this->logger,$user);
-        $phoneCodeClient = new PhoneCodeClient($this->clientFactory, $cookieJar, $this->logger,$user);
+        $proxy = $this->proxyManager->driver();
+
+        $idmsaClient = new IdmsaClient(clientFactory: $this->clientFactory, cookieJar: $cookieJar, logger: $this->logger,user: $user,proxy: $proxy);
+        $appleIdClient = new AppleIdClient(clientFactory: $this->clientFactory, cookieJar: $cookieJar, logger: $this->logger,user: $user,proxy: $proxy);
+        $phoneCodeClient = new PhoneCodeClient(clientFactory: $this->clientFactory, cookieJar: $cookieJar, logger: $this->logger,user: $user,proxy: $proxy);
 
         return new Apple($idmsaClient, $appleIdClient, $phoneCodeClient, $user,$cookieJar);
     }

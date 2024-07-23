@@ -2,15 +2,23 @@
 
 namespace App\Apple\Service\Client;
 
+use App\Apple\Proxy\Option;
+use App\Apple\Proxy\ProxyInterface;
+use App\Apple\Proxy\ProxyManager;
 use App\Apple\Service\User\User;
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJarInterface;
+use Illuminate\Config\Repository;
+use Illuminate\Support\Facades\Config;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 
 abstract class BaseClient
 {
     protected ?Client $client = null;
+
+    protected ?string $proxyUrl = null;
 
     const string BASEURL_IDMSA = 'https://idmsa.apple.com';
 
@@ -21,11 +29,37 @@ abstract class BaseClient
         protected ClientFactory $clientFactory,
         protected CookieJarInterface $cookieJar,
         protected LoggerInterface $logger,
-        protected User $user
+        protected User $user,
+        protected ProxyInterface $proxy,
     ) {
     }
 
     abstract protected function createClient(): Client;
+
+    public function setProxyUrl(?string $proxyUrl): void
+    {
+        $this->proxyUrl = $proxyUrl;
+    }
+
+    public function getProxyUrl(): ?string
+    {
+        if ($this->proxyUrl) {
+            return $this->proxyUrl;
+        }
+        $option = Option::make([
+            'uid' => $this->user->getToken(),
+        ]);
+        $this->proxyUrl = $this->proxy->getProxy($option);
+        if (empty($this->proxyUrl)){
+            throw new RuntimeException('Proxy not found');
+        }
+
+        $this->logger->info("token: {$this->user->getToken()} proxy: $this->proxyUrl get proxy success");
+        return $this->proxyUrl;
+    }
+
+
+
 
     public function getClient(): Client
     {
@@ -71,5 +105,9 @@ abstract class BaseClient
             status: $response->getStatusCode(),
             data: $data
         );
+    }
+
+    private function RuntimeException(string $string)
+    {
     }
 }
