@@ -54,11 +54,11 @@ class AccountBind
 
             $account = $this->getAccount($id);
             if (!$account->password) {
-                throw new \Exception('账号未设置密码');
+                throw new \Exception("$account : 账号未设置密码");
             }
 
             if ($account->bind_phone) {
-                throw new \Exception('账号已经绑定手机号码');
+                throw new \Exception("{$account} :账号已经绑定手机号码");
             }
 
             $this->bindPhone($account);
@@ -66,7 +66,8 @@ class AccountBind
         } catch (\Exception $e) {
 
             // 记录绑定失败的错误日志
-            $this->logger->error($e->getMessage());
+            $account = $account ?? '';
+            $this->logger->error("$account : {$e->getMessage()}");
             throw $e;
         }
     }
@@ -146,13 +147,13 @@ class AccountBind
             $phone->update(['status' => Phone::STATUS_NORMAL]);
         } catch (\Exception $e) {
             // 如果更新失败，记录额外的错误日志
-            $this->logger->error("更新手机状态失败: {$e->getMessage()}", [
+            $this->logger->error("更新手机 {$phone->phone} 状态失败: {$e->getMessage()}", [
                 'phone'    => $phone->phone,
                 'phone_id' => $phone->id,
             ]);
         }
 
-        $this->logger->error("绑定手机号码失败: {$errorMessage}", [
+        $this->logger->error("绑定手机号码 {$phone->phone} 失败: {$errorMessage}", [
             'phone'    => $phone->phone,
             'phone_id' => $phone->id,
         ]);
@@ -206,7 +207,7 @@ class AccountBind
 
             $id = $response->phoneNumberVerification()['phoneNumber']['id'] ?? '';
             if (empty($id)) {
-                throw new BindPhoneCodeException('获取绑定手机号码 id 为空');
+                throw new BindPhoneCodeException("获取绑定手机号码 {$phone->phone} id 为空");
             }
 
             //从接码平台获取验证码
@@ -234,7 +235,7 @@ class AccountBind
             throw $e;
         } catch (\Exception|\Throwable $e) {
             $this->handleBindFailure($phone, $e->getMessage());
-            throw new BindPhoneCodeException('绑定手机号码时发生未知错误: '.$e->getMessage(), 0, $e);
+            throw new BindPhoneCodeException("绑定手机号码 {$phone->phone} 时发生未知错误: ".$e->getMessage(), 0, $e);
         }
     }
 

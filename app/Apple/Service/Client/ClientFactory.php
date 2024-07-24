@@ -55,6 +55,7 @@ class ClientFactory
             $this->logger->debug("Request body:\n{$request->getBody()}");
             $this->logger->debug("proxy_url:{$this->user->get('proxy_url')}");
             $this->logger->debug("proxy_ip:{$this->user->get('proxy_ip')}");
+            $this->logger->debug("account:{$this->user->get('account')}");
 
             $this->logger->info('Request', [
                 'method'  => $request->getMethod(),
@@ -88,6 +89,7 @@ class ClientFactory
             $headersString = implode("\n", $formattedHeaders);
 
             $this->logger->debug("Response Headers:\n$headersString");
+            $this->logger->debug("account:{$this->user->get('account')}");
 
             $body = (string) $response->getBody();
             if (Str::length($body) > 2000){
