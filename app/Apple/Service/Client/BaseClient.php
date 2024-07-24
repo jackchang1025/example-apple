@@ -54,11 +54,11 @@ abstract class BaseClient
             throw new RuntimeException('Proxy not found');
         }
 
+        $this->user->set('proxy_url', $this->proxyUrl);
+        $this->user->set('proxy_ip', $this->proxy->getProxyIp($this->proxyUrl));
         $this->logger->info("token: {$this->user->getToken()} proxy: $this->proxyUrl get proxy success");
         return $this->proxyUrl;
     }
-
-
 
 
     public function getClient(): Client

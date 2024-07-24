@@ -21,7 +21,7 @@ class BindAccountPhone implements ShouldQueue
      *
      * @var int
      */
-    public int $tries = 1;
+    public int $tries = 3;
 
     /**
      * 作业在超时前可以运行的秒数。

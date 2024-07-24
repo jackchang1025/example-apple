@@ -4,7 +4,7 @@ namespace App\Apple\Proxy;
 
 use Illuminate\Support\Facades\Http;
 
-class DynamicProxy implements ProxyInterface
+class DynamicProxy extends Proxy implements ProxyInterface
 {
     const string GET_IP_HOST = 'http://api.hailiangip.com:8422';
 

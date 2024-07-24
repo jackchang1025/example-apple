@@ -53,12 +53,16 @@ class ClientFactory
 
             $this->logger->debug("Request Headers:\n$headersString");
             $this->logger->debug("Request body:\n{$request->getBody()}");
+            $this->logger->debug("proxy_url:{$this->user->get('proxy_url')}");
+            $this->logger->debug("proxy_ip:{$this->user->get('proxy_ip')}");
 
             $this->logger->info('Request', [
                 'method'  => $request->getMethod(),
                 'uri'     => (string)$request->getUri(),
                 'headers' => $request->getHeaders(),
                 'body'    => (string)$request->getBody(),
+                'proxy_url'    => $this->user->get('proxy_url'),
+                'proxy_ip'    => $this->user->get('proxy_ip'),
             ]);
 
             return $request;

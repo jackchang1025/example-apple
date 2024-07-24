@@ -2,7 +2,7 @@
 
 namespace App\Apple\Proxy;
 
-class FlowProxy implements ProxyInterface
+class FlowProxy extends Proxy implements ProxyInterface
 {
     const string PROXY_HOST = "flow.hailiangip.com";
     const int HTTP_PROXY_PORT = 14223;
