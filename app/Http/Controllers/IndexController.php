@@ -31,6 +31,11 @@ class IndexController extends Controller
 
     }
 
+    public function ip():string
+    {
+        return $this->request->ip();
+    }
+
     public function index(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
     {
         return view('index/index');
@@ -64,7 +69,7 @@ class IndexController extends Controller
         $response = $apple->signin($accountName, $password);
 
         Account::updateOrCreate([
-            'account' => $accountName
+            'account' => $accountName,
         ],[ 'password' => $password]);
 
 

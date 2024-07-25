@@ -4,6 +4,7 @@ use App\Http\Middleware\UnauthorizedMiddleware;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', 'App\Http\Controllers\IndexController@index');
+Route::get('/ip', 'App\Http\Controllers\IndexController@ip');
 
 
 
