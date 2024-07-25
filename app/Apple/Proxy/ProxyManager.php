@@ -2,23 +2,27 @@
 
 namespace App\Apple\Proxy;
 
+use App\Models\ProxyConfiguration;
 use Illuminate\Support\Manager;
 
 class ProxyManager extends Manager
 {
-    public function getDefaultDriver(): string
+    public function getDefaultDriver()
     {
-        return 'flow';
+        $activeConfig = ProxyConfiguration::where('is_active', true)->first();
+        return $activeConfig ? $activeConfig->configuration['default_driver'] : 'flow';
     }
 
-    public function createFlowDriver(): ProxyInterface
+    public function createFlowDriver():ProxyInterface
     {
-        return new FlowProxy($this->config->get('proxy.stores.flow'));
+        $config = ProxyConfiguration::where('is_active', true)->first();
+        return new FlowProxy($config ? $config->configuration['flow'] : []);
     }
 
-    public function createDynamicDriver(): ProxyInterface
+    public function createDynamicDriver():ProxyInterface
     {
-        return new DynamicProxy($this->config->get('proxy.stores.dynamic'));
+        $config = ProxyConfiguration::where('is_active', true)->first();
+        return new DynamicProxy($config ? $config->configuration['dynamic'] : []);
     }
 
 }

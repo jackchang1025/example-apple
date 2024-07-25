@@ -40,15 +40,29 @@ class AccountResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('account'),
-                Tables\Columns\TextColumn::make('password'),
-                Tables\Columns\TextColumn::make('bind_phone'),
-                Tables\Columns\TextColumn::make('bind_phone_address')->hidden(),
+
+                Tables\Columns\TextColumn::make('account')
+                    ->toggleable(),
+
+                Tables\Columns\TextColumn::make('password')
+                    ->toggleable(),
+                Tables\Columns\TextColumn::make('bind_phone')
+                    ->toggleable(),
+
+                Tables\Columns\TextColumn::make('bind_phone_address')
+                    ->toggleable(),
+
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime('Y-m-d H:i'),
+                    ->toggleable()
+                    ->dateTime(),
+
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(),
+
             ])
             ->filters([
-                //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

@@ -66,19 +66,32 @@ class PhoneResource extends Resource
     {
         return $table
             ->columns([
-                PhoneColumn::make('phone')->displayFormat(PhoneInputNumberType::E164),//->countryColumn('country_code')
-                Tables\Columns\TextColumn::make('phone_address')->hidden(),
-                Tables\Columns\TextColumn::make('country_code'),
+
+                PhoneColumn::make('phone')
+                    ->displayFormat(PhoneInputNumberType::E164),//->countryColumn('country_code')
+
+                Tables\Columns\TextColumn::make('phone_address')
+                    ->toggleable(),
+
+                Tables\Columns\TextColumn::make('country_code')
+                    ->toggleable(),
+
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => Phone::STATUS[$state] ?? $state)
                     ->color(fn (string $state): string => Phone::STATUS_COLOR[$state] ?? 'secondary'),
 
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime('Y-m-d H:i:s'),
+                    ->dateTime('Y-m-d H:i:s')
+                    ->toggleable(),
+
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(),
             ])
             ->filters([
-                //
+
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

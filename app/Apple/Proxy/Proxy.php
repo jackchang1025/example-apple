@@ -16,7 +16,7 @@ abstract class Proxy implements ProxyInterface
         $response = Http::withOptions([
             'proxy' => $proxy,
             'verify' => false,
-        ])->get('http://httpbin.org/ip');
+        ])->retry(5,100)->get('http://httpbin.org/ip');
 
         return $response->json()['origin'] ?? null;
     }

@@ -88,8 +88,8 @@ class ClientFactory
             }
             $headersString = implode("\n", $formattedHeaders);
 
-            $this->logger->debug("Response Headers:\n$headersString");
             $this->logger->debug("account:{$this->user->get('account')}");
+            $this->logger->debug("Response Headers:\n$headersString");
 
             $body = (string) $response->getBody();
             if (Str::length($body) > 2000){

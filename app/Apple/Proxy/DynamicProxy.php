@@ -2,12 +2,12 @@
 
 namespace App\Apple\Proxy;
 
+use App\Apple\Proxy\Exception\ProxyException;
 use Illuminate\Support\Facades\Http;
 
 class DynamicProxy extends Proxy implements ProxyInterface
 {
     const string GET_IP_HOST = 'http://api.hailiangip.com:8422';
-
 
     private array $defaultConfig = [
         'type' => 1,
@@ -35,6 +35,11 @@ class DynamicProxy extends Proxy implements ProxyInterface
     }
 
 
+    /**
+     * @param Option $option
+     * @return string
+     * @throws \Illuminate\Http\Client\ConnectionException|ProxyException
+     */
     public function getProxy(Option $option): string
     {
         $config = array_merge($this->defaultConfig, $option->all());
@@ -53,11 +58,11 @@ class DynamicProxy extends Proxy implements ProxyInterface
 
         $url = self::GET_IP_HOST . "/api/getIp?" . http_build_query($queryParams);
 
-        $response = Http::get($url);
+        $response = Http::retry(5,100)->get($url);
         $data = $response->json();
 
         if (!isset($data['data'][0]['ip']) || !isset($data['data'][0]['port'])) {
-            throw new \Exception('Failed to get dynamic proxy: ' . ($data['msg'] ?? 'Unknown error'));
+            throw new ProxyException('Failed to get dynamic proxy: ' . ($data['msg'] ?? 'Unknown error'));
         }
 
         return "http://{$data['data'][0]['ip']}:{$data['data'][0]['port']}";

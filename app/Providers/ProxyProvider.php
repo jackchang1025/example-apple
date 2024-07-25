@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Apple\Proxy\ProxyManager;
 use Illuminate\Support\ServiceProvider;
 
 class ProxyProvider extends ServiceProvider
@@ -19,6 +20,8 @@ class ProxyProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        $this->app->singleton(ProxyManager::class, function ($app) {
+            return new ProxyManager($app);
+        });
     }
 }

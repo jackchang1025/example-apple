@@ -20,10 +20,10 @@ class FlowProxy extends Proxy implements ProxyInterface
         $this->defaultConfig = array_merge($this->defaultConfig, $config);
 
         if (empty($this->defaultConfig['orderId'])) {
-            throw new \Exception("请配置代理账号");
+            throw new \InvalidArgumentException("请配置代理账号");
         }
         if (empty($this->defaultConfig['pwd'])) {
-            throw new \Exception("请配置代理密码");
+            throw new \InvalidArgumentException("请配置代理密码");
         }
     }
 
