@@ -15,7 +15,7 @@ use Illuminate\Support\Str;
 
 
 /**
- *
+ * 
  *
  * @method static \Illuminate\Database\Eloquent\Builder|Phone newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Phone newQuery()
@@ -37,6 +37,8 @@ use Illuminate\Support\Str;
  * @method static \Illuminate\Database\Eloquent\Builder|Phone wherePhoneAddress($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Phone whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Phone whereUpdatedAt($value)
+ * @property-read mixed $label
+ * @method static \Database\Factories\PhoneFactory factory($count = null, $state = [])
  * @mixin \Eloquent
  */
 class Phone extends Model
