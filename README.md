@@ -42,6 +42,8 @@ QUEUE_CONNECTION=redis
 ```
 
 ### 配置域名
+
+执行命令 cp nginx.conf.example nginx.conf
 1. 将 server_name 修改为 项目解析域名, 
 2. 修改 root 为容器中项目根目录（一般需要修改）
 ```bash
@@ -82,10 +84,6 @@ stopwaitsecs=3600
 
 ### 修改文件权限
 
-请替换成你的项目地址
-
-chown -R www-data:www-data /var/www/html \
-&& chmod -R 755 /var/www/html/storage
 
 ### 启动项目
 ####  运行容器 docker-compose up -d --build 
@@ -100,8 +98,14 @@ php artisan migrate
 #### 创建管理员账号
 php artisan make:filament-user
 
+请替换成你的项目地址
+
+chown -R www-data:www-data /var/www/html
+chmod -R 755 /var/www/html/storage
+
+
 #### 验证队列是否执行：
-php artisan horizon
+php artisan horizon:status
 
 #### 后台地址 http://your_domain/admin/
 

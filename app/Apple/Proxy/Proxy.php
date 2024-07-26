@@ -18,6 +18,6 @@ abstract class Proxy implements ProxyInterface
             'verify' => false,
         ])->retry(5,100)->get(url('/ip'));//http://httpbin.org/ip
 
-        return $response->json()['origin'] ?? null;
+        return $response->body();
     }
 }
