@@ -4,21 +4,18 @@ namespace App\Apple\Service\Client;
 
 use App\Apple\Proxy\Option;
 use App\Apple\Proxy\ProxyInterface;
-use App\Apple\Proxy\ProxyManager;
+use App\Apple\Proxy\ProxyResponse;
 use App\Apple\Service\User\User;
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJarInterface;
-use Illuminate\Config\Repository;
-use Illuminate\Support\Facades\Config;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
-use RuntimeException;
 
 abstract class BaseClient
 {
     protected ?Client $client = null;
 
-    protected ?string $proxyUrl = null;
+    protected ?ProxyResponse $proxyResponse = null;
 
     const string BASEURL_IDMSA = 'https://idmsa.apple.com';
 
@@ -36,28 +33,27 @@ abstract class BaseClient
 
     abstract protected function createClient(): Client;
 
-    public function setProxyUrl(?string $proxyUrl): void
+    public function setProxyResponse(?ProxyResponse $proxyUrl): void
     {
-        $this->proxyUrl = $proxyUrl;
+        $this->proxyResponse = $proxyUrl;
     }
 
-    public function getProxyUrl(): ?string
+    public function getProxyResponse(): ?ProxyResponse
     {
-        if ($this->proxyUrl) {
-            return $this->proxyUrl;
-        }
-        $option = Option::make([
-            'uid' => $this->user->getToken(),
-        ]);
-        $this->proxyUrl = $this->proxy->getProxy($option);
-        if (empty($this->proxyUrl)){
-            throw new RuntimeException('Proxy not found');
+        if ($this->proxyResponse) {
+            return $this->proxyResponse;
         }
 
-        $this->user->set('proxy_url', $this->proxyUrl);
-        $this->user->set('proxy_ip', $this->proxy->getProxyIp($this->proxyUrl));
-        $this->logger->info("token: {$this->user->getToken()} proxy: $this->proxyUrl get proxy success");
-        return $this->proxyUrl;
+        $option = Option::make([
+            'uid' => $this->user->getToken(),
+            'session' => $this->user->getToken(),
+        ]);
+
+        $this->proxyResponse = $this->proxy->getProxy($option);
+        $this->user->set('proxy_url', $this->proxyResponse->getUrl());
+        $this->user->set('proxy_ip', $this->proxy->getProxyIp($this->proxyResponse));
+        $this->logger->info(sprintf('token %s Proxy: %s get proxy success',$this->user->getToken(), json_encode($this->proxyResponse->all(), JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)));
+        return $this->proxyResponse;
     }
 
 

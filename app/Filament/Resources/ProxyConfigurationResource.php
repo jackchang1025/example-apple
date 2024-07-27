@@ -30,92 +30,118 @@ class ProxyConfigurationResource extends Resource
                     ->helperText('给这个代理配置一个易于识别的名称'),
                 Forms\Components\Select::make('configuration.default_driver')
                     ->options([
-                        'flow' => 'Flow Proxy',
-                        'dynamic' => 'Dynamic Proxy',
+                        'hailiangip' => 'hailiangip',
+                        'stormproxies' => 'stormproxies',
                     ])
                     ->required()
-                    ->default('flow')
+                    ->default('stormproxies')
                     ->helperText('选择默认代理驱动'),
+
                 Forms\Components\Tabs::make('Drivers')
                     ->tabs([
-                        Forms\Components\Tabs\Tab::make('Flow Proxy')
+
+                        Forms\Components\Tabs\Tab::make('hailiangip')
                             ->schema([
-                                Forms\Components\TextInput::make('configuration.flow.orderId')
+
+                                Forms\Components\Select::make('configuration.hailiangip.api_model')
+                                    ->options([
+                                        'flow' => '默认账密模式',
+                                        'dynamic' => '通道模式',
+                                    ])
+                                    ->default('flow')
+                                    ->helperText('选择代理模式'),
+
+                                Forms\Components\TextInput::make('configuration.hailiangip.orderId')
                                     ->required()
                                     ->helperText('代理订单ID'),
-                                Forms\Components\TextInput::make('configuration.flow.pwd')
+                                Forms\Components\TextInput::make('configuration.hailiangip.pwd')
                                     ->required()
                                     ->password()
                                     ->helperText('代理订单密码'),
-                                Forms\Components\Select::make('configuration.flow.mode')
-                                    ->options([
-                                        0 => '默认账密模式',
-                                        1 => '通道模式',
-                                    ])
-                                    ->default(0)
-                                    ->helperText('选择代理模式'),
-                                Forms\Components\TextInput::make('configuration.flow.pid')
-                                    ->default('-1')
-                                    ->helperText('省份ID，-1表示随机'),
-                                Forms\Components\TextInput::make('configuration.flow.cid')
-                                    ->default('-1')
-                                    ->helperText('城市ID，-1表示随机'),
-                                Forms\Components\Toggle::make('configuration.flow.sip')
-                                    ->default(1)
-                                    ->helperText('是否切换IP：关闭表示自动切换，开启表示不能切换'),
-                                Forms\Components\TextInput::make('configuration.flow.uid')
-                                    ->default('')
-                                    ->helperText('自定义UID，相同的UID会尽可能采用相同的IP'),
-                            ]),
-                        Forms\Components\Tabs\Tab::make('Dynamic Proxy')
-                            ->schema([
-                                Forms\Components\TextInput::make('configuration.dynamic.orderId')
-                                    ->required()
-                                    ->helperText('代理订单ID'),
-                                Forms\Components\TextInput::make('configuration.dynamic.secret')
+
+                                Forms\Components\TextInput::make('configuration.hailiangip.secret')
                                     ->required()
                                     ->helperText('代理订单密钥'),
-                                Forms\Components\Select::make('configuration.dynamic.type')
+
+                                Forms\Components\TextInput::make('configuration.hailiangip.pid')
+                                    ->default('-1')
+                                    ->helperText('省份ID，-1表示随机'),
+                                Forms\Components\TextInput::make('configuration.hailiangip.cid')
+                                    ->default('-1')
+                                    ->helperText('城市ID，-1表示随机'),
+                                Forms\Components\Toggle::make('configuration.hailiangip.sip')
+                                    ->default(1)
+                                    ->helperText('是否切换IP：关闭表示自动切换，开启表示不能切换'),
+                                Forms\Components\TextInput::make('configuration.hailiangip.uid')
+                                    ->default('')
+                                    ->helperText('自定义UID，相同的UID会尽可能采用相同的IP'),
+
+                                Forms\Components\Select::make('configuration.hailiangip.type')
                                     ->options([
                                         1 => 'HTTP/HTTPS',
                                     ])
                                     ->default(1)
                                     ->helperText('选择IP协议'),
-                                Forms\Components\TextInput::make('configuration.dynamic.num')
+                                Forms\Components\TextInput::make('configuration.hailiangip.num')
                                     ->numeric()
                                     ->default(1)
                                     ->minLength(1, 200)
                                     ->maxLength(200)
                                     ->helperText('提取数量：1-200之间'),
-                                Forms\Components\TextInput::make('configuration.dynamic.pid')
+                                Forms\Components\TextInput::make('configuration.hailiangip.pid')
                                     ->default(-1)
                                     ->helperText('省份ID：-1表示中国'),
-                                Forms\Components\TextInput::make('configuration.dynamic.unbindTime')
+                                Forms\Components\TextInput::make('configuration.hailiangip.unbindTime')
                                     ->numeric()
                                     ->default(600)
                                     ->minValue(1)
                                     ->helperText('占用时长（单位：秒）'),
-                                Forms\Components\TextInput::make('configuration.dynamic.cid')
+                                Forms\Components\TextInput::make('configuration.hailiangip.cid')
                                     ->default('')
                                     ->helperText('城市ID，留空表示随机'),
-                                Forms\Components\Toggle::make('configuration.dynamic.noDuplicate')
+                                Forms\Components\Toggle::make('configuration.hailiangip.noDuplicate')
                                     ->default(0)
                                     ->helperText('是否去重：关闭表示不去重，开启表示24小时去重'),
-                                Forms\Components\Select::make('configuration.dynamic.dataType')
+                                Forms\Components\Select::make('configuration.hailiangip.dataType')
                                     ->options([
                                         0 => 'JSON',
                                     ])
                                     ->default(0)
                                     ->helperText('选择返回的数据格式'),
-//                                Forms\Components\TextInput::make('configuration.dynamic.lineSeparator')
-//                                    ->numeric()
-//                                    ->default(0)
-//                                    ->helperText('行分隔符'),
-                                Forms\Components\Toggle::make('configuration.dynamic.singleIp')
+                                Forms\Components\Toggle::make('configuration.hailiangip.singleIp')
                                     ->default(0)
                                     ->helperText('异常切换：关闭表示切换，开启表示不切换'),
                             ]),
+
+                        Forms\Components\Tabs\Tab::make('stormproxies')
+                            ->schema([
+
+                                Forms\Components\Select::make('configuration.stormproxies.api_model')
+                                    ->options([
+                                        'flow' => '默认账密模式',
+                                        'dynamic' => '通道模式',
+                                    ])
+                                    ->default('flow')
+                                    ->helperText('选择代理模式'),
+
+                                Forms\Components\TextInput::make('configuration.stormproxies.username')
+                                    ->required()
+                                    ->helperText('用户名'),
+
+                                Forms\Components\TextInput::make('configuration.stormproxies.password')
+                                    ->required()
+                                    ->helperText('密码'),
+
+                                Forms\Components\TextInput::make('configuration.stormproxies.app_key')
+                                    ->required()
+                                    ->helperText('开放的app_key,可以通过用户个人中心获取'),
+
+                                Forms\Components\TextInput::make('configuration.stormproxies.pt')
+                                    ->helperText('套餐id,提取界面选择套餐可指定对应套餐进行提取'),
+                            ]),
                     ]),
+
+
                 Forms\Components\Toggle::make('is_active')
                     ->required()
                     ->default(false)

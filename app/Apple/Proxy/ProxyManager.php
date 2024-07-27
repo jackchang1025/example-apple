@@ -2,27 +2,49 @@
 
 namespace App\Apple\Proxy;
 
+use App\Apple\Proxy\Hailiangip\HailiangipFactory;
+use App\Apple\Proxy\Stormproxies\StormproxiesFactory;
 use App\Models\ProxyConfiguration;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Manager;
 
 class ProxyManager extends Manager
 {
-    public function getDefaultDriver()
+
+    public function __construct(Container $container,protected HailiangipFactory $hailiangipFactory,protected StormproxiesFactory $stormproxiesFactory)
+    {
+        parent::__construct($container);
+    }
+
+    public function getDefaultDriver(): ProxyInterface
     {
         $activeConfig = ProxyConfiguration::where('is_active', true)->first();
-        return $activeConfig ? $activeConfig->configuration['default_driver'] : 'flow';
+
+        $defaultDriver = $activeConfig->configuration['default_driver'] ?? 'hailiangip';
+
+        return $this->hailiangipFactory->get($activeConfig->configuration[$defaultDriver]);
     }
 
-    public function createFlowDriver():ProxyInterface
+    public function createHailiangipDriver():ProxyInterface
     {
-        $config = ProxyConfiguration::where('is_active', true)->first();
-        return new FlowProxy($config ? $config->configuration['flow'] : []);
+        $activeConfig = ProxyConfiguration::where('is_active', true)
+            ->firstOrFail();
+
+        $defaultDriver = $activeConfig->configuration['default_driver'];
+
+        return $this->hailiangipFactory->get($activeConfig->configuration[$defaultDriver]);
     }
 
-    public function createDynamicDriver():ProxyInterface
+    public function createStormproxiesDriver():ProxyInterface
     {
-        $config = ProxyConfiguration::where('is_active', true)->first();
-        return new DynamicProxy($config ? $config->configuration['dynamic'] : []);
+        $activeConfig = ProxyConfiguration::where('is_active', true)
+            ->firstOrFail();
+
+        $defaultDriver = $activeConfig->configuration['default_driver'];
+
+        return $this->stormproxiesFactory->get($activeConfig->configuration[$defaultDriver]);
     }
+
+
 
 }

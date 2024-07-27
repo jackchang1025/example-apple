@@ -1,8 +1,13 @@
 <?php
 
-namespace App\Apple\Proxy;
+namespace App\Apple\Proxy\Hailiangip;
 
 use App\Apple\Proxy\Exception\ProxyException;
+use App\Apple\Proxy\Option;
+use App\Apple\Proxy\Proxy;
+use App\Apple\Proxy\ProxyInterface;
+use App\Apple\Proxy\ProxyResponse;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 
 class DynamicProxy extends Proxy implements ProxyInterface
@@ -37,10 +42,11 @@ class DynamicProxy extends Proxy implements ProxyInterface
 
     /**
      * @param Option $option
-     * @return string
-     * @throws \Illuminate\Http\Client\ConnectionException|ProxyException
+     * @return ProxyResponse
+     * @throws ProxyException
+     * @throws ConnectionException
      */
-    public function getProxy(Option $option): string
+    public function getProxy(Option $option): ProxyResponse
     {
         $config = array_merge($this->defaultConfig, $option->all());
 
@@ -65,6 +71,10 @@ class DynamicProxy extends Proxy implements ProxyInterface
             throw new ProxyException('Failed to get dynamic proxy: ' . ($data['msg'] ?? 'Unknown error'));
         }
 
-        return "http://{$data['data'][0]['ip']}:{$data['data'][0]['port']}";
+        return new ProxyResponse([
+            'host' => $data['data'][0]['ip'],
+            'port' => $data['data'][0]['port'],
+            'url' => "http://{$data['data'][0]['ip']}:{$data['data'][0]['port']}",
+        ]);
     }
 }

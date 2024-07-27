@@ -1,6 +1,11 @@
 <?php
 
-namespace App\Apple\Proxy;
+namespace App\Apple\Proxy\Hailiangip;
+
+use App\Apple\Proxy\Option;
+use App\Apple\Proxy\Proxy;
+use App\Apple\Proxy\ProxyInterface;
+use App\Apple\Proxy\ProxyResponse;
 
 class FlowProxy extends Proxy implements ProxyInterface
 {
@@ -27,13 +32,22 @@ class FlowProxy extends Proxy implements ProxyInterface
         }
     }
 
-    public function getProxy(Option $option): string
+    /**
+     * @param Option $option
+     * @return ProxyResponse
+     */
+    public function getProxy(Option $option): ProxyResponse
     {
         $config = array_merge($this->defaultConfig, $option->all());
         $username = $config['orderId'];
         $password = $this->sign($config);
+        $url ='http://' . $username . ':' . $password . '@' . self::PROXY_HOST . ':' . self::HTTP_PROXY_PORT;
 
-        return 'http://' . $username . ':' . $password . '@' . self::PROXY_HOST . ':' . self::HTTP_PROXY_PORT;
+        return new ProxyResponse([
+            'url' =>$url,
+            'host' => self::PROXY_HOST,
+            'port' => self::HTTP_PROXY_PORT,
+        ]);
     }
 
     protected function sign(array $config): string

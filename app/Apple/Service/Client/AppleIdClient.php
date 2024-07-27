@@ -15,13 +15,14 @@ class AppleIdClient extends BaseClient
     protected function createClient(): Client
     {
        return $this->clientFactory->create(user: $this->user,additionalConfig: [
-            'base_uri'              => self::BASEURL_APPLEID,
-            'timeout'               => 30,
-            'connect_timeout'       => 60,
-            'verify'                => false,
-            'proxy'                 => $this->getProxyUrl(),  // 添加这行
-            RequestOptions::COOKIES => $this->cookieJar,
-            RequestOptions::HEADERS => [
+           'base_uri'              => self::BASEURL_APPLEID,
+           'timeout'               => 30,
+           'connect_timeout'       => 60,
+           'verify'                => false,
+           'proxy'                 => $this->getProxyResponse()->getUrl(),  // 添加这行
+           'auth'                 => $this->getProxyResponse()->getAuth(),  // 添加这行
+           RequestOptions::COOKIES => $this->cookieJar,
+           RequestOptions::HEADERS => [
                 'Connection'                => 'Keep-Alive',
                 'Content-Type'              => 'application/json',
                 'Accept'                    => 'application/json, text/plain, */*',

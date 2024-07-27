@@ -4,7 +4,7 @@ namespace App\Apple\Proxy;
 
 interface ProxyInterface
 {
-    public function getProxy(Option $option): string;
+    public function getProxy(Option $option): ProxyResponse;
 
-    public function getProxyIp(string $proxy):?string;
+    public function getProxyIp(ProxyResponse $proxyResponse):?string;
 }

@@ -11,13 +11,14 @@ abstract class Proxy implements ProxyInterface
      * @return string|null
      * @throws \Illuminate\Http\Client\ConnectionException
      */
-    public function getProxyIp(string $proxy):?string
+    public function getProxyIp(ProxyResponse $proxyResponse):?string
     {
-        $response = Http::withOptions([
-            'proxy' => $proxy,
+        return Http::withOptions([
+            'proxy' => $proxyResponse->getUrl(),
             'verify' => false,
-        ])->retry(5,100)->get(url('/ip'));//http://httpbin.org/ip
-
-        return $response->body();
+        ])
+            ->retry(5,100)
+            ->get(url('/ip'))
+            ->body();
     }
 }
