@@ -27,7 +27,6 @@ class FlowProxy extends Proxy implements ProxyInterface
     {
         $this->defaultConfig = array_merge($this->defaultConfig, $config);
 
-        var_dump($config);
         if (empty($this->defaultConfig['username'])) {
             throw new \InvalidArgumentException("请配置代理用户名");
         }

@@ -82,7 +82,7 @@ stdout_logfile=/var/www/html/storage/logs/horizon.log
 stopwaitsecs=3600
 ```
 
-### 修改文件权限
+
 
 
 ### 启动项目
@@ -98,8 +98,9 @@ php artisan migrate
 #### 创建管理员账号
 php artisan make:filament-user
 
-请替换成你的项目地址
 
+### 修改文件权限
+请替换成你的项目地址
 chown -R www-data:www-data /var/www/html
 chmod -R 755 /var/www/html/storage
 
