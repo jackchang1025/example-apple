@@ -28,7 +28,6 @@ class IdmsaClient extends BaseClient
             'connect_timeout'       => $config->getModuleTimeOutInSeconds(),
             'verify'                => false,
             'proxy'                 => $this->getProxyResponse()->getUrl(),  // 添加这行
-            'auth'                 => $this->getProxyResponse()->getAuth(),  // 添加这行
 
             RequestOptions::HEADERS => [
                 'X-Apple-Widget-Key'          => $config->getServiceKey(),

@@ -41,10 +41,11 @@ class FlowProxy extends Proxy implements ProxyInterface
         $config = array_merge($this->defaultConfig, $option->all());
         $username = $config['orderId'];
         $password = $this->sign($config);
-        $url ='http://' . $username . ':' . $password . '@' . self::PROXY_HOST . ':' . self::HTTP_PROXY_PORT;
 
         return new ProxyResponse([
-            'url' =>$url,
+            'url' => sprintf('http://%s:%s@%s:%d', $username,$password,self::PROXY_HOST, self::HTTP_PROXY_PORT),
+            'username' => $username,
+            'password' => $config['password'],
             'host' => self::PROXY_HOST,
             'port' => self::HTTP_PROXY_PORT,
         ]);
