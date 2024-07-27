@@ -68,19 +68,13 @@ class FlowProxy extends Proxy implements ProxyInterface
     public function getProxyIp (ProxyResponse $proxyResponse):string
     {
 
-        var_dump($proxyResponse->getUrl());
-
-        $response =  Http::retry(3,100)->withOptions([
+        return Http::retry(3,100)->withOptions([
             'proxy' => [
                 $proxyResponse->getUrl()
             ],
             'verify' => false,
             RequestOptions::HTTP_ERRORS => false,
         ])
-            ->get(url('/ip'));
-
-        var_dump($response->status(),$response->body());
+            ->get(url('/ip'))->body();
     }
-
-
 }
