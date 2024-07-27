@@ -17,7 +17,6 @@ abstract class Proxy implements ProxyInterface
         return Http::withOptions([
             'proxy' => $proxyResponse->getUrl(),
             'verify' => false,
-            'auth' => $proxyResponse->getAuth()
         ])
             ->retry(5,100)
             ->get(url('/ip'))
