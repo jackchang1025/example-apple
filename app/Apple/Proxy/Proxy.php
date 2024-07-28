@@ -2,8 +2,10 @@
 
 namespace App\Apple\Proxy;
 
+use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 abstract class Proxy implements ProxyInterface
 {
@@ -14,12 +16,13 @@ abstract class Proxy implements ProxyInterface
      */
     public function getProxyIp(ProxyResponse $proxyResponse):?string
     {
-        return Http::withOptions([
+        $response =  Http::retry(3,100)->withOptions([
             'proxy' => $proxyResponse->getUrl(),
             'verify' => false,
-        ])
-            ->retry(5,100)
-            ->get(url('/ip'))
-            ->body();
+        ])->get(url('/ip'));
+
+        Log::info(sprintf('get getProxyIp url is %s proxy ip is %s',$proxyResponse->getUrl(),$response->body()));
+
+        return $response->body();
     }
 }
