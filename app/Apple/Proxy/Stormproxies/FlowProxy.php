@@ -7,8 +7,6 @@ use App\Apple\Proxy\Proxy;
 use App\Apple\Proxy\ProxyInterface;
 use App\Apple\Proxy\ProxyResponse;
 use GuzzleHttp\RequestOptions;
-use Illuminate\Http\Client\RequestException;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -21,10 +19,11 @@ class FlowProxy extends Proxy implements ProxyInterface
     private array $defaultConfig = [
         'session' => '',
         'life'    => "30",//保持ip使用的时间,单位分钟，最小1,最大24*60
-        'area'    => "HK",// 全球地区code 例如：美国 area-US  点击查看
+        'area'    => "US",// 全球地区code 例如：美国 area-US  点击查看
         'city'    => 0,// 所属城市 例如：纽约 city-newyork  点击查看
         'state'   => "",//州代码  点击查看
         'ip'      => "",//指定数据中心地址
+        'host'      => self::PROXY_HOST,//代理网络
     ];
 
     public function __construct(array $config =  [])
@@ -36,6 +35,10 @@ class FlowProxy extends Proxy implements ProxyInterface
         }
         if (empty($this->defaultConfig['password'])) {
             throw new \InvalidArgumentException("请配置代理密码");
+        }
+
+        if (empty($this->defaultConfig['host'])) {
+            throw new \InvalidArgumentException("请配置代理网络");
         }
     }
 
@@ -60,15 +63,14 @@ class FlowProxy extends Proxy implements ProxyInterface
         return new ProxyResponse([
             'username' => $username,
             'password' => $config['password'],
-            'host'     => self::PROXY_HOST,
+            'host'     => $config['host'],
             'port'     => self::HTTP_PROXY_PORT,
-            'url'      => sprintf('http://%s:%s@%s:%d', $username,$config['password'],self::PROXY_HOST, self::HTTP_PROXY_PORT),
+            'url'      => sprintf('http://%s:%s@%s:%d', $username,$config['password'],$config['host'], self::HTTP_PROXY_PORT),
         ]);
     }
 
     public function getProxyIp (ProxyResponse $proxyResponse):string
     {
-
         $response =  Http::retry(3,100)->withOptions([
             'proxy' => [
                 $proxyResponse->getUrl()

@@ -15,7 +15,8 @@ class DynamicProxy extends Proxy implements ProxyInterface
     const string PROXY_HOST = 'https://api.stormproxies.cn/web_v1/ip/get-ip';
 
     private array $defaultConfig = [
-        'cc'       => '',//(可选): 例如俄罗斯：RU
+        'ep'       => 'hk',//选择代理网络(代理网络是指中转服务器的位置)
+        'cc'       => 'us',//选择节点国家：cn/us/kr
         'num'      => 1,//单次提取IP数量,最大500
         'city'     => '',//例如阿灵顿：Arlington
         'state'    => '',//州代码
@@ -27,6 +28,9 @@ class DynamicProxy extends Proxy implements ProxyInterface
 
     public function __construct(array $config = [])
     {
+        //字段转换
+        $config['ep'] ??= $config['host'];
+        $config['cc'] ??= $config['area'];
         $this->defaultConfig = array_merge($this->defaultConfig, $config);
 
         if (empty($this->defaultConfig['app_key'])) {

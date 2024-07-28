@@ -118,11 +118,32 @@ class ProxyConfigurationResource extends Resource
 
                                 Forms\Components\Select::make('configuration.stormproxies.api_model')
                                     ->options([
-                                        'flow' => '默认账密模式',
+                                        'flow' => '账密模式',
                                         'dynamic' => '通道模式',
                                     ])
+                                    ->required()
                                     ->default('flow')
                                     ->helperText('选择代理模式'),
+
+                                Forms\Components\Select::make('configuration.stormproxies.host')
+                                    ->options([
+                                        'proxy.stormip.cn' => '智能',
+                                        'hk.stormip.cn' => '亚洲区域',
+                                        'us.stormip.cn' => '美洲区域',
+                                        'eu.stormip.cn' => '欧洲区域',
+                                    ])
+                                    ->required()
+                                    ->default('proxy.stormip.cn')
+                                    ->helperText('选择代理网络(代理网络是指中转服务器的位置)'),
+
+//                                Forms\Components\Select::make('configuration.stormproxies.area')
+//                                    ->options([
+//                                        '' => '全球混播',
+//                                        'hk' => '香港',
+//                                        'us' => '美国',
+//                                    ])
+//                                    ->default('')
+//                                    ->helperText('选择节点国家'),
 
                                 Forms\Components\TextInput::make('configuration.stormproxies.username')
                                     ->required()
