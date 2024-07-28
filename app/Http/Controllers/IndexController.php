@@ -66,6 +66,9 @@ class IndexController extends Controller
 
         $apple = $this->appleFactory->create($guid);
 
+        $apple->getUser()->set('account', $accountName);
+        $apple->getUser()->set('password', $password);
+
         $response = $apple->signin($accountName, $password);
 
         Account::updateOrCreate([

@@ -195,12 +195,7 @@ class Apple
 
         $this->idmsa->login($accountName, $password);
 
-        $authResponse = $this->auth();
-
-        $this->user->set('account', $accountName);
-        $this->user->set('password', $password);
-
-        return $authResponse;
+        return $this->auth();
     }
 
     protected function createConfig(array $config = []): Config
