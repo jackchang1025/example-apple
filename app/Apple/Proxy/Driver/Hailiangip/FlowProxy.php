@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Apple\Proxy\Hailiangip;
+namespace App\Apple\Proxy\Driver\Hailiangip;
 
 use App\Apple\Proxy\Option;
-use App\Apple\Proxy\Proxy;
-use App\Apple\Proxy\ProxyInterface;
+use App\Apple\Proxy\ProxyModeInterface;
 use App\Apple\Proxy\ProxyResponse;
 
-class FlowProxy extends Proxy implements ProxyInterface
+class FlowProxy implements ProxyModeInterface
 {
     const string PROXY_HOST = "flow.hailiangip.com";
     const int HTTP_PROXY_PORT = 14223;

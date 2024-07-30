@@ -2,32 +2,23 @@
 
 namespace App\Apple\Proxy;
 
+use App\Apple\Proxy\Exception\ProxyConfigurationNotFoundException;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Container\Container;
 
-abstract class ProxyFactory
+class ProxyFactory
 {
-
-    public function __construct(protected Container $container)
+    public function __construct(protected Container $container,protected ProxyConfiguration $config)
     {
     }
 
-    protected abstract function getConfig():array;
-
-    public function get(array $config =  []): ProxyInterface
+    /**
+     * @throws BindingResolutionException
+     */
+    public function create(?ProxyConfiguration $config = null): ProxyInterface
     {
-        if (empty($config['api_model'])) {
-            $config['api_model'] = 'flow';
-        }
+        $config = $config ?? $this->config;
 
-        return $this->container->make($this->getClass($config['api_model']), ['config' => $config]);
-    }
-
-    protected function getClass(string $apiModel = 'flow'):string
-    {
-        if (!in_array($apiModel, array_keys($this->getConfig()))){
-            throw new \InvalidArgumentException("api_model must be flow or dynamic");
-        }
-
-        return $this->getConfig()[$apiModel];
+        return $this->container->make($config->getDefaultDriverClass(), ['config' => $config]);
     }
 }

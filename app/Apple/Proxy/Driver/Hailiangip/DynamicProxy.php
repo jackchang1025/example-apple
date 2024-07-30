@@ -1,16 +1,15 @@
 <?php
 
-namespace App\Apple\Proxy\Hailiangip;
+namespace App\Apple\Proxy\Driver\Hailiangip;
 
 use App\Apple\Proxy\Exception\ProxyException;
 use App\Apple\Proxy\Option;
-use App\Apple\Proxy\Proxy;
-use App\Apple\Proxy\ProxyInterface;
+use App\Apple\Proxy\ProxyModeInterface;
 use App\Apple\Proxy\ProxyResponse;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 
-class DynamicProxy extends Proxy implements ProxyInterface
+class DynamicProxy implements ProxyModeInterface
 {
     const string GET_IP_HOST = 'http://api.hailiangip.com:8422';
 

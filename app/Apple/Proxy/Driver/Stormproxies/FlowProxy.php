@@ -1,16 +1,12 @@
 <?php
 
-namespace App\Apple\Proxy\Stormproxies;
+namespace App\Apple\Proxy\Driver\Stormproxies;
 
 use App\Apple\Proxy\Option;
-use App\Apple\Proxy\Proxy;
-use App\Apple\Proxy\ProxyInterface;
+use App\Apple\Proxy\ProxyModeInterface;
 use App\Apple\Proxy\ProxyResponse;
-use GuzzleHttp\RequestOptions;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
-class FlowProxy extends Proxy implements ProxyInterface
+class FlowProxy  implements ProxyModeInterface
 {
     const string PROXY_HOST = 'proxy.stormip.cn';
 

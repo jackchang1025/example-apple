@@ -1,16 +1,15 @@
 <?php
 
-namespace App\Apple\Proxy\Stormproxies;
+namespace App\Apple\Proxy\Driver\Stormproxies;
 
 use App\Apple\Proxy\Exception\ProxyException;
 use App\Apple\Proxy\Option;
-use App\Apple\Proxy\Proxy;
-use App\Apple\Proxy\ProxyInterface;
+use App\Apple\Proxy\ProxyModeInterface;
 use App\Apple\Proxy\ProxyResponse;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 
-class DynamicProxy extends Proxy implements ProxyInterface
+class DynamicProxy implements ProxyModeInterface
 {
     const string PROXY_HOST = 'https://api.stormproxies.cn/web_v1/ip/get-ip';
 
@@ -36,10 +35,6 @@ class DynamicProxy extends Proxy implements ProxyInterface
         if (empty($this->defaultConfig['app_key'])) {
             throw new \InvalidArgumentException("app_key is required for dynamic proxy");
         }
-
-//        if (empty($this->defaultConfig['pt'])) {
-//            throw new \InvalidArgumentException("pt is required for dynamic proxy");
-//        }
     }
 
 

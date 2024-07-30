@@ -2,7 +2,6 @@
 
 namespace App\Apple\Proxy;
 
-use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
