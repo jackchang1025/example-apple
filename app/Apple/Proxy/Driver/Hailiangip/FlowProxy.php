@@ -44,7 +44,7 @@ class FlowProxy implements ProxyModeInterface
         return new ProxyResponse([
             'url' => sprintf('http://%s:%s@%s:%d', $username,$password,self::PROXY_HOST, self::HTTP_PROXY_PORT),
             'username' => $username,
-            'password' => $config['password'],
+            'password' => $config['pwd'],
             'host' => self::PROXY_HOST,
             'port' => self::HTTP_PROXY_PORT,
         ]);
