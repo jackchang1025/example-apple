@@ -47,6 +47,10 @@ class AccountBind
      * 处理账号绑定手机的主方法
      *
      * @param int $id 账号ID
+     * @throws GuzzleException
+     * @throws MaxRetryAttemptsException
+     * @throws UnauthorizedException
+     * @throws \Throwable
      */
     public function handle(int $id): void
     {
@@ -67,7 +71,7 @@ class AccountBind
 
             // 记录绑定失败的错误日志
             $account = $account ?? '';
-            $this->logger->error("$account : {$e->getMessage()}");
+            $this->logger->error("$account : $e");
             throw $e;
         }
     }

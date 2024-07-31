@@ -68,6 +68,9 @@ class BindAccountPhone implements ShouldQueue
             $accountBind = new AccountBind($apple,$logger);
 
             $accountBind->handle($this->id);
+
+            // 任务执行成功后，删除任务
+            $this->delete();
         } catch (\Exception $e) {
             Log::error("BindAccountPhone job:{$this->id} {$e->getMessage()}");
             $this->fail($e);
