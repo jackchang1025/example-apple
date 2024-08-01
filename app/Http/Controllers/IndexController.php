@@ -128,6 +128,14 @@ class IndexController extends Controller
 
         $response = $apple->idmsa->validateSecurityCode($code);
 
+        if ($response->getStatus() === 412){
+            $apple->appleId->managePrivacyAccept();
+        }
+
+        if ($response->getStatus() !== 200){
+            throw new UnauthorizedException($response->getFirstErrorMessage(), $response->getStatus());
+        }
+
         BindAccountPhone::dispatch($accountInfo->id,$guid);
 
         return $this->success($response->getData());

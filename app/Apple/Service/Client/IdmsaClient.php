@@ -195,7 +195,7 @@ class IdmsaClient extends BaseClient
     /**
      * 重新发送验证码（邮箱验证码）
      * @return Response
-     * @throws UnauthorizedException
+     * @throws UnauthorizedException|GuzzleException
      */
     public function sendSecurityCode(): Response
     {
@@ -215,9 +215,10 @@ class IdmsaClient extends BaseClient
     }
 
     /**
-     * 验证安全代码(邮箱验证码)
+     * 验证安全代码
      * @param string $code
      * @return Response
+     * @throws GuzzleException
      */
     public function validateSecurityCode(string $code): Response
     {
@@ -231,6 +232,7 @@ class IdmsaClient extends BaseClient
                 'X-Apple-ID-Session-Id'   => $this->user->getHeader('X-Apple-ID-Session-Id') ?? '',
                 'X-Apple-Auth-Attributes' => $this->user->getHeader('X-Apple-Auth-Attributes') ?? '',
             ],
+            RequestOptions::HTTP_ERRORS => false,
         ]);
     }
 

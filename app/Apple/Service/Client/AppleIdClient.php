@@ -141,9 +141,18 @@ class AppleIdClient extends BaseClient
                         'code' => $code,
                     ],
                     'mode' => 'sms',
-                ]
-            ]
+                ],
+            ],
         ]);
+    }
+
+    /**
+     * @return Response
+     * @throws GuzzleException
+     */
+    public function managePrivacyAccept(): Response
+    {
+        return $this->request('PUT', '/account/manage/privacy/accept');
     }
     // Other AppleID specific methods...
 
