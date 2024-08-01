@@ -12,12 +12,14 @@
         "eightynine/filament-excel-import": "^3.0",
         "filament/filament": "^3.2",
         "filament/notifications": "^3.2",
+        "filipfonal/filament-log-manager": "^2.0",
         "giggsey/libphonenumber-for-php": "^8.13",
         "laravel/framework": "^11.9",
         "laravel/horizon": "^5.25",
         "laravel/tinker": "^2.9",
         "nyholm/psr7": "^1.8",
         "pxlrbt/filament-excel": "^2.3",
+        "saade/filament-laravel-log": "^3.0",
         "ysfkaya/filament-phone-input": "^2.3"
     },
     "require-dev": {

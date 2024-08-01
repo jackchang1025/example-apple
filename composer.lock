@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0030c49304abfcdbb5229de7307ea78a",
+    "content-hash": "e0bf6bab184b68203db124c7dc2f9cbd",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -1818,6 +1818,75 @@
                 "source": "https://github.com/filamentphp/filament"
             },
             "time": "2024-07-10T17:11:13+00:00"
+        },
+        {
+            "name": "filipfonal/filament-log-manager",
+            "version": "2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/filipfonal/filament-log-manager.git",
+                "reference": "91e1d57c3e099b679ac8d2930b196a88d63e213b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/filipfonal/filament-log-manager/zipball/91e1d57c3e099b679ac8d2930b196a88d63e213b",
+                "reference": "91e1d57c3e099b679ac8d2930b196a88d63e213b",
+                "shasum": ""
+            },
+            "require": {
+                "filament/filament": "^3.0",
+                "php": "^8.1",
+                "spatie/laravel-package-tools": "^1.9.2"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.2",
+                "nunomaduro/collision": "^7.0",
+                "nunomaduro/larastan": "^2.0.1",
+                "orchestra/testbench": "^8.0",
+                "phpstan/extension-installer": "^1.1",
+                "phpstan/phpstan-deprecation-rules": "^1.0",
+                "phpstan/phpstan-phpunit": "^1.0",
+                "phpunit/phpunit": "^9.5"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "FilipFonal\\FilamentLogManager\\FilamentLogManagerServiceProvider"
+                    ],
+                    "aliases": {
+                        "FilamentLogManager": "FilipFonal\\FilamentLogManager\\Facades\\FilamentLogManager"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "FilipFonal\\FilamentLogManager\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Filip Fonal",
+                    "email": "filipfonal@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Filament Log Manager",
+            "homepage": "https://github.com/filipfonal/filament-log-manager",
+            "keywords": [
+                "filament-log-manager",
+                "filipfonal",
+                "laravel"
+            ],
+            "support": {
+                "issues": "https://github.com/filipfonal/filament-log-manager/issues",
+                "source": "https://github.com/filipfonal/filament-log-manager/tree/2.0.0"
+            },
+            "time": "2023-09-12T22:13:43+00:00"
         },
         {
             "name": "fruitcake/php-cors",
@@ -5906,6 +5975,82 @@
                 }
             ],
             "time": "2024-02-26T18:08:49+00:00"
+        },
+        {
+            "name": "saade/filament-laravel-log",
+            "version": "v3.2.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/saade/filament-laravel-log.git",
+                "reference": "c223f42f66182494fe53bc73550797c179b3ac29"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/saade/filament-laravel-log/zipball/c223f42f66182494fe53bc73550797c179b3ac29",
+                "reference": "c223f42f66182494fe53bc73550797c179b3ac29",
+                "shasum": ""
+            },
+            "require": {
+                "filament/filament": "^3.0",
+                "illuminate/contracts": "^10.0|^11.0",
+                "php": "^8.1",
+                "spatie/laravel-package-tools": "^1.15.0"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.0",
+                "nunomaduro/collision": "^7.0|^8.0",
+                "nunomaduro/larastan": "^2.0.1",
+                "orchestra/testbench": "^8.0|^9.0",
+                "pestphp/pest": "^2.0",
+                "pestphp/pest-plugin-arch": "^2.0",
+                "pestphp/pest-plugin-laravel": "^2.0",
+                "phpstan/extension-installer": "^1.1",
+                "phpstan/phpstan-deprecation-rules": "^1.0",
+                "phpstan/phpstan-phpunit": "^1.0",
+                "spatie/laravel-ray": "^1.26"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Saade\\FilamentLaravelLog\\FilamentLaravelLogServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Saade\\FilamentLaravelLog\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Saade",
+                    "email": "saade@outlook.com.br",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Access laravel.log file through Filament admin panel",
+            "homepage": "https://github.com/saade/filament-laravel-log",
+            "keywords": [
+                "filament-laravel-log",
+                "laravel",
+                "saade"
+            ],
+            "support": {
+                "issues": "https://github.com/saade/filament-laravel-log/issues",
+                "source": "https://github.com/saade/filament-laravel-log"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/saade",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-05-17T00:04:27+00:00"
         },
         {
             "name": "spatie/color",

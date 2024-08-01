@@ -19,6 +19,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Saade\FilamentLaravelLog\FilamentLaravelLogPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -29,6 +30,10 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path($this->getAdminPath())
             ->login()
+            ->plugins([
+//                \FilipFonal\FilamentLogManager\FilamentLogManager::make(),
+                FilamentLaravelLogPlugin::make()
+            ])
             ->colors([
                 'primary' => Color::Amber,
             ])
