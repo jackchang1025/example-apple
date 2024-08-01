@@ -156,11 +156,6 @@ class AccountBind
                 'phone_id' => $phone->id,
             ]);
         }
-
-        $this->logger->error("绑定手机号码 {$phone->phone} 失败: {$errorMessage}", [
-            'phone'    => $phone->phone,
-            'phone_id' => $phone->id,
-        ]);
     }
 
     /**
@@ -195,8 +190,10 @@ class AccountBind
      *
      * @param Account $account 账号对象
      * @param Phone $phone 手机对象
+     * @throws AttemptBindPhoneCodeException
      * @throws BindPhoneCodeException 当获取或验证手机验证码失败时抛出
-     * @throws Exception\AttemptBindPhoneCodeException
+     * @throws GuzzleException
+     * @throws \Throwable
      */
     private function bindPhoneToAccount(Account $account, Phone $phone): void
     {
@@ -233,13 +230,11 @@ class AccountBind
                 ['account' => $account->account, 'phone' => $phone->phone]
             );
 
-        } catch (BindPhoneCodeException $e) {
+        } catch (BindPhoneCodeException |\Exception|\Throwable$e) {
 
             $this->handleBindFailure($phone, $e->getMessage());
             throw $e;
-        } catch (\Exception|\Throwable $e) {
-            $this->handleBindFailure($phone, $e->getMessage());
-            throw new BindPhoneCodeException("绑定手机号码 {$phone->phone} 时发生未知错误: ".$e->getMessage(), 0, $e);
+
         }
     }
 
