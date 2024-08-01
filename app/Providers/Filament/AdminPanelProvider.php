@@ -2,6 +2,8 @@
 
 namespace App\Providers\Filament;
 
+use App\Http\Middleware\EnforceSecuritySettingsMiddleware;
+use App\Models\SecuritySetting;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -22,10 +24,14 @@ class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
+        $securitySettings = SecuritySetting::first();
+
+        $path = $securitySettings->safe_entrance ? trim($securitySettings->safe_entrance, '/') : 'admin';
+
         return $panel
             ->default()
             ->id('admin')
-            ->path('admin')
+            ->path($path)
             ->login()
             ->colors([
                 'primary' => Color::Amber,
@@ -50,6 +56,7 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+                EnforceSecuritySettingsMiddleware::class,
             ])
             ->authMiddleware([
                 Authenticate::class,
