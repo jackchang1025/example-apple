@@ -115,7 +115,7 @@ class Apple
      * @param PhoneCodeParserInterface $phoneCodeParser
      * @return array 包含验证结果的关联数组
      * @throws UnauthorizedException
-     * @throws GuzzleException
+     * @throws GuzzleException|Exception\AccountLockoutException
      */
     public function completeAuthentication(
         string $username,
@@ -185,7 +185,7 @@ class Apple
      * @param string $password
      * @return Response
      * @throws GuzzleException
-     * @throws UnauthorizedException
+     * @throws UnauthorizedException|Exception\AccountLockoutException
      */
     public function signin(string $accountName, string $password): Response
     {
@@ -196,6 +196,27 @@ class Apple
         $this->idmsa->login($accountName, $password);
 
         return $this->auth();
+    }
+
+    /**
+     * @param string $code
+     * @return Response
+     * @throws GuzzleException
+     * @throws UnauthorizedException
+     */
+    public function validateSecurityCode(string $code): Response
+    {
+        $response = $this->idmsa->validateSecurityCode($code);
+
+        if ($response->getStatus() === 412){
+            $this->appleId->managePrivacyAccept();
+        }
+
+        if (!in_array($response->getStatus(), [202, 412])) {
+            throw new UnauthorizedException($response->getFirstErrorMessage(), $response->getStatus());
+        }
+
+        return $response;
     }
 
     protected function createConfig(array $config = []): Config

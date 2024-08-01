@@ -2,6 +2,7 @@
 
 namespace App\Apple\Service\Client;
 
+use App\Apple\Service\Exception\AccountLockoutException;
 use App\Apple\Service\Exception\UnauthorizedException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
@@ -128,7 +129,7 @@ class IdmsaClient extends BaseClient
      * @param bool $rememberMe
      * @return Response
      * @throws UnauthorizedException
-     * @throws GuzzleException
+     * @throws GuzzleException|AccountLockoutException
      */
     public function login(string $accountName, string $password, bool $rememberMe = true): Response
     {
@@ -152,6 +153,9 @@ class IdmsaClient extends BaseClient
             RequestOptions::HTTP_ERRORS => false,
         ]);
 
+        if (403 === $response->getStatus()){
+            throw new AccountLockoutException($response->getFirstErrorMessage(), $response->getStatus());
+        }
 
         if (409 !== $response->getStatus()) {
             throw new UnauthorizedException($response->getFirstErrorMessage(), $response->getStatus());
