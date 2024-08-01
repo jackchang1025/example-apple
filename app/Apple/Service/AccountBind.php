@@ -72,6 +72,7 @@ class AccountBind
             // 记录绑定失败的错误日志
             $account = $account ?? '';
             $this->logger->error("$account : $e");
+
             throw $e;
         }
     }
@@ -113,6 +114,8 @@ class AccountBind
     private function attemptBind(Account $account): void
     {
         for ($attempt = 1; $attempt <= $this->maxRetryAttempts; $attempt++) {
+
+            $phone = null;
             try {
 
                 $phone = $this->getAvailablePhone();
@@ -126,8 +129,9 @@ class AccountBind
                     'message' => $e->getMessage(),
                 ]);
 
-                if (isset($phone)) {
+                if ($phone) {
                     $this->usedPhoneIds[] = $phone->id;
+                    $this->handleBindFailure($phone);
                 }
 
                 if ($attempt === $this->maxRetryAttempts) {
@@ -143,9 +147,8 @@ class AccountBind
      * 处理绑定失败的情况
      *
      * @param Phone $phone
-     * @param string $errorMessage
      */
-    private function handleBindFailure(Phone $phone, string $errorMessage): void
+    private function handleBindFailure(Phone $phone): void
     {
         try {
             $phone->update(['status' => Phone::STATUS_NORMAL]);
@@ -197,45 +200,36 @@ class AccountBind
      */
     private function bindPhoneToAccount(Account $account, Phone $phone): void
     {
-        try {
+        // 验证手机验证码
+        $response = $this->apple->appleId->bindPhoneSecurityVerify(
+            $phone->national_number,
+            $phone->country_code,
+            $phone->country_dial_code
+        );
 
-            // 验证手机验证码
-            $response = $this->apple->appleId->bindPhoneSecurityVerify(
-                $phone->national_number,
-                $phone->country_code,
-                $phone->country_dial_code
-            );
-
-            $id = $response->phoneNumberVerification()['phoneNumber']['id'] ?? '';
-            if (empty($id)) {
-                throw new BindPhoneCodeException("获取绑定手机号码 {$phone->phone} id 为空");
-            }
-
-            //从接码平台获取验证码
-            $code = $this->getPhoneCode($phone);
-
-            $this->apple->appleId->manageVerifyPhoneSecurityCode(
-                id: $id,
-                phoneNumber: $phone->national_number,
-                countryCode: $phone->country_code,
-                countryDialCode: $phone->country_dial_code,
-                code: $code
-            );
-
-            // 更新账号和手机信息
-            $this->updateAccountAndPhone($account, $phone);
-
-            $this->logger->info(
-                '账号 {account} 绑定 {phone} 手机号码成功',
-                ['account' => $account->account, 'phone' => $phone->phone]
-            );
-
-        } catch (BindPhoneCodeException |\Exception|\Throwable$e) {
-
-            $this->handleBindFailure($phone, $e->getMessage());
-            throw $e;
-
+        $id = $response->phoneNumberVerification()['phoneNumber']['id'] ?? '';
+        if (empty($id)) {
+            throw new BindPhoneCodeException("获取绑定手机号码 {$phone->phone} id 为空");
         }
+
+        //从接码平台获取验证码
+        $code = $this->getPhoneCode($phone);
+
+        $this->apple->appleId->manageVerifyPhoneSecurityCode(
+            id: $id,
+            phoneNumber: $phone->national_number,
+            countryCode: $phone->country_code,
+            countryDialCode: $phone->country_dial_code,
+            code: $code
+        );
+
+        // 更新账号和手机信息
+        $this->updateAccountAndPhone($account, $phone);
+
+        $this->logger->info(
+            '账号 {account} 绑定 {phone} 手机号码成功',
+            ['account' => $account->account, 'phone' => $phone->phone]
+        );
     }
 
     /**
