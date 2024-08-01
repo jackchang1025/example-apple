@@ -212,7 +212,7 @@ class Apple
             $this->appleId->managePrivacyAccept();
         }
 
-        if (!in_array($response->getStatus(), [202, 412])) {
+        if (!in_array($response->getStatus(), [204, 200])) {
             throw new UnauthorizedException($response->getFirstErrorMessage(), $response->getStatus());
         }
 
