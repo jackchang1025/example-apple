@@ -24,14 +24,10 @@ class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
-        $securitySettings = SecuritySetting::first();
-
-        $path = $securitySettings->safe_entrance ? trim($securitySettings->safe_entrance, '/') : 'admin';
-
         return $panel
             ->default()
             ->id('admin')
-            ->path($path)
+            ->path($this->getAdminPath())
             ->login()
             ->colors([
                 'primary' => Color::Amber,
@@ -61,5 +57,19 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])->databaseNotifications();
+    }
+
+    public function getAdminPath(): string
+    {
+        try {
+            $securitySettings = SecuritySetting::first();
+            return $securitySettings->safe_entrance ? trim(
+                $securitySettings->safe_entrance,
+                '/'
+            ) : 'admin';
+        } catch (\Exception $e) {
+
+            return 'admin';
+        }
     }
 }
