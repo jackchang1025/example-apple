@@ -150,7 +150,7 @@ class AppleIdClient extends BaseClient
      */
     public function managePrivacyAccept(): Response
     {
-        return $this->request('PUT', '/account/manage/privacy/accept');
+        return $this->request('OPTIONS', '/account/manage/privacy/accept');
     }
     // Other AppleID specific methods...
 

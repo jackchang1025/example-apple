@@ -6,11 +6,14 @@ use App\Apple\Proxy\Exception\ProxyException;
 use App\Apple\Proxy\Option;
 use App\Apple\Proxy\ProxyModeInterface;
 use App\Apple\Proxy\ProxyResponse;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Psr\Http\Message\RequestInterface;
 
 /**
  * API代理类
@@ -96,11 +99,25 @@ class ApiProxy implements ProxyModeInterface
      * @param Option $option 选项
      * @return ProxyResponse
      * @throws ProxyException
-     * @throws \Illuminate\Http\Client\RequestException
+     * @throws RequestException
+     * @throws ConnectionException
      */
     protected function attemptGetProxy(Option $option): ProxyResponse
     {
-        $proxyResponse = Http::get(self::API_URL, $this->buildQueryParams())
+        $proxyResponse = Http::globalRequestMiddleware(
+            function (RequestInterface $request){
+
+            Log::info('Request', [
+                'method'  => $request->getMethod(),
+                'uri'     => (string)$request->getUri(),
+                'headers' => $request->getHeaders(),
+                'body'    => (string) $request->getBody(),
+            ]);
+
+            return $request;
+
+        })
+            ->get(self::API_URL, $this->buildQueryParams())
             ->throw(fn(Response $response) => throw new ProxyException('Failed to get proxy from Huashengdaili: ' . $response->body()))
             ->collect()
             ->tap(function (Collection $response) {
