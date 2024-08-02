@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->json('authorized_ips')->nullable();
             $table->string('safe_entrance')->nullable();
+            $table->json('configuration')->nullable();
             $table->timestamps();
         });
     }

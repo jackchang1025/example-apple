@@ -3,6 +3,7 @@
 namespace App\Apple\Proxy;
 
 use Illuminate\Config\Repository;
+use Illuminate\Support\Carbon;
 
 class ProxyResponse extends Repository
 {
@@ -34,5 +35,15 @@ class ProxyResponse extends Repository
     public function getAuth()
     {
         return $this->get('auth');
+    }
+
+    public function getExpire():?Carbon
+    {
+        return Carbon::parse($this->get('expire_time'));
+    }
+
+    public function getTimeToExpire(): int
+    {
+        return max(0, $this->getExpire()->getTimestamp() - Carbon::now()->getTimestamp());
     }
 }

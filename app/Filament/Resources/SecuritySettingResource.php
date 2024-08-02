@@ -36,6 +36,11 @@ class SecuritySettingResource extends Resource
                     ->helperText('管理入口，设置后只能通过指定安全入口登录,如: /admin')
                     ->alphaDash()
                     ->maxLength(255),
+
+                Forms\Components\TextInput::make('configuration.country_code')
+                    ->placeholder('')
+                    ->helperText('国家区号，如: CN')
+                    ->maxLength(255),
             ]);
     }
 

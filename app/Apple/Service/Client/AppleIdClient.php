@@ -4,10 +4,8 @@ namespace App\Apple\Service\Client;
 
 use App\Apple\Service\Exception\UnauthorizedException;
 use GuzzleHttp\Client;
-use GuzzleHttp\Cookie\CookieJarInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
-use Psr\Log\LoggerInterface;
 
 class AppleIdClient extends BaseClient
 {

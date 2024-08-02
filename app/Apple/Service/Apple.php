@@ -7,8 +7,8 @@ use App\Apple\Service\Client\BaseClient;
 use App\Apple\Service\Client\IdmsaClient;
 use App\Apple\Service\Client\PhoneCodeClient;
 use App\Apple\Service\Client\Response;
-use App\Apple\Service\Exception\LockedException;
 use App\Apple\Service\Exception\UnauthorizedException;
+use App\Apple\Service\Exception\VerificationCodeIncorrect;
 use App\Apple\Service\PhoneCodeParser\PhoneCodeParserInterface;
 use App\Apple\Service\User\Config;
 use App\Apple\Service\User\User;
@@ -202,7 +202,7 @@ class Apple
      * @param string $code
      * @return Response
      * @throws GuzzleException
-     * @throws UnauthorizedException
+     * @throws UnauthorizedException|VerificationCodeIncorrect
      */
     public function validateSecurityCode(string $code): Response
     {
@@ -210,6 +210,10 @@ class Apple
 
         if ($response->getStatus() === 412){
             $this->appleId->managePrivacyAccept();
+        }
+        //验证码不正确
+        if ($response->getStatus() === 400){
+            throw new VerificationCodeIncorrect($response->getFirstErrorMessage(), $response->getStatus());
         }
 
         if (!in_array($response->getStatus(), [204, 200])) {

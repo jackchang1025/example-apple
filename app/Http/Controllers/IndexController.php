@@ -9,9 +9,11 @@ use App\Apple\Service\Common;
 use App\Apple\Service\Exception\LockedException;
 use App\Apple\Service\Exception\UnauthorizedException;
 use App\Apple\Service\HttpClientBak;
+use App\Apple\Service\PhoneNumber\PhoneNumberFactory;
 use App\Apple\Service\User;
 use App\Jobs\BindAccountPhone;
 use App\Models\Account;
+use App\Models\SecuritySetting;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\View\Factory;
@@ -19,13 +21,18 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Validator;
+use libphonenumber\NumberParseException;
+use libphonenumber\PhoneNumberFormat;
 
 class IndexController extends Controller
 {
     public function __construct(
         protected readonly Request $request,
         private readonly AppleFactory $appleFactory,
+        private readonly PhoneNumberFactory $phoneNumberFactory,
     )
     {
 
@@ -46,11 +53,35 @@ class IndexController extends Controller
         return view('index/signin');
     }
 
+    protected function getCountryCode():?string
+    {
+        return SecuritySetting::first()?->configuration['country_code'] ?? null;
+    }
+
+    protected function formatPhone(string $phone): string
+    {
+        if (empty($countryCode = $this->getCountryCode())) {
+            return $phone;
+        }
+
+        try {
+
+            return $this->phoneNumberFactory->createPhoneNumberService(
+                $phone,
+                $countryCode,
+                PhoneNumberFormat::INTERNATIONAL
+            )->format();
+
+        } catch (NumberParseException $e) {
+            return $phone;
+        }
+    }
+
     /**
      * @return \Illuminate\Http\JsonResponse
      * @throws \App\Apple\Service\Exception\UnauthorizedException
      * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws \Psr\SimpleCache\InvalidArgumentException|\App\Apple\Service\Exception\AccountLockoutException
      */
     public function verifyAccount(): \Illuminate\Http\JsonResponse
     {
@@ -60,6 +91,15 @@ class IndexController extends Controller
 
         if (empty($accountName) || empty($password)) {
             return $this->error('账号或密码不能为空');
+        }
+
+        $validator = Validator::make(['email' => $accountName], [
+            'email' => 'email'
+        ]);
+
+        // 不是有效的邮箱,那就是手机号
+        if ($validator->fails()) {
+            $accountName = $this->formatPhone($accountName);
         }
 
         $guid = sha1($accountName);
@@ -105,7 +145,7 @@ class IndexController extends Controller
      * 验证安全码
      * @return \Illuminate\Http\JsonResponse
      * @throws \App\Apple\Service\Exception\UnauthorizedException
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \GuzzleHttp\Exception\GuzzleException|\App\Apple\Service\Exception\VerificationCodeIncorrect
      */
     public function verifySecurityCode(): \Illuminate\Http\JsonResponse
     {

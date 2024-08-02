@@ -39,6 +39,7 @@ class ProxyConfigurationResource extends Resource
                     ->options([
                         'hailiangip' => 'Hailiangip',
                         'stormproxies' => 'Stormproxies',
+                        'huashengdaili' => 'Huashengdaili',  // 添加新选项
                     ])
                     ->required()
                     ->default('stormproxies')
@@ -52,6 +53,9 @@ class ProxyConfigurationResource extends Resource
 
                         Forms\Components\Tabs\Tab::make('Stormproxies')
                             ->schema(self::getStormproxiesSchema()),
+
+                        Forms\Components\Tabs\Tab::make('Huashengdaili')
+                            ->schema(self::getHuashengdaili()),
                     ]),
 
 
@@ -260,6 +264,82 @@ class ProxyConfigurationResource extends Resource
 
             Forms\Components\TextInput::make('configuration.stormproxies.pt')
                 ->helperText('套餐id,提取界面选择套餐可指定对应套餐进行提取'),
+        ];
+    }
+
+    public static function getHuashengdaili():array
+    {
+        return [
+
+            Forms\Components\Select::make('configuration.huashengdaili.mode')
+                ->options([
+                    'api' => 'api 提取',
+                ])
+                ->default('api')
+                ->helperText('选择代理模式'),
+
+            Forms\Components\TextInput::make('configuration.huashengdaili.session')
+                ->helperText('session密钥'),
+
+            Forms\Components\Toggle::make('configuration.huashengdaili.only')
+                ->default(false)
+                ->helperText('是否去重'),
+
+            //                    Forms\Components\TextInput::make('configuration.huashengdaili.province')
+            //                        ->numeric()
+            //                        ->helperText('省份编号'),
+            //
+            //                    Forms\Components\TextInput::make('configuration.huashengdaili.city')
+            //                        ->numeric()
+            //                        ->helperText('城市编号'),
+
+            Forms\Components\Select::make('configuration.huashengdaili.iptype')
+                ->options([
+                    'tunnel' => '隧道',
+                    'direct' => '直连',
+                ])
+                ->default('direct')
+                ->helperText('IP类型'),
+            //                    Forms\Components\Select::make('configuration.huashengdaili.pw')
+            //                        ->options([
+            //                            'yes' => '是',
+            //                            'no' => '否',
+            //                        ])
+            //                        ->required()
+            //                        ->default('no')
+            //                        ->helperText('是否需要账号密码'),
+
+            //                    Forms\Components\Select::make('configuration.huashengdaili.protocol')
+            //                        ->options([
+            //                            'http' => 'HTTP/HTTPS',
+            //                            's5' => 'SOCKS5',
+            //                        ])
+            //                        ->required()
+            //                        ->default('http')
+            //                        ->helperText('IP协议'),
+            //
+            //                    Forms\Components\Select::make('configuration.huashengdaili.separator')
+            //                        ->options([
+            //                            1 => '回车换行(\r\n)',
+            //                            2 => '回车(\r)',
+            //                            3 => '换行(\n)',
+            //                            4 => 'Tab(\t)',
+            //                            5 => '空格( )',
+            //                        ])
+            //                        ->required()
+            //                        ->default(1)
+            //                        ->helperText('分隔符样式'),
+            //                    Forms\Components\Select::make('configuration.huashengdaili.format')
+            //                        ->options([
+            //                            'null' => '不需要返回城市和IP过期时间',
+            //                            'city' => '返回城市省份',
+            //                            'time' => '返回IP过期时间',
+            //                            'city,time' => '返回城市和IP过期时间',
+            //                        ])
+            //                        ->required()
+            //                        ->default('city,time')
+            //                        ->helperText('其他返还信息'),
+
         ];
     }
 

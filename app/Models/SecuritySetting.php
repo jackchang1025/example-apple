@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property array|null $authorized_ips
  * @property string|null $safe_entrance
+ * @property array $configuration
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static \Illuminate\Database\Eloquent\Builder|SecuritySetting newModelQuery()
@@ -28,9 +29,10 @@ class SecuritySetting extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['authorized_ips', 'safe_entrance'];
+    protected $fillable = ['authorized_ips', 'safe_entrance','configuration'];
 
     protected $casts = [
         'authorized_ips' => 'array',
+        'configuration' => 'array',
     ];
 }

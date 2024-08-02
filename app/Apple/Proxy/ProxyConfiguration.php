@@ -15,6 +15,7 @@ class ProxyConfiguration
     protected array $driverMap = [
         'hailiangip' => 'App\Apple\Proxy\Driver\Hailiangip\HailiangipProxy',
         'stormproxies' => 'App\Apple\Proxy\Driver\Stormproxies\StormproxiesProxy',
+        'huashengdaili' => 'App\Apple\Proxy\Driver\Huashengdaili\HuashengdailiProxy',
     ];
 
     // 模式映射
@@ -26,6 +27,9 @@ class ProxyConfiguration
         'stormproxies' => [
             'flow' => 'App\Apple\Proxy\Driver\Stormproxies\FlowProxy',
             'dynamic' => 'App\Apple\Proxy\Driver\Stormproxies\DynamicProxy',
+        ],
+        'huashengdaili' => [
+            'api' => 'App\Apple\Proxy\Driver\Huashengdaili\ApiProxy',
         ],
     ];
 
