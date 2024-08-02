@@ -11,11 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('security_settings', function (Blueprint $table) {
-            $table->id();
-            $table->json('authorized_ips')->nullable();
-            $table->string('safe_entrance')->nullable();
-            $table->timestamps();
+        Schema::table('security_settings', function (Blueprint $table) {
+            $table->json('configuration')->nullable();
         });
     }
 
@@ -24,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('security_settings');
+        Schema::table('security_settings', function (Blueprint $table) {
+            $table->dropColumn('configuration');
+        });
     }
 };
