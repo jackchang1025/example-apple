@@ -165,7 +165,7 @@ class IdmsaClient extends BaseClient
     }
 
     /**
-     * 验证手机验证码（登录）
+     * 验证手机验证码
      * @param int $id
      * @param string $code
      * @return Response
@@ -173,7 +173,7 @@ class IdmsaClient extends BaseClient
      */
     public function validatePhoneSecurityCode(string $code, int $id = 1): Response
     {
-        $response = $this->request('post', '/appleauth/auth/verify/phone/securitycode', [
+        return $this->request('post', '/appleauth/auth/verify/phone/securitycode', [
             RequestOptions::JSON => [
                 'phoneNumber'  => [
                     'id' => $id,
@@ -188,11 +188,6 @@ class IdmsaClient extends BaseClient
                 'X-Apple-Auth-Attributes' => $this->user->getHeader('X-Apple-Auth-Attributes') ?? '',
             ],
         ]);
-
-        //获取所有 Cookie
-//        $cookies = $this->cookieJar->getIterator();
-
-        return $response;
 
     }
 

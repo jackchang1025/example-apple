@@ -2,26 +2,89 @@
 
 namespace App\Apple\Proxy;
 
-use Illuminate\Http\Client\ConnectionException;
+use App\Apple\Proxy\Exception\ProxyException;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 abstract class Proxy implements ProxyInterface
 {
     /**
-     * @param ProxyResponse $proxyResponse
-     * @return string|null
-     * @throws ConnectionException
+     * 代理验证URL
      */
-    public function getProxyIp(ProxyResponse $proxyResponse):?string
+    protected const string VALIDATION_URL = 'https://appleid.apple.com/bootstrap/portal';
+
+    /**
+     * 代理验证超时时间（秒）
+     */
+    public const int VALIDATION_TIMEOUT = 5;
+
+    /**
+     * 最大重试次数
+     */
+    public const int MAX_RETRIES = 5;
+
+    /**
+     * 重试延迟（毫秒）
+     */
+    public const int RETRY_DELAY = 100;
+
+    /**
+     * @var ProxyModeInterface 代理模式实例
+     */
+    protected ProxyModeInterface $mode;
+
+    abstract protected function getMode(): ProxyModeInterface;
+
+    public function getProxyIp(ProxyResponse $proxyResponse): string
     {
-        $response =  Http::retry(3,100)->withOptions([
-            'proxy' => $proxyResponse->getUrl(),
-            'verify' => false,
-        ])->get(url('/ip'));
+        return $this->getMode()->getProxyIp($proxyResponse);
+    }
 
-        Log::info(sprintf('get getProxyIp url is %s proxy ip is %s',$proxyResponse->getUrl(),$response->body()));
+    /**
+     * @throws \Throwable
+     * @throws ProxyException
+     */
+    public function getProxy(Option $option): ProxyResponse
+    {
+        return retry(self::MAX_RETRIES, function () use ($option) {
+            return $this->attemptGetProxy($option);
+        }, self::RETRY_DELAY);
+    }
 
-        return $response->body();
+    /**
+     * @param Option $option
+     * @return ProxyResponse
+     * @throws ProxyException
+     */
+    protected function attemptGetProxy(Option $option): ProxyResponse
+    {
+        $proxyResponse =  $this->getMode()->getProxy($option);
+
+        if (!$this->validateProxy($proxyResponse)){
+            throw new ProxyException('Proxy validation failed');
+        }
+
+        return $proxyResponse;
+    }
+
+    /**
+     * 验证代理
+     *
+     * @param ProxyResponse $proxy 代理响应
+     * @return bool
+     */
+    protected function validateProxy(ProxyResponse $proxy): bool
+    {
+        try {
+            return Http::timeout(self::VALIDATION_TIMEOUT)
+                ->withOptions([
+                    'proxy' => $proxy->getUrl(),
+                    'verify' => false,
+                ])
+                ->get(self::VALIDATION_URL)
+                ->successful();
+
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 }

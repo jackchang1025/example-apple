@@ -223,6 +223,30 @@ class Apple
         return $response;
     }
 
+    /**
+     * @param string $code
+     * @param int $id
+     * @return Response
+     * @throws GuzzleException
+     * @throws VerificationCodeIncorrect
+     */
+    public function validatePhoneSecurityCode(string $code, int $id = 1): Response
+    {
+        // 验证手机号码
+        $response = $this->idmsa->validatePhoneSecurityCode($code,$id);
+
+        if ($response->getStatus() === 412){
+            $this->appleId->managePrivacyAccept();
+        }
+
+        //验证码不正确
+        if ($response->getStatus() === 400){
+            throw new VerificationCodeIncorrect($response->getFirstErrorMessage(), $response->getStatus());
+        }
+
+        return $response;
+    }
+
     protected function createConfig(array $config = []): Config
     {
         return new Config(

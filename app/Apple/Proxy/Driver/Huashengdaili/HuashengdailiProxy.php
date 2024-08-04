@@ -3,6 +3,7 @@
 namespace App\Apple\Proxy\Driver\Huashengdaili;
 
 use App\Apple\Proxy\Driver\ProxyModeFactory;
+use App\Apple\Proxy\Exception\ProxyException;
 use App\Apple\Proxy\Exception\ProxyModelNotFoundException;
 use App\Apple\Proxy\Option;
 use App\Apple\Proxy\Proxy;
@@ -10,6 +11,7 @@ use App\Apple\Proxy\ProxyConfiguration;
 use App\Apple\Proxy\ProxyInterface;
 use App\Apple\Proxy\ProxyModeInterface;
 use App\Apple\Proxy\ProxyResponse;
+use App\Apple\Service\HttpFactory;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Facades\Cache;
 use InvalidArgumentException;
@@ -22,23 +24,20 @@ use InvalidArgumentException;
 class HuashengdailiProxy extends Proxy implements ProxyInterface
 {
     /**
-     * @var ProxyModeInterface 代理模式实例
-     */
-    protected ProxyModeInterface $mode;
-
-    /**
-     * 构造函数
-     *
-     * @param ProxyConfiguration $config 代理配置
-     * @param ProxyModeFactory $modeFactory 代理模式工厂
-     * @throws ProxyModelNotFoundException
+     * @param HttpFactory $httpFactory
+     * @param ProxyConfiguration $config
+     * @param ProxyModeFactory $modeFactory
      * @throws BindingResolutionException
+     * @throws ProxyModelNotFoundException
      */
-    public function __construct(
-        protected ProxyConfiguration $config,
-        protected ProxyModeFactory $modeFactory
-    ) {
+    public function __construct(protected HttpFactory $httpFactory,protected ProxyConfiguration $config,protected ProxyModeFactory $modeFactory)
+    {
         $this->mode = $this->modeFactory->createMode($this->config);
+    }
+
+    public function getMode(): ProxyModeInterface
+    {
+        return $this->mode;
     }
 
     /**
@@ -46,7 +45,9 @@ class HuashengdailiProxy extends Proxy implements ProxyInterface
      *
      * @param Option $option 选项
      * @return ProxyResponse
-     * @throws InvalidArgumentException|\Psr\SimpleCache\InvalidArgumentException
+     * @throws ProxyException
+     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws \Throwable
      */
     public function getProxy(Option $option): ProxyResponse
     {
@@ -66,17 +67,6 @@ class HuashengdailiProxy extends Proxy implements ProxyInterface
 
         // 获取新代理并缓存
         return $this->getAndCacheNewProxy($option, $cacheKey);
-    }
-
-    /**
-     * 获取代理IP
-     *
-     * @param ProxyResponse $proxyResponse
-     * @return string|null
-     */
-    public function getProxyIp(ProxyResponse $proxyResponse): ?string
-    {
-        return $proxyResponse->getHost();
     }
 
     /**
@@ -115,11 +105,12 @@ class HuashengdailiProxy extends Proxy implements ProxyInterface
      * @param Option $option
      * @param string $cacheKey
      * @return ProxyResponse
-     * @throws InvalidArgumentException
+     * @throws ProxyException
+     * @throws \Throwable
      */
     protected function getAndCacheNewProxy(Option $option, string $cacheKey): ProxyResponse
     {
-        $proxyResponse = $this->mode->getProxy($option);
+        $proxyResponse = parent::getProxy($option);
         Cache::put($cacheKey, $proxyResponse->all(), $proxyResponse->getTimeToExpire());
         return $proxyResponse;
     }

@@ -6,14 +6,10 @@ use App\Apple\Proxy\Exception\ProxyException;
 use App\Apple\Proxy\Option;
 use App\Apple\Proxy\ProxyModeInterface;
 use App\Apple\Proxy\ProxyResponse;
-use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Http\Client\RequestException;
+use App\Apple\Service\HttpFactory;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
-use Psr\Http\Message\RequestInterface;
 
 /**
  * API代理类
@@ -24,26 +20,6 @@ class ApiProxy implements ProxyModeInterface
      * API请求URL
      */
     protected const string API_URL = 'https://mobile.huashengdaili.com/servers.php';
-
-    /**
-     * 最大重试次数
-     */
-    protected const int MAX_RETRIES = 5;
-
-    /**
-     * 重试延迟（毫秒）
-     */
-    protected const int RETRY_DELAY = 100;
-
-    /**
-     * 代理验证URL
-     */
-    protected const string VALIDATION_URL = 'https://appleid.apple.com/bootstrap/portal';
-
-    /**
-     * 代理验证超时时间（秒）
-     */
-    protected const int VALIDATION_TIMEOUT = 10;
 
     /**
      * 默认配置
@@ -70,7 +46,7 @@ class ApiProxy implements ProxyModeInterface
      * @param array $config 配置数组
      * @throws \InvalidArgumentException 当session未提供时抛出
      */
-    public function __construct(array $config)
+    public function __construct(protected HttpFactory $httpFactory,array $config)
     {
         if (empty($config['session'])) {
             throw new \InvalidArgumentException('Huashengdaili session is required');
@@ -88,40 +64,12 @@ class ApiProxy implements ProxyModeInterface
      */
     public function getProxy(Option $option): ProxyResponse
     {
-        return retry(self::MAX_RETRIES, function () use ($option) {
-            return $this->attemptGetProxy($option);
-        }, self::RETRY_DELAY);
-    }
-
-    /**
-     * 尝试获取代理
-     *
-     * @param Option $option 选项
-     * @return ProxyResponse
-     * @throws ProxyException
-     * @throws RequestException
-     * @throws ConnectionException
-     */
-    protected function attemptGetProxy(Option $option): ProxyResponse
-    {
-        $proxyResponse = Http::globalRequestMiddleware(
-            function (RequestInterface $request){
-
-            Log::info('Request', [
-                'method'  => $request->getMethod(),
-                'uri'     => (string)$request->getUri(),
-                'headers' => $request->getHeaders(),
-                'body'    => (string) $request->getBody(),
-            ]);
-
-            return $request;
-
-        })
+        return $this->httpFactory->create()
             ->get(self::API_URL, $this->buildQueryParams())
             ->throw(fn(Response $response) => throw new ProxyException('Failed to get proxy from Huashengdaili: ' . $response->body()))
             ->collect()
             ->tap(function (Collection $response) {
-                Log::info('Huashengdaili response: ' . $response->toJson());
+
                 if ($response['status'] !== '0') {
                     throw new ProxyException('Huashengdaili error: ' . ($response['detail'] ?? 'Unknown error'));
                 }
@@ -130,34 +78,11 @@ class ApiProxy implements ProxyModeInterface
                 }
             })
             ->pipe(fn(Collection $response) => $this->createProxyResponse($response['list'][0]));
-
-        if (!$this->validateProxy($proxyResponse)) {
-            throw new ProxyException('Proxy validation failed');
-        }
-
-        return $proxyResponse;
     }
 
-    /**
-     * 验证代理
-     *
-     * @param ProxyResponse $proxy 代理响应
-     * @return bool
-     */
-    protected function validateProxy(ProxyResponse $proxy): bool
+    public function getProxyIp(ProxyResponse $proxyResponse): string
     {
-        try {
-            $response = Http::timeout(self::VALIDATION_TIMEOUT)
-                ->withOptions([
-                    'proxy' => $proxy->getUrl(),
-                    'verify' => false,  // 禁用SSL验证用于测试
-                ])
-                ->get(self::VALIDATION_URL);
-
-            return $response->successful();
-        } catch (\Exception $e) {
-            return false;
-        }
+        return $proxyResponse->getHost();
     }
 
     /**

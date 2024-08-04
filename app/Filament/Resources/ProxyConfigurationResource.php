@@ -168,54 +168,56 @@ class ProxyConfigurationResource extends Resource
 //                ->required()
                 ->helperText('代理订单密钥'),
 
-            Forms\Components\TextInput::make('configuration.hailiangip.pid')
-                ->default('-1')
-                ->helperText('省份ID，-1表示随机'),
-            Forms\Components\TextInput::make('configuration.hailiangip.cid')
-                ->default('-1')
-                ->helperText('城市ID，-1表示随机'),
-            Forms\Components\Toggle::make('configuration.hailiangip.sip')
-                ->default(1)
-                ->helperText('是否切换IP：关闭表示自动切换，开启表示不能切换'),
-            Forms\Components\TextInput::make('configuration.hailiangip.uid')
-                ->default('')
-                ->helperText('自定义UID，相同的UID会尽可能采用相同的IP'),
+//            Forms\Components\TextInput::make('configuration.hailiangip.pid')
+//                ->default('-1')
+//                ->helperText('省份ID，-1表示随机'),
+//            Forms\Components\TextInput::make('configuration.hailiangip.cid')
+//
+//                ->default('-1')
+//                ->helperText('城市ID，-1表示随机'),
+//            Forms\Components\Toggle::make('configuration.hailiangip.sip')
+//                ->default(1)
+//                ->helperText('是否切换IP：关闭表示自动切换，开启表示不能切换'),
 
-            Forms\Components\Select::make('configuration.hailiangip.type')
-                ->options([
-                    1 => 'HTTP/HTTPS',
-                ])
-                ->default(1)
-                ->helperText('选择IP协议'),
-            Forms\Components\TextInput::make('configuration.hailiangip.num')
-                ->numeric()
-                ->default(1)
-                ->minLength(1, 200)
-                ->maxLength(200)
-                ->helperText('提取数量：1-200之间'),
+//            Forms\Components\TextInput::make('configuration.hailiangip.uid')
+//                ->default('')
+//                ->helperText('自定义UID，相同的UID会尽可能采用相同的IP'),
+
+//            Forms\Components\Select::make('configuration.hailiangip.type')
+//                ->options([
+//                    1 => 'HTTP/HTTPS',
+//                ])
+//                ->default(1)
+//                ->helperText('选择IP协议'),
+//            Forms\Components\TextInput::make('configuration.hailiangip.num')
+//                ->numeric()
+//                ->default(1)
+//                ->minLength(1, 200)
+//                ->maxLength(200)
+////                ->helperText('提取数量：1-200之间'),
             Forms\Components\TextInput::make('configuration.hailiangip.pid')
                 ->default(-1)
                 ->helperText('省份ID：-1表示中国'),
-            Forms\Components\TextInput::make('configuration.hailiangip.unbindTime')
-                ->numeric()
-                ->default(600)
-                ->minValue(1)
-                ->helperText('占用时长（单位：秒）'),
+//            Forms\Components\TextInput::make('configuration.hailiangip.unbindTime')
+//                ->numeric()
+//                ->default(600)
+//                ->minValue(1)
+//                ->helperText('占用时长（单位：秒）'),
             Forms\Components\TextInput::make('configuration.hailiangip.cid')
                 ->default('')
                 ->helperText('城市ID，留空表示随机'),
             Forms\Components\Toggle::make('configuration.hailiangip.noDuplicate')
                 ->default(0)
                 ->helperText('是否去重：关闭表示不去重，开启表示24小时去重'),
-            Forms\Components\Select::make('configuration.hailiangip.dataType')
-                ->options([
-                    0 => 'JSON',
-                ])
-                ->default(0)
-                ->helperText('选择返回的数据格式'),
-            Forms\Components\Toggle::make('configuration.hailiangip.singleIp')
-                ->default(0)
-                ->helperText('异常切换：关闭表示切换，开启表示不切换'),
+//            Forms\Components\Select::make('configuration.hailiangip.dataType')
+//                ->options([
+//                    0 => 'JSON',
+//                ])
+//                ->default(0)
+//                ->helperText('选择返回的数据格式'),
+//            Forms\Components\Toggle::make('configuration.hailiangip.singleIp')
+//                ->default(0)
+//                ->helperText('异常切换：关闭表示切换，开启表示不切换'),
         ];
     }
 
@@ -241,14 +243,15 @@ class ProxyConfigurationResource extends Resource
                 ->default('proxy.stormip.cn')
                 ->helperText('选择代理网络(代理网络是指中转服务器的位置)'),
 
-            //                                Forms\Components\Select::make('configuration.stormproxies.area')
-            //                                    ->options([
-            //                                        '' => '全球混播',
-            //                                        'hk' => '香港',
-            //                                        'us' => '美国',
-            //                                    ])
-            //                                    ->default('')
-            //                                    ->helperText('选择节点国家'),
+            Forms\Components\Select::make('configuration.stormproxies.area')
+                ->options([
+                    '' => '全球混播',
+                    'hk' => '香港',
+                    'us' => '美国',
+                    'cn' => '中国',
+                ])
+                ->default('cn')
+                ->helperText('选择节点国家'),
 
             Forms\Components\TextInput::make('configuration.stormproxies.username')
 //                ->required()

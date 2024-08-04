@@ -5,8 +5,10 @@ namespace App\Apple\Proxy\Driver\Stormproxies;
 use App\Apple\Proxy\Option;
 use App\Apple\Proxy\ProxyModeInterface;
 use App\Apple\Proxy\ProxyResponse;
+use App\Apple\Proxy\Driver\ProxyMode;
+use App\Apple\Service\HttpFactory;
 
-class FlowProxy  implements ProxyModeInterface
+class FlowProxy extends ProxyMode implements ProxyModeInterface
 {
     const string PROXY_HOST = 'proxy.stormip.cn';
 
@@ -22,8 +24,9 @@ class FlowProxy  implements ProxyModeInterface
         'host'      => self::PROXY_HOST,//代理网络
     ];
 
-    public function __construct(array $config =  [])
+    public function __construct(HttpFactory $httpFactory,array $config =  [])
     {
+        parent::__construct($httpFactory);
         $this->defaultConfig = array_merge($this->defaultConfig, $config);
 
         if (empty($this->defaultConfig['username'])) {

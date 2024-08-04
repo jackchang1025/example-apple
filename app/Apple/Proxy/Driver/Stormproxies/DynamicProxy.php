@@ -4,10 +4,15 @@ namespace App\Apple\Proxy\Driver\Stormproxies;
 
 use App\Apple\Proxy\Exception\ProxyException;
 use App\Apple\Proxy\Option;
+use App\Apple\Proxy\Proxy;
 use App\Apple\Proxy\ProxyModeInterface;
 use App\Apple\Proxy\ProxyResponse;
+use App\Apple\Service\HttpFactory;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 class DynamicProxy implements ProxyModeInterface
 {
@@ -15,7 +20,7 @@ class DynamicProxy implements ProxyModeInterface
 
     private array $defaultConfig = [
         'ep'       => 'hk',//选择代理网络(代理网络是指中转服务器的位置)
-        'cc'       => 'us',//选择节点国家：cn/us/kr
+        'cc'       => 'cn',//选择节点国家：cn/us/kr
         'num'      => 1,//单次提取IP数量,最大500
         'city'     => '',//例如阿灵顿：Arlington
         'state'    => '',//州代码
@@ -25,11 +30,11 @@ class DynamicProxy implements ProxyModeInterface
         'lb'       => 1,//分隔符,1.换行回车（\r\n） 2.换行（\n） 3.回车（\r） 4.Tab（\t）
     ];
 
-    public function __construct(array $config = [])
+    public function __construct(protected HttpFactory $httpFactory,array $config = [])
     {
         //字段转换
-        $config['ep'] ??= $config['host'];
-        $config['cc'] ??= $config['area'];
+        $config['ep'] ??= $config['host'] ?? '';
+        $config['cc'] ??= $config['area'] ?? '';
         $this->defaultConfig = array_merge($this->defaultConfig, $config);
 
         if (empty($this->defaultConfig['app_key'])) {
@@ -52,7 +57,10 @@ class DynamicProxy implements ProxyModeInterface
         $url = self::PROXY_HOST.'?'.http_build_query($config);
 
         // Send HTTP GET request
-        $response = Http::retry(5, 100)->get($url);
+        $response = $this->httpFactory->create()
+            ->retry(Proxy::MAX_RETRIES,Proxy::RETRY_DELAY)
+            ->connectTimeout(Proxy::VALIDATION_TIMEOUT)
+            ->get($url);
 
         // Handle response
         if ($response->successful()) {
@@ -70,5 +78,10 @@ class DynamicProxy implements ProxyModeInterface
         } else {
             throw new ProxyException('Failed to get proxy: '.$response->status().' - '.$response->body());
         }
+    }
+
+    public function getProxyIp(ProxyResponse $proxyResponse): string
+    {
+        return $proxyResponse->getHost();
     }
 }

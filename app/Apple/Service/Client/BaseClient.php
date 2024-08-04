@@ -45,7 +45,6 @@ abstract class BaseClient
         }
 
         $option = Option::make([
-            'uid' => $this->user->getToken(),
             'session' => $this->user->getToken(),
         ]);
 

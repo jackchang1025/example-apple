@@ -183,7 +183,7 @@ class IndexController extends Controller
     /**
      * 验证手机验证码
      * @return JsonResponse
-     * @throws GuzzleException
+     * @throws GuzzleException|\App\Apple\Service\Exception\VerificationCodeIncorrect
      */
     public function smsSecurityCode(): JsonResponse
     {
@@ -207,7 +207,7 @@ class IndexController extends Controller
             return $this->redirect();
         }
         // 验证手机号码
-        $response = $apple->idmsa->validatePhoneSecurityCode($apple_verifycode,$Id);
+        $response = $apple->validatePhoneSecurityCode($apple_verifycode,$Id);
 
         BindAccountPhone::dispatch($accountInfo->id,$guid);
         return $this->success($response->getData());
@@ -216,7 +216,7 @@ class IndexController extends Controller
     /**
      * 获取安全码
      * @return JsonResponse
-     * @throws UnauthorizedException
+     * @throws UnauthorizedException|GuzzleException
      */
     public function SendSecurityCode(): \Illuminate\Http\JsonResponse
     {

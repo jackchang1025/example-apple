@@ -5,8 +5,10 @@ namespace App\Apple\Proxy\Driver\Hailiangip;
 use App\Apple\Proxy\Option;
 use App\Apple\Proxy\ProxyModeInterface;
 use App\Apple\Proxy\ProxyResponse;
+use App\Apple\Proxy\Driver\ProxyMode;
+use App\Apple\Service\HttpFactory;
 
-class FlowProxy implements ProxyModeInterface
+class FlowProxy extends ProxyMode implements ProxyModeInterface
 {
     const string PROXY_HOST = "flow.hailiangip.com";
     const int HTTP_PROXY_PORT = 14223;
@@ -19,8 +21,9 @@ class FlowProxy implements ProxyModeInterface
         'uid' => "",
     ];
 
-    public function __construct(array $config =  [])
+    public function __construct(HttpFactory $httpFactory,array $config =  [])
     {
+        parent::__construct($httpFactory);
         $this->defaultConfig = array_merge($this->defaultConfig, $config);
 
         if (empty($this->defaultConfig['orderId'])) {
@@ -38,6 +41,11 @@ class FlowProxy implements ProxyModeInterface
     public function getProxy(Option $option): ProxyResponse
     {
         $config = array_merge($this->defaultConfig, $option->all());
+
+        if (!empty($config['session'])){
+            $config['uid'] = $config['session'];
+        }
+
         $username = $config['orderId'];
         $password = $this->sign($config);
 
