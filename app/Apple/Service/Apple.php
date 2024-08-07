@@ -230,12 +230,8 @@ class Apple
      * @return void
      * @throws GuzzleException
      */
-    public function managePrivacyAccept(): void
+    protected function managePrivacyAccept(): void
     {
-        $this->appleId->manageRepairOptions();
-
-        $this->appleId->managePrivacyAccept();
-
         $this->idmsa->appleAuthRepairComplete();
     }
 
