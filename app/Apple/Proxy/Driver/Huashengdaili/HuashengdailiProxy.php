@@ -14,6 +14,7 @@ use App\Apple\Proxy\ProxyResponse;
 use App\Apple\Service\HttpFactory;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
 
 /**

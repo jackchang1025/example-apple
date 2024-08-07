@@ -102,10 +102,12 @@ class IndexController extends Controller
             $accountName = $this->formatPhone($accountName);
         }
 
-        $guid = sha1($accountName);
+        //毫秒时间戳
+        $guid = sha1($accountName.microtime());
 
         $apple = $this->appleFactory->create($guid);
 
+        $apple->clear();
         $apple->getUser()->set('account', $accountName);
         $apple->getUser()->set('password', $password);
 

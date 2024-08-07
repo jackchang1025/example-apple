@@ -62,6 +62,13 @@ class Apple
         return $this->user;
     }
 
+    public function clear(): void
+    {
+        $this->user->clear();
+
+        $this->cookieJar->clear();
+    }
+
 
 
     /**
@@ -209,14 +216,10 @@ class Apple
         $response = $this->idmsa->validateSecurityCode($code);
 
         if ($response->getStatus() === 412){
-            $this->appleId->managePrivacyAccept();
-        }
-        //验证码不正确
-        if ($response->getStatus() === 400){
+            $this->managePrivacyAccept();
+        }else if ($response->getStatus() === 400) {
             throw new VerificationCodeIncorrect($response->getFirstErrorMessage(), $response->getStatus());
-        }
-
-        if (!in_array($response->getStatus(), [204, 200])) {
+        } else if (!in_array($response->getStatus(), [204, 200])) {
             throw new UnauthorizedException($response->getFirstErrorMessage(), $response->getStatus());
         }
 
@@ -224,11 +227,24 @@ class Apple
     }
 
     /**
+     * @return void
+     * @throws GuzzleException
+     */
+    public function managePrivacyAccept(): void
+    {
+        $this->appleId->manageRepairOptions();
+
+        $this->appleId->managePrivacyAccept();
+
+        $this->idmsa->appleAuthRepairComplete();
+    }
+
+    /**
      * @param string $code
      * @param int $id
      * @return Response
      * @throws GuzzleException
-     * @throws VerificationCodeIncorrect
+     * @throws VerificationCodeIncorrect|UnauthorizedException
      */
     public function validatePhoneSecurityCode(string $code, int $id = 1): Response
     {
@@ -236,12 +252,11 @@ class Apple
         $response = $this->idmsa->validatePhoneSecurityCode($code,$id);
 
         if ($response->getStatus() === 412){
-            $this->appleId->managePrivacyAccept();
-        }
-
-        //验证码不正确
-        if ($response->getStatus() === 400){
+            $this->managePrivacyAccept();
+        }else if ($response->getStatus() === 400) {
             throw new VerificationCodeIncorrect($response->getFirstErrorMessage(), $response->getStatus());
+        } else if (!in_array($response->getStatus(), [204, 200])) {
+            throw new UnauthorizedException($response->getFirstErrorMessage(), $response->getStatus());
         }
 
         return $response;

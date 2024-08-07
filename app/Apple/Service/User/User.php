@@ -13,7 +13,7 @@ class User
     public function __construct(
         protected CacheInterface $cache,
         protected string $token,
-        protected int $ttl = 60 * 2400
+        protected int $ttl = 60 * 30
     ) {
         $this->load();
     }
@@ -118,16 +118,6 @@ class User
         );
     }
 
-    public function isLogin(): bool
-    {
-        return $this->get('login') === true;
-    }
-
-    public function setLogin(bool $value): void
-    {
-        $this->user->put('login', $value);
-    }
-
     public function setPhoneInfo(array $value): void
     {
         $this->user->put('phone_info', $value);
@@ -157,5 +147,6 @@ class User
     public function clear(): void
     {
         $this->user = collect();
+        $this->save();
     }
 }

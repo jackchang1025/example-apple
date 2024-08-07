@@ -27,7 +27,7 @@ class ApiProxy implements ProxyModeInterface
      * @var array
      */
     protected array $config = [
-        'time' => 30,         // 提取的IP时长（分钟）
+        'time' => 10,         // 提取的IP时长（分钟）
         'count' => 1,         // 提取的IP数量
         'type' => 'json',     // 返回类型
         'only' => 1,          // 是否去重（1=去重，0=不去重）
@@ -65,6 +65,10 @@ class ApiProxy implements ProxyModeInterface
     public function getProxy(Option $option): ProxyResponse
     {
         return $this->httpFactory->create()
+            ->withOptions([
+                'verify' => false,
+            ])
+            ->connectTimeout(10)
             ->get(self::API_URL, $this->buildQueryParams())
             ->throw(fn(Response $response) => throw new ProxyException('Failed to get proxy from Huashengdaili: ' . $response->body()))
             ->collect()

@@ -10,6 +10,8 @@ use App\Apple\Service\Exception\BindPhoneCodeException;
 use App\Apple\Service\Exception\UnauthorizedException;
 use App\Models\Account;
 use App\Models\Phone;
+use App\Models\User;
+use Filament\Notifications\Notification;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\DB;
@@ -71,7 +73,13 @@ class AccountBind
 
             // 记录绑定失败的错误日志
             $account = $account ?? '';
-            $this->logger->error("$account : $e");
+            $this->logger->error("账号 {$account->account} 绑定 失败 : $e");
+
+            Notification::make()
+                ->title("账号 {$account->account} 绑定 失败")
+                ->body($e->getMessage())
+                ->warning()
+                ->sendToDatabase(User::get());
 
             throw $e;
         }
@@ -226,10 +234,12 @@ class AccountBind
         // 更新账号和手机信息
         $this->updateAccountAndPhone($account, $phone);
 
-        $this->logger->info(
-            '账号 {account} 绑定 {phone} 手机号码成功',
-            ['account' => $account->account, 'phone' => $phone->phone]
-        );
+        $this->logger->info("账号 {$account->account} 绑定 {$phone->phone} 手机号码成功");
+
+        Notification::make()
+            ->title("账号 {$account->account} 绑定 {$phone->phone} 手机号码成功")
+            ->success()
+            ->sendToDatabase(User::get());
     }
 
     /**
