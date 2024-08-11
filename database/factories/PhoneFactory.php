@@ -15,10 +15,10 @@ class PhoneFactory extends Factory
     public function definition(): array
     {
         return [
-            'phone'             => $this->faker->phoneNumber,
+            'phone'             => $this->faker->e164PhoneNumber(),
             'phone_address'     => $this->faker->city,
             'country_code'      => $this->faker->countryCode,
-            'country_dial_code' => $this->faker->numberBetween(1, 999),
+            'country_dial_code' => (string) $this->faker->numberBetween(1, 999),
             'status'            => $this->faker->randomElement(['normal', 'invalid', 'bound']),
         ];
     }

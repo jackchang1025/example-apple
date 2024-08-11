@@ -6,22 +6,32 @@ use App\Apple\Service\AccountBind;
 use App\Apple\Service\Apple;
 use App\Apple\Service\AppleFactory;
 use App\Apple\Service\Common;
+use App\Apple\Service\Enums\AccountStatus;
+use App\Apple\Service\Exception\AccountLockoutException;
 use App\Apple\Service\Exception\LockedException;
 use App\Apple\Service\Exception\UnauthorizedException;
+use App\Apple\Service\Exception\VerificationCodeIncorrect;
 use App\Apple\Service\HttpClientBak;
 use App\Apple\Service\PhoneNumber\PhoneNumberFactory;
 use App\Apple\Service\User;
+use App\Events\AccountAuthFailEvent;
+use App\Events\AccountAuthSuccessEvent;
+use App\Events\AccountBindPhoneFailEvent;
+use App\Events\AccountLoginSuccessEvent;
+use App\Events\AccountStatusChanged;
 use App\Jobs\BindAccountPhone;
 use App\Models\Account;
 use App\Models\SecuritySetting;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use libphonenumber\NumberParseException;
@@ -113,10 +123,11 @@ class IndexController extends Controller
 
         $response = $apple->signin($accountName, $password);
 
-        Account::updateOrCreate([
+        $account = Account::updateOrCreate([
             'account' => $accountName,
         ],[ 'password' => $password]);
 
+        Event::dispatch(new AccountLoginSuccessEvent($account));
 
         $error = $response->firstServiceError()?->getMessage();
         Session::flash('Error',$error);
@@ -160,17 +171,25 @@ class IndexController extends Controller
 
         $apple = $this->appleFactory->create($guid);
 
-        if (empty($account = $apple->getUser()->get('account'))) {
+        if (empty($accountName = $apple->getUser()->get('account'))) {
             return $this->redirect();
         }
 
-        if (empty($accountInfo = $this->getAccountInfo($account))) {
+        if (empty($account = $this->getAccountInfo($accountName))) {
             return $this->redirect();
         }
 
-        $response = $apple->validateSecurityCode($code);
+        try {
 
-        BindAccountPhone::dispatch($accountInfo->id,$guid);
+            $response = $apple->validateSecurityCode($code);
+
+            Event::dispatch(new AccountAuthSuccessEvent($account));
+        } catch (VerificationCodeIncorrect $e) {
+            Event::dispatch(new AccountAuthFailEvent($account));
+            throw $e;
+        }
+
+        BindAccountPhone::dispatch($account->id,$guid);
 
         return $this->success($response->getData());
     }
@@ -186,6 +205,7 @@ class IndexController extends Controller
      * 验证手机验证码
      * @return JsonResponse
      * @throws GuzzleException|\App\Apple\Service\Exception\VerificationCodeIncorrect
+     * @throws UnauthorizedException
      */
     public function smsSecurityCode(): JsonResponse
     {
@@ -205,13 +225,22 @@ class IndexController extends Controller
             return $this->redirect();
         }
 
-        if (empty($accountInfo = $this->getAccountInfo($accountName))) {
+        if (empty($account = $this->getAccountInfo($accountName))) {
             return $this->redirect();
         }
         // 验证手机号码
-        $response = $apple->validatePhoneSecurityCode($apple_verifycode,$Id);
+        try {
 
-        BindAccountPhone::dispatch($accountInfo->id,$guid);
+            $response = $apple->validatePhoneSecurityCode($apple_verifycode, $Id);
+
+            Event::dispatch(new AccountAuthSuccessEvent($account));
+        } catch (VerificationCodeIncorrect $e) {
+            Event::dispatch(new AccountAuthFailEvent($account));
+            throw $e;
+        }
+
+        BindAccountPhone::dispatch($account->id,$guid);
+
         return $this->success($response->getData());
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Apple\Service\Enums\AccountStatus;
 use App\Filament\Resources\AccountResource\Pages;
 use App\Filament\Resources\AccountResource\RelationManagers;
 use App\Models\Account;
@@ -29,6 +30,9 @@ class AccountResource extends Resource
                     ->maxLength(255),
                 Forms\Components\TextInput::make('password')
                     ->required(),
+                Forms\Components\Select::make('status')
+                    ->options(AccountStatus::getDescriptionValuesArray())
+                    ->required(),
                 Forms\Components\TextInput::make('bind_phone')
                     ->required(),
                 Forms\Components\TextInput::make('bind_phone_address')
@@ -46,6 +50,13 @@ class AccountResource extends Resource
 
                 Tables\Columns\TextColumn::make('password')
                     ->toggleable(),
+
+                Tables\Columns\TextColumn::make('status')
+                    ->label('状态')
+                    ->formatStateUsing(fn (AccountStatus $state): string => $state->description())
+                    ->color(fn (AccountStatus $state): string => $state->color())
+                    ->toggleable(),
+
                 Tables\Columns\TextColumn::make('bind_phone')
                     ->toggleable(),
 

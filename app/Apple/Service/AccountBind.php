@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Apple\Service;
 
+use App\Events\AccountBindPhoneFailEvent;
+use App\Events\AccountBindPhoneSuccessEvent;
 use App\Apple\Service\Exception\{
     AttemptBindPhoneCodeException,
     MaxRetryAttemptsException,
@@ -13,28 +15,52 @@ use App\Apple\Service\Exception\{
 use App\Models\{Account, Phone, User};
 use Filament\Notifications\Notification;
 use GuzzleHttp\Exception\GuzzleException;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Psr\Log\LoggerInterface;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class AccountBind
 {
-    private const int MAX_RETRY_ATTEMPTS = 10;
-    private const int PHONE_CODE_RETRY_ATTEMPTS = 10;
-    private const int PHONE_CODE_RETRY_DELAY = 10;
-    private const int PHONE_CODE_WAIT_TIME = 120; // 2 minutes
+    protected const int MAX_RETRY_ATTEMPTS = 10;
+    protected const int PHONE_CODE_RETRY_ATTEMPTS = 10;
+    protected const int PHONE_CODE_RETRY_DELAY = 10;
+    protected const int|float PHONE_CODE_WAIT_TIME = 120; // 2 minutes
 
-    private array $usedPhoneIds = [];
+    protected array $usedPhoneIds = [];
 
     public function __construct(
-        private readonly Apple $apple,
-        private readonly LoggerInterface $logger,
-        private readonly int $maxRetryAttempts = self::MAX_RETRY_ATTEMPTS,
-        private readonly int $phoneCodeRetryAttempts = self::PHONE_CODE_RETRY_ATTEMPTS,
-        private readonly int $phoneCodeRetryDelay = self::PHONE_CODE_RETRY_DELAY,
-        private readonly int $phoneCodeWaitTime = self::PHONE_CODE_WAIT_TIME
+        protected readonly Apple $apple,
+        protected readonly LoggerInterface $logger,
+        protected readonly int $maxRetryAttempts = self::MAX_RETRY_ATTEMPTS,
+        protected readonly int $phoneCodeRetryAttempts = self::PHONE_CODE_RETRY_ATTEMPTS,
+        protected readonly int $phoneCodeRetryDelay = self::PHONE_CODE_RETRY_DELAY,
+        protected readonly int $phoneCodeWaitTime = self::PHONE_CODE_WAIT_TIME
     ) {}
+
+    public function getMaxRetryAttempts(): int
+    {
+        return $this->maxRetryAttempts;
+    }
+
+    public function getPhoneCodeRetryAttempts(): int
+    {
+        return $this->phoneCodeRetryAttempts;
+    }
+
+    public function getPhoneCodeRetryDelay(): int
+    {
+        return $this->phoneCodeRetryDelay;
+    }
+
+    public function getPhoneCodeWaitTime(): int
+    {
+        return $this->phoneCodeWaitTime;
+    }
+
+    public function getUsedPhoneIds(): array
+    {
+        return $this->usedPhoneIds;
+    }
 
     /**
      * @param int $id
@@ -223,7 +249,6 @@ class AccountBind
      * @param Phone|null $phone
      * @param int $attempt
      * @return void
-     * @throws MaxRetryAttemptsException
      */
     private function handleBindPhoneCodeException(BindPhoneCodeException $e, Account $account, ?Phone $phone, int $attempt): void
     {
@@ -237,12 +262,6 @@ class AccountBind
         if ($phone) {
             $this->usedPhoneIds[] = $phone->id;
             $this->handleBindFailure($phone);
-        }
-
-        if ($attempt === $this->maxRetryAttempts) {
-            throw new MaxRetryAttemptsException(
-                sprintf("Account %s failed to bind phone: Exceeded maximum retry attempts %d", $account->account, $this->maxRetryAttempts)
-            );
         }
     }
 
@@ -264,6 +283,8 @@ class AccountBind
     {
         $this->logger->info("Account {$account->account} successfully bound to phone number {$phone->phone}");
 
+        Event::dispatch(new AccountBindPhoneSuccessEvent($account));
+
         Notification::make()
             ->title("Account {$account->account} successfully bound to phone number {$phone->phone}")
             ->success()
@@ -275,6 +296,9 @@ class AccountBind
         $accountId = $account ? $account->account : 'unknown';
         $this->logger->error("Account {$accountId} binding failed: {$e->getMessage()}");
 
+        if ($account){
+            Event::dispatch(new AccountBindPhoneFailEvent($account));
+        }
         Notification::make()
             ->title("Account {$accountId} binding failed")
             ->body($e->getMessage())

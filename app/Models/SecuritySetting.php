@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- *
+ * 
  *
  * @property int $id
  * @property array|null $authorized_ips
@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|SecuritySetting whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SecuritySetting whereSafeEntrance($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SecuritySetting whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SecuritySetting whereConfiguration($value)
  * @mixin \Eloquent
  */
 class SecuritySetting extends Model

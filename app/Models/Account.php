@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
+use App\Apple\Service\Enums\AccountStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -26,6 +27,8 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|Account wherePassword($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Account whereUpdatedAt($value)
  * @method static \Database\Factories\AccountFactory factory($count = null, $state = [])
+ * @property AccountStatus $status
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereStatus($value)
  * @mixin \Eloquent
  */
 class Account extends Model
@@ -34,5 +37,14 @@ class Account extends Model
 
     protected $table = 'account';
 
-    protected $fillable = ['account', 'password', 'bind_phone', 'bind_phone_address','id'];
+    protected $casts = [
+        'status' => AccountStatus::class,
+    ];
+
+    public function getStatusDescriptionAttribute(): string
+    {
+        return $this->status->description();
+    }
+
+    protected $fillable = ['account', 'password', 'bind_phone', 'bind_phone_address','id','status'];
 }

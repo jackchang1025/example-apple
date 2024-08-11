@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Listeners\AccountStatusSubscriber;
 use App\Models\User;
 use Illuminate\Auth\Authenticatable;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -21,6 +23,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Event::subscribe(AccountStatusSubscriber::class);
     }
 }
