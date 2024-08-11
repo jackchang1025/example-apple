@@ -4,15 +4,12 @@ namespace App\Filament\Resources;
 
 use App\Apple\Service\Enums\AccountStatus;
 use App\Filament\Resources\AccountResource\Pages;
-use App\Filament\Resources\AccountResource\RelationManagers;
 use App\Models\Account;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class AccountResource extends Resource
@@ -52,7 +49,6 @@ class AccountResource extends Resource
                     ->toggleable(),
 
                 Tables\Columns\TextColumn::make('status')
-                    ->label('状态')
                     ->formatStateUsing(fn (AccountStatus $state): string => $state->description())
                     ->color(fn (AccountStatus $state): string => $state->color())
                     ->toggleable(),
