@@ -7,7 +7,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class EnforceSecuritySettingsMiddleware
+class BlackListIpsMiddleware
 {
     /**
      * Handle an incoming request.
@@ -22,8 +22,8 @@ class EnforceSecuritySettingsMiddleware
             return $next($request);
         }
 
-        // ip 白名单
-        if ($settings->authorized_ips && !in_array($request->ip(), $settings->authorized_ips)) {
+        //IP 黑名单
+        if (!empty($settings->configuration['blacklist_ips']) && in_array($request->ip(), $settings->configuration['blacklist_ips'])) {
             abort(403, 'Access denied.');
         }
 

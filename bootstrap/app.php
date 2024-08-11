@@ -1,6 +1,7 @@
 <?php
 
 use App\Apple\Service\Exception\UnauthorizedException;
+use App\Http\Middleware\BlackListIpsMiddleware;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -18,11 +19,14 @@ return Application::configure(basePath: dirname(__DIR__))
             'index/*',
         ]);
     })
+    ->withMiddleware(function (Middleware $middleware) {
+        $middleware->append(BlackListIpsMiddleware::class);
+    })
     ->withExceptions(function (Exceptions $exceptions) {
 
         $exceptions->render(function (UnauthorizedException $e) {
             return response()->json([
-                'code' => '302',
+                'code'    => '302',
                 'message' => $e->getMessage(),
             ], 302);
         });
@@ -31,16 +35,16 @@ return Application::configure(basePath: dirname(__DIR__))
             $statusCode = $e->getResponse()->getStatusCode();
             if (in_array($statusCode, [401, 403])) {
                 return response()->json([
-                    'code' => '302',
+                    'code'    => '302',
                     'message' => $e->getMessage(),
                 ], 302);
             }
+
             return response()->json([
-                'code' => $statusCode,
+                'code'    => $statusCode,
                 'message' => $e->getMessage(),
             ], $statusCode);
         });
-
 
 
     })->create();
