@@ -27,6 +27,12 @@ class SecuritySettingResource extends Resource
                     ->label('Authorized IP Addresses')
                     ->placeholder('示例: 1.1.1.1,2.2.2.1-2.2.2.2')
                     ->helperText('设置访问授权IP，可设置多个IP地址，注意：一旦设置授权IP，只有指定IP的电脑能访问'),
+
+                Forms\Components\TagsInput::make('configuration.blacklist_ips')
+                    ->label('blacklist IP Addresses')
+                    ->placeholder('示例: 1.1.1.1,2.2.2.1-2.2.2.2')
+                    ->helperText('设置黑名单 IP，可设置多个IP地址，注意：一旦设置黑名单 IP，则黑名单 IP 的电脑不能访问'),
+
                 Forms\Components\TextInput::make('safe_entrance')
                     ->label('Safe Entrance URL')
                     ->prefix('/')
