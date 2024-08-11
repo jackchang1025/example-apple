@@ -30,9 +30,15 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path($this->getAdminPath())
             ->login()
+            ->passwordReset()
+            ->emailVerification()
+            ->profile(isSimple: false)
+            ->bootUsing(function (Panel $panel) {
+                // ...
+            })
             ->plugins([
 //                \FilipFonal\FilamentLogManager\FilamentLogManager::make(),
-                FilamentLaravelLogPlugin::make()
+                FilamentLaravelLogPlugin::make(),
             ])
             ->colors([
                 'primary' => Color::Amber,
