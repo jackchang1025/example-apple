@@ -22,8 +22,14 @@ class EnforceSecuritySettingsMiddleware
             return $next($request);
         }
 
-        // Check IP
+//        dd($request->ip());
+        // ip 白名单
         if ($settings->authorized_ips && !in_array($request->ip(), $settings->authorized_ips)) {
+            abort(403, 'Access denied.');
+        }
+
+        //IP 黑名单
+        if (!empty($settings->configuration['blacklist_ips']) && in_array($request->ip(), $settings->configuration['blacklist_ips'])) {
             abort(403, 'Access denied.');
         }
 
