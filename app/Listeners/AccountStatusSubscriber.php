@@ -17,35 +17,34 @@ class AccountStatusSubscriber
     public function handleStatusChange(AccountStatusChanged $event): void
     {
         $event->account->update(['status' => $event->status]);
-        Log::info("Account {$event->account->id} status changed to {$event->status->value}");
     }
 
     public function handleLoginSuccess(AccountLoginSuccessEvent $event): void
     {
         $this->handleStatusChange($event);
         // 可以添加登录成功特有的逻辑
-        Log::info("Account {$event->account->id} logged in successfully");
+        Log::info("Account {$event->account->account} logged in successfully");
     }
 
     public function handleLoginFail(AccountLoginFailEvent $event): void
     {
         $this->handleStatusChange($event);
         // 可以添加登录成功特有的逻辑
-        Log::info("Account {$event->account->id} logged in failed");
+        Log::info("Account {$event->account->account} logged in failed");
     }
 
     public function handleAuthSuccess(AccountAuthSuccessEvent $event): void
     {
         $this->handleStatusChange($event);
         // 可以添加登录成功特有的逻辑
-        Log::info("Account {$event->account->id} auth in successfully");
+        Log::info("Account {$event->account->account} auth in successfully");
     }
 
     public function handleAuthFail(AccountAuthFailEvent $event): void
     {
         $this->handleStatusChange($event);
         // 可以添加登录成功特有的逻辑
-        Log::info("Account {$event->account->id} auth in failed");
+        Log::info("Account {$event->account->account} auth in failed");
     }
 
 
@@ -53,14 +52,14 @@ class AccountStatusSubscriber
     {
         $this->handleStatusChange($event);
         // 可以添加绑定失败特有的逻辑
-        Log::warning("Account {$event->account->id} failed to bind");
+        Log::warning("Account {$event->account->account} failed to bind");
     }
 
     public function handleBindSuccess(AccountBindPhoneSuccessEvent $event): void
     {
         $this->handleStatusChange($event);
         // 可以添加绑定失败特有的逻辑
-        Log::warning("Account {$event->account->id} successfully to bind");
+        Log::warning("Account {$event->account->account} successfully to bind");
     }
 
     public function subscribe(Dispatcher $events): array
