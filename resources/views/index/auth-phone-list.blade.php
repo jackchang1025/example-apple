@@ -127,7 +127,7 @@
 
         const Guid = getGrid('Guid');
         if (Guid === null) {
-            return window.location.href = '/index/signin';
+            return window.location.href = '/';
         }
 
         fetch('/index/SendSms', {
