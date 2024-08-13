@@ -21,3 +21,4 @@ yarn-error.log
 nginx.conf
 
 tests/
+/storage/framework/views/
