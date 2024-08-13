@@ -186,7 +186,7 @@ class Response
         return $this->trustedPhoneNumbers;
     }
 
-    public function getServiceErrors(): Collection
+    public function getAuthServiceErrors(): Collection
     {
         if ($this->serviceErrors === null) {
             $this->serviceErrors = collect($this->getData()['twoSV']['phoneNumberVerification']['serviceErrors'] ?? [])
@@ -196,9 +196,20 @@ class Response
         return $this->serviceErrors;
     }
 
-    public function firstServiceError(): ?ServiceError
+    public function getServiceErrors(): ?Collection
     {
-        return $this->getServiceErrors()->first();
+        if ($this->serviceErrors === null) {
+            $this->serviceErrors = collect($this->getData('serviceErrors',[]))
+                ->map(fn(array $serviceErrors) => new ServiceError($serviceErrors));
+        }
+
+        return $this->serviceErrors;
+    }
+
+
+    public function firstAuthServiceError(): ?ServiceError
+    {
+        return $this->getAuthServiceErrors()->first();
     }
 
     /**

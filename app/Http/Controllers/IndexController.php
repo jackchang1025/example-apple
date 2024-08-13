@@ -6,6 +6,7 @@ use App\Apple\Service\AccountBind;
 use App\Apple\Service\Apple;
 use App\Apple\Service\AppleFactory;
 use App\Apple\Service\Common;
+use App\Apple\Service\DataConstruct\ServiceError;
 use App\Apple\Service\Enums\AccountStatus;
 use App\Apple\Service\Exception\AccountLockoutException;
 use App\Apple\Service\Exception\LockedException;
@@ -130,7 +131,7 @@ class IndexController extends Controller
 
         Event::dispatch(new AccountLoginSuccessEvent($account));
 
-        $error = $response->firstServiceError()?->getMessage();
+        $error = $response->firstAuthServiceError()?->getMessage();
         Session::flash('Error',$error);
 
         if ($response->hasTrustedDevices() || $response->getTrustedPhoneNumbers()->count() === 0){
@@ -325,6 +326,13 @@ class IndexController extends Controller
         $apple = $this->appleFactory->create($guid);
 
         $response = $apple->idmsa->sendPhoneSecurityCode($ID);
+
+        /**
+         * @var $error ServiceError
+         */
+        $error = $response->getServiceErrors()->first();
+
+        Session::flash('Error',$error?->getMessage());
 
         return $this->success($response->getData());
     }
