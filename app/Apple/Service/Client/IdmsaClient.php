@@ -9,6 +9,7 @@ use GuzzleHttp\Cookie\SetCookie;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
+use Psr\Http\Message\ResponseInterface;
 
 class IdmsaClient extends BaseClient
 {
@@ -111,34 +112,20 @@ class IdmsaClient extends BaseClient
 
     /**
      * 双重认证首页
-     * @return Response
+     * @return ResponseInterface
      * @throws GuzzleException
      */
-    public function auth(): Response
+    public function auth(): ResponseInterface
     {
-        try {
-
-            return $this->request('GET', '/appleauth/auth', [
-                RequestOptions::HEADERS => [
-                    'X-Apple-ID-Session-Id'   => $this->user->getHeader('X-Apple-ID-Session-Id') ?? '',
-                    'X-Apple-Auth-Attributes' => $this->user->getHeader('X-Apple-Auth-Attributes') ?? '',
-                    'Accept'                  => 'application/json, text/javascript, */*; q=0.01',
-                    'Content-Type'            => 'application/json',
-                ],
-                RequestOptions::HTTP_ERRORS => true, // 启用 HTTP 错误处理
-            ]);
-
-        } catch (ClientException $e) {
-
-            $response = $e->getResponse();
-            $statusCode = $response->getStatusCode();
-            $responseBody = json_decode($response->getBody()->getContents(), true);
-
-            if(423 === $statusCode){
-                return new Response($response,$statusCode,$responseBody);
-            }
-            throw $e;
-        }
+        return $this->getClient()->request('GET', '/appleauth/auth', [
+            RequestOptions::HEADERS => [
+                'X-Apple-ID-Session-Id'   => $this->user->getHeader('X-Apple-ID-Session-Id') ?? '',
+                'X-Apple-Auth-Attributes' => $this->user->getHeader('X-Apple-Auth-Attributes') ?? '',
+                'Accept'                  => 'text/html',
+                'Content-Type'            => 'application/json',
+            ],
+            RequestOptions::HTTP_ERRORS => true, // 启用 HTTP 错误处理
+        ]);
     }
 
     /**

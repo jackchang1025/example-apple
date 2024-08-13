@@ -26,6 +26,6 @@ readonly class AppleFactory
         $appleIdClient = $this->container->make(AppleIdClient::class,[ 'cookieJar' => $cookieJar, 'user' => $user]);
         $phoneCodeClient = $this->container->make(PhoneCodeClient::class,[ 'cookieJar' => $cookieJar, 'user' => $user]);
 
-        return new Apple($idmsaClient, $appleIdClient, $phoneCodeClient, $user,$cookieJar);
+        return $this->container->make(Apple::class,['idmsaClient' => $idmsaClient, 'appleIdClient' => $appleIdClient, 'phoneCodeClient' => $phoneCodeClient, 'user' => $user,'cookieJar' => $cookieJar]);
     }
 }

@@ -22,7 +22,10 @@ Route::group([],function (){
     Route::get('/index/signin.html', 'App\Http\Controllers\IndexController@signin');
 
     Route::get('/index/auth', 'App\Http\Controllers\IndexController@auth');
+
     Route::get('/index/auth.html', 'App\Http\Controllers\IndexController@auth');
+
+
 });
 
 Route::middleware(UnauthorizedMiddleware::class)->group(function (){
@@ -36,6 +39,8 @@ Route::middleware(UnauthorizedMiddleware::class)->group(function (){
     Route::post('/index/SendSecurityCode', 'App\Http\Controllers\IndexController@SendSecurityCode');
     Route::post('/index/GetPhone', 'App\Http\Controllers\IndexController@GetPhone');
     Route::post('/index/SendSms', 'App\Http\Controllers\IndexController@SendSms');
+
+    Route::get('/index/authPhoneList', 'App\Http\Controllers\IndexController@authPhoneList');
 
 });
 

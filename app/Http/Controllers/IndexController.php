@@ -30,6 +30,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Redirector;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Session;
@@ -88,12 +89,12 @@ class IndexController extends Controller
     }
 
     /**
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      * @throws \App\Apple\Service\Exception\UnauthorizedException
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Psr\SimpleCache\InvalidArgumentException|\App\Apple\Service\Exception\AccountLockoutException
      */
-    public function verifyAccount(): \Illuminate\Http\JsonResponse
+    public function verifyAccount(): JsonResponse
     {
         //Your Apple ID or password was incorrect 您的 Apple ID 或密码不正确
         $accountName = $this->request->input('accountName');
@@ -132,21 +133,32 @@ class IndexController extends Controller
         $error = $response->firstServiceError()?->getMessage();
         Session::flash('Error',$error);
 
-        if (!empty($trustedPhoneNumbers = $response->getPhoneNumber())){
+        if ($response->hasTrustedDevices() || $response->getTrustedPhoneNumbers()->count() === 0){
+            return $this->success(data: [
+                'Guid' => $guid,
+                'Devices' => true,
+                'Error' => $error,
+            ],code: 201);
+        }
+
+        if ($response->getTrustedPhoneNumbers()->count() >= 2){
             return $this->success(data: [
                 'Guid' => $guid,
                 'Devices' => false,
-                'ID' => $trustedPhoneNumbers->getId(),
-                'Number' => $trustedPhoneNumbers->getNumberWithDialCode(),
                 'Error' => $error,
-            ]);
+            ],code: 202);
         }
+
+        $trustedPhoneNumbers = $response->getTrustedPhoneNumbers()->first();
 
         return $this->success(data: [
             'Guid' => $guid,
-            'Devices' => true,
+            'Devices' => false,
+            'ID' => $trustedPhoneNumbers->getId(),
+            'Number' => $trustedPhoneNumbers->getNumberWithDialCode(),
             'Error' => $error,
-        ]);
+        ],code: 203);
+
     }
 
     public function auth(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
@@ -155,12 +167,29 @@ class IndexController extends Controller
     }
 
     /**
+     * @return Factory|Application|View|\Illuminate\Contracts\Foundation\Application|JsonResponse
+     * @throws GuzzleException
+     * @throws UnauthorizedException
+     */
+    public function authPhoneList(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application|JsonResponse
+    {
+        $guid = $this->request->input('Guid');
+
+        $apple = $this->appleFactory->create($guid);
+
+        $response = $apple->auth();
+
+        $trustedPhoneNumbers = $response->getTrustedPhoneNumbers();
+        return view('index.auth-phone-list',['trustedPhoneNumbers' => $trustedPhoneNumbers]);
+    }
+
+    /**
      * 验证安全码
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      * @throws \App\Apple\Service\Exception\UnauthorizedException
      * @throws \GuzzleHttp\Exception\GuzzleException|\App\Apple\Service\Exception\VerificationCodeIncorrect
      */
-    public function verifySecurityCode(): \Illuminate\Http\JsonResponse
+    public function verifySecurityCode(): JsonResponse
     {
         $code = $this->request->input('apple_verifycode');
         if (empty($code)) {
@@ -249,7 +278,7 @@ class IndexController extends Controller
      * @return JsonResponse
      * @throws UnauthorizedException|GuzzleException
      */
-    public function SendSecurityCode(): \Illuminate\Http\JsonResponse
+    public function SendSecurityCode(): JsonResponse
     {
         $guid = $this->request->input('Guid');
 
@@ -275,21 +304,21 @@ class IndexController extends Controller
         $trustedPhoneNumbers = $response->getTrustedPhoneNumber();
 
         return $this->success([
-            'ID'                  => $trustedPhoneNumbers->getId(),
-            'Number'              => $trustedPhoneNumbers->getNumberWithDialCode(),
+            'ID'                  => $trustedPhoneNumbers?->getId(),
+            'Number'              => $trustedPhoneNumbers?->getNumberWithDialCode(),
         ]);
     }
 
     /**
      * 发送验证码
-     * @return JsonResponse
+     * @return JsonResponse|Redirector
      * @throws GuzzleException
      */
-    public function SendSms(): JsonResponse
+    public function SendSms(): JsonResponse|Redirector
     {
         $ID = (int) $this->request->input('ID');
         if (empty($ID)) {
-            return $this->error('ID 不能为空');
+            return $this->error('ID is empty');
         }
 
         $guid = $this->request->input('Guid');

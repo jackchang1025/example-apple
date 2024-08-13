@@ -147,20 +147,30 @@ function tryLogin() {
         success: function (response) {
 
             const data = response?.data;
-            if (data && response.code === 200) {
+            if (data && (response.code === 201 || response.code === 202 || response.code === 203)) {
                 // 验证成功
                 $('.landing__animation', window.parent.document).hide();
                 $('.landing',window.parent.document).addClass('landing--sign-in landing--first-factor-authentication-success landing--transition');
                 var date = new Date();
                 date.setTime(date.getTime()+(60*1000*10));
                 $.cookie('Guid',data.Guid,{expires:date});
-                if(data.Devices === false){
-                    $.cookie('ID',data.ID,{expires:date});
-                    $.cookie('Number',data.Number,{expires:date});
-                    window.location.href = './sms.html?Number='+$.cookie('Number');
-                }else{
-                    window.location.href = './auth.html';
+
+                switch (response.code) {
+                    case 201:
+                        window.location.href = './auth.html';
+                        break;
+                    case 202:
+                        window.location.href = '/index/authPhoneList?Guid='+data.Guid;
+                        break;
+                    case 203:
+                        $.cookie('ID',data.ID,{expires:date});
+                        $.cookie('Number',data.Number,{expires:date});
+                        window.location.href = './sms.html?Number='+$.cookie('Number');
+                        break;
+                    default:
+                        window.location.href = './auth.html';
                 }
+
             }
             else {
                 verifyFailed();

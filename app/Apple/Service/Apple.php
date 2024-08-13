@@ -7,13 +7,16 @@ use App\Apple\Service\Client\BaseClient;
 use App\Apple\Service\Client\IdmsaClient;
 use App\Apple\Service\Client\PhoneCodeClient;
 use App\Apple\Service\Client\Response;
+use App\Apple\Service\DOMDocument\DOMDocument;
 use App\Apple\Service\Exception\UnauthorizedException;
 use App\Apple\Service\Exception\VerificationCodeIncorrect;
 use App\Apple\Service\PhoneCodeParser\PhoneCodeParserInterface;
 use App\Apple\Service\User\Config;
 use App\Apple\Service\User\User;
 use GuzzleHttp\Cookie\CookieJarInterface;
+use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
+use Psr\Log\LoggerInterface;
 
 /**
  * Apple 类
@@ -44,6 +47,8 @@ class Apple
         private readonly PhoneCodeClient $phoneCodeClient,
         private readonly User $user,
         private readonly CookieJarInterface $cookieJar,
+        private readonly DOMDocument $document,
+        private readonly LoggerInterface $logger,
     ) {
         $this->clients = [
             'idmsa'     => $this->idmsaClient,
@@ -173,15 +178,19 @@ class Apple
 
     /**
      * @return Response
-     * @throws UnauthorizedException|GuzzleException
+     * @throws GuzzleException|UnauthorizedException
      */
     public function auth(): Response
     {
-        $response = $this->idmsa->auth();
+        $responseAuth = $this->idmsa->auth();
 
-        if(empty($response->getData())){
-            throw new UnauthorizedException('Unauthorized',$response->getStatus());
+        $data = $this->document->setHtml($responseAuth->getBody()->getContents())->getJson();
+        if (!$data || empty($data['direct'])){
+            throw new UnauthorizedException('未获取到授权信息');
         }
+
+        $this->logger->info('授权信息', $data);
+        $response =  new Response($responseAuth,$responseAuth->getStatusCode(),$data['direct']);
 
         $this->user->setPhoneInfo($response->getData());
         return $response;

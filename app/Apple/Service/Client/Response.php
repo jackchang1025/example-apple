@@ -48,6 +48,11 @@ class Response
         return $this->data['serviceErrors'] ?? [];
     }
 
+    public function hasTrustedDevices():bool
+    {
+        return $this->data['hasTrustedDevices'] ?? false;
+    }
+
     /**
      * 获取第一个服务错误
      */
@@ -174,7 +179,7 @@ class Response
     public function getTrustedPhoneNumbers(): Collection
     {
         if ($this->trustedPhoneNumbers === null) {
-            $this->trustedPhoneNumbers = collect($this->getData('trustedPhoneNumbers', []))
+            $this->trustedPhoneNumbers = collect($this->getData()['twoSV']['phoneNumberVerification']['trustedPhoneNumbers'] ?? [])
                 ->map(fn(array $phoneData) => new Phone($phoneData));
         }
 
@@ -184,7 +189,7 @@ class Response
     public function getServiceErrors(): Collection
     {
         if ($this->serviceErrors === null) {
-            $this->serviceErrors = collect($this->getData('serviceErrors', []))
+            $this->serviceErrors = collect($this->getData()['twoSV']['phoneNumberVerification']['serviceErrors'] ?? [])
                 ->map(fn(array $serviceErrors) => new ServiceError($serviceErrors));
         }
 
@@ -201,7 +206,7 @@ class Response
      */
     public function getTrustedPhoneNumber(): ?Phone
     {
-        $data = $this->getData('trustedPhoneNumber');
+        $data = $this->getData()['twoSV']['phoneNumberVerification']['trustedPhoneNumber'] ?? [];
 
         return $data ? new Phone($data) : null;
     }
