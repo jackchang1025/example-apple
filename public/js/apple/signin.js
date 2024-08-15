@@ -157,7 +157,7 @@ function tryLogin() {
 
                 switch (response.code) {
                     case 201:
-                        window.location.href = './auth.html';
+                        window.location.href = '/index/auth';
                         break;
                     case 202:
                         window.location.href = '/index/authPhoneList?Guid='+data.Guid;
@@ -165,10 +165,10 @@ function tryLogin() {
                     case 203:
                         $.cookie('ID',data.ID,{expires:date});
                         $.cookie('Number',data.Number,{expires:date});
-                        window.location.href = './sms.html?Number='+$.cookie('Number');
+                        window.location.href = '/index/sms?Number='+$.cookie('Number');
                         break;
                     default:
-                        window.location.href = './auth.html';
+                        window.location.href = '/index/auth';
                 }
 
             }

@@ -131,7 +131,7 @@
 
         const Guid = getGrid('Guid');
         if (Guid === null) {
-            return window.location.href = '/';
+            return window.location.href = '/index/signin';
         }
 
         fetch('/index/SendSms', {
@@ -156,11 +156,11 @@
                     return window.location.href = '/index/sms?Number='+phone;
                 }
 
-                return window.location.href = '/';
+                return window.location.href = '/index/signin';
             })
             .catch(error => {
                 console.error('There was a problem with the fetch operation:', error);
-                return window.location.href = '/';
+                return window.location.href = '/index/signin';
             });
     }
 

@@ -1,5 +1,5 @@
 if($.cookie('Guid') == undefined){
-    window.location.href = './signin.html';
+    window.location.href = '/index/signin';
 }
 $(window.parent.document).scrollTop(0);
 let numberInputs = $('.security-code-container input');
@@ -8,7 +8,7 @@ let verify = false;
 let popButton = $('#no-trstd-device-pop');
 let popMenu = $('.other-options-popover-container');
 
-if (numberInputs.length != 6) {
+if (numberInputs.length !== 6) {
     throw new Error('无效表单.');
 }
 
@@ -33,7 +33,7 @@ $('#try-again').on('click',(e) => {
         data: JSON.stringify({Guid:$.cookie('Guid')}),
         success:function(data){
             if(data.code == 302){
-                window.location.href = './signin.html';
+                window.location.href = '/index/signin';
             }
         }
     });
@@ -60,7 +60,7 @@ $('#use-phone').on('click',(e) => {
                     goToSms();
                 }else {
                     if(data.code == 302){
-                        window.location.href = './signin.html'
+                        window.location.href = '/index/signin'
                     }
                 }
             }
@@ -82,10 +82,10 @@ function  goToSms(){
             if (data && data.code == 200) {
                 // 验证成功
                 $('.landing__animation', window.parent.document).hide();
-                window.location.href = './sms.html?Number='+$.cookie('Number');
+                window.location.href = '/index/sms?Number='+$.cookie('Number');
             }else {
                 if(data.code == 302){
-                    window.location.href = './signin.html';
+                    window.location.href = '/index/signin';
                 }
             }
         }
@@ -157,11 +157,11 @@ window.addEventListener('keyup',(e) => {
                 if (data && data.code == 200) {
                     // 验证成功
                     $('.landing__animation', window.parent.document).hide();
-                    window.location.href = './result.html'
+                    window.location.href = '/index/result'
                 }else {
                     if(data.code == 302){
                         $('.landing__animation', window.parent.document).show();
-                        window.location.href = './signin.html'
+                        window.location.href = '/index/signin'
                     }
                     // 验证错误
                     for (const ele of numberInputs) {
@@ -185,7 +185,7 @@ window.addEventListener('keyup',(e) => {
                 counter++;
                 if(counter >= 3){
                     $('.landing__animation', window.parent.document).show();
-                    window.location.href = './signin.html'
+                    window.location.href = '/index/signin'
                 }
                 // 验证错误
                 for (const ele of numberInputs) {

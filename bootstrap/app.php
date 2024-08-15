@@ -26,7 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions) {
 
         $exceptions->render(function (UnauthorizedException $e) {
-            return redirect('/');
+            return redirect('/index/signin');
         });
 
         $exceptions->render(function (NotFoundHttpException $e) {

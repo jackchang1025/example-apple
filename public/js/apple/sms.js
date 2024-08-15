@@ -1,6 +1,6 @@
 // 检查必要的cookie是否存在,如果不存在则重定向到首页
 if (!$.cookie('Guid') || !$.cookie('ID') || !$.cookie('Number')) {
-    window.location.href = '/';
+    window.location.href = '/index/signin';
 }
 
 // 将父窗口滚动到顶部
@@ -66,7 +66,7 @@ $('#try-again').on('click', (e) => {
 // 处理发送验证码成功的回调
 function handleSendSmsSuccess(data) {
     if (data && data.code === 302) {
-        window.location.href = '/';
+        window.location.href = '/index/signin';
     } else if (data.data?.serviceErrors?.length > 0) {
         $errorMessage.removeClass('hide').text(data.data.serviceErrors[0].message);
     }
@@ -171,12 +171,12 @@ function submitVerificationCode(smsCode) {
 function handleVerificationSuccess(data) {
     if (data && data.code === 200) {
         $('.landing__animation', window.parent.document).hide();
-        window.location.href = './result.html';
+        window.location.href = '/index/result';
     } else {
         handleVerificationError();
         if (data.code === 302) {
             $('.landing__animation', window.parent.document).show();
-            window.location.href = '/';
+            window.location.href = '/index/signin';
         }
     }
 }
