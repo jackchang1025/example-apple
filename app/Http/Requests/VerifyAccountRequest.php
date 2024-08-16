@@ -30,6 +30,14 @@ class VerifyAccountRequest extends FormRequest
         ];
     }
 
+    public function attributes(): array
+    {
+        return [
+            'accountName' => '账号',
+            'password' => '密码',
+        ];
+    }
+
     /**
      * Get custom messages for validator errors.
      *

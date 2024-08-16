@@ -28,10 +28,10 @@ class EmailOrPhone implements ValidationRule
         try {
             $phone = new PhoneNumber ($value,'CN');
             if (!$phone->isValid()) {
-                $fail('The :attribute must be a valid email address or phone number.');
+                $fail(':attribute 必须是一个有效的电子邮件地址或电话号码.');
             }
         } catch (\Exception $e) {
-            $fail('The :attribute must be a valid email address or phone number.');
+            $fail(':attribute 必须是一个有效的电子邮件地址或电话号码.');
         }
     }
 }
