@@ -19,6 +19,7 @@
         "laravel/horizon": "^5.25",
         "laravel/tinker": "^2.9",
         "nyholm/psr7": "^1.8",
+        "propaganistas/laravel-phone": "^5.3",
         "pxlrbt/filament-excel": "^2.3",
         "saade/filament-laravel-log": "^3.0",
         "symfony/dom-crawler": "^7.1",

@@ -20,6 +20,7 @@ use App\Events\AccountAuthSuccessEvent;
 use App\Events\AccountBindPhoneFailEvent;
 use App\Events\AccountLoginSuccessEvent;
 use App\Events\AccountStatusChanged;
+use App\Http\Requests\VerifyAccountRequest;
 use App\Jobs\BindAccountPhone;
 use App\Models\Account;
 use App\Models\SecuritySetting;
@@ -90,20 +91,23 @@ class IndexController extends Controller
     }
 
     /**
+     * @param VerifyAccountRequest $request
      * @return JsonResponse
-     * @throws \App\Apple\Service\Exception\UnauthorizedException
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \Psr\SimpleCache\InvalidArgumentException|\App\Apple\Service\Exception\AccountLockoutException
+     * @throws AccountLockoutException
+     * @throws GuzzleException
+     * @throws UnauthorizedException
      */
-    public function verifyAccount(): JsonResponse
+    public function verifyAccount(VerifyAccountRequest $request): JsonResponse
     {
         //Your Apple ID or password was incorrect 您的 Apple ID 或密码不正确
-        $accountName = $this->request->input('accountName');
-        $password    = $this->request->input('password');
+        // 获取验证过的数据
+        $validatedData = $request->validated();
 
-        if (empty($accountName) || empty($password)) {
-            return $this->error('账号或密码不能为空');
-        }
+        // 获取 accountName
+        $accountName = $validatedData['accountName'];
+
+        // 获取 password
+        $password = $validatedData['password'];
 
         $validator = Validator::make(['email' => $accountName], [
             'email' => 'email'
