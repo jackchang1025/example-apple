@@ -5,6 +5,7 @@ namespace App\Providers\Filament;
 use App\Filament\Resources\PageVisitsResource\Widgets\GeolocationChart;
 use App\Filament\Resources\PageVisitsResource\Widgets\OnlineUsersChart;
 use App\Filament\Resources\PageVisitsResource\Widgets\TotalVisitsChart;
+use App\Filament\Widgets\PageVisits;
 use App\Http\Middleware\EnforceSecuritySettingsMiddleware;
 use App\Models\SecuritySetting;
 use Filament\Http\Middleware\Authenticate;
@@ -55,9 +56,10 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
 //                Widgets\AccountWidget::class,
-                TotalVisitsChart::class,
-                OnlineUsersChart::class,
-                GeolocationChart::class,
+//                TotalVisitsChart::class,
+//                OnlineUsersChart::class,
+//                GeolocationChart::class,
+                PageVisits::class,
 //                Widgets\FilamentInfoWidget::class,
             ])
             ->middleware([

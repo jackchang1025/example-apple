@@ -90,7 +90,7 @@
         }
 
         function createChinaMapOption() {
-            const chinaCities = data.cities.filter(city => city.country === 'China');
+            const chinaCities = data.cities.filter(city => city.country === '中国');
 
             // 过滤掉明显不合理的数据
             const validChinaCities = chinaCities.filter(city => {

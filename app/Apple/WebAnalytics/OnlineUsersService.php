@@ -5,6 +5,7 @@ namespace App\Apple\WebAnalytics;
 use App\Apple\WebAnalytics\Enums\Route;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Redis\RedisManager;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 /**
@@ -25,6 +26,8 @@ class OnlineUsersService
      */
     protected int $onlineThreshold = 60;
 
+    protected ?Collection $data = null;
+
     /**
      * @var string Redis 键前缀
      */
@@ -38,6 +41,7 @@ class OnlineUsersService
     public function __construct(protected Container $container)
     {
         $this->redis = $this->container->get('redis');
+        $this->data = collect();
     }
 
     public function getConfigPrefix()
@@ -45,17 +49,38 @@ class OnlineUsersService
         return config('database.redis.options.prefix', '');
     }
 
+    public function getOnlineAllPages(): Collection
+    {
+        $keys = $this->redis->keys($this->formatKey());
+        $now = time();
+        $prefix = $this->getConfigPrefix();
+        foreach ($keys as $key) {
+
+            // 移除 Laravel 添加的前缀
+            $unprefixedKey = substr($key, strlen($prefix));
+
+            $uri = $this->extractUriFromKey($unprefixedKey);
+
+            $users = $this->redis->hGetAll($unprefixedKey);
+
+            $activeUsersCount = $this->countActiveUsers($users, $now);
+            $this->data[$uri] = $activeUsersCount;
+        }
+
+        return $this->data;
+    }
+
     /**
      * 获取所有页面的在线用户数量
      *
      * @param int|null $limit 限制返回的页面数量
-     * @return array 包含每个页面在线用户数的数组
+     * @return Collection 包含每个页面在线用户数的数组
      */
-    public function getOnlineCountsForAllPages(?int $limit = null): array
+    public function getOnlineCountsForAllPages(?int $limit = null): Collection
     {
         $keys = $this->redis->keys($this->formatKey());
         $now = time();
-        $data = [];
+        $data = collect();
 
         $prefix = $this->getConfigPrefix();
         foreach ($keys as $key) {
@@ -71,9 +96,9 @@ class OnlineUsersService
             $data[$uri] = $activeUsersCount;
         }
 
-        arsort($data);
+        $data->sort();
 
-        return $limit !== null ? array_slice($data, 0, $limit) : $data;
+        return $limit !== null ? $data->slice($limit) : $data;
     }
 
     /**
