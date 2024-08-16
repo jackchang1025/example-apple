@@ -16,7 +16,7 @@ class PageVisits extends BaseWidget
         $data = $onlineUsersService->getOnlineAllPages();
 
         return [
-            Stat::make('总访问量', \App\Models\PageVisits::count())->description('所有页面总访问量'),
+            Stat::make('总访问量', \App\Models\PageVisits::groupBy('ip_address')->count())->description('所有用户总访问量'),
             Stat::make('验证账号', $data->get('验证账号', 0))->description('在线人数'),
             Stat::make('授权', $data->get('授权', 0))->description('在线人数'),
             Stat::make('授权成功', $data->get('授权成功', 0))->description('在线人数'),

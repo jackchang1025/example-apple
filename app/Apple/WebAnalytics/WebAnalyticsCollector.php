@@ -29,10 +29,11 @@ class WebAnalyticsCollector
 
         $geoData = $this->getGeoData($ipAddress);
 
-        return PageVisits::create([
+        return PageVisits::firstOrCreate([
+            'ip_address'  => $ipAddress,
+        ],[
             'uri'         => $request->path(),
             'user_agent'  => $request->userAgent(),
-            'ip_address'  => $ipAddress,
             'name'        => $request->route()->getName(),
             'device_type' => $this->agent->device(),
             'browser'     => $this->agent->browser(),
