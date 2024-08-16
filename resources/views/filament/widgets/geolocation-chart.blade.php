@@ -173,10 +173,12 @@
         function updateChart(mapType) {
             try {
                 let option = mapType === 'world' ? createWorldMapOption() : createChinaMapOption();
+                console.log('Chart option:', option); // 添加日志
                 chart.setOption(option, true);
                 currentMap = mapType;
             } catch (error) {
                 console.error('更新图表时出错:', error);
+                console.log('当前数据:', data); // 添加数据日志
             }
         }
 
