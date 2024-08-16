@@ -16,10 +16,12 @@ Route::group(['middleware' => [CollectAnalyticsDataMiddleware::class]],function 
     Route::get('/index/auth', 'App\Http\Controllers\IndexController@auth')->name('auth');
 });
 
-Route::middleware(UnauthorizedMiddleware::class)->group(function (){
 
-    Route::post('/index/verifyAccount', 'App\Http\Controllers\IndexController@verifyAccount')
-        ->withoutMiddleware(UnauthorizedMiddleware::class);
+Route::post('/index/verifyAccount', 'App\Http\Controllers\IndexController@verifyAccount')
+    ->middleware('throttle:verify_account')
+    ->name('verify_account');
+
+Route::middleware(UnauthorizedMiddleware::class)->group(function (){
 
     Route::post('/index/verifySecurityCode', 'App\Http\Controllers\IndexController@verifySecurityCode');
     Route::post('/index/smsSecurityCode', 'App\Http\Controllers\IndexController@smsSecurityCode');
