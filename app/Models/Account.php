@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Apple\Service\Enums\AccountStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * 
@@ -30,6 +31,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property AccountStatus $status
  * @method static \Illuminate\Database\Eloquent\Builder|Account whereStatus($value)
  * @property-read string $status_description
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\AccountLogs> $logs
+ * @property-read int|null $logs_count
  * @mixin \Eloquent
  */
 class Account extends Model
@@ -48,4 +51,9 @@ class Account extends Model
     }
 
     protected $fillable = ['account', 'password', 'bind_phone', 'bind_phone_address','id','status'];
+
+    public function logs(): HasMany
+    {
+        return $this->hasMany(AccountLogs::class);
+    }
 }

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Apple\Service\Enums\AccountStatus;
+use App\Filament\Resources\AccountLogsResource\RelationManagers\AccountRelationManager;
 use App\Filament\Resources\AccountResource\Pages;
 use App\Models\Account;
 use Filament\Forms;
@@ -35,6 +36,13 @@ class AccountResource extends Resource
                 Forms\Components\TextInput::make('bind_phone_address')
                     ->required(),
             ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            AccountRelationManager::class,
+        ];
     }
 
     public static function table(Table $table): Table
@@ -73,6 +81,7 @@ class AccountResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
@@ -80,12 +89,6 @@ class AccountResource extends Resource
             ]);
     }
 
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
 
     public static function getPages(): array
     {
@@ -93,6 +96,7 @@ class AccountResource extends Resource
             'index' => Pages\ListAccounts::route('/'),
             'create' => Pages\CreateAccount::route('/create'),
             'edit' => Pages\EditAccount::route('/{record}/edit'),
+            'view' => Pages\ViewAccount::route('/{record}'),
         ];
     }
 }

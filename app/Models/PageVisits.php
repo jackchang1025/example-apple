@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- *
+ * 
  *
  * @property int $id
  * @property string $uri
@@ -37,6 +37,11 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|PageVisits whereUri($value)
  * @method static \Illuminate\Database\Eloquent\Builder|PageVisits whereUserAgent($value)
  * @method static \Illuminate\Database\Eloquent\Builder|PageVisits whereVisitedAt($value)
+ * @property float|null $latitude 经度
+ * @property float|null $longitude 维度
+ * @method static \Database\Factories\PageVisitsFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder|PageVisits whereLatitude($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PageVisits whereLongitude($value)
  * @mixin \Eloquent
  */
 class PageVisits extends Model
