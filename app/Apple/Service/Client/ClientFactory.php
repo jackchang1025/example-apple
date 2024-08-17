@@ -6,8 +6,6 @@ use App\Apple\Service\User\User;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
-use GuzzleHttp\RequestOptions;
-use Illuminate\Support\Str;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -42,21 +40,6 @@ class ClientFactory
             // 添加 Referer 头
             $request->withAddedHeader('Referer', $request->getUri()->getHost());
 
-            // 格式化并打印 response headers
-            $formattedHeaders = [];
-            foreach ($request->getHeaders() as $name => $values) {
-                foreach ($values as $value) {
-                    $formattedHeaders[] = "$name: $value";
-                }
-            }
-            $headersString = implode("\n", $formattedHeaders);
-
-            $this->logger->debug("Request Headers:\n$headersString");
-            $this->logger->debug("Request body:\n{$request->getBody()}");
-            $this->logger->debug("proxy_url:{$this->user->get('proxy_url')}");
-            $this->logger->debug("proxy_ip:{$this->user->get('proxy_ip')}");
-            $this->logger->debug("account:{$this->user->get('account')}");
-
             $this->logger->info('Request', [
                 'method'  => $request->getMethod(),
                 'uri'     => (string)$request->getUri(),
@@ -64,6 +47,7 @@ class ClientFactory
                 'body'    => (string)$request->getBody(),
                 'proxy_url'    => $this->user->get('proxy_url'),
                 'proxy_ip'    => $this->user->get('proxy_ip'),
+                'account'    => $this->user->get('account'),
             ]);
 
             return $request;
@@ -72,35 +56,30 @@ class ClientFactory
         $stack->push(Middleware::mapResponse(function (ResponseInterface $response) {
 
             // 格式化并打印 response headers
-            $formattedHeaders = [];
             foreach ($response->getHeaders() as $name => $values) {
                 foreach ($values as $value) {
-                    $formattedHeaders[] = "$name: $value";
 
                     if ($name === 'scnt'){
                         $this->user->appendHeader('scnt', $value);
                     }
 
-                    if (str_contains($name, 'X-Apple')){//X-Apple-ID
+                    if (str_contains($name, 'X-Apple')){
                         $this->user->appendHeader($name, $value);
                     }
                 }
             }
-            $headersString = implode("\n", $formattedHeaders);
 
-            $this->logger->debug("account:{$this->user->get('account')}");
-            $this->logger->debug("Response Headers:\n$headersString");
-
-            $body = (string) $response->getBody();
-            if (Str::length($body) > 2000){
-                $body = Str::substr($body, 0, 2000);
+            $contentType = $response->getHeader('Content-Type');
+            if (!empty($contentType[0]) && $contentType[0] === 'text/html;charset=UTF-8'){
+                return $response;
             }
-            //验证 $body 的长度
+
             $this->logger->info('Response', [
+                'account'  => $this->user->get('account'),
                 'status'  => $response->getStatusCode(),
                 'reason'  => $response->getReasonPhrase(),
                 'headers' => $response->getHeaders(),
-                'body'    => $body,
+                'body'    => (string) $response->getBody(),
             ]);
 
             // 重要：将响应体的指针重置到开始位置
