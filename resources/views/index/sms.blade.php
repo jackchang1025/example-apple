@@ -234,7 +234,7 @@
                                             </div>
 
                                             <button
-                                                class="button-link si-link ax-outline tk-subbody lite-theme-override hide"
+                                                class="button-link si-link ax-outline tk-subbody hide"
                                                 id="diff_phone"
                                                 href="#"
                                                 onclick="window.history.back();"
