@@ -267,6 +267,17 @@ class Apple
         return $response;
     }
 
+    /**
+     * 发送手机验证码
+     * @param int $ID
+     * @return Response
+     * @throws GuzzleException
+     */
+    public function sendPhoneSecurityCode(int $ID): Response
+    {
+        return $this->idmsa->sendPhoneSecurityCode($ID);
+    }
+
     protected function createConfig(array $config = []): Config
     {
         return new Config(

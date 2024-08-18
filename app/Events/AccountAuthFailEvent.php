@@ -19,20 +19,8 @@ class AccountAuthFailEvent extends AccountStatusChanged
     /**
      * Create a new event instance.
      */
-    public function __construct(Account $account)
+    public function __construct(Account $account,string $action = '验证失败', string $description = '验证码不正确')
     {
-        parent::__construct($account, AccountStatus::AUTH_FAIL);
-    }
-
-    /**
-     * Get the channels the event should broadcast on.
-     *
-     * @return array<int, \Illuminate\Broadcasting\Channel>
-     */
-    public function broadcastOn(): array
-    {
-        return [
-            new PrivateChannel('channel-name'),
-        ];
+        parent::__construct($account, AccountStatus::AUTH_FAIL,$action,$description);
     }
 }

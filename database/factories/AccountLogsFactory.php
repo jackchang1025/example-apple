@@ -21,6 +21,8 @@ class AccountLogsFactory extends Factory
             'account_id' => Account::factory(),
             'action' => $this->faker->word,
             'description' => $this->faker->sentence,
+            'request' => $this->faker->text(300),
+            'response' => $this->faker->text(300),
         ];
     }
 }

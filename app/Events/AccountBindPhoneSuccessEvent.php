@@ -19,9 +19,9 @@ class AccountBindPhoneSuccessEvent extends AccountStatusChanged
     /**
      * Create a new event instance.
      */
-    public function __construct(Account $account)
+    public function __construct(Account $account,string $action = '绑定成功', string $description = '绑定手机号码成功')
     {
-        parent::__construct($account, AccountStatus::BIND_SUCCESS);
+        parent::__construct($account, AccountStatus::BIND_SUCCESS,$action,$description);
     }
 
 

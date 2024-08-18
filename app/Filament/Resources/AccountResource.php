@@ -8,6 +8,9 @@ use App\Filament\Resources\AccountResource\Pages;
 use App\Models\Account;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -86,6 +89,26 @@ class AccountResource extends Resource
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
                 ExportBulkAction::make(),
+            ]);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Section::make('基本信息')
+                    ->schema([
+                        TextEntry::make('account')->label('账号'),
+                        TextEntry::make('password')->label('密码'),
+                        TextEntry::make('status')->label('状态')
+                            ->formatStateUsing(fn (AccountStatus $state): string => $state->description())
+                            ->color(fn (AccountStatus $state): string => $state->color()),
+                        TextEntry::make('bind_phone')->label('绑定手机号码'),
+                        TextEntry::make('bind_phone_address')->label('绑定手机号码地址'),
+                        TextEntry::make('created_at')->label('创建时间')->dateTime('Y-m-d H:i:s'),
+                        TextEntry::make('updated_at')->label('更新时间')->dateTime('Y-m-d H:i:s'),
+                    ])
+                    ->columns(2)
             ]);
     }
 

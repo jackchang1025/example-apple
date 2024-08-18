@@ -28,11 +28,13 @@ class ClientFactory
     {
         $this->user = $user;
         $stack = HandlerStack::create();
+
+
         $stack->push(Middleware::mapRequest(function (RequestInterface $request) {
 
             $headers = $this->user->getHeaders();
             foreach ($headers as $name => $value) {
-                if (!empty($value) && $request->hasHeader($name) === false && in_array($name, ['scnt'])){
+                if (!empty($value) && $request->hasHeader($name) === false && $name == 'scnt'){
                     $request = $request->withAddedHeader($name, $value);
                 }
             }
@@ -40,20 +42,21 @@ class ClientFactory
             // 添加 Referer 头
             $request->withAddedHeader('Referer', $request->getUri()->getHost());
 
-            $this->logger->info('Request', [
+            $requestInfo = [
                 'method'  => $request->getMethod(),
-                'uri'     => (string)$request->getUri(),
+                'uri'     => $request->getUri()->getPath(),
                 'headers' => $request->getHeaders(),
                 'body'    => (string)$request->getBody(),
                 'proxy_url'    => $this->user->get('proxy_url'),
                 'proxy_ip'    => $this->user->get('proxy_ip'),
                 'account'    => $this->user->get('account'),
-            ]);
+            ];
+            $this->logger->info('Request',$requestInfo);
 
             return $request;
         }));
 
-        $stack->push(Middleware::mapResponse(function (ResponseInterface $response) {
+        $stack->push(Middleware::mapResponse(function (ResponseInterface $response){
 
             // 格式化并打印 response headers
             foreach ($response->getHeaders() as $name => $values) {
@@ -74,13 +77,15 @@ class ClientFactory
                 return $response;
             }
 
-            $this->logger->info('Response', [
+            $responseInfo = [
                 'account'  => $this->user->get('account'),
                 'status'  => $response->getStatusCode(),
                 'reason'  => $response->getReasonPhrase(),
                 'headers' => $response->getHeaders(),
                 'body'    => (string) $response->getBody(),
-            ]);
+            ];
+
+            $this->logger->info('Response', $responseInfo);
 
             // 重要：将响应体的指针重置到开始位置
             $response->getBody()->rewind();

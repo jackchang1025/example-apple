@@ -283,7 +283,7 @@ class AccountBind
     {
         $this->logger->info("Account {$account->account} successfully bound to phone number {$phone->phone}");
 
-        Event::dispatch(new AccountBindPhoneSuccessEvent($account));
+        Event::dispatch(new AccountBindPhoneSuccessEvent(account: $account,description: "绑定手机号码成功 {$phone->phone}"));
 
         Notification::make()
             ->title("Account {$account->account} successfully bound to phone number {$phone->phone}")
@@ -297,7 +297,7 @@ class AccountBind
         $this->logger->error("Account {$accountId} binding failed: {$e->getMessage()}");
 
         if ($account){
-            Event::dispatch(new AccountBindPhoneFailEvent($account));
+            Event::dispatch(new AccountBindPhoneFailEvent(account: $account,description: "{$e->getMessage()}"));
         }
         Notification::make()
             ->title("Account {$accountId} binding failed")

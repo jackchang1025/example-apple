@@ -2,7 +2,9 @@
 
 namespace App\Apple\Service\User;
 
+use App\Models\Account;
 use Illuminate\Config\Repository;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Psr\SimpleCache\CacheInterface;
 
@@ -36,6 +38,14 @@ class User
     public function get(string $key, mixed $default = null): mixed
     {
         return $this->user->get($key, $default);
+    }
+
+    public function getAccount(): Account|null
+    {
+        if($account = $this->get('account')){
+            return Account::where('account',$account)->first();
+        }
+        return null;
     }
 
     public function gets(): Collection

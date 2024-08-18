@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\AccountLogsResource\RelationManagers;
 
 use App\Filament\Resources\AccountResource\Pages\ViewAccount;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -19,12 +21,23 @@ class AccountRelationManager extends RelationManager
         return $pageClass === ViewAccount::class;
     }
 
+    public function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist->schema([
+                TextEntry::make('action')
+                    ->label('操作'),
+                TextEntry::make('description')
+                    ->label('描述'),
+                TextEntry::make('created_at')
+                    ->label('创建时间')
+                    ->dateTime(),
+            ]);
+    }
     public function table(Table $table): Table
     {
         return $table
             ->recordTitleAttribute('action')
             ->columns([
-
                 Tables\Columns\TextColumn::make('action')
                     ->label('操作')
                     ->searchable(),
@@ -43,8 +56,6 @@ class AccountRelationManager extends RelationManager
                 Tables\Actions\CreateAction::make(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

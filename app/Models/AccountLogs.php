@@ -26,6 +26,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $phone_id
  * @property-read \App\Models\Account|null $account
  * @method static \Illuminate\Database\Eloquent\Builder|AccountLogs wherePhoneId($value)
+ * @property int $account_id
+ * @property string $request
+ * @property string $response
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountLogs whereAccountId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountLogs whereRequest($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AccountLogs whereResponse($value)
  * @mixin \Eloquent
  */
 class AccountLogs extends Model
@@ -34,7 +40,12 @@ class AccountLogs extends Model
 
     protected $table = 'account_logs';
 
-    protected $fillable = ['account_id','action', 'description'];
+    protected $fillable = ['account_id','action', 'description','request','response'];
+
+    protected $casts = [
+        'request'=> 'array',
+        'response'=> 'array',
+    ];
 
     public function account(): BelongsTo
     {

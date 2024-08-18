@@ -14,7 +14,9 @@ return new class extends Migration
         Schema::create('account_logs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('account_id')->constrained('account')->onDelete('cascade');
-            $table->string('action');
+            $table->string('action',255);
+            $table->json('request')->nullable();
+            $table->json('response')->nullable();
             $table->longText('description')->nullable();
             $table->timestamps();
         });

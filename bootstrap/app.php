@@ -1,12 +1,14 @@
 <?php
 
 use App\Apple\Service\Exception\UnauthorizedException;
+use App\Apple\Service\Exception\VerificationCodeIncorrect;
 use App\Http\Middleware\BlackListIpsMiddleware;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -24,6 +26,20 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append(BlackListIpsMiddleware::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
+
+        $exceptions->render(function (ValidationException $e) {
+            return response()->json([
+                'code'    => 401,
+                'message' => $e->getMessage(),
+            ]);
+        });
+
+        $exceptions->render(function (VerificationCodeIncorrect $e) {
+            return response()->json([
+                'code'    => 405,
+                'message' => $e->getMessage(),
+            ]);
+        });
 
         $exceptions->render(function (UnauthorizedException $e) {
             return redirect('/index/signin');

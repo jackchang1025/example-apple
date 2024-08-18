@@ -4,11 +4,7 @@ namespace App\Events;
 
 use App\Apple\Service\Enums\AccountStatus;
 use App\Models\Account;
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
@@ -21,7 +17,9 @@ class AccountStatusChanged
      */
     public function __construct(
         public Account $account,
-        public AccountStatus $status
+        public AccountStatus $status,
+        public ?string $action = null,
+        public ?string $description = null
     ) {
 
     }

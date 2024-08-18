@@ -19,9 +19,9 @@ class AccountAuthSuccessEvent extends AccountStatusChanged
     /**
      * Create a new event instance.
      */
-    public function __construct(Account $account)
+    public function __construct(Account $account,string $action = '验证成功', string $description = '验证成功')
     {
-        parent::__construct($account, AccountStatus::AUTH_SUCCESS);
+        parent::__construct($account, AccountStatus::AUTH_SUCCESS,$action,$description);
     }
 
 

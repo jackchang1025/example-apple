@@ -19,10 +19,8 @@ class AccountBindPhoneFailEvent extends AccountStatusChanged
     /**
      * Create a new event instance.
      */
-    public function __construct(Account $account)
+    public function __construct(Account $account,string $action = '绑定失败', string $description = '绑定手机号码失败')
     {
-        parent::__construct($account, AccountStatus::BIND_FAIL);
+        parent::__construct($account, AccountStatus::BIND_FAIL,$action,$description);
     }
-
-
 }
