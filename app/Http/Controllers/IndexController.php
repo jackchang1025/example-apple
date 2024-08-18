@@ -288,14 +288,28 @@ class IndexController extends Controller
     {
         $apple = $this->getApple();
 
-        $response = $apple->idmsa->sendSecurityCode()->getData();
+        try {
 
-        $this->getAccount()
-            ->logs()
-            ->create([
-            'action' => '获取安全码',
-            'description' => '获取安全码成功',
-        ]);
+            $response = $apple->idmsa->sendSecurityCode()->getData();
+
+            $this->getAccount()
+                ->logs()
+                ->create([
+                    'action' => '获取安全码',
+                    'description' => '获取安全码成功',
+                ]);
+
+        } catch (\Exception $e) {
+
+            $this->getAccount()
+                ->logs()
+                ->create([
+                    'action' => '获取安全码',
+                    'description' => "获取安全码失败:{$e->getMessage()}",
+                ]);
+
+            throw $e;
+        }
 
         return $this->success($response);
     }
@@ -322,6 +336,7 @@ class IndexController extends Controller
      * 发送验证码
      * @return JsonResponse|Redirector
      * @throws GuzzleException|\Illuminate\Validation\ValidationException
+     * @throws \Exception
      */
     public function SendSms(): JsonResponse|Redirector
     {
@@ -331,7 +346,29 @@ class IndexController extends Controller
 
         $ID = (int) $params['ID'];
 
-        $response = $this->getApple()->sendPhoneSecurityCode($ID);
+
+        try {
+
+            $response = $this->getApple()->sendPhoneSecurityCode($ID);
+
+            $this->getAccount()
+                ->logs()
+                ->create([
+                    'action' => '发送手机验证码',
+                    'description' => "发送手机验证码成功",
+                ]);
+
+        } catch (\Exception $e) {
+
+            $this->getAccount()
+                ->logs()
+                ->create([
+                    'action' => '发送手机验证码',
+                    'description' => "发送手机验证码失败:{$e->getMessage()}",
+                ]);
+
+            throw $e;
+        }
 
         /**
          * @var $error ServiceError
