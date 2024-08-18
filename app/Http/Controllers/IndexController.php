@@ -2,42 +2,32 @@
 
 namespace App\Http\Controllers;
 
-use App\Apple\Service\AccountBind;
 use App\Apple\Service\Apple;
 use App\Apple\Service\AppleFactory;
-use App\Apple\Service\Common;
 use App\Apple\Service\DataConstruct\ServiceError;
-use App\Apple\Service\Enums\AccountStatus;
 use App\Apple\Service\Exception\AccountLockoutException;
-use App\Apple\Service\Exception\LockedException;
 use App\Apple\Service\Exception\UnauthorizedException;
 use App\Apple\Service\Exception\VerificationCodeIncorrect;
-use App\Apple\Service\HttpClientBak;
 use App\Apple\Service\PhoneNumber\PhoneNumberFactory;
-use App\Apple\Service\User;
 use App\Events\AccountAuthFailEvent;
 use App\Events\AccountAuthSuccessEvent;
-use App\Events\AccountBindPhoneFailEvent;
 use App\Events\AccountLoginSuccessEvent;
-use App\Events\AccountStatusChanged;
 use App\Http\Requests\VerifyAccountRequest;
+use App\Http\Requests\VerifyCodeRequest;
 use App\Jobs\BindAccountPhone;
 use App\Models\Account;
 use App\Models\SecuritySetting;
 use GuzzleHttp\Exception\GuzzleException;
-use Illuminate\Contracts\Container\Container;
-use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use libphonenumber\NumberParseException;
 use libphonenumber\PhoneNumberFormat;
 
@@ -189,11 +179,7 @@ class IndexController extends Controller
      */
     public function authPhoneList(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application|JsonResponse
     {
-        $guid = $this->request->input('Guid');
-
-        $apple = $this->appleFactory->create($guid);
-
-        $response = $apple->auth();
+        $response = $this->getApple()->auth();
 
         $trustedPhoneNumbers = $response->getTrustedPhoneNumbers();
         return view('index.auth-phone-list',['trustedPhoneNumbers' => $trustedPhoneNumbers]);
@@ -201,32 +187,24 @@ class IndexController extends Controller
 
     /**
      * 验证安全码
+     * @param VerifyCodeRequest $request
      * @return JsonResponse
-     * @throws \App\Apple\Service\Exception\UnauthorizedException
-     * @throws \GuzzleHttp\Exception\GuzzleException|\App\Apple\Service\Exception\VerificationCodeIncorrect
+     * @throws GuzzleException
+     * @throws UnauthorizedException
+     * @throws VerificationCodeIncorrect
      */
-    public function verifySecurityCode(): JsonResponse
+    public function verifySecurityCode(VerifyCodeRequest $request): JsonResponse
     {
-        $code = $this->request->input('apple_verifycode');
-        if (empty($code)) {
-            return $this->redirect();
-        }
-
+        // 检索验证过的输入数据...
+        $validated = $request->validated();
+        $code = $validated['apple_verifycode'];
         $guid = $this->request->input('Guid');
 
-        $apple = $this->appleFactory->create($guid);
-
-        if (empty($accountName = $apple->getUser()->get('account'))) {
-            return $this->redirect();
-        }
-
-        if (empty($account = $this->getAccountInfo($accountName))) {
-            return $this->redirect();
-        }
+        $account = $this->getAccount();
 
         try {
 
-            $response = $apple->validateSecurityCode($code);
+            $response = $this->getApple()->validateSecurityCode($code);
 
             Event::dispatch(new AccountAuthSuccessEvent(account: $account,description: "安全码验证成功 code:{$code}"));
         } catch (VerificationCodeIncorrect $e) {
@@ -246,29 +224,33 @@ class IndexController extends Controller
 
     /**
      * 验证手机验证码
+     * @param VerifyCodeRequest $request
      * @return JsonResponse
-     * @throws GuzzleException|\App\Apple\Service\Exception\VerificationCodeIncorrect
+     * @throws GuzzleException
      * @throws UnauthorizedException
+     * @throws VerificationCodeIncorrect
      */
-    public function smsSecurityCode(): JsonResponse
+    public function smsSecurityCode(VerifyCodeRequest $request): JsonResponse
     {
-        $Id = $this->request->input('ID',1);
-        $apple_verifycode = $this->request->input('apple_verifycode');
+        // 检索验证过的输入数据...
+        $validated = $request->validated();
 
-        if (empty($apple_verifycode) || Str::length($apple_verifycode) !== 6) {
-            return $this->redirect();
+        if (empty($Id = $validated['ID'])){
+            throw new VerificationCodeIncorrect('手机号码ID不能为空');
         }
 
-        $guid = $this->request->input('Guid');//147852
+        $code = $validated['apple_verifycode'];
+
+        $guid = $this->request->input('Guid');
 
         $account = $this->getAccount();
 
         // 验证手机号码
         try {
 
-            $response = $this->getApple()->validatePhoneSecurityCode($apple_verifycode, $Id);
+            $response = $this->getApple()->validatePhoneSecurityCode($code,(int) $Id);
 
-            Event::dispatch(new AccountAuthSuccessEvent(account: $account,description: "手机验证码验证成功 code:{$apple_verifycode}"));
+            Event::dispatch(new AccountAuthSuccessEvent(account: $account,description: "手机验证码验证成功 code:{$code}"));
         } catch (VerificationCodeIncorrect $e) {
             Event::dispatch(new AccountAuthFailEvent(account: $account,description: "{$e->getMessage()}"));
             throw $e;
@@ -335,21 +317,19 @@ class IndexController extends Controller
     /**
      * 发送验证码
      * @return JsonResponse|Redirector
-     * @throws GuzzleException|\Illuminate\Validation\ValidationException
+     * @throws GuzzleException
+     * @throws ValidationException
      * @throws \Exception
      */
     public function SendSms(): JsonResponse|Redirector
     {
         $params = Validator::make($this->request->all(), [
-            'ID' => 'required|integer'
+            'ID' => 'required|integer|min:1'
         ])->validated();
-
-        $ID = (int) $params['ID'];
-
 
         try {
 
-            $response = $this->getApple()->sendPhoneSecurityCode($ID);
+            $response = $this->getApple()->sendPhoneSecurityCode((int) $params['ID']);
 
             $this->getAccount()
                 ->logs()
