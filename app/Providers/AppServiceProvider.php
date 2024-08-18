@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Listeners\AccountStatusSubscriber;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
@@ -30,5 +32,8 @@ class AppServiceProvider extends ServiceProvider
                 return response('Too many attempts, please try again later.', 429);
             });
         });
+
+        Table::$defaultDateTimeDisplayFormat = 'Y-m-d H:i:s';
+
     }
 }
