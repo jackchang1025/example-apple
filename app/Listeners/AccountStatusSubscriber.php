@@ -17,6 +17,8 @@ class AccountStatusSubscriber
     public function handleStatusChange(AccountStatusChanged $event): void
     {
         $event->account->update(['status' => $event->status]);
+        $event->account->logs()
+            ->create(['action' => $event->action, 'description' => $event->description]);
     }
 
     public function handleLoginSuccess(AccountLoginSuccessEvent $event): void
@@ -65,16 +67,16 @@ class AccountStatusSubscriber
     public function subscribe(Dispatcher $events): array
     {
         return [
-            AccountStatusChanged::class => 'handleStatusChange',
-
-            AccountLoginSuccessEvent::class => 'handleLoginSuccess',
-            AccountLoginFailEvent::class => 'handleLoginFail',
-
-            AccountAuthSuccessEvent::class => 'handleAuthSuccess',
-            AccountAuthFailEvent::class => 'handleAuthFail',
-
-            AccountBindPhoneFailEvent::class => 'handleBindFail',
-            AccountBindPhoneSuccessEvent::class => 'handleBindSuccess',
+//            AccountStatusChanged::class => 'handleStatusChange',
+//
+//            AccountLoginSuccessEvent::class => 'handleLoginSuccess',
+//            AccountLoginFailEvent::class => 'handleLoginFail',
+//
+//            AccountAuthSuccessEvent::class => 'handleAuthSuccess',
+//            AccountAuthFailEvent::class => 'handleAuthFail',
+//
+//            AccountBindPhoneFailEvent::class => 'handleBindFail',
+//            AccountBindPhoneSuccessEvent::class => 'handleBindSuccess',
         ];
     }
 }
