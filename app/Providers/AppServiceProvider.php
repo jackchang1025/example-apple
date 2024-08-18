@@ -25,8 +25,8 @@ class AppServiceProvider extends ServiceProvider
     {
         Event::subscribe(AccountStatusSubscriber::class);
 
-        RateLimiter::for('verify_account', function (Request $request) {
-            return Limit::perMinute(15)->by( $request->ip())->response(function () {
+        RateLimiter::for('api_rate_limiter', function (Request $request) {
+            return Limit::perMinute(2)->by( $request->ip())->response(function () {
                 return response('Too many attempts, please try again later.', 429);
             });
         });

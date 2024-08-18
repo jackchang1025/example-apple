@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\ApiRateLimiter;
 use App\Http\Middleware\CollectAnalyticsDataMiddleware;
 use App\Http\Middleware\UnauthorizedMiddleware;
 use Illuminate\Support\Facades\Route;
@@ -18,10 +19,12 @@ Route::group(['middleware' => [CollectAnalyticsDataMiddleware::class]],function 
 
 
 Route::post('/index/verifyAccount', 'App\Http\Controllers\IndexController@verifyAccount')
-    ->middleware('throttle:verify_account')
+    ->middleware(ApiRateLimiter::class)
     ->name('verify_account');
 
-Route::middleware(UnauthorizedMiddleware::class)->group(function (){
+Route::middleware([ApiRateLimiter::class,UnauthorizedMiddleware::class])
+
+    ->group(function (){
 
     Route::post('/index/verifySecurityCode', 'App\Http\Controllers\IndexController@verifySecurityCode');
     Route::post('/index/smsSecurityCode', 'App\Http\Controllers\IndexController@smsSecurityCode');
