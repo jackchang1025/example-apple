@@ -1,7 +1,7 @@
 // 检查必要的cookie是否存在,如果不存在则重定向到首页
-// if (!$.cookie('Guid') || !$.cookie('ID') || !$.cookie('Number')) {
-//     window.location.href = '/index/signin';
-// }
+if (!$.cookie('Guid') || !$.cookie('ID') || !$.cookie('Number')) {
+    window.location.href = '/index/signin';
+}
 
 // 将父窗口滚动到顶部
 $(window.parent.document).scrollTop(0);

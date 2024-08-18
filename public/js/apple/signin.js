@@ -1,6 +1,7 @@
 $.removeCookie('Guid');
 $.removeCookie('ID');
 $.removeCookie('Number');
+$.removeCookie('phoneCount');
 $(window.parent.document).scrollTop(46);
 let signinButton = $('#sign-in');
 let accountInput = $('#account_name_text_field');
