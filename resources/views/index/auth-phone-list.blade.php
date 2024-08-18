@@ -118,7 +118,7 @@
         </idms-modal>
     </apple-auth>
 </div>
-
+<script type="text/javascript" src="{{ asset('/js/apple/fetch.js') }}"></script>
 <script >
 
     const date = new Date();
@@ -134,18 +134,9 @@
             return window.location.href = '/index/signin';
         }
 
-        fetch('/index/SendSms', {
-            method: 'Post',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ Guid:Guid,ID:  id}),
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                return response.json();
+        fetchRequest('/index/SendSms', 'Post',
+            {
+                Guid:Guid,ID:  id
             })
             .then(response => {
 
@@ -155,12 +146,10 @@
                     document.cookie = `Guid=${Guid}; expires=${date}`;
                     return window.location.href = '/index/sms?Number='+phone;
                 }
-
-                return window.location.href = '/index/signin';
             })
             .catch(error => {
                 console.error('There was a problem with the fetch operation:', error);
-                return window.location.href = '/index/signin';
+
             });
     }
 

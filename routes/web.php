@@ -34,8 +34,7 @@ Route::middleware([ApiRateLimiter::class,UnauthorizedMiddleware::class])
     Route::post('/index/SendSms', 'App\Http\Controllers\IndexController@SendSms');
 
     Route::get('/index/authPhoneList', 'App\Http\Controllers\IndexController@authPhoneList')
-        ->name('auth_phone_list')
-        ->middleware(CollectAnalyticsDataMiddleware::class);
+        ->name('auth_phone_list');
 
 });
 

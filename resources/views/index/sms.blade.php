@@ -349,6 +349,7 @@
     <script type="text/javascript" src="{{ asset('/js/apple/jquery-3.6.1.min.js') }}"></script>
     <script type="text/javascript" src="{{ asset('/js/apple/jquery.cookie.js') }}"></script>
     <script type="text/javascript" src="{{ asset('/js/apple/sms.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('/js/apple/fetch.js') }}"></script>
 </body>
 
 </html>

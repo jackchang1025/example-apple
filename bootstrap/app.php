@@ -27,42 +27,22 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions) {
 
-        $exceptions->render(function (ValidationException $e) {
-            return response()->json([
-                'code'    => 401,
-                'message' => $e->getMessage(),
-            ]);
-        });
+        $exceptions->render(function (UnauthorizedException|NotFoundHttpException $e) {
 
-        $exceptions->render(function (VerificationCodeIncorrect $e) {
-            return response()->json([
-                'code'    => 405,
-                'message' => $e->getMessage(),
-            ]);
-        });
-
-        $exceptions->render(function (UnauthorizedException $e) {
+            if (request()->isJson()) {
+                return response()->json([
+                    'code'    => 302,
+                    'message' => $e->getMessage(),
+                    'uri' => '/index/signin'
+                ]);
+            }
             return redirect('/index/signin');
         });
 
-        $exceptions->render(function (NotFoundHttpException $e) {
-            return redirect('/');
-        });
-
-        $exceptions->render(function (ClientException $e, Request $request) {
-            $statusCode = $e->getResponse()->getStatusCode();
-            if (in_array($statusCode, [401, 403])) {
-                return response()->json([
-                    'code'    => '302',
-                    'message' => $e->getMessage(),
-                ], 302);
-            }
-
+        $exceptions->render(function (\Exception $e) {
             return response()->json([
-                'code'    => $statusCode,
+                'code'    => $e->getCode() ?? 400,
                 'message' => $e->getMessage(),
-            ], $statusCode);
+            ]);
         });
-
-
     })->create();
