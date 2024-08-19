@@ -7,7 +7,6 @@ use GuzzleHttp\Exception\ClientException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -39,10 +38,12 @@ return Application::configure(basePath: dirname(__DIR__))
             return redirect('/index/signin');
         });
 
-        $exceptions->render(function (\Exception $e) {
+        $exceptions->render(function (ValidationException|VerificationCodeIncorrect|ClientException $e) {
             return response()->json([
-                'code'    => $e->getCode() ?? 400,
+                'code'    => 400,
                 'message' => $e->getMessage(),
             ]);
         });
+
+
     })->create();
