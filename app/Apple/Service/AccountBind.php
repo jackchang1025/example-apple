@@ -268,11 +268,15 @@ class AccountBind
             code: $code
         );
 
-        $response->throwIf(
-            fn() => throw new BindPhoneCodeException(
+        $response->throwIf(function () use ($response){
+
+            if ($response->successful()){
+                return false;
+            }
+            throw new BindPhoneCodeException(
                 "绑定失败 phone: {$this->phone->phone} failed: {$response->service_errors_first()?->getMessage()} body: {$response->body()}"
-            )
-        );
+            );
+        });
     }
 
     /**
@@ -329,7 +333,8 @@ class AccountBind
         $status = $exception instanceof BindPhoneCodeException && $exception->getCode() == -28248
             ? Phone::STATUS_INVALID
             : Phone::STATUS_NORMAL;
-        $this->phone->update(['status' => $status]);
+
+        $this->phone->where('status' ,Phone::STATUS_BINDING)->update(['status' => $status]);
 
         $this->usedPhoneIds[] = $this->phone->id;
     }

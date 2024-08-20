@@ -88,12 +88,19 @@ class AppleIdClient extends BaseClient
                     'mode'        => 'sms',
                 ],
             ],
-            RequestOptions::HEADERS => [
-
-            ],
             RequestOptions::HTTP_ERRORS => false
         ]);
     }
+
+    //https://appleid.apple.com/account/manage/icloud/sharing/phone
+
+    //{
+    //    "phoneNumber": {
+    //        "countryCode": "HK",
+    //        "number": "63442573"
+    //    },
+    //    "mode": "sms"
+    //}
 
     /**
      * 获取 bootstrap

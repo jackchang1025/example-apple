@@ -8,8 +8,10 @@ use App\Apple\Proxy\ProxyResponse;
 use App\Apple\Service\User\User;
 use Exception;
 use GuzzleHttp\Cookie\CookieJarInterface;
+use GuzzleHttp\Exception\ConnectException;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Support\Facades\Log;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 
@@ -78,7 +80,7 @@ abstract class BaseClient
         $response = $this->getClient()
             ->retry(3,1000,function  (Exception $exception, PendingRequest $request){
 
-                if ($exception instanceof ConnectionException){
+                if ($exception instanceof ConnectionException || $exception instanceof ConnectException){
                     $this->client = null;
                     $this->proxyResponse = null;
                     return true;
