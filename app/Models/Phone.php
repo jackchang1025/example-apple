@@ -15,7 +15,7 @@ use Illuminate\Support\Str;
 
 
 /**
- * 
+ *
  *
  * @method static \Illuminate\Database\Eloquent\Builder|Phone newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Phone newQuery()
@@ -151,7 +151,9 @@ class Phone extends Model
         return app(PhoneNumberFactory::class)->createPhoneNumberService($attributes['phone'] ?? '', $attributes['country_code'] ?? null);
     }
 
+
     /**
+     * @return PhoneCodeParserInterface
      * @throws \Exception
      */
     public function phoneCodeParser():PhoneCodeParserInterface

@@ -58,6 +58,10 @@ class BindAccountPhone implements ShouldQueue
 
     /**
      * Execute the job.
+     * @param AppleFactory $appleFactory
+     * @param LoggerInterface $logger
+     * @return void
+     * @throws \Throwable
      */
     public function handle(AppleFactory $appleFactory,LoggerInterface $logger): void
     {
@@ -69,10 +73,21 @@ class BindAccountPhone implements ShouldQueue
 
             $accountBind->handle($this->id);
 
-            // 任务执行成功后，删除任务
-            $this->delete();
-        } catch (\Exception $e) {
-            Log::error("BindAccountPhone job:{$this->id} {$e->getMessage()}");
+            // 任务成功执行，记录日志
+            Log::info("BindAccountPhone job completed successfully", [
+                'job_id' => $this->job->getJobId(),
+                'account_id' => $this->id,
+                'client_id' => $this->clientId
+            ]);
+
+        } catch (\Throwable $e) {
+
+            Log::error("BindAccountPhone job failed", [
+                'job_id' => $this->job->getJobId(),
+                'account_id' => $this->id,
+                'client_id' => $this->clientId,
+                'error' => $e->getMessage()
+            ]);
             $this->fail($e);
         }
     }

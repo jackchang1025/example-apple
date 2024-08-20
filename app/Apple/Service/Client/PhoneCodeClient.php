@@ -6,13 +6,16 @@ use App\Apple\Service\Exception\AttemptBindPhoneCodeException;
 use App\Apple\Service\PhoneCodeParser\PhoneCodeParserInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\PendingRequest;
 
 class PhoneCodeClient extends BaseClient
 {
-    protected function createClient(): Client
+    protected function createClient(): PendingRequest
     {
-        return $this->clientFactory->create(user: $this->user,additionalConfig: [
-           'timeout' => 30,
+        return $this->clientFactory->create()
+            ->withOptions([
+            'timeout' => 30,
             'connect_timeout' => 60,
             'verify' => false,
         ]);
@@ -23,21 +26,11 @@ class PhoneCodeClient extends BaseClient
      * @param string $url
      * @param PhoneCodeParserInterface $phoneCodeParser
      * @return Response|null
-     * @throws GuzzleException
+     * @throws ConnectionException
      */
-    public function getPhoneTokenCode(string $url,PhoneCodeParserInterface $phoneCodeParser): ?Response
+    public function getPhoneTokenCode(string $url,PhoneCodeParserInterface $phoneCodeParser): ?string
     {
-        $response = $this->getClient()->get($url);
-
-        if (empty($body = (string) $response->getBody())) {
-            return null;
-        }
-
-        if (($code = $phoneCodeParser->parse(body: $body)) === null) {
-            return null;
-        }
-
-        return new Response(response: $response,status:$response->getStatusCode(),data:  ['code' => $code]);
+        return $phoneCodeParser->parse(body: $this->request('GET',$url)->body() ?? '');
     }
 
 
@@ -46,11 +39,11 @@ class PhoneCodeClient extends BaseClient
      * @param PhoneCodeParserInterface $phoneCodeParser
      * @param int $attempts
      * @param int $sleep
-     * @return Response|null
+     * @return string
      * @throws AttemptBindPhoneCodeException
-     * @throws GuzzleException
+     * @throws ConnectionException
      */
-    public function attemptGetPhoneCode(string $url, PhoneCodeParserInterface $phoneCodeParser, int $attempts = 6, int $sleep = 5): ?Response
+    public function attemptGetPhoneCode(string $url, PhoneCodeParserInterface $phoneCodeParser, int $attempts = 6, int $sleep = 5): string
     {
         for ($i = 0; $i < $attempts; $i++) {
             if ($response = $this->getPhoneTokenCode($url, $phoneCodeParser)) {

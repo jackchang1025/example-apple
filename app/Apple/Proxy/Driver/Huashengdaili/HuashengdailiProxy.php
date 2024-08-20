@@ -11,10 +11,9 @@ use App\Apple\Proxy\ProxyConfiguration;
 use App\Apple\Proxy\ProxyInterface;
 use App\Apple\Proxy\ProxyModeInterface;
 use App\Apple\Proxy\ProxyResponse;
-use App\Apple\Service\HttpFactory;
+use App\Apple\Service\Client\ClientFactory;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
 
 /**
@@ -25,13 +24,13 @@ use InvalidArgumentException;
 class HuashengdailiProxy extends Proxy implements ProxyInterface
 {
     /**
-     * @param HttpFactory $httpFactory
+     * @param ClientFactory $httpFactory
      * @param ProxyConfiguration $config
      * @param ProxyModeFactory $modeFactory
      * @throws BindingResolutionException
      * @throws ProxyModelNotFoundException
      */
-    public function __construct(protected HttpFactory $httpFactory,protected ProxyConfiguration $config,protected ProxyModeFactory $modeFactory)
+    public function __construct(protected ClientFactory $httpFactory,protected ProxyConfiguration $config,protected ProxyModeFactory $modeFactory)
     {
         $this->mode = $this->modeFactory->createMode($this->config);
     }

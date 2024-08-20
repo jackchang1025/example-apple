@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Apple\Service;
 
+use App\Apple\Service\Client\Response;
 use App\Events\AccountBindPhoneFailEvent;
 use App\Events\AccountBindPhoneSuccessEvent;
 use App\Apple\Service\Exception\{
@@ -13,11 +14,15 @@ use App\Apple\Service\Exception\{
     UnauthorizedException
 };
 use App\Models\{Account, Phone, User};
+use Exception;
 use Filament\Notifications\Notification;
 use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Psr\Log\LoggerInterface;
+use Throwable;
 
 class AccountBind
 {
@@ -28,6 +33,10 @@ class AccountBind
 
     protected array $usedPhoneIds = [];
 
+    protected ?Account $account = null;
+
+    protected ?Phone $phone = null;
+
     public function __construct(
         protected readonly Apple $apple,
         protected readonly LoggerInterface $logger,
@@ -35,7 +44,8 @@ class AccountBind
         protected readonly int $phoneCodeRetryAttempts = self::PHONE_CODE_RETRY_ATTEMPTS,
         protected readonly int $phoneCodeRetryDelay = self::PHONE_CODE_RETRY_DELAY,
         protected readonly int $phoneCodeWaitTime = self::PHONE_CODE_WAIT_TIME
-    ) {}
+    ) {
+    }
 
     public function getMaxRetryAttempts(): int
     {
@@ -74,18 +84,42 @@ class AccountBind
     public function handle(int $id): void
     {
         try {
-            $account = $this->getAccount($id);
-            $this->validateAccount($account);
-            $this->bindPhone($account);
-        } catch (\Exception $e) {
-            $this->handleException($e, $account ?? null);
+
+            $this->validateAccount($this->account = $this->getAccount($id));
+
+            $this->authenticateApple();
+
+            $this->attemptBind();
+
+        } catch (\Throwable  $e) {
+            $this->handleException($e);
             throw $e;
         }
     }
 
-    private function getAccount(int $id): Account
+    protected function getAccount(int $id): Account
     {
         return Account::findOrFail($id);
+    }
+
+    /**
+     * @return void
+     * @throws ConnectionException
+     * @throws RequestException
+     */
+    protected function authenticateApple(): void
+    {
+        $this->apple->appleId->accountManageToken()->throw();
+        $this->apple->appleId->password($this->account->password)->throwUnlessStatus(204);
+    }
+
+    /**
+     * @return Phone
+     * @throws \Throwable
+     */
+    public function getPhone(): Phone
+    {
+        return $this->phone;
     }
 
     /**
@@ -95,51 +129,44 @@ class AccountBind
     private function validateAccount(Account $account): void
     {
         if (!$account->password) {
-            throw new \InvalidArgumentException("Account {$account->account} has no password set");
+            throw new \InvalidArgumentException("账号：{$account->account} 密码为空");
         }
 
         if ($account->bind_phone) {
-            throw new \InvalidArgumentException("Account {$account->account} is already bound to a phone number");
+            throw new \InvalidArgumentException("账号：{$account->account} 已绑定手机号");
         }
     }
 
     /**
-     * @param Account $account
      * @return void
      * @throws GuzzleException
      * @throws MaxRetryAttemptsException
-     * @throws UnauthorizedException|BindPhoneCodeException|\Throwable
+     * @throws \Throwable
      */
-    private function bindPhone(Account $account): void
-    {
-        $this->apple->appleId->accountManageToken();
-        $this->apple->appleId->password($account->password);
-        $this->attemptBind($account);
-    }
-
-    /**
-     * @param Account $account
-     * @return void
-     * @throws BindPhoneCodeException
-     * @throws MaxRetryAttemptsException|\Throwable
-     */
-    private function attemptBind(Account $account): void
+    private function attemptBind(): void
     {
         for ($attempt = 1; $attempt <= $this->maxRetryAttempts; $attempt++) {
             try {
-                $phone = $this->getAvailablePhone();
-                $this->bindPhoneToAccount($account, $phone);
+                // 获取可用的手机号码并修改号码的状态
+                $this->phone = $this->getAvailablePhone();
+
+                // 绑定手机号码
+                $this->bindPhoneToAccount();
+
+                // 绑定成功后更新账号状态
+                $this->handleBindSuccess();
                 return;
-            } catch (BindPhoneCodeException $e) {
-                $this->handleBindPhoneCodeException($e, $account, $phone ?? null, $attempt);
-            } catch (\Exception $e) {
-                $this->handleBindFailure($phone ?? null);
-                throw $e;
+            } catch (BindPhoneCodeException|AttemptBindPhoneCodeException $e) {
+                $this->handleBindException(exception: $e, attempt: $attempt);
             }
         }
 
         throw new MaxRetryAttemptsException(
-            sprintf("Account %s failed to bind phone: Exceeded maximum retry attempts %d", $account->account, $this->maxRetryAttempts)
+            sprintf(
+                "账号：%s 尝试 %d 次后绑定失败",
+                $this->account->account,
+                $this->maxRetryAttempts
+            )
         );
     }
 
@@ -152,8 +179,7 @@ class AccountBind
         return DB::transaction(function () {
             $phone = Phone::query()
                 ->where('status', Phone::STATUS_NORMAL)
-                ->whereNotNull('phone_address')
-                ->whereNotNull('phone')
+                ->whereNotNull(['phone_address', 'phone'])
                 ->whereNotIn('id', $this->usedPhoneIds)
                 ->lockForUpdate()
                 ->firstOrFail();
@@ -164,145 +190,176 @@ class AccountBind
         });
     }
 
+
     /**
-     * @param Account $account
-     * @param Phone $phone
+     * @return Response
+     * @throws ConnectionException
+     * @throws RequestException
+     */
+    protected function sendBindRequest(): Response
+    {
+        //绑定手机号码
+        $response = $this->apple->appleId->bindPhoneSecurityVerify(
+            $this->phone ->national_number,
+            $this->phone ->country_code,
+            (string) $this->phone ->country_dial_code
+        );
+
+        // 验证手机验证码是否发生异常
+        $response->throwIf(function ($re) use ($response) {
+
+            if ($response->status() === 200 || $response->status() === 423){
+                return false;
+            }
+
+            $error = $response->service_errors_first();
+            // 骏证码无法发送至该电话号码。请稍后重试
+            if ($error?->getCode() == -28248) {
+                throw new BindPhoneCodeException(
+                    "绑定失败 phone: {$this->phone ->phone} failed: {$error?->getMessage()} body: {$response->body()}", -28248
+                );
+            }
+
+            $error = $response->validationErrorsFirst();
+            if($error?->getCode() === 'phone.number.already.exists'){
+                throw new BindPhoneCodeException(
+                    "绑定失败 phone: {$this->phone ->phone} failed: {$error?->getMessage()} body: {$response->body()}", -28248
+                );
+            }
+
+            throw new BindPhoneCodeException(
+                "绑定失败 phone: {$this->phone->phone} body: {$response->body()}"
+            );
+        });
+
+        return $response;
+    }
+
+    /**
      * @return void
      * @throws AttemptBindPhoneCodeException
      * @throws BindPhoneCodeException
-     * @throws GuzzleException
+     * @throws ConnectionException
+     * @throws RequestException
      * @throws \Throwable
      */
-    private function bindPhoneToAccount(Account $account, Phone $phone): void
+    private function bindPhoneToAccount(): void
     {
-        $response = $this->apple->appleId->bindPhoneSecurityVerify(
-            $phone->national_number,
-            $phone->country_code,
-            (string) $phone->country_dial_code
-        );
+        //发送绑定手机号码的请求
+        $response = $this->sendBindRequest();
 
+        // 获取号码 ID
         $id = $response->phoneNumberVerification()['phoneNumber']['id'] ?? null;
         if (empty($id)) {
-            throw new BindPhoneCodeException("Failed to get ID for binding phone number {$phone->phone}");
+            throw new BindPhoneCodeException(
+                "绑定失败 phone: {$this->phone ->phone} 获取号码 ID 为空 body: {$response->body()}"
+            );
         }
 
-        $code = $this->getPhoneCode($phone);
+        // 这里循环获取手机验证码
+        $code = $this->getPhoneCode();
 
-        $this->apple->appleId->manageVerifyPhoneSecurityCode(
+        // 验证手机验证码
+        $response = $this->apple->appleId->manageVerifyPhoneSecurityCode(
             id: $id,
-            phoneNumber: $phone->national_number,
-            countryCode: $phone->country_code,
-             countryDialCode: (string) $phone->country_dial_code,
+            phoneNumber: $this->phone->national_number,
+            countryCode: $this->phone->country_code,
+            countryDialCode: (string)$this->phone->country_dial_code,
             code: $code
         );
 
-        $this->updateAccountAndPhone($account, $phone);
-
-        $this->logSuccess($account, $phone);
+        $response->throwIf(
+            fn() => throw new BindPhoneCodeException(
+                "绑定失败 phone: {$this->phone->phone} failed: {$response->service_errors_first()?->getMessage()} body: {$response->body()}"
+            )
+        );
     }
 
     /**
-     * @param Phone $phone
      * @return string
-     * @throws AttemptBindPhoneCodeException
-     * @throws GuzzleException
-     * @throws \Exception
+     * @throws ConnectionException|AttemptBindPhoneCodeException|ConnectionException
      */
-    public function getPhoneCode(Phone $phone): string
+    public function getPhoneCode(): string
     {
         sleep($this->phoneCodeWaitTime);
-        $response = $this->apple->phoneCode->attemptGetPhoneCode(
-            $phone->phone_address,
-            $phone->phoneCodeParser(),
+
+        return $this->apple->phoneCode->attemptGetPhoneCode(
+            $this->phone->phone_address,
+            $this->phone->phoneCodeParser(),
             $this->phoneCodeRetryAttempts,
             $this->phoneCodeRetryDelay
         );
-
-        $code = $response->getData('code');
-        if (empty($code)) {
-            throw new AttemptBindPhoneCodeException("Failed to get phone code for {$phone->phone}");
-        }
-
-        return $code;
     }
 
+
     /**
-     * @param Account $account
-     * @param Phone $phone
      * @return void
      * @throws \Throwable
      */
-    private function updateAccountAndPhone(Account $account, Phone $phone): void
+    protected function handleBindSuccess(): void
     {
-        DB::transaction(function () use ($account, $phone) {
-            $account->update([
-                'bind_phone'         => $phone->phone,
-                'bind_phone_address' => $phone->phone_address,
+        $this->logger->info("Account {$this->account->account} successfully bound to phone number {$this->phone->phone}");
+
+        DB::transaction(function () {
+            $this->account->update([
+                'bind_phone'         => $this->phone->phone,
+                'bind_phone_address' => $this->phone->phone_address,
             ]);
-            $phone->update(['status' => Phone::STATUS_BOUND]);
+            $this->phone->update(['status' => Phone::STATUS_BOUND]);
         });
-    }
 
-    /**
-     * @param BindPhoneCodeException $e
-     * @param Account $account
-     * @param Phone|null $phone
-     * @param int $attempt
-     * @return void
-     */
-    private function handleBindPhoneCodeException(BindPhoneCodeException $e, Account $account, ?Phone $phone, int $attempt): void
-    {
-        $this->logger->warning('Account {account} failed to bind phone {phone} on attempt {attempt}: {message}', [
-            'attempt' => $attempt,
-            'account' => $account->account,
-            'phone'   => $phone?->phone ?? 'unknown',
-            'message' => $e->getMessage(),
-        ]);
-
-        if ($phone) {
-            $this->usedPhoneIds[] = $phone->id;
-            $this->handleBindFailure($phone);
-        }
-    }
-
-    private function handleBindFailure(?Phone $phone): void
-    {
-        if ($phone) {
-            try {
-                $phone->update(['status' => Phone::STATUS_NORMAL]);
-            } catch (\Exception $e) {
-                $this->logger->error("Failed to update phone {$phone->phone} status: {$e->getMessage()}", [
-                    'phone'    => $phone->phone,
-                    'phone_id' => $phone->id,
-                ]);
-            }
-        }
-    }
-
-    private function logSuccess(Account $account, Phone $phone): void
-    {
-        $this->logger->info("Account {$account->account} successfully bound to phone number {$phone->phone}");
-
-        Event::dispatch(new AccountBindPhoneSuccessEvent(account: $account,description: "绑定手机号码成功 {$phone->phone}"));
+        Event::dispatch(
+            new AccountBindPhoneSuccessEvent(account: $this->account, description:"账号： {$this->account->account} 绑定成功 手机号码：{$this->phone->phone}")
+        );
 
         Notification::make()
-            ->title("Account {$account->account} successfully bound to phone number {$phone->phone}")
+            ->title("账号： {$this->account->account} 绑定成功 手机号码：{$this->phone->phone}")
             ->success()
             ->sendToDatabase(User::get());
     }
 
-    private function handleException(\Exception $e, ?Account $account): void
-    {
-        $accountId = $account ? $account->account : 'unknown';
-        $this->logger->error("Account {$accountId} binding failed: {$e->getMessage()}");
 
-        if ($account){
-            Event::dispatch(new AccountBindPhoneFailEvent(account: $account,description: "{$e->getMessage()}"));
+
+    protected function handlePhoneException(Throwable $exception): void
+    {
+        if (!$this->phone){
+            return;
         }
+
+        $status = $exception instanceof BindPhoneCodeException && $exception->getCode() == -28248
+            ? Phone::STATUS_INVALID
+            : Phone::STATUS_NORMAL;
+        $this->phone->update(['status' => $status]);
+
+        $this->usedPhoneIds[] = $this->phone->id;
+    }
+
+    protected function handleException(\Throwable $e): void
+    {
+        $this->logger->error("账号： {$this->account?->account} 绑定失败 {$e->getMessage()}");
+
+        $this->handlePhoneException($e);
+
+        $this->account && Event::dispatch(
+            new AccountBindPhoneFailEvent(account: $this->account, description: "{$e->getMessage()}")
+        );
+
         Notification::make()
-            ->title("Account {$accountId} binding failed")
+            ->title("账号 {$this->account?->account} 绑定失败 {$e->getMessage()}")
             ->body($e->getMessage())
             ->warning()
             ->sendToDatabase(User::get());
+    }
+
+    protected function handleBindException(Exception $exception, int $attempt): void
+    {
+        $this->logger->error("绑定失败 (尝试 {$attempt}): {$exception->getMessage()}", [
+            'account' => $this->account->account,
+            'phone' => $this->phone->phone,
+        ]);
+
+        $this->handlePhoneException($exception);
+
+        Event::dispatch(new AccountBindPhoneFailEvent(account: $this->account, description: $exception->getMessage()));
     }
 }

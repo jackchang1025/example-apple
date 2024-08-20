@@ -6,7 +6,7 @@ use App\Apple\Proxy\Option;
 use App\Apple\Proxy\ProxyModeInterface;
 use App\Apple\Proxy\ProxyResponse;
 use App\Apple\Proxy\Driver\ProxyMode;
-use App\Apple\Service\HttpFactory;
+use App\Apple\Service\Client\ClientFactory;
 
 class FlowProxy extends ProxyMode implements ProxyModeInterface
 {
@@ -21,7 +21,7 @@ class FlowProxy extends ProxyMode implements ProxyModeInterface
         'uid' => "",
     ];
 
-    public function __construct(HttpFactory $httpFactory,array $config =  [])
+    public function __construct(ClientFactory $httpFactory,array $config =  [])
     {
         parent::__construct($httpFactory);
         $this->defaultConfig = array_merge($this->defaultConfig, $config);

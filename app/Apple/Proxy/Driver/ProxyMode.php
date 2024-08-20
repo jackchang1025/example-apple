@@ -3,7 +3,7 @@
 namespace App\Apple\Proxy\Driver;
 use App\Apple\Proxy\ProxyModeInterface;
 use App\Apple\Proxy\ProxyResponse;
-use App\Apple\Service\HttpFactory;
+use App\Apple\Service\Client\ClientFactory;
 use Illuminate\Http\Client\ConnectionException;
 
 abstract class ProxyMode implements ProxyModeInterface
@@ -18,7 +18,7 @@ abstract class ProxyMode implements ProxyModeInterface
      */
     public const int RETRY_DELAY = 100;
 
-    public function __construct(protected HttpFactory $httpFactory)
+    public function __construct(protected ClientFactory $httpFactory)
     {
 
     }

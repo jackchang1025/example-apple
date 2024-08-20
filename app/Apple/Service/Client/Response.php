@@ -4,61 +4,50 @@ namespace App\Apple\Service\Client;
 
 use App\Apple\Service\DataConstruct\Phone;
 use App\Apple\Service\DataConstruct\ServiceError;
+use App\Apple\Service\DOMDocument\DOMDocument;
 use Illuminate\Support\Collection;
-use Psr\Http\Message\ResponseInterface;
+use Illuminate\Support\Traits\Macroable;
+use Illuminate\Http\Client\Response as HttpClientResponse;
+
+/**
+ * @mixin HttpClientResponse
+ */
 
 class Response
 {
-    private ?Collection $trustedPhoneNumbers = null;
-    private ?Collection $serviceErrors = null;
+    use Macroable {
+        __call as macroCall;
+    }
+
+    protected ?array $jsonData = null;
+
+    protected readonly DOMDocument $document;
 
     /**
-     * @param ResponseInterface $response HTTP 响应对象
-     * @param int $status HTTP 状态码
-     * @param array $data 响应数据
+     * @param HttpClientResponse $response HTTP 响应对象
      */
     public function __construct(
-        protected ResponseInterface $response,
-        protected int $status,
-        protected array $data
+        protected HttpClientResponse $response,
     ) {
+        $this->document = new DOMDocument($response->body());
     }
 
-    /**
-     * 获取原始 HTTP 响应对象
-     */
-    public function getResponse(): ResponseInterface
+    public function getDocument(): DOMDocument
     {
-        return $this->response;
-    }
-
-    /**
-     * 获取 HTTP 状态码
-     */
-    public function getStatus(): int
-    {
-        return $this->status;
-    }
-
-    /**
-     * 获取所有服务错误
-     */
-    public function getError(): array
-    {
-        return $this->data['serviceErrors'] ?? [];
+        return $this->document;
     }
 
     public function hasTrustedDevices():bool
     {
-        return $this->data['hasTrustedDevices'] ?? false;
+        return $this->getJsonData()['direct']['hasTrustedDevices'] ?? false;
     }
 
     /**
      * 获取第一个服务错误
      */
-    public function getFirstError(): ?array
+    public function getFirstError(): ?ServiceError
     {
-        return $this->getError()[0] ?? null;
+        return $this->getServiceErrors()->first();
     }
 
     /**
@@ -66,19 +55,7 @@ class Response
      */
     public function getFirstErrorMessage(): ?string
     {
-        return $this->getFirstError()['message'] ?? null;
-    }
-
-    /**
-     * 获取指定键的数据，如果键不存在则返回默认值
-     */
-    public function getData(?string $key = null, mixed $default = null): mixed
-    {
-        if ($key !== null) {
-            return $this->data[$key] ?? $default;
-        }
-
-        return $this->data;
+        return $this->getFirstError()?->getMessage() ?? null;
     }
 
     /**
@@ -86,7 +63,7 @@ class Response
      */
     public function getPhoneNumber(): ?Phone
     {
-        $data = $this->getData('phoneNumber');
+        $data = $this->json('phoneNumber');
 
         return $data ? new Phone($data) : null;
     }
@@ -96,7 +73,7 @@ class Response
      */
     public function getSecurityCode(): array
     {
-        return $this->getData('securityCode', []);
+        return $this->json('securityCode', []);
     }
 
     /**
@@ -104,7 +81,7 @@ class Response
      */
     public function isHsa2Account(): bool
     {
-        return $this->getData('hsa2Account', false);
+        return $this->json('hsa2Account', false);
     }
 
     /**
@@ -112,7 +89,7 @@ class Response
      */
     public function isRestrictedAccount(): bool
     {
-        return $this->getData('restrictedAccount', false);
+        return $this->json('restrictedAccount', false);
     }
 
     /**
@@ -120,7 +97,7 @@ class Response
      */
     public function supportsRecovery(): bool
     {
-        return $this->getData('supportsRecovery', false);
+        return $this->json('supportsRecovery', false);
     }
 
     /**
@@ -128,15 +105,7 @@ class Response
      */
     public function phoneNumberVerification(): ?array
     {
-        return $this->getData('phoneNumberVerification');
-    }
-
-    /**
-     * 获取恢复 URL
-     */
-    public function getRecoveryUrl(): ?string
-    {
-        return $this->getData('recoveryUrl');
+        return $this->json('phoneNumberVerification');
     }
 
     /**
@@ -144,31 +113,34 @@ class Response
      */
     public function getCantUsePhoneNumberUrl(): ?string
     {
-        return $this->getData('cantUsePhoneNumberUrl');
+        return $this->json('cantUsePhoneNumberUrl');
     }
 
-    /**
-     * 检查是否没有信任的设备
-     */
-    public function hasNoTrustedDevices(): bool
+    public function service_errors(): Collection
     {
-        return $this->getData('noTrustedDevices', false);
+        return collect($this->json('service_errors',[]))
+            ->map(fn(array $serviceErrors) => new ServiceError($serviceErrors));
     }
 
-    /**
-     * 获取关于双重认证的 URL
-     */
-    public function getAboutTwoFactorAuthenticationUrl(): ?string
+    public function service_errors_first(): ?ServiceError
     {
-        return $this->getData('aboutTwoFactorAuthenticationUrl');
+        return $this->service_errors()->first();
     }
 
-    /**
-     * 检查是否为托管账户
-     */
-    public function isManagedAccount(): bool
+    public function validationErrors(): Collection
     {
-        return $this->getData('managedAccount', false);
+        return collect($this->json('validationErrors',[]))
+            ->map(fn(array $serviceErrors) => new ServiceError($serviceErrors));
+    }
+
+    public function validationErrorsFirst(): ?ServiceError
+    {
+        return $this->validationErrors()->first();
+    }
+
+    public function hasError():bool
+    {
+        return $this->json('hasError', false);
     }
 
     /**
@@ -178,32 +150,20 @@ class Response
      */
     public function getTrustedPhoneNumbers(): Collection
     {
-        if ($this->trustedPhoneNumbers === null) {
-            $this->trustedPhoneNumbers = collect($this->getData()['twoSV']['phoneNumberVerification']['trustedPhoneNumbers'] ?? [])
-                ->map(fn(array $phoneData) => new Phone($phoneData));
-        }
-
-        return $this->trustedPhoneNumbers;
+        return collect($this->getJsonData()['direct']['twoSV']['phoneNumberVerification']['trustedPhoneNumbers'] ?? [])
+            ->map(fn(array $phone) => new Phone($phone));
     }
 
     public function getAuthServiceErrors(): Collection
     {
-        if ($this->serviceErrors === null) {
-            $this->serviceErrors = collect($this->getData()['twoSV']['phoneNumberVerification']['serviceErrors'] ?? [])
-                ->map(fn(array $serviceErrors) => new ServiceError($serviceErrors));
-        }
-
-        return $this->serviceErrors;
+        return collect($this->getJsonData()['direct']['twoSV']['phoneNumberVerification']['serviceErrors'] ?? [])
+            ->map(fn(array $serviceErrors) => new ServiceError($serviceErrors));
     }
 
-    public function getServiceErrors(): ?Collection
+    public function getServiceErrors(): Collection
     {
-        if ($this->serviceErrors === null) {
-            $this->serviceErrors = collect($this->getData('serviceErrors',[]))
-                ->map(fn(array $serviceErrors) => new ServiceError($serviceErrors));
-        }
-
-        return $this->serviceErrors;
+        return collect($this->json('serviceErrors',[]))
+            ->map(fn(array $serviceErrors) => new ServiceError($serviceErrors));
     }
 
 
@@ -217,9 +177,17 @@ class Response
      */
     public function getTrustedPhoneNumber(): ?Phone
     {
-        $data = $this->getData()['twoSV']['phoneNumberVerification']['trustedPhoneNumber'] ?? [];
+        $data = $this->getJsonData()['direct']['twoSV']['phoneNumberVerification']['trustedPhoneNumber'] ?? [];
 
         return $data ? new Phone($data) : null;
+    }
+
+    public function getJsonData(): array
+    {
+        if ($this->jsonData === null) {
+            $this->jsonData = $this->document->getJson() ?? [];
+        }
+        return $this->jsonData;
     }
 
     /**
@@ -228,5 +196,14 @@ class Response
     public function getTrustedPhoneNumberById(int $id): ?Phone
     {
         return $this->getTrustedPhoneNumbers()->first(fn(Phone $phone) => $phone->getId() === $id);
+    }
+
+    public function __call($method, $parameters)
+    {
+        if (static::hasMacro($method)) {
+            return $this->macroCall($method, $parameters);
+        }
+
+        return $this->response->{$method}(...$parameters);
     }
 }

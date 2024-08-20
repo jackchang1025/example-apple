@@ -3,16 +3,17 @@
 namespace App\Apple\Service\Client;
 
 use App\Apple\Service\Exception\UnauthorizedException;
-use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\PendingRequest;
 
 class AppleIdClient extends BaseClient
 {
 
-    protected function createClient(): Client
+    protected function createClient(): PendingRequest
     {
-       return $this->clientFactory->create(user: $this->user,additionalConfig: [
+       return $this->clientFactory->create([
            'base_uri'              => self::BASEURL_APPLEID,
            'timeout'               => 30,
            'connect_timeout'       => 60,
@@ -20,23 +21,23 @@ class AppleIdClient extends BaseClient
            'proxy'                 => $this->getProxyResponse()->getUrl(),  // 添加这行
            RequestOptions::COOKIES => $this->cookieJar,
            RequestOptions::HEADERS => [
-                'Connection'                => 'Keep-Alive',
-                'Content-Type'              => 'application/json',
-                'Accept'                    => 'application/json, text/plain, */*',
-                'Accept-Language'           => 'zh-CN,zh;q=0.9',
-                'X-Apple-I-Request-Context' => 'ca',
-                'X-Apple-I-TimeZone'        => 'Asia/Shanghai',
-                'Sec-Fetch-Site'            => 'same-origin',
-                'Sec-Fetch-Mode'            => 'cors',
-                'Sec-Fetch-Dest'            => 'empty',
-            ],
-        ]);
+               'Connection'                => 'Keep-Alive',
+               'Content-Type'              => 'application/json',
+               'Accept'                    => 'application/json, text/plain, */*',
+               'Accept-Language'           => 'zh-CN,zh;q=0.9',
+               'X-Apple-I-Request-Context' => 'ca',
+               'X-Apple-I-TimeZone'        => 'Asia/Shanghai',
+               'Sec-Fetch-Site'            => 'same-origin',
+               'Sec-Fetch-Mode'            => 'cors',
+               'Sec-Fetch-Dest'            => 'empty',
+           ],
+       ]);
     }
 
     /**
      * 获取token
      * @return Response
-     * @throws GuzzleException
+     * @throws ConnectionException
      */
     public function accountManageToken(): Response
     {
@@ -47,26 +48,15 @@ class AppleIdClient extends BaseClient
      * 验证密码
      * @param string $password
      * @return Response
-     * @throws UnauthorizedException
-     * @throws GuzzleException
+     * @throws ConnectionException
      */
     public function password(string $password): Response
     {
-        $response = $this->request('POST', '/authenticate/password', [
+        return $this->request('POST', '/authenticate/password', [
             RequestOptions::JSON        => [
                 'password' => $password,
-            ],
-            RequestOptions::HEADERS     => [
-            ],
-            RequestOptions::HTTP_ERRORS => false,
+            ]
         ]);
-
-        if ($response->getStatus() !== 204) {
-            throw new UnauthorizedException($response->getFirstErrorMessage(), $response->getStatus());
-        }
-
-        return $response;
-
     }
 
     /**
@@ -76,7 +66,7 @@ class AppleIdClient extends BaseClient
      * @param string $countryDialCode
      * @param bool $nonFTEU
      * @return Response
-     * @throws GuzzleException
+     * @throws ConnectionException
      */
     public function bindPhoneSecurityVerify(
         string $phoneNumber,
@@ -101,13 +91,14 @@ class AppleIdClient extends BaseClient
             RequestOptions::HEADERS => [
 
             ],
+            RequestOptions::HTTP_ERRORS => false
         ]);
     }
 
     /**
      * 获取 bootstrap
      * @return Response
-     * @throws GuzzleException
+     * @throws ConnectionException
      */
     public function bootstrap(): Response
     {
@@ -122,7 +113,7 @@ class AppleIdClient extends BaseClient
      * @param string $countryDialCode
      * @param string $code
      * @return Response
-     * @throws GuzzleException
+     * @throws ConnectionException
      */
     public function manageVerifyPhoneSecurityCode(int $id,string $phoneNumber,string $countryCode,string $countryDialCode,string $code): Response
     {
@@ -146,7 +137,7 @@ class AppleIdClient extends BaseClient
 
     /**
      * @return Response
-     * @throws GuzzleException
+     * @throws GuzzleException|ConnectionException
      */
     public function managePrivacyAccept(): Response
     {
@@ -163,7 +154,7 @@ class AppleIdClient extends BaseClient
 
     /**
      * @return Response
-     * @throws GuzzleException
+     * @throws GuzzleException|ConnectionException
      */
     public function manageRepairOptions(): Response
     {
@@ -176,8 +167,4 @@ class AppleIdClient extends BaseClient
             ],
         ]);
     }
-
-    //appleauth/auth/repair/complete
-
-
 }

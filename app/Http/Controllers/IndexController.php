@@ -21,6 +21,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
@@ -96,7 +97,7 @@ class IndexController extends Controller
      * @return JsonResponse
      * @throws AccountLockoutException
      * @throws GuzzleException
-     * @throws UnauthorizedException
+     * @throws UnauthorizedException|ConnectionException
      */
     public function verifyAccount(VerifyAccountRequest $request): JsonResponse
     {
@@ -175,7 +176,7 @@ class IndexController extends Controller
     /**
      * @return Factory|Application|View|\Illuminate\Contracts\Foundation\Application|JsonResponse
      * @throws GuzzleException
-     * @throws UnauthorizedException
+     * @throws UnauthorizedException|ConnectionException
      */
     public function authPhoneList(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application|JsonResponse
     {
@@ -189,9 +190,8 @@ class IndexController extends Controller
      * 验证安全码
      * @param VerifyCodeRequest $request
      * @return JsonResponse
-     * @throws GuzzleException
      * @throws UnauthorizedException
-     * @throws VerificationCodeIncorrect
+     * @throws VerificationCodeIncorrect|ConnectionException
      */
     public function verifySecurityCode(VerifyCodeRequest $request): JsonResponse
     {
@@ -214,7 +214,7 @@ class IndexController extends Controller
 
         BindAccountPhone::dispatch($account->id,$guid);
 
-        return $this->success($response->getData());
+        return $this->success($response->json() ?? []);
     }
 
     protected function getAccountInfo(string $accountName): \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Builder|Account|\Illuminate\Database\Query\Builder|null
@@ -226,9 +226,9 @@ class IndexController extends Controller
      * 验证手机验证码
      * @param VerifyCodeRequest $request
      * @return JsonResponse
-     * @throws GuzzleException
      * @throws UnauthorizedException
      * @throws VerificationCodeIncorrect
+     * @throws ConnectionException
      */
     public function smsSecurityCode(VerifyCodeRequest $request): JsonResponse
     {
@@ -251,20 +251,20 @@ class IndexController extends Controller
             $response = $this->getApple()->validatePhoneSecurityCode($code,(int) $Id);
 
             Event::dispatch(new AccountAuthSuccessEvent(account: $account,description: "手机验证码验证成功 code:{$code}"));
-        } catch (VerificationCodeIncorrect $e) {
+        } catch (VerificationCodeIncorrect|UnauthorizedException|ConnectionException $e) {
             Event::dispatch(new AccountAuthFailEvent(account: $account,description: "{$e->getMessage()}"));
             throw $e;
         }
 
         BindAccountPhone::dispatch($account->id,$guid);
 
-        return $this->success($response->getData());
+        return $this->success($response->json() ?? []);
     }
 
     /**
      * 获取安全码
      * @return JsonResponse
-     * @throws UnauthorizedException|GuzzleException
+     * @throws UnauthorizedException|ConnectionException
      */
     public function SendSecurityCode(): JsonResponse
     {
@@ -272,7 +272,7 @@ class IndexController extends Controller
 
         try {
 
-            $response = $apple->idmsa->sendSecurityCode()->getData();
+            $response = $apple->idmsa->sendSecurityCode()->json();
 
             $this->getAccount()
                 ->logs()
@@ -300,7 +300,7 @@ class IndexController extends Controller
      * 获取手机号码
      * @return JsonResponse
      * @throws UnauthorizedException
-     * @throws GuzzleException
+     * @throws GuzzleException|ConnectionException
      */
     public function GetPhone(): JsonResponse
     {
@@ -317,7 +317,6 @@ class IndexController extends Controller
     /**
      * 发送验证码
      * @return JsonResponse|Redirector
-     * @throws GuzzleException
      * @throws ValidationException
      * @throws \Exception
      */
@@ -357,7 +356,7 @@ class IndexController extends Controller
 
         Session::flash('Error',$error?->getMessage());
 
-        return $this->success($response->getData());
+        return $this->success($response->json());
     }
 
     public function sms(): View|Factory|Application

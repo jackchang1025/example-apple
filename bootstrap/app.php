@@ -7,6 +7,7 @@ use GuzzleHttp\Exception\ClientException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -45,5 +46,11 @@ return Application::configure(basePath: dirname(__DIR__))
             ]);
         });
 
+        $exceptions->render(function (RequestException $e) {
+            return response()->json([
+                'code'    => 400,
+                'message' => $e->response->json(),
+            ]);
+        });
 
     })->create();

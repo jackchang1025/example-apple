@@ -7,7 +7,7 @@ use App\Apple\Proxy\Option;
 use App\Apple\Proxy\Proxy;
 use App\Apple\Proxy\ProxyModeInterface;
 use App\Apple\Proxy\ProxyResponse;
-use App\Apple\Service\HttpFactory;
+use App\Apple\Service\Client\ClientFactory;
 use Illuminate\Http\Client\ConnectionException;
 
 class DynamicProxy implements ProxyModeInterface
@@ -26,7 +26,7 @@ class DynamicProxy implements ProxyModeInterface
         'singleIp' => 0,
     ];
 
-    public function __construct(protected HttpFactory $httpFactory,array $config =  [])
+    public function __construct(protected ClientFactory $httpFactory,array $config =  [])
     {
 
         $this->defaultConfig = array_merge($this->defaultConfig, $config);

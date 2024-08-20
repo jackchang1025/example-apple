@@ -6,14 +6,16 @@ use App\Apple\Proxy\Option;
 use App\Apple\Proxy\ProxyInterface;
 use App\Apple\Proxy\ProxyResponse;
 use App\Apple\Service\User\User;
-use GuzzleHttp\Client;
+use Exception;
 use GuzzleHttp\Cookie\CookieJarInterface;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\PendingRequest;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 
 abstract class BaseClient
 {
-    protected ?Client $client = null;
+    protected ?PendingRequest $client = null;
 
     protected ?ProxyResponse $proxyResponse = null;
 
@@ -31,7 +33,7 @@ abstract class BaseClient
     ) {
     }
 
-    abstract protected function createClient(): Client;
+    abstract protected function createClient(): PendingRequest;
 
     public function setProxyResponse(?ProxyResponse $proxyUrl): void
     {
@@ -56,53 +58,37 @@ abstract class BaseClient
     }
 
 
-    public function getClient(): Client
+    public function getClient(): PendingRequest
     {
         if ($this->client === null) {
             $this->client = $this->createClient();
         }
         return $this->client;
     }
+
     /**
      * @param string $method
      * @param string $uri
      * @param array $options
      * @return Response
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws ConnectionException
      */
     protected function request(string $method, string $uri, array $options = []): Response
     {
-        $response = $this->getClient()->request($method, $uri, $options);
-        return $this->parseJsonResponse($response);
-    }
+        $response = $this->getClient()
+            ->retry(3,1000,function  (Exception $exception, PendingRequest $request){
 
-    /**
-     * @param ResponseInterface $response
-     * @return Response
-     */
-    protected function parseJsonResponse(ResponseInterface $response): Response
-    {
-        $body = (string) $response->getBody();
-
-        $data = json_decode($body, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            $this->logger->error('JSON decode error: ', ['message' => json_last_error_msg(), 'body' => $body]);
-            $data = [];
-        }
-
-        if (!is_array($data)) {
-            $data = [$data];
-        }
+                if ($exception instanceof ConnectionException){
+                    $this->client = null;
+                    $this->proxyResponse = null;
+                    return true;
+                }
+                return false;
+            },false)
+            ->send($method, $uri, $options);
 
         return new Response(
             response: $response,
-            status: $response->getStatusCode(),
-            data: $data
         );
-    }
-
-    private function RuntimeException(string $string)
-    {
     }
 }

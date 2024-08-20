@@ -7,12 +7,8 @@ use App\Apple\Proxy\Option;
 use App\Apple\Proxy\Proxy;
 use App\Apple\Proxy\ProxyModeInterface;
 use App\Apple\Proxy\ProxyResponse;
-use App\Apple\Service\HttpFactory;
+use App\Apple\Service\Client\ClientFactory;
 use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
 
 class DynamicProxy implements ProxyModeInterface
 {
@@ -30,7 +26,7 @@ class DynamicProxy implements ProxyModeInterface
         'lb'       => 1,//分隔符,1.换行回车（\r\n） 2.换行（\n） 3.回车（\r） 4.Tab（\t）
     ];
 
-    public function __construct(protected HttpFactory $httpFactory,array $config = [])
+    public function __construct(protected ClientFactory $httpFactory,array $config = [])
     {
         //字段转换
         $config['ep'] ??= $config['host'] ?? '';

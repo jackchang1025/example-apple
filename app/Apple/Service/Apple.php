@@ -16,6 +16,8 @@ use App\Apple\Service\User\User;
 use GuzzleHttp\Cookie\CookieJarInterface;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -47,7 +49,6 @@ class Apple
         private readonly PhoneCodeClient $phoneCodeClient,
         private readonly User $user,
         private readonly CookieJarInterface $cookieJar,
-        private readonly DOMDocument $document,
         private readonly LoggerInterface $logger,
     ) {
         $this->clients = [
@@ -74,8 +75,6 @@ class Apple
         $this->cookieJar->clear();
     }
 
-
-
     /**
      * 魔术方法，用于动态访问不同的客户端
      *
@@ -92,82 +91,15 @@ class Apple
     }
 
     /**
-     * 获取所有可用的方法
-     *
-     * 这个方法使用反射来获取所有客户端的公共方法，用于调试和文档生成。
-     *
-     * @return array 包含每个客户端可用方法的关联数组
-     * @throws \ReflectionException
-     */
-    public function getAvailableMethods(): array
-    {
-        $methods = [];
-        foreach ($this->clients as $clientName => $client) {
-            $reflection    = new \ReflectionClass($client);
-            $clientMethods = $reflection->getMethods(\ReflectionMethod::IS_PUBLIC);
-            foreach ($clientMethods as $method) {
-                if (!in_array($method->getName(), ['__construct', '__destruct'])) {
-                    $methods[$clientName][] = $method->getName();
-                }
-            }
-        }
-
-        return $methods;
-    }
-
-    /**
-     * 完成身份验证流程
-     *
-     * 这个高级方法结合了多个客户端的调用，完成整个身份验证过程。
-     * 包括登录、获取手机验证码和验证手机验证码。
-     *
-     * @param string $username 用户名
-     * @param string $password 密码
-     * @param string $phoneCodeUrl 获取手机验证码的 URL
-     * @param PhoneCodeParserInterface $phoneCodeParser
-     * @return array 包含验证结果的关联数组
-     * @throws UnauthorizedException
-     * @throws GuzzleException|Exception\AccountLockoutException
-     */
-    public function completeAuthentication(
-        string $username,
-        string $password,
-        string $phoneCodeUrl,
-        PhoneCodeParserInterface $phoneCodeParser
-    ): array {
-        // 使用 IDMSA 客户端进行登录
-        $signinResponse = $this->idmsa->login($username, $password);
-        if ($signinResponse->getStatus() !== 200) {
-            return ['success' => false, 'message' => '登录失败'];
-        }
-
-        // 使用 PhoneCode 客户端获取手机验证码
-        $phoneCodeResponse = $this->phoneCode->getPhoneTokenCode($phoneCodeUrl, $phoneCodeParser);
-        if (!$phoneCodeResponse || !isset($phoneCodeResponse->getData()['code'])) {
-            return ['success' => false, 'message' => '获取手机验证码失败'];
-        }
-
-        $code = $phoneCodeResponse->getData()['code'];
-
-        // 使用 IDMSA 客户端验证手机验证码
-        $verifyResponse = $this->idmsa->validatePhoneSecurityCode($code);
-
-        return [
-            'success' => $verifyResponse->getStatus() === 200,
-            'message' => $verifyResponse->getStatus() === 200 ? '身份验证成功' : '验证失败',
-            'data'    => $verifyResponse->getData(),
-        ];
-    }
-
-    /**
      * @return Response
      * @throws UnauthorizedException|GuzzleException
+     * @throws ConnectionException
      */
     public function bootstrap(): Response
     {
         $response = $this->appleId->bootstrap();
 
-        if (empty($data = $response->getData())) {
+        if (empty($data = $response->json())) {
             throw new UnauthorizedException('未获取到配置信息');
         }
 
@@ -178,21 +110,20 @@ class Apple
 
     /**
      * @return Response
-     * @throws GuzzleException|UnauthorizedException
+     * @throws GuzzleException|UnauthorizedException|ConnectionException
      */
     public function auth(): Response
     {
-        $responseAuth = $this->idmsa->auth();
+        $response = $this->idmsa->auth();
 
-        $data = $this->document->setHtml($responseAuth->getBody()->getContents())->getJson();
-        if (!$data || empty($data['direct'])){
+        $data = $response->getJsonData();
+        if (empty($data['direct'])){
             throw new UnauthorizedException('未获取到授权信息');
         }
 
         $this->logger->info('授权信息', $data);
-        $response =  new Response($responseAuth,$responseAuth->getStatusCode(),$data['direct']);
 
-        $this->user->setPhoneInfo($response->getData());
+        $this->user->setPhoneInfo($response->getTrustedPhoneNumbers()->toArray());
         return $response;
     }
 
@@ -201,7 +132,8 @@ class Apple
      * @param string $password
      * @return Response
      * @throws GuzzleException
-     * @throws UnauthorizedException|Exception\AccountLockoutException
+     * @throws UnauthorizedException|ConnectionException
+     * @throws RequestException
      */
     public function signin(string $accountName, string $password): Response
     {
@@ -217,19 +149,21 @@ class Apple
     /**
      * @param string $code
      * @return Response
-     * @throws GuzzleException
-     * @throws UnauthorizedException|VerificationCodeIncorrect
+     * @throws UnauthorizedException|VerificationCodeIncorrect|ConnectionException
      */
     public function validateSecurityCode(string $code): Response
     {
         $response = $this->idmsa->validateSecurityCode($code);
 
-        if ($response->getStatus() === 412){
+        if ($response->status() === 412){
+
             $this->managePrivacyAccept();
-        }else if ($response->getStatus() === 400) {
-            throw new VerificationCodeIncorrect($response->getFirstErrorMessage(), $response->getStatus());
-        } else if (!in_array($response->getStatus(), [204, 200])) {
-            throw new UnauthorizedException($response->getFirstErrorMessage(), $response->getStatus());
+        }else if ($response->status() === 400) {
+
+            throw new VerificationCodeIncorrect($response->service_errors_first()?->getMessage(), $response->status());
+        } else if (!in_array($response->status(), [204, 200])) {
+
+            throw new UnauthorizedException($response->service_errors_first()?->getMessage(), $response->status());
         }
 
         return $response;
@@ -237,7 +171,7 @@ class Apple
 
     /**
      * @return void
-     * @throws GuzzleException
+     * @throws ConnectionException
      */
     protected function managePrivacyAccept(): void
     {
@@ -248,20 +182,22 @@ class Apple
      * @param string $code
      * @param int $id
      * @return Response
-     * @throws GuzzleException
-     * @throws VerificationCodeIncorrect|UnauthorizedException
+     * @throws VerificationCodeIncorrect|UnauthorizedException|ConnectionException
      */
     public function validatePhoneSecurityCode(string $code, int $id = 1): Response
     {
         // 验证手机号码
         $response = $this->idmsa->validatePhoneSecurityCode($code,$id);
 
-        if ($response->getStatus() === 412){
+        if ($response->status() === 412){
+
             $this->managePrivacyAccept();
-        }else if ($response->getStatus() === 400) {
-            throw new VerificationCodeIncorrect($response->getFirstErrorMessage(), $response->getStatus());
-        } else if (!in_array($response->getStatus(), [204, 200])) {
-            throw new UnauthorizedException($response->getFirstErrorMessage(), $response->getStatus());
+        }else if ($response->status() === 400) {
+
+            throw new VerificationCodeIncorrect($response->getFirstErrorMessage(), $response->status());
+        } else if (!in_array($response->status(), [204, 200])) {
+
+            throw new UnauthorizedException($response->getFirstErrorMessage(), $response->status());
         }
 
         return $response;
@@ -271,7 +207,7 @@ class Apple
      * 发送手机验证码
      * @param int $ID
      * @return Response
-     * @throws GuzzleException
+     * @throws ConnectionException
      */
     public function sendPhoneSecurityCode(int $ID): Response
     {

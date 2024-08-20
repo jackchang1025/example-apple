@@ -6,7 +6,7 @@ use App\Apple\Proxy\Exception\ProxyException;
 use App\Apple\Proxy\Option;
 use App\Apple\Proxy\ProxyModeInterface;
 use App\Apple\Proxy\ProxyResponse;
-use App\Apple\Service\HttpFactory;
+use App\Apple\Service\Client\ClientFactory;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -27,10 +27,10 @@ class ApiProxy implements ProxyModeInterface
      * @var array
      */
     protected array $config = [
-        'time' => 10,         // 提取的IP时长（分钟）
+        'time' => 5,         // 提取的IP时长（分钟）
         'count' => 1,         // 提取的IP数量
         'type' => 'json',     // 返回类型
-        'only' => 1,          // 是否去重（1=去重，0=不去重）
+        'only' => 0,          // 是否去重（1=去重，0=不去重）
         'province' => '',     // 省份编号
         'city' => '',         // 城市编号
         'iptype' => 'direct', // IP类型（tunnel=隧道，direct=直连）
@@ -46,7 +46,7 @@ class ApiProxy implements ProxyModeInterface
      * @param array $config 配置数组
      * @throws \InvalidArgumentException 当session未提供时抛出
      */
-    public function __construct(protected HttpFactory $httpFactory,array $config)
+    public function __construct(protected ClientFactory $httpFactory,array $config)
     {
         if (empty($config['session'])) {
             throw new \InvalidArgumentException('Huashengdaili session is required');

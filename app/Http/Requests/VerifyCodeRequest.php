@@ -22,7 +22,7 @@ class VerifyCodeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'apple_verifycode' => 'required|integer|length:6',
+            'apple_verifycode' => 'required|digits_between:6,6',
             'ID' => 'integer|min:1',
         ];
     }

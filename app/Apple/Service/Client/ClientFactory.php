@@ -2,109 +2,89 @@
 
 namespace App\Apple\Service\Client;
 
-use App\Apple\Service\User\User;
-use GuzzleHttp\Client;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Middleware;
-use Psr\Container\ContainerInterface;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Log\LoggerInterface;
+use App\Apple\Service\Client\Middleware\GlobalMiddlewareInterface;
+use App\Apple\Service\Client\Middleware\MiddlewareManager;
+use App\Apple\Service\Client\Middleware\RequestMiddlewareInterface;
+use App\Apple\Service\Client\Middleware\ResponseMiddlewareInterface;
+use Closure;
+use Illuminate\Http\Client\Factory as HttpFactory;
+use Illuminate\Http\Client\PendingRequest;
 
+/**
+ * @mixin MiddlewareManager
+ */
 class ClientFactory
 {
     private const string USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
 
-    protected ?User $user = null;
-
     public function __construct(
-        private readonly LoggerInterface $logger,
-        private readonly ?ContainerInterface $container = null,
-    )
-    {
+        private readonly HttpFactory $http,
+        private readonly MiddlewareManager $middlewareManager
+    ) {
     }
 
-    public function create(User $user,array $additionalConfig = []): Client
+    public function getMiddlewareManager(): MiddlewareManager
     {
-        $this->user = $user;
-        $stack = HandlerStack::create();
+        return $this->middlewareManager;
+    }
 
+    public function create(array $options = []): PendingRequest
+    {
+        $client = $this->http
+            ->withUserAgent(self::USER_AGENT)
+            ->withOptions($options);
 
-        $stack->push(Middleware::mapRequest(function (RequestInterface $request) {
-
-            $headers = $this->user->getHeaders();
-            foreach ($headers as $name => $value) {
-                if (!empty($value) && $request->hasHeader($name) === false && $name == 'scnt'){
-                    $request = $request->withAddedHeader($name, $value);
-                }
-            }
-
-            // 添加 Referer 头
-            $request->withAddedHeader('Referer', $request->getUri()->getHost());
-
-            $requestInfo = [
-                'method'  => $request->getMethod(),
-                'uri'     => $request->getUri()->getPath(),
-                'headers' => $request->getHeaders(),
-                'body'    => (string)$request->getBody(),
-                'proxy_url'    => $this->user->get('proxy_url'),
-                'proxy_ip'    => $this->user->get('proxy_ip'),
-                'account'    => $this->user->get('account'),
-            ];
-            $this->logger->info('Request',$requestInfo);
-
-            return $request;
-        }));
-
-        $stack->push(Middleware::mapResponse(function (ResponseInterface $response){
-
-            // 格式化并打印 response headers
-            foreach ($response->getHeaders() as $name => $values) {
-                foreach ($values as $value) {
-
-                    if ($name === 'scnt'){
-                        $this->user->appendHeader('scnt', $value);
-                    }
-
-                    if (str_contains($name, 'X-Apple')){
-                        $this->user->appendHeader($name, $value);
-                    }
-                }
-            }
-
-            $contentType = $response->getHeader('Content-Type');
-            if (!empty($contentType[0]) && $contentType[0] === 'text/html;charset=UTF-8'){
-                return $response;
-            }
-
-            $responseInfo = [
-                'account'  => $this->user->get('account'),
-                'status'  => $response->getStatusCode(),
-                'reason'  => $response->getReasonPhrase(),
-                'headers' => $response->getHeaders(),
-                'body'    => (string) $response->getBody(),
-            ];
-
-            $this->logger->info('Response', $responseInfo);
-
-            // 重要：将响应体的指针重置到开始位置
-            $response->getBody()->rewind();
-            return $response;
-        }));
-
-        if (empty($additionalConfig['handler'])){
-            $additionalConfig['handler'] = $stack;
+        foreach ($this->middlewareManager->getRequestMiddlewares() as $middleware) {
+            $client->withRequestMiddleware($this->ensureCallable($middleware, 'request'));
         }
 
-        if (empty($additionalConfig['User-Agent'])){
-            $additionalConfig['User-Agent'] = self::USER_AGENT;
+        foreach ($this->middlewareManager->getResponseMiddlewares() as $middleware) {
+            $client->withResponseMiddleware($this->ensureCallable($middleware, 'response'));
         }
 
-        if ($this->container !== null && method_exists($this->container, 'make')) {
-            // Create by DI for AOP.
-            return $this->container->make(Client::class, ['config' => $additionalConfig]);
+        /**
+         * @var PendingRequest $client
+         */
+
+        return $client;
+    }
+
+    private function ensureCallable(mixed $middleware, string $type): callable
+    {
+        if ($middleware instanceof Closure) {
+            return $middleware;
         }
 
-        return new Client($additionalConfig);
+        if ($middleware instanceof RequestMiddlewareInterface || $middleware instanceof ResponseMiddlewareInterface) {
+            return [$middleware, '__invoke'];
+        }
+
+        if ($middleware instanceof GlobalMiddlewareInterface) {
+            return [$middleware, $type];
+        }
+
+        if (is_string($middleware) && class_exists($middleware)) {
+
+            $instance = app($middleware);
+
+            if ($instance instanceof GlobalMiddlewareInterface) {
+                return [$instance, $type];
+            }
+
+            if ($instance instanceof RequestMiddlewareInterface || $instance instanceof ResponseMiddlewareInterface) {
+                return $instance;
+            }
+
+            if (method_exists($instance, '__invoke')) {
+                return [$instance, '__invoke'];
+            }
+        }
+
+        throw new \InvalidArgumentException('Middleware must be a Closure, an invokable object, a GlobalMiddleware instance, or a class name with an __invoke method or implementing GlobalMiddleware.');
+    }
+
+    public function __call($method, $parameters)
+    {
+        return $this->middlewareManager->{$method}(...$parameters);
     }
 }
