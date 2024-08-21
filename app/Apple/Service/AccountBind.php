@@ -110,7 +110,13 @@ class AccountBind
     protected function authenticateApple(): void
     {
         $this->apple->appleId->accountManageToken()->throw();
-        $this->apple->appleId->password($this->account->password)->throwUnlessStatus(204);
+        $this->apple->appleId->password($this->account->password)->throwIf(function (\Illuminate\Http\Client\Response  $response) {
+            //204
+            if (in_array($response->status(),[204,409])){
+                return false;
+            }
+            return true;
+        });
     }
 
     /**
