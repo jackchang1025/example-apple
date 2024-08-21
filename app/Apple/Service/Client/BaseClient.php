@@ -96,16 +96,6 @@ abstract class BaseClient
 
     protected function hasSwitchProxy(Exception $exception):bool
     {
-        if ($exception instanceof ConnectionException){
-            return true;
-        }
-
-        if ($exception instanceof RequestException){
-            $handlerContext = $exception->getHandlerContext();
-            if(!empty($handlerContext['errno']) && $handlerContext['errno'] === 56){
-                return true;
-            }
-        }
-        return false;
+        return ($exception instanceof ConnectionException) || ($exception instanceof RequestException && !empty($exception->getHandlerContext()));
     }
 }
