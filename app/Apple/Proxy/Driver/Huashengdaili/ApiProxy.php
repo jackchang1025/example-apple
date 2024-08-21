@@ -27,7 +27,7 @@ class ApiProxy implements ProxyModeInterface
      * @var array
      */
     protected array $config = [
-        'time' => 5,         // 提取的IP时长（分钟）
+        'time' => 10,         // 提取的IP时长（分钟）
         'count' => 1,         // 提取的IP数量
         'type' => 'json',     // 返回类型
         'only' => 0,          // 是否去重（1=去重，0=不去重）
