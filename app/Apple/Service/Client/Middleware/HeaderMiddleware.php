@@ -41,7 +41,7 @@ readonly class HeaderMiddleware implements GlobalMiddlewareInterface
             }
         }
 
-        $this->user->appendHeader('account' ,$this->user?->get('account'));
+        $this->user->appendHeader('account' ,$this->user?->get('account') ?? '');
 
         return $response;
     }
