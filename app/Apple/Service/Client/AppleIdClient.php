@@ -24,7 +24,7 @@ class AppleIdClient extends BaseClient
                'Connection'                => 'Keep-Alive',
                'Content-Type'              => 'application/json',
                'Accept'                    => 'application/json, text/plain, */*',
-               'Accept-Language'           => 'en,zh-CN;q=0.9,zh;q=0.8',
+               'Accept-Language'           => 'zh-CN,en;q=0.9,zh;q=0.8',
                'X-Apple-I-Request-Context' => 'ca',
                'X-Apple-I-TimeZone'        => 'Asia/Shanghai',
                'Sec-Fetch-Site'            => 'same-origin',
