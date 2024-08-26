@@ -19,7 +19,7 @@ abstract class BaseClient
 
     protected ?ProxyResponse $proxyResponse = null;
 
-    const string BASEURL_IDMSA = 'https://idmsa.apple.com';
+    const string BASEURL_IDMSA = 'https://idmsa.apple.com.cn';
 
     const string BASEURL_APPLEID = 'https://appleid.apple.com';
 
@@ -75,11 +75,12 @@ abstract class BaseClient
      * @param string $uri
      * @param array $options
      * @return Response
-     * @throws ConnectionException
+     * @throws ConnectionException|\Illuminate\Http\Client\RequestException
      */
     protected function request(string $method, string $uri, array $options = []): Response
     {
         $response = $this->getClient()
+            ->async(true)
             ->retry(5,fn(int $attempt, Exception $exception) => $attempt * 100,function  (Exception $exception, PendingRequest $request){
 
                 return $this->hasSwitchProxy($exception) ? $request->withOptions([
@@ -87,7 +88,8 @@ abstract class BaseClient
                 ]) : false;
 
             },false)
-            ->send($method, $uri, $options);
+            ->send($method, $uri, $options)
+            ->throwIfStatus(401);
 
         return new Response(
             response: $response,
