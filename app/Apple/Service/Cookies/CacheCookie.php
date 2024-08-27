@@ -36,7 +36,7 @@ class CacheCookie extends CookieJar
                 $this->setCookie(new SetCookie($cookie));
             }
         }
-        $this->logger->info("Loaded cookies: " . $this->toString());
+        $this->logger->info("Loaded cookies: ",['cookies' => $this->toArray()]);
     }
     public function reload(): void
     {
@@ -54,9 +54,9 @@ class CacheCookie extends CookieJar
             }
         }
 
-        $cookieCacheTtl ??= $this->cookieCacheTtl;
+        $this->cache->set($this->sprintf(), $this->encode($json), $cookieCacheTtl ?? $this->cookieCacheTtl);
 
-        $this->cache->set($this->sprintf(), $this->encode($json),$cookieCacheTtl);
+        $this->logger->info("save cookies: ",['cookies' => $json]);
     }
 
     public function sprintf(): string
