@@ -5,9 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property array|null $authorized_ips
@@ -36,4 +37,15 @@ class SecuritySetting extends Model
         'authorized_ips' => 'array',
         'configuration' => 'array',
     ];
+
+    public static function booted(): void
+    {
+        static::updated(function (User $user) {
+            Cache::delete('security_setting');
+        });
+
+        static::deleted(function (User $user) {
+            Cache::delete('security_setting');
+        });
+    }
 }
