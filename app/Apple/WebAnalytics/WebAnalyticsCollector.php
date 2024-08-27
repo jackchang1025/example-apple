@@ -48,6 +48,8 @@ class WebAnalyticsCollector
     protected function getGeoData($ipAddress): array
     {
         try {
+
+            return [];
             $record = $this->ipApi->getIpInfo($ipAddress);
 
             return [
