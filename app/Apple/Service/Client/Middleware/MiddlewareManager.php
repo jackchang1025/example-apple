@@ -9,8 +9,8 @@ class MiddlewareManager
     protected array $requestMiddlewares = [];
     protected array $responseMiddlewares = [];
     protected array $globalMiddlewares = [
-        HeaderMiddleware::class,
-        LogsMiddleware::class,
+//        HeaderMiddleware::class,
+//        LogsMiddleware::class,
     ];
 
     public function addRequestMiddleware(RequestMiddlewareInterface|Closure $middleware): self

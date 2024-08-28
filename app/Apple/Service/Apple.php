@@ -16,8 +16,15 @@ use App\Apple\Service\User\User;
 use GuzzleHttp\Cookie\CookieJarInterface;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Promise\Utils;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\Pool;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -89,23 +96,74 @@ class Apple
         }
         throw new \InvalidArgumentException("客户端 $name 不存在。");
     }
+    protected function buildUUid(): string
+    {
+        return sprintf('auth-%s', uniqid());
+    }
 
     /**
-     * @return Response
-     * @throws UnauthorizedException|GuzzleException
+     * @return void
      * @throws ConnectionException
      */
-    public function bootstrap(): Response
+    public function bootstrap()
     {
-        $response = $this->appleId->bootstrap();
 
-        if (empty($data = $response->json())) {
-            throw new UnauthorizedException('未获取到配置信息');
-        }
+        /**
+         * @var $promise \GuzzleHttp\Promise\Promise
+         */
+        $promise1 = $this->appleId->getClient()
+            ->async()
+            ->get('bootstrap/portal')
+            ->then(
+                function (\Illuminate\Http\Client\Response  $response) {
 
-        $this->user->setConfig($this->createConfig($data));
+                },
+                function (RequestException $e) {
 
-        return $response;
+                    Log::error($e);
+                }
+            );
+
+        $promise2 = $this->idmsa->getClient()
+            ->async()
+            ->get('appleauth/auth/authorize/signin',[
+                'frame_id'      => $this->buildUUid(),
+                'skVersion'     => '7',
+                'iframeId'      => $this->buildUUid(),
+                'client_id'     => 'af1139274f266b22b68c2a3e7ad932cb3c0bbe854e13a79af78dcc73136882c3',
+                'redirect_uri'  => 'https://appleid.apple.com',
+                'response_type' => 'code',
+                'response_mode' => 'web_message',
+                'state'         => $this->buildUUid(),
+                'authVersion'   => 'latest',
+            ])->then(
+                function (\Illuminate\Http\Client\Response  $response) {
+
+                },
+                function (RequestException $e) {
+
+                    Log::error($e);
+                }
+            );;
+
+        $promises = [
+            'bootstrap' => $promise1,
+            'auth' => $promise2,
+        ];
+
+        // This will truly execute both promises concurrently
+        $results = Utils::settle($promises)->wait();
+//        dd($response);
+//        $response = $this->appleId->bootstrap();
+//        if (empty($data = $response->json())) {
+//            throw new UnauthorizedException('未获取到配置信息');
+//        }
+//
+//        $this->user->setConfig($this->createConfig($data));
+//
+//        $this->idmsa->authAuthorizeSignin();
+
+//        return $response;
     }
 
     /**
@@ -127,6 +185,7 @@ class Apple
         return $response;
     }
 
+
     /**
      * @param string $accountName
      * @param string $password
@@ -137,10 +196,6 @@ class Apple
      */
     public function signin(string $accountName, string $password): Response
     {
-        $this->bootstrap();
-
-        $this->idmsa->authAuthorizeSignin();
-
         $this->idmsa->login($accountName, $password);
 
         return $this->auth();

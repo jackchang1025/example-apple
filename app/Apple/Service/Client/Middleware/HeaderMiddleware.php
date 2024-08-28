@@ -3,6 +3,7 @@
 namespace App\Apple\Service\Client\Middleware;
 
 use App\Apple\Service\User\User;
+use Illuminate\Support\Facades\Log;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
@@ -17,6 +18,8 @@ readonly class HeaderMiddleware implements GlobalMiddlewareInterface
     }
     public function request(RequestInterface $request): RequestInterface
     {
+        Log::debug('HeaderMiddleware User', ['user' => $this->user->gets()->toArray()]);
+
         $headers = $this->user?->getHeaders();
         foreach ($headers as $name => $value) {
             if (!empty($value) && !$request->hasHeader($name) && $name === 'scnt') {

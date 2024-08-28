@@ -14,26 +14,21 @@ class IdmsaClient extends BaseClient
 
     /**
      * @return PendingRequest
-     * @throws UnauthorizedException
      */
     protected function createClient(): PendingRequest
     {
-        if (empty($config = $this->user->getConfig())){
-            throw new UnauthorizedException('Config is empty');
-        }
-
         return $this->clientFactory->create([
             RequestOptions::COOKIES => $this->cookieJar,
             'base_uri'              => self::BASEURL_IDMSA,
-            'timeout'               => $config->getTimeOutInterval(),
-            'connect_timeout'       => $config->getModuleTimeOutInSeconds(),
+            'timeout'               => $this->getConfig()->getTimeOutInterval(),
+            'connect_timeout'       => $this->getConfig()->getModuleTimeOutInSeconds(),
             'verify'                => false,
-            'proxy'                 => $this->getProxyResponse()->getUrl(),  // 添加这行
+            //            'proxy'                 => $this->getProxyResponse()->getUrl(),  // 添加这行
 
             RequestOptions::HEADERS => [
-                'X-Apple-Widget-Key'          => $config->getServiceKey(),
+                'X-Apple-Widget-Key'          => $this->getConfig()->getServiceKey(),
                 'X-Apple-OAuth-Redirect-URI'  => self::BASEURL_APPLEID,
-                'X-Apple-OAuth-Client-Id'     => $config->getServiceKey(),
+                'X-Apple-OAuth-Client-Id'     => $this->getConfig()->getServiceKey(),
                 'X-Apple-OAuth-Client-Type'   => 'firstPartyAuth',
                 'x-requested-with'            => 'XMLHttpRequest',
                 'X-Apple-OAuth-Response-Mode' => 'web_message',
@@ -42,7 +37,7 @@ class IdmsaClient extends BaseClient
                 'Origin'                      => self::BASEURL_IDMSA,
                 'Referer'                     => self::BASEURL_IDMSA,
                 'Accept'                      => 'application/json, text/javascript, */*; q=0.01',
-                'Accept-Language'             => 'zh-CN,zh;q=0.9',
+                'Accept-Language'             => 'zh-CN,en;q=0.9,zh;q=0.8',
                 'User-Agent'                  => 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36',
                 'Content-Type'                => 'application/json',
                 'Priority'                    => 'u=1, i',
@@ -75,17 +70,17 @@ class IdmsaClient extends BaseClient
                 'frame_id'      => $this->buildUUid(),
                 'skVersion'     => '7',
                 'iframeId'      => $this->buildUUid(),
-                'client_id'     => $this->user->getConfig()->getServiceKey(),
-                'redirect_uri'  => $this->user->getConfig()->getApiUrl(),
+                'client_id'     => $this->getConfig()->getServiceKey(),
+                'redirect_uri'  => $this->getConfig()->getApiUrl(),
                 'response_type' => 'code',
                 'response_mode' => 'web_message',
                 'state'         => $this->buildUUid(),
                 'authVersion'   => 'latest',
             ],
             RequestOptions::HEADERS => [
-                'Sec-Fetch-Site'            => 'same-origin',
-                'Sec-Fetch-Mode'            => 'navigate',
-                'Sec-Fetch-Dest'            => 'iframe',
+                'Sec-Fetch-Site' => 'same-origin',
+                'Sec-Fetch-Mode' => 'navigate',
+                'Sec-Fetch-Dest' => 'iframe',
             ],
         ]);
     }
@@ -93,12 +88,12 @@ class IdmsaClient extends BaseClient
     /**
      * 双重认证首页
      * @return Response
-     * @throws ConnectionException
+     * @throws ConnectionException|RequestException
      */
     public function auth(): Response
     {
         return $this->request('GET', '/appleauth/auth', [
-            RequestOptions::HEADERS => [
+            RequestOptions::HEADERS     => [
                 'X-Apple-ID-Session-Id'   => $this->user->getHeader('X-Apple-ID-Session-Id') ?? '',
                 'X-Apple-Auth-Attributes' => $this->user->getHeader('X-Apple-Auth-Attributes') ?? '',
                 'Accept'                  => 'text/html',
@@ -126,27 +121,28 @@ class IdmsaClient extends BaseClient
                 'rememberMe'  => $rememberMe,
             ],
             RequestOptions::HEADERS     => [
-                'X-Apple-OAuth-Redirect-URI'  => 'https://appleid.apple.com',
-                'X-Apple-OAuth-Client-Id'     => $this->user->getConfig()?->getServiceKey(),
+                'X-Apple-OAuth-Redirect-URI'  => $this->getConfig()->getApiUrl(),
+                'X-Apple-OAuth-Client-Id'     => $this->getConfig()->getServiceKey(),
                 'X-Apple-OAuth-Client-Type'   => 'firstPartyAuth',
                 'x-requested-with'            => 'XMLHttpRequest',
                 'X-Apple-OAuth-Response-Mode' => 'web_message',
-                'X-APPLE-HC'                  => '1:11:20240629164439:4e19d05de1614b4ea7746036705248f0::1979', // todo 动态数据
+                'X-APPLE-HC'                  => '1:11:20240629164439:4e19d05de1614b4ea7746036705248f0::1979',
+                // todo 动态数据
                 'X-Apple-Domain-Id'           => '1',
-
             ],
             RequestOptions::HTTP_ERRORS => false,
         ]);
 
-        $response->throwIf(function ($re) use ($response){
+        $response->throwIf(function ($re) use ($response) {
 
-            if (403 == $response->status()){
+            if (403 == $response->status()) {
                 throw new AccountLockoutException($response->getFirstErrorMessage(), $response->status());
             }
 
-            if (409 == $response->status()){
+            if (409 == $response->status()) {
                 return false;
             }
+
             return true;
         });
 
@@ -163,7 +159,7 @@ class IdmsaClient extends BaseClient
     public function validatePhoneSecurityCode(string $code, int $id = 1): Response
     {
         return $this->request('post', '/appleauth/auth/verify/phone/securitycode', [
-            RequestOptions::JSON => [
+            RequestOptions::JSON        => [
                 'phoneNumber'  => [
                     'id' => $id,
                 ],
@@ -172,7 +168,7 @@ class IdmsaClient extends BaseClient
                 ],
                 'mode'         => 'sms',
             ],
-            RequestOptions::HEADERS => [
+            RequestOptions::HEADERS     => [
                 'X-Apple-ID-Session-Id'   => $this->user->getHeader('X-Apple-ID-Session-Id') ?? '',
                 'X-Apple-Auth-Attributes' => $this->user->getHeader('X-Apple-Auth-Attributes') ?? '',
             ],
@@ -189,7 +185,7 @@ class IdmsaClient extends BaseClient
     {
         $response = $this->request('PUT', '/appleauth/auth/verify/trusteddevice/securitycode', [
             RequestOptions::HTTP_ERRORS => false,
-            RequestOptions::HEADERS => [
+            RequestOptions::HEADERS     => [
                 'X-Apple-ID-Session-Id'   => $this->user->getHeader('X-Apple-ID-Session-Id') ?? '',
                 'X-Apple-Auth-Attributes' => $this->user->getHeader('X-Apple-Auth-Attributes') ?? '',
             ],
@@ -211,12 +207,12 @@ class IdmsaClient extends BaseClient
     public function validateSecurityCode(string $code): Response
     {
         return $this->request('post', '/appleauth/auth/verify/trusteddevice/securitycode', [
-            RequestOptions::JSON    => [
+            RequestOptions::JSON        => [
                 'securityCode' => [
                     'code' => $code,
                 ],
             ],
-            RequestOptions::HEADERS => [
+            RequestOptions::HEADERS     => [
                 'X-Apple-ID-Session-Id'   => $this->user->getHeader('X-Apple-ID-Session-Id') ?? '',
                 'X-Apple-Auth-Attributes' => $this->user->getHeader('X-Apple-Auth-Attributes') ?? '',
             ],
@@ -233,7 +229,7 @@ class IdmsaClient extends BaseClient
     public function sendPhoneSecurityCode(int $id): Response
     {
         return $this->request('put', '/appleauth/auth/verify/phone', [
-            RequestOptions::JSON => [
+            RequestOptions::JSON    => [
                 'phoneNumber' => [
                     'id' => $id,
                 ],
@@ -242,7 +238,7 @@ class IdmsaClient extends BaseClient
             RequestOptions::HEADERS => [
                 'X-Apple-ID-Session-Id'   => $this->user->getHeader('X-Apple-ID-Session-Id') ?? '',
                 'X-Apple-Auth-Attributes' => $this->user->getHeader('X-Apple-Auth-Attributes') ?? '',
-            ]
+            ],
         ]);
     }
 
@@ -252,10 +248,10 @@ class IdmsaClient extends BaseClient
      */
     public function appleAuthRepairComplete(): Response
     {
-        return $this->request('POST', '/appleauth/auth/repair/complete',[
-            RequestOptions::HEADERS => [
-                'X-Apple-ID-Session-Id'   => $this->cookieJar->getCookieByName('aasp')->getValue(),
-                'X-Apple-Auth-Attributes' => $this->user->getHeader('X-Apple-Auth-Attributes') ?? '',
+        return $this->request('POST', '/appleauth/auth/repair/complete', [
+            RequestOptions::HEADERS     => [
+                'X-Apple-ID-Session-Id'        => $this->cookieJar->getCookieByName('aasp')->getValue(),
+                'X-Apple-Auth-Attributes'      => $this->user->getHeader('X-Apple-Auth-Attributes') ?? '',
                 'X-Apple-Repair-Session-Token' => $this->user->getHeader('X-Apple-Repair-Session-Token') ?? '',
             ],
             RequestOptions::HTTP_ERRORS => false,

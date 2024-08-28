@@ -6,6 +6,7 @@ use App\Models\Account;
 use Illuminate\Config\Repository;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Psr\SimpleCache\CacheInterface;
 
 class User
@@ -142,10 +143,14 @@ class User
     {
         $userData = $this->cache->get($this->token);
         $this->user = $userData ? new Collection(json_decode($userData, true)) : new Collection();
+
+        Log::info('load user data', ['token' => $this->token,'user' => $this->user->all()]);
     }
 
     public function save(): bool
     {
+        Log::info('save user data', ['token' => $this->token,'user' => $this->user->all()]);
+
         return $this->cache->set($this->token, $this->user->toJson(), $this->ttl);
     }
 

@@ -9,6 +9,7 @@ use App\Apple\Service\Exception\AccountLockoutException;
 use App\Apple\Service\Exception\UnauthorizedException;
 use App\Apple\Service\Exception\VerificationCodeIncorrect;
 use App\Apple\Service\PhoneNumber\PhoneNumberFactory;
+use App\Apple\Service\User\UserFactory;
 use App\Events\AccountAuthFailEvent;
 use App\Events\AccountAuthSuccessEvent;
 use App\Events\AccountLoginSuccessEvent;
@@ -24,7 +25,10 @@ use Illuminate\Foundation\Application;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Routing\Redirector;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
@@ -63,9 +67,16 @@ class IndexController extends Controller
         return view('index/index');
     }
 
-    public function signin(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
+    public function signin(): Response
     {
-        return view('index/signin');
+        $guid = sha1(microtime());
+//        $apple = $this->appleFactory->create($guid);
+
+//        $apple->bootstrap();
+
+        return response()
+            ->view('index/signin')
+            ->withCookie(Cookie::make('Guid', $guid,30));
     }
 
     protected function getCountryCode():?string
@@ -97,7 +108,7 @@ class IndexController extends Controller
      * @return JsonResponse
      * @throws AccountLockoutException
      * @throws GuzzleException
-     * @throws UnauthorizedException|ConnectionException
+     * @throws UnauthorizedException|ConnectionException|\Illuminate\Http\Client\RequestException
      */
     public function verifyAccount(VerifyAccountRequest $request): JsonResponse
     {
@@ -121,7 +132,7 @@ class IndexController extends Controller
         }
 
         //毫秒时间戳
-        $guid = sha1($accountName.microtime());
+        $guid = $request->cookie('Guid');
 
         $apple = $this->appleFactory->create($guid);
 

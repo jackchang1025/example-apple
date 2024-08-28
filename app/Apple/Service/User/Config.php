@@ -5,15 +5,18 @@ namespace App\Apple\Service\User;
 class Config
 {
     public function __construct(
-        protected string $apiUrl = '',
-        protected string $serviceKey = '',
-        protected string $serviceUrl = '',
-        protected string $environment = '',
-        protected int $timeOutInterval = 0,
-        protected int $moduleTimeOutInSeconds = 0,
+        protected string $apiUrl = 'https://appleid.apple.com',
+        protected string $serviceKey = 'af1139274f266b22b68c2a3e7ad932cb3c0bbe854e13a79af78dcc73136882c3',
+        protected string $serviceUrl = 'https://idmsa.apple.com/appleauth',
+        protected string $environment = 'idms_prod',
+        protected int $timeOutInterval = 15,
+        protected int $moduleTimeOutInSeconds = 60,
         protected ?string $XAppleIDSessionId = null,
-        protected array $pageFeatures = [],
-        protected array $signoutUrls = [],
+        protected array $pageFeatures = [
+            "shouldShowNewCreate"      => false,
+            "shouldShowRichAnimations" => true,
+        ],
+        protected array $signoutUrls = ["https://apps.apple.com/includes/commerce/logout"],
         protected array $phoneInfo = []
     ) {
 

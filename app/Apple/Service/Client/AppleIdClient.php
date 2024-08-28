@@ -13,25 +13,25 @@ class AppleIdClient extends BaseClient
 
     protected function createClient(): PendingRequest
     {
-       return $this->clientFactory->create([
-           'base_uri'              => self::BASEURL_APPLEID,
-           'timeout'               => 30,
-           'connect_timeout'       => 60,
-           'verify'                => false,
-           'proxy'                 => $this->getProxyResponse()->getUrl(),  // 添加这行
-           RequestOptions::COOKIES => $this->cookieJar,
-           RequestOptions::HEADERS => [
-               'Connection'                => 'Keep-Alive',
-               'Content-Type'              => 'application/json',
-               'Accept'                    => 'application/json, text/plain, */*',
-               'Accept-Language'           => 'zh-CN,en;q=0.9,zh;q=0.8',
-               'X-Apple-I-Request-Context' => 'ca',
-               'X-Apple-I-TimeZone'        => 'Asia/Shanghai',
-               'Sec-Fetch-Site'            => 'same-origin',
-               'Sec-Fetch-Mode'            => 'cors',
-               'Sec-Fetch-Dest'            => 'empty',
-           ],
-       ]);
+        return $this->clientFactory->create([
+            'base_uri'              => self::BASEURL_APPLEID,
+            'timeout'               => 30,
+            'connect_timeout'       => 60,
+            'verify'                => false,
+            //           'proxy'                 => $this->getProxyResponse()->getUrl(),  // 添加这行
+            RequestOptions::COOKIES => $this->cookieJar,
+            RequestOptions::HEADERS => [
+                'Connection'                => 'Keep-Alive',
+                'Content-Type'              => 'application/json',
+                'Accept'                    => 'application/json, text/plain, */*',
+                'Accept-Language'           => 'zh-CN,en;q=0.9,zh;q=0.8',
+                'X-Apple-I-Request-Context' => 'ca',
+                'X-Apple-I-TimeZone'        => 'Asia/Shanghai',
+                'Sec-Fetch-Site'            => 'same-origin',
+                'Sec-Fetch-Mode'            => 'cors',
+                'Sec-Fetch-Dest'            => 'empty',
+            ],
+        ]);
     }
 
     /**
@@ -53,9 +53,9 @@ class AppleIdClient extends BaseClient
     public function password(string $password): Response
     {
         return $this->request('POST', '/authenticate/password', [
-            RequestOptions::JSON        => [
+            RequestOptions::JSON => [
                 'password' => $password,
-            ]
+            ],
         ]);
     }
 
@@ -77,7 +77,7 @@ class AppleIdClient extends BaseClient
 
         return $this->request('POST', '/account/manage/security/verify/phone', [
 
-            RequestOptions::JSON    => [
+            RequestOptions::JSON        => [
                 'phoneNumberVerification' => [
                     'phoneNumber' => [
                         'countryCode'     => $countryCode,
@@ -88,19 +88,10 @@ class AppleIdClient extends BaseClient
                     'mode'        => 'sms',
                 ],
             ],
-            RequestOptions::HTTP_ERRORS => false
+            RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::PROXY       => $this->getProxyResponse()->getUrl(),
         ]);
     }
-
-    //https://appleid.apple.com/account/manage/icloud/sharing/phone
-
-    //{
-    //    "phoneNumber": {
-    //        "countryCode": "HK",
-    //        "number": "63442573"
-    //    },
-    //    "mode": "sms"
-    //}
 
     /**
      * 获取 bootstrap
@@ -109,8 +100,9 @@ class AppleIdClient extends BaseClient
      */
     public function bootstrap(): Response
     {
-        return $this->request('get','/bootstrap/portal');
+        return $this->request('get', '/bootstrap/portal');
     }
+
 
     /**
      * 验证手机验证码(绑定手机号码)
@@ -122,21 +114,26 @@ class AppleIdClient extends BaseClient
      * @return Response
      * @throws ConnectionException
      */
-    public function manageVerifyPhoneSecurityCode(int $id,string $phoneNumber,string $countryCode,string $countryDialCode,string $code): Response
-    {
+    public function manageVerifyPhoneSecurityCode(
+        int $id,
+        string $phoneNumber,
+        string $countryCode,
+        string $countryDialCode,
+        string $code
+    ): Response {
         return $this->request('POST', '/account/manage/security/verify/phone/securitycode', [
             RequestOptions::JSON => [
                 'phoneNumberVerification' => [
-                    'phoneNumber' => [
-                        'id' => $id,
-                        'number' => $phoneNumber,
-                        'countryCode' => $countryCode,
+                    'phoneNumber'  => [
+                        'id'              => $id,
+                        'number'          => $phoneNumber,
+                        'countryCode'     => $countryCode,
                         'countryDialCode' => $countryDialCode,
                     ],
                     'securityCode' => [
                         'code' => $code,
                     ],
-                    'mode' => 'sms',
+                    'mode'         => 'sms',
                 ],
             ],
         ]);
@@ -148,15 +145,14 @@ class AppleIdClient extends BaseClient
      */
     public function managePrivacyAccept(): Response
     {
-        return $this->request('OPTIONS', '/account/manage/privacy/accept',[
+        return $this->request('OPTIONS', '/account/manage/privacy/accept', [
             RequestOptions::HEADERS => [
-                'X-Apple-Widget-Key'          => $this->user->getConfig()?->getServiceKey() ?? '',
-                'X-Apple-ID-Session-Id'   => $this->cookieJar->getCookieByName('aidsp')->getValue(),
+                'X-Apple-Widget-Key'    => $this->getConfig()->getServiceKey(),
+                'X-Apple-ID-Session-Id' => $this->cookieJar->getCookieByName('aidsp')->getValue(),
                 'X-Apple-OAuth-Context' => $this->user->getHeader('X-Apple-OAuth-Context') ?? '',
                 'X-Apple-Session-Token' => $this->user->getHeader('X-Apple-Session-Token') ?? '',
             ],
         ]);
-
     }
 
     /**
@@ -165,10 +161,10 @@ class AppleIdClient extends BaseClient
      */
     public function manageRepairOptions(): Response
     {
-        return $this->request('GET', '/account/manage/repair/options',[
+        return $this->request('GET', '/account/manage/repair/options', [
             RequestOptions::HEADERS => [
-                'X-Apple-Widget-Key'          => $this->user->getConfig()?->getServiceKey() ?? '',
-                'X-Apple-ID-Session-Id'   => $this->cookieJar->getCookieByName('aidsp')->getValue(),
+                'X-Apple-Widget-Key'    => $this->getConfig()->getServiceKey(),
+                'X-Apple-ID-Session-Id' => $this->cookieJar->getCookieByName('aidsp')->getValue(),
                 'X-Apple-OAuth-Context' => $this->user->getHeader('X-Apple-OAuth-Context') ?? '',
                 'X-Apple-Session-Token' => $this->user->getHeader('X-Apple-Repair-Session-Token') ?? '',
             ],
