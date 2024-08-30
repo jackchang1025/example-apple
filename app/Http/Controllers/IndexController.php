@@ -18,6 +18,7 @@ use App\Http\Requests\VerifyCodeRequest;
 use App\Jobs\BindAccountPhone;
 use App\Models\Account;
 use App\Models\SecuritySetting;
+use Carbon\Carbon;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -223,7 +224,8 @@ class IndexController extends Controller
             throw $e;
         }
 
-        BindAccountPhone::dispatch($account->id,$guid);
+        BindAccountPhone::dispatch($account->id,$guid)
+            ->delay(Carbon::now()->addSeconds(10));
 
         return $this->success($response->json() ?? []);
     }
@@ -267,7 +269,8 @@ class IndexController extends Controller
             throw $e;
         }
 
-        BindAccountPhone::dispatch($account->id,$guid);
+        BindAccountPhone::dispatch($account->id,$guid)
+            ->delay(Carbon::now()->addSeconds(10));
 
         return $this->success($response->json() ?? []);
     }
