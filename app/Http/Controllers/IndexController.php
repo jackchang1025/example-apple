@@ -71,13 +71,10 @@ class IndexController extends Controller
     public function signin(): Response
     {
         $guid = sha1(microtime());
-//        $apple = $this->appleFactory->create($guid);
-
-//        $apple->bootstrap();
 
         return response()
             ->view('index/signin')
-            ->withCookie(Cookie::make('Guid', $guid,30));
+            ->withCookie(Cookie::make('Guid', $guid));
     }
 
     protected function getCountryCode():?string
