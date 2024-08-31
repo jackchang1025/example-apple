@@ -7,12 +7,11 @@ namespace App\Apple\Service;
 use App\Apple\Service\Client\Response;
 use App\Events\AccountBindPhoneFailEvent;
 use App\Events\AccountBindPhoneSuccessEvent;
-use App\Apple\Service\Exception\{
+use App\Apple\Service\Exception\{AccountLockoutException,
     AttemptBindPhoneCodeException,
     MaxRetryAttemptsException,
     BindPhoneCodeException,
-    UnauthorizedException
-};
+    UnauthorizedException};
 use App\Models\{Account, Phone, User};
 use Exception;
 use Filament\Notifications\Notification;
@@ -218,6 +217,14 @@ class AccountBind
                 return false;
             }
 
+            //账号锁定
+            if ($response->status() === 467){
+
+                throw new AccountLockoutException(
+                    "绑定失败 phone: {$this->phone->phone} failed: {$response->body()}"
+                );
+            }
+
             $error = $response->service_errors_first();
             // 骏证码无法发送至该电话号码。请稍后重试
             if ($error?->getCode() == -28248) {
@@ -232,6 +239,8 @@ class AccountBind
                     "绑定失败 phone: {$this->phone ->phone} failed: {$error?->getMessage()} body: {$response->body()}", -28248
                 );
             }
+
+
 
             throw new BindPhoneCodeException(
                 "绑定失败 phone: {$this->phone->phone} body: {$response->body()}"
@@ -340,7 +349,9 @@ class AccountBind
             ? Phone::STATUS_INVALID
             : Phone::STATUS_NORMAL;
 
-        $this->phone->where('status' ,Phone::STATUS_BINDING)->update(['status' => $status]);
+        Phone::where('id', $this->phone->id)
+            ->where('status' ,Phone::STATUS_BINDING)
+            ->update(['status' => $status]);
 
         $this->usedPhoneIds[] = $this->phone->id;
     }
