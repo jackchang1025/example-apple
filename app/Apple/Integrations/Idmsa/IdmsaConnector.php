@@ -57,7 +57,7 @@ class IdmsaConnector extends AppleConnector
             'Priority'                    => 'u=1, i',
             'Sec-Ch-Ua'                   => "Chromium;v=124, Google Chrome;v=124",
             'Sec-Ch-Ua-Mobile'            => '?0',
-            'Sec-Ch-Ua-Platform'          => 'Windows',
+            'Sec-Ch-Ua-Platform'          => 'Mobile',
             'Connection'                  => 'Keep-Alive',
             'X-Apple-I-TimeZone'          => 'Asia/Shanghai',
             'Sec-Fetch-Site'              => 'same-origin',
