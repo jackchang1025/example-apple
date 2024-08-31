@@ -85,7 +85,8 @@ trait HasHeaderStore
 
         $pendingRequest->middleware()
             ->onResponse(function (Response $response){
-                $this->getHeaderRepositories()->merge($response->headers()->all());
+                $this->getHeaderRepositories()
+                    ->merge($response->headers()->all());
             },'header_store_response',PipeOrder::LAST);
     }
 }
