@@ -18,7 +18,7 @@ readonly class HeaderMiddleware implements GlobalMiddlewareInterface
     }
     public function request(RequestInterface $request): RequestInterface
     {
-        Log::debug('HeaderMiddleware User', ['user' => $this->user->gets()->toArray()]);
+        Log::debug('HeaderMiddleware User', ['user' => $this->user->all()]);
 
         $headers = $this->user?->getHeaders();
         foreach ($headers as $name => $value) {
@@ -27,8 +27,7 @@ readonly class HeaderMiddleware implements GlobalMiddlewareInterface
             }
         }
 
-        return $request->withHeader('Referer', (string) $request->getUri())
-            ->withHeader('account', $this->user->get('account'));
+        return $request->withHeader('Referer', (string) $request->getUri());
     }
 
     public function response(ResponseInterface $response): ResponseInterface
@@ -43,8 +42,6 @@ readonly class HeaderMiddleware implements GlobalMiddlewareInterface
                 }
             }
         }
-
-        $this->user->appendHeader('account' ,$this->user?->get('account') ?? '');
 
         return $response;
     }

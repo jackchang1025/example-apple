@@ -7,6 +7,7 @@ use App\Apple\Proxy\ProxyInterface;
 use App\Apple\Proxy\ProxyResponse;
 use App\Apple\Service\User\Config;
 use App\Apple\Service\User\User;
+use App\Http\Integrations\IpConnector\Responses\IpResponse;
 use Exception;
 use GuzzleHttp\Cookie\CookieJarInterface;
 use GuzzleHttp\Exception\RequestException;
@@ -53,8 +54,8 @@ abstract class BaseClient
         }
 
         $this->proxyResponse = $this->getProxy();
-        $this->user->set('proxy_url', $this->proxyResponse->getUrl());
-        $this->user->set('proxy_ip', $this->proxy->getProxyIp($this->proxyResponse));
+        $this->user->add('proxy_url', $this->proxyResponse->getUrl());
+        $this->user->add('proxy_ip', $this->proxy->getProxyIp($this->proxyResponse));
         $this->logger->info(
             sprintf(
                 'token %s Proxy: %s get proxy success',
@@ -69,8 +70,17 @@ abstract class BaseClient
     public function getProxy(?array $options = null): ProxyResponse
     {
         $options ??= [
-            'session' => $this->user->getToken(),
+//            'session' => $this->user->getToken(),
         ];
+        /**
+         * @var IpResponse $ipaddress
+         */
+        $ipaddress = $this->user->get('ipaddress');
+
+        if ($ipaddress !== null){
+            $options['city'] = $ipaddress->cityCode();
+            $options['province'] = $ipaddress->proCode();
+        }
 
         return $this->proxy->getProxy(Option::make($options));
     }
@@ -83,7 +93,7 @@ abstract class BaseClient
 
             $this->client->withRequestMiddleware(function (RequestInterface $request) {
 
-                Log::debug('HeaderMiddleware User', ['user' => $this->user->gets()->toArray()]);
+                Log::debug('HeaderMiddleware User', ['user' => $this->user->all()]);
 
                 $headers = $this->user->getHeaders();
                 foreach ($headers as $name => $value) {
@@ -95,7 +105,7 @@ abstract class BaseClient
                 $request->withHeader('Referer', (string) $request->getUri());
 
                 $this->logger->debug('Request', [
-                    'account'    => $this->user->get('account') ?? '',
+                    'account'    => $this->user->get('accountName'),
                     'method'  => $request->getMethod(),
                     'uri'     => (string) $request->getUri(),
                     'headers' => $request->getHeaders(),
@@ -118,8 +128,6 @@ abstract class BaseClient
                     }
                 }
 
-                $this->user->appendHeader('account' ,$this->user->get('account') ?? '');
-
                 $contentType = $response->getHeaderLine('Content-Type');
                 if ($contentType !== 'text/html;charset=UTF-8') {
 
@@ -129,7 +137,7 @@ abstract class BaseClient
                     }
 
                     $responseInfo = [
-                        'account'    => $this->user->get('account') ?? '',
+                        'account'    => $this->user->get('accountName'),
                         'status'  => $response->getStatusCode(),
                         'headers' => $response->getHeaders(),
                         'body'    => $body,

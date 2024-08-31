@@ -113,5 +113,89 @@ php artisan horizon:status
 请将 your_domain 替换成你的域名
 
 
+### 使用宝塔面板安装
+
+###  在应用商店安装 mysql
+####  创建数据库并记录数据库用户名和密码
+
+### 在应用商店安装 php8.3
+
+#### 1.1安装 PHP 扩展
+```bash
+php -m
+[PHP Modules]
+fileinfo
+opcache
+memcached
+redis
+exif
+intl
+mbstring	
+calendar
+sysvmsg
+igbinary
+
+[Zend Modules]
+Xdebug
+Zend OPcache
+```
+####  1.2 修改禁用函数
+```bash
+proc_open
+pcntl_signal
+```
+
+### 2. 安装 redis
+
+### 4 安装 nginx
+
+### 5 安装 superdvisord
+
+### 修改项目配置
+#### 1.3 修改 .env 文件
+在 .env 文件中配置数据库
+```bash
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=laravel #替换成你的数据库名称
+DB_USERNAME=sail #替换成你的数据库用户名
+DB_PASSWORD=123456 #替换成你的数据库密码
+```
+在 .env 文件中配置 redis
+```bash
+REDIS_CLIENT=phpredis
+REDIS_HOST=127.0.0.1 #替换成你的redis地址 一般是 127.0.0.1
+REDIS_PASSWORD=null #替换成你的redis密码
+REDIS_PORT=6379
+```
+在 .env 文件中配置队列
+```bash
+QUEUE_CONNECTION=redis
+```
+
+在 .env 文件中配置域名
+```bash
+APP_URL=http://local.apple.com #替换成你的域名
+```
+
+### 创建站点信息
+#### 配置域名
+![./image/img.png](image/img.png)
+
+#### 配置伪静态
+```bash
+location / {
+try_files $uri $uri/ /index.php$is_args$query_string;
+}
+if (!-e $request_filename) { rewrite ^/(.*) /index.php/$1 last; }
+```
+![img.png](./image/img2.png)
+
+#### 配置网站目录
+注意关闭防跨站攻击
+![img.png](./image/img_1.png)
+
+
 
 

@@ -3,22 +3,18 @@
 namespace App\Apple\Service\User;
 
 use App\Models\Account;
-use Illuminate\Config\Repository;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
 use Psr\SimpleCache\CacheInterface;
+use Saloon\Repositories\ArrayStore;
 
-class User
+class User extends ArrayStore
 {
-    protected ?Collection $user = null;
 
     public function __construct(
         protected CacheInterface $cache,
         protected string $token,
         protected int $ttl = 60 * 30
     ) {
-        $this->load();
+        parent::__construct($this->load() ?? []);
     }
 
     public function getToken(): string
@@ -31,66 +27,45 @@ class User
         $this->token = $token;
     }
 
-    public function set(string $key, $value): void
+
+    public function getAccount(): ?Account
     {
-        $this->user->put($key, $value);
+        return $this->get('account');
     }
 
-    public function get(string $key, mixed $default = null): mixed
-    {
-        return $this->user->get($key, $default);
-    }
 
-    public function getAccount(): Account|null
+    public function setCookie(array $value): static
     {
-        if($account = $this->get('account')){
-            return Account::where('account',$account)->first();
-        }
-        return null;
-    }
-
-    public function gets(): Collection
-    {
-        return $this->user;
-    }
-
-    public function setCookie(array $value): void
-    {
-        $this->user->put('cookie', $value);
+        return $this->add('cookie', $value);
     }
 
     public function getCookie(array $default = []): array
     {
-        return $this->user->get('cookie', $default);
+        return $this->get('cookie', $default);
     }
 
-    public function getCookies(): array
-    {
-        return $this->user->get('cookie',[]);
-    }
-
-    public function appendCookie(string $key, string|int|array $value): void
+    public function appendCookie(string $key, string|int|array $value): static
     {
         $cookie       = $this->getCookie();
         $cookie[$key] = $value;
-        $this->setCookie($cookie);
+        return $this->setCookie($cookie);
     }
 
-    public function setHeader(array $value): void
+    public function setHeader(array $value): static
     {
-        $this->user->put('header', $value);
+        return $this->add('header', $value);
     }
 
-    public function appendHeader(string $key, string|int|array $value): void
+    public function appendHeader(string $key, string|int|array $value): static
     {
         $header       = $this->getHeaders();
         $header[$key] = $value;
-        $this->setHeader($header);
+        return $this->setHeader($header);
     }
 
     public function getHeaders(array $default = []): array
     {
-        return $this->user->get('header', $default);
+        return $this->get('header', $default);
     }
 
     public function getHeader(mixed $key,mixed $default = null):mixed
@@ -98,60 +73,36 @@ class User
         return $this->getHeaders()[$key] ?? $default;
     }
 
-    public function setConfig(Config $config): void
+    public function setConfig(Config $config): static
     {
-        $this->user->put('config', $config->toArray());
+        return $this->add('config', $config->toArray());
     }
 
     public function getConfig(): ?Config
     {
-        $configArray = $this->user->get('config');
+        $configArray = $this->get('config');
         return $configArray ? Config::fromArray($configArray) : null;
     }
 
-    public function getConfigOrDefault(): Config
-    {
-        $config = $this->getConfig();
-        if ($config === null) {
-            $config = $this->getDefaultConfig();
-            $this->setConfig($config);
-        }
-        return $config;
-    }
 
-    private function getDefaultConfig(): Config
+    public function setPhoneInfo(array $value): static
     {
-        return new Config(
-            apiUrl: 'https://appleid.apple.com',
-            serviceKey: 'default_service_key',
-            serviceUrl: 'https://appleid.apple.com',
-            environment: 'production'
-        );
-    }
-
-    public function setPhoneInfo(array $value): void
-    {
-        $this->user->put('phone_info', $value);
+        return $this->add('phone_info', $value);
     }
 
     public function getPhoneInfo(array $default = []): array
     {
-        return $this->user->get('phone_info', $default);
+        return $this->get('phone_info', $default);
     }
 
-    public function load(): void
+    public function load():mixed
     {
-        $userData = $this->cache->get($this->token);
-        $this->user = $userData ? new Collection(json_decode($userData, true)) : new Collection();
-
-        Log::info('load user data', ['token' => $this->token,'user' => $this->user->all()]);
+        return $this->cache->get($this->token);
     }
 
     public function save(): bool
     {
-        Log::info('save user data', ['token' => $this->token,'user' => $this->user->all()]);
-
-        return $this->cache->set($this->token, $this->user->toJson(), $this->ttl);
+        return $this->cache->set($this->token, $this->data, $this->ttl);
     }
 
     public function __destruct()
@@ -161,7 +112,7 @@ class User
 
     public function clear(): void
     {
-        $this->user = collect();
+        $this->data = [];
         $this->save();
     }
 }

@@ -7,9 +7,13 @@ use App\Apple\Proxy\Option;
 use App\Apple\Proxy\ProxyModeInterface;
 use App\Apple\Proxy\ProxyResponse;
 use App\Apple\Service\Client\ClientFactory;
+use GuzzleHttp\Psr7\Request;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * API代理类
@@ -68,13 +72,33 @@ class ApiProxy implements ProxyModeInterface
             ->withOptions([
                 'verify' => false,
             ])
+            ->withRequestMiddleware(function (RequestInterface $request){
+
+                Log::debug('Request', [
+                    'method'  => $request->getMethod(),
+                    'uri'     => (string) $request->getUri(),
+                    'headers' => $request->getHeaders(),
+                    'body'    => (string)$request->getBody(),
+                ]);
+                return $request;
+            })
+            ->withResponseMiddleware(function (ResponseInterface $response) {
+
+                Log::debug('Response', [
+                    'status'  => $response->getStatusCode(),
+                    'headers' => $response->getHeaders(),
+                    'body'    => (string) $response->getBody(),
+                ]);
+
+                return $response;
+            })
             ->connectTimeout(10)
-            ->get(self::API_URL, $this->buildQueryParams())
+            ->get(self::API_URL, $this->buildQueryParams($option))
             ->throw(fn(Response $response) => throw new ProxyException('Failed to get proxy from Huashengdaili: ' . $response->body()))
             ->collect()
             ->tap(function (Collection $response) {
 
-                if ($response['status'] !== '0') {
+                if ($response->get('status') !== '0') {
                     throw new ProxyException('Huashengdaili error: ' . ($response['detail'] ?? 'Unknown error'));
                 }
                 if (empty($response['list'])) {
@@ -92,11 +116,12 @@ class ApiProxy implements ProxyModeInterface
     /**
      * 构建查询参数
      *
+     * @param Option $option
      * @return array
      */
-    protected function buildQueryParams(): array
+    protected function buildQueryParams(Option $option): array
     {
-        return $this->config;
+        return array_merge($this->config,$option->all());
     }
 
     /**

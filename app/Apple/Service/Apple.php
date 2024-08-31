@@ -7,24 +7,16 @@ use App\Apple\Service\Client\BaseClient;
 use App\Apple\Service\Client\IdmsaClient;
 use App\Apple\Service\Client\PhoneCodeClient;
 use App\Apple\Service\Client\Response;
-use App\Apple\Service\DOMDocument\DOMDocument;
 use App\Apple\Service\Exception\UnauthorizedException;
 use App\Apple\Service\Exception\VerificationCodeIncorrect;
-use App\Apple\Service\PhoneCodeParser\PhoneCodeParserInterface;
 use App\Apple\Service\User\Config;
 use App\Apple\Service\User\User;
 use GuzzleHttp\Cookie\CookieJarInterface;
-use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Promise\Utils;
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Http\Client\Pool;
 use Illuminate\Http\Client\RequestException;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 
 /**

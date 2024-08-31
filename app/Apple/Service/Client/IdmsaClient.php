@@ -23,7 +23,7 @@ class IdmsaClient extends BaseClient
             'timeout'               => $this->getConfig()->getTimeOutInterval(),
             'connect_timeout'       => $this->getConfig()->getModuleTimeOutInSeconds(),
             'verify'                => false,
-            //            'proxy'                 => $this->getProxyResponse()->getUrl(),  // 添加这行
+            RequestOptions::PROXY => $this->getProxyResponse()->getUrl(),  // 添加这行
 
             RequestOptions::HEADERS => [
                 'X-Apple-Widget-Key'          => $this->getConfig()->getServiceKey(),
@@ -114,6 +114,7 @@ class IdmsaClient extends BaseClient
      */
     public function login(string $accountName, string $password, bool $rememberMe = true): Response
     {
+
         $response = $this->request('post', '/appleauth/auth/signin?isRememberMeEnabled=true', [
             RequestOptions::JSON        => [
                 'accountName' => $accountName,
