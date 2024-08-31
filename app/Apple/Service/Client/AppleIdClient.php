@@ -18,7 +18,7 @@ class AppleIdClient extends BaseClient
             'timeout'               => 30,
             'connect_timeout'       => 60,
             'verify'                => false,
-            //           'proxy'                 => $this->getProxyResponse()->getUrl(),  // 添加这行
+//                       'proxy'                 => $this->getProxyResponse()->getUrl(),  // 添加这行
             RequestOptions::COOKIES => $this->cookieJar,
             RequestOptions::HEADERS => [
                 'Connection'                => 'Keep-Alive',
