@@ -2,8 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Apple\Service\Apple;
-use App\Apple\Service\AppleFactory;
+use App\Apple\Apple;
 use App\Apple\Service\Exception\UnauthorizedException;
 use Closure;
 use Illuminate\Contracts\Container\Container;
@@ -12,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class UnauthorizedMiddleware
 {
-    public function __construct(protected AppleFactory $appleFactory,protected Container $container)
+    public function __construct(protected Apple $apple,protected Container $container)
     {
     }
 
@@ -25,22 +24,19 @@ class UnauthorizedMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (empty($guid = $request->input('Guid'))){
+        if (empty($request->input('Guid'))){
             throw new UnauthorizedException('Unauthorized',401);
         }
 
-        $apple = $this->appleFactory->create($guid);
+        $account = $this->apple->getAppleIdConnector()
+            ->getRepositories()
+            ->get('account');
 
         // 获取用户信息
-        $account = $apple->getUser()->getAccount();
         if (empty($account)) {
             throw new UnauthorizedException('Unauthorized',403);
         }
         $request->setUserResolver(fn() => $account);
-
-        //设置 Apple 实例
-        $request->attributes->set('apple', $apple);
-        $this->container->singleton(Apple::class, fn() => $apple);
 
         return $next($request);
     }

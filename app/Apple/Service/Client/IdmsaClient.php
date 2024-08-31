@@ -3,7 +3,6 @@
 namespace App\Apple\Service\Client;
 
 use App\Apple\Service\Exception\AccountLockoutException;
-use App\Apple\Service\Exception\SignInException;
 use App\Apple\Service\Exception\UnauthorizedException;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Client\ConnectionException;
@@ -14,16 +13,17 @@ class IdmsaClient extends BaseClient
 {
 
     /**
-     * @return array
+     * @return PendingRequest
      */
-    protected function defaultOption(): array
+    protected function createClient(): PendingRequest
     {
-        return [
+        return $this->clientFactory->create([
             RequestOptions::COOKIES => $this->cookieJar,
             'base_uri'              => self::BASEURL_IDMSA,
             'timeout'               => $this->getConfig()->getTimeOutInterval(),
             'connect_timeout'       => $this->getConfig()->getModuleTimeOutInSeconds(),
             'verify'                => false,
+            //            'proxy'                 => $this->getProxyResponse()->getUrl(),  // 添加这行
 
             RequestOptions::HEADERS => [
                 'X-Apple-Widget-Key'          => $this->getConfig()->getServiceKey(),
@@ -50,18 +50,18 @@ class IdmsaClient extends BaseClient
                 'Sec-Fetch-Mode'              => 'cors',
                 'Sec-Fetch-Dest'              => 'empty',
             ],
-        ];
+        ]);
     }
 
     protected function buildUUid(): string
     {
-        return sprintf('auth-%s', uniqid('', true));
+        return sprintf('auth-%s', uniqid());
     }
 
     /**
      * 获取授权页面
      * @return Response
-     * @throws ConnectionException|RequestException
+     * @throws ConnectionException
      */
     public function authAuthorizeSignin(): Response
     {
@@ -114,7 +114,6 @@ class IdmsaClient extends BaseClient
      */
     public function login(string $accountName, string $password, bool $rememberMe = true): Response
     {
-
         $response = $this->request('post', '/appleauth/auth/signin?isRememberMeEnabled=true', [
             RequestOptions::JSON        => [
                 'accountName' => $accountName,
@@ -155,7 +154,7 @@ class IdmsaClient extends BaseClient
      * @param int $id
      * @param string $code
      * @return Response
-     * @throws ConnectionException|RequestException
+     * @throws ConnectionException
      */
     public function validatePhoneSecurityCode(string $code, int $id = 1): Response
     {
@@ -245,64 +244,17 @@ class IdmsaClient extends BaseClient
 
     /**
      * @return Response
-     * @throws ConnectionException|RequestException
+     * @throws ConnectionException
      */
     public function appleAuthRepairComplete(): Response
     {
         return $this->request('POST', '/appleauth/auth/repair/complete', [
             RequestOptions::HEADERS     => [
-                'X-Apple-ID-Session-Id'        => $this->cookieJar->getCookieByName('aasp')?->getValue(),
+                'X-Apple-ID-Session-Id'        => $this->cookieJar->getCookieByName('aasp')->getValue(),
                 'X-Apple-Auth-Attributes'      => $this->user->getHeader('X-Apple-Auth-Attributes') ?? '',
                 'X-Apple-Repair-Session-Token' => $this->user->getHeader('X-Apple-Repair-Session-Token') ?? '',
             ],
             RequestOptions::HTTP_ERRORS => false,
         ]);
-    }
-
-    /**
-     * @param string $a
-     * @param string $account
-     * @return Response
-     * @throws ConnectionException
-     * @throws RequestException
-     */
-    public function signinInit(string $a, string $account): Response
-    {
-        return $this->request('POST', '/appleauth/auth/signin/init', [
-            RequestOptions::JSON    => [
-                'a'=>$a,
-                'accountName' => $account,
-                'protocols' => ['s2k','s2k_fo'],
-            ],
-        ]);
-    }
-
-    /**
-     * @param string $account
-     * @param string $m1
-     * @param string $m2
-     * @param string $c
-     * @param bool $rememberMe
-     * @return Response
-     * @throws ConnectionException
-     * @throws RequestException|SignInException
-     */
-    public function complete(string $account, string $m1, string $m2, string $c, bool $rememberMe = false): Response
-    {
-        $response =  $this->request('POST', '/appleauth/auth/signin/complete?isRememberMeEnabled=true', [
-            RequestOptions::JSON    => [
-                'accountName' => $account,
-                'm1'    => $m1,
-                'm2'  => $m2,
-                'c'  => $c,
-                'rememberMe'  => $rememberMe,
-            ],
-        ]);
-
-        if ($response->status() !== 409){
-            throw new SignInException('登录失败', $response->status());
-        }
-
-        return $response;
     }
 }

