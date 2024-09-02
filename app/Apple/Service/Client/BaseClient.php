@@ -69,15 +69,13 @@ abstract class BaseClient
 
     public function getProxy(?array $options = null): ProxyResponse
     {
-        $options ??= [
-//            'session' => $this->user->getToken(),
-        ];
+
         /**
          * @var IpResponse $ipaddress
          */
         $ipaddress = $this->user->get('ipaddress');
 
-        if ($ipaddress !== null){
+        if ($ipaddress !== null && $ipaddress->isChain()){
             $options['city'] = $ipaddress->cityCode();
             $options['province'] = $ipaddress->proCode();
         }

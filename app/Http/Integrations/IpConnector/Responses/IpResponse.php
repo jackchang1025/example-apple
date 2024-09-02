@@ -11,4 +11,6 @@ abstract class IpResponse extends ArrayStore
     abstract public function getIp():?string;
     abstract public function cityCode():?string;
     abstract public function proCode():?string;
+
+    abstract public function isChain():bool;
 }

@@ -28,4 +28,9 @@ class PconLineResponse extends IpResponse
     {
         return $this->get('proCode');
     }
+
+    public function isChain(): bool
+    {
+        return $this->cityCode() !== '0' && $this->proCode() !== '999999';
+    }
 }
