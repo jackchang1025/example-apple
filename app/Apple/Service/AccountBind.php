@@ -213,13 +213,12 @@ class AccountBind
         // 验证手机验证码是否发生异常
         $response->throwIf(function ($re) use ($response) {
 
-            if ($response->status() === 200 || $response->status() === 423){
+            if ($response->status() === 200){
                 return false;
             }
 
             //账号锁定
             if ($response->status() === 467){
-
                 throw new AccountLockoutException(
                     "绑定失败 phone: {$this->phone->phone} failed: {$response->body()}"
                 );
@@ -233,14 +232,26 @@ class AccountBind
                 );
             }
 
+            //发送验证码的次数过多。输入你最后收到的验证码，或稍后再试。
+            if ($error?->getCode() == -22979) {
+                throw new Exception(
+                    "绑定失败 phone: {$this->phone ->phone} failed: {$error?->getMessage()} body: {$response->body()}", -28248
+                );
+            }
+
+            //Error Description not available
+            if ($error?->getCode() == -22420) {
+                throw new Exception(
+                    "绑定失败 phone: {$this->phone ->phone} failed: {$error?->getMessage()} body: {$response->body()}", -28248
+                );
+            }
+
             $error = $response->validationErrorsFirst();
             if($error?->getCode() === 'phone.number.already.exists'){
                 throw new BindPhoneCodeException(
                     "绑定失败 phone: {$this->phone ->phone} failed: {$error?->getMessage()} body: {$response->body()}", -28248
                 );
             }
-
-
 
             throw new BindPhoneCodeException(
                 "绑定失败 phone: {$this->phone->phone} body: {$response->body()}"
