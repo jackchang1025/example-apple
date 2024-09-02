@@ -23,7 +23,7 @@ class PconLineRequest extends IpaddressRequest
     {
 
         return[
-            'id' => $this->ip,
+            'ip' => $this->ip,
         ];
     }
 
