@@ -67,7 +67,7 @@ abstract class BaseClient
         return $this->proxyResponse;
     }
 
-    public function getProxy(?array $options = null): ProxyResponse
+    public function getProxy(array $options = []): ProxyResponse
     {
 
         /**
