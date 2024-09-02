@@ -254,7 +254,7 @@ class AccountBind
             }
 
             throw new BindPhoneCodeException(
-                "绑定失败 phone: {$this->phone->phone} body: {$response->body()}"
+                "绑定失败 phone: {$this->phone->phone} error: {$response->service_errors_first()?->getMessage()} {$response->validationErrorsFirst()?->getMessage()}"
             );
         });
 

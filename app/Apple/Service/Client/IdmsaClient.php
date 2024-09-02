@@ -23,7 +23,7 @@ class IdmsaClient extends BaseClient
             'timeout'               => $this->getConfig()->getTimeOutInterval(),
             'connect_timeout'       => $this->getConfig()->getModuleTimeOutInSeconds(),
             'verify'                => false,
-            RequestOptions::PROXY => $this->getProxyResponse()->getUrl(),  // 添加这行
+//            RequestOptions::PROXY => $this->getProxyResponse()->getUrl(),  // 添加这行
 
             RequestOptions::HEADERS => [
                 'X-Apple-Widget-Key'          => $this->getConfig()->getServiceKey(),
@@ -132,6 +132,7 @@ class IdmsaClient extends BaseClient
                 'X-Apple-Domain-Id'           => '1',
             ],
             RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::PROXY       => $this->getProxyResponse()->getUrl(),
         ]);
 
         $response->throwIf(function ($re) use ($response) {
