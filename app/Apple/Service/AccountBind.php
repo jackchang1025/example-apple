@@ -25,7 +25,7 @@ use Throwable;
 
 class AccountBind
 {
-    protected const int MAX_RETRY_ATTEMPTS = 10;
+    protected const int MAX_RETRY_ATTEMPTS = 5;
     protected const int PHONE_CODE_RETRY_ATTEMPTS = 10;
     protected const int PHONE_CODE_RETRY_DELAY = 10;
     protected const int|float PHONE_CODE_WAIT_TIME = 120; // 2 minutes
