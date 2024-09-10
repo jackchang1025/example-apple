@@ -6,6 +6,7 @@ use App\Apple\Service\Client\AppleIdClient;
 use App\Apple\Service\Client\BaseClient;
 use App\Apple\Service\Client\IdmsaClient;
 use App\Apple\Service\Client\PhoneCodeClient;
+use App\Apple\Service\Client\AuthClient;
 use App\Apple\Service\Client\Response;
 use App\Apple\Service\Exception\UnauthorizedException;
 use App\Apple\Service\Exception\VerificationCodeIncorrect;
@@ -17,6 +18,7 @@ use GuzzleHttp\Promise\Utils;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Log;
+use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -46,6 +48,7 @@ class Apple
         private readonly IdmsaClient $idmsaClient,
         private readonly AppleIdClient $appleIdClient,
         private readonly PhoneCodeClient $phoneCodeClient,
+        private readonly AuthClient $authClient,
         private readonly User $user,
         private readonly CookieJarInterface $cookieJar,
         private readonly LoggerInterface $logger,
@@ -179,16 +182,81 @@ class Apple
 
 
     /**
-     * @param string $accountName
+     * @param string $account
      * @param string $password
      * @return Response
      * @throws GuzzleException
      * @throws UnauthorizedException|ConnectionException
      * @throws RequestException
      */
-    public function signin(string $accountName, string $password): Response
+    public function signin(string $account, string $password): Response
     {
-        $this->idmsa->login($accountName, $password);
+        $initResponse = $this->authClient->init($account);
+        if (empty($initResponse->json('key'))){
+            throw new InvalidArgumentException("key IS EMPTY");
+        }
+        if (empty($initResponse->json('value'))){
+            throw new InvalidArgumentException("value IS EMPTY");
+        }
+
+        $signinInitResponse = $this->idmsaClient->signinInit(a: $initResponse->json('value'), account: $account);
+        if (empty($signinInitResponse->json('salt'))){
+            throw new InvalidArgumentException("salt IS EMPTY");
+        }
+        if (empty($signinInitResponse->json('b'))){
+            throw new InvalidArgumentException("b IS EMPTY");
+        }
+        if (empty($signinInitResponse->json('c'))){
+            throw new InvalidArgumentException("c IS EMPTY");
+        }
+        if (empty($signinInitResponse->json('iteration'))){
+            throw new InvalidArgumentException("iteration IS EMPTY");
+        }
+        if (empty($signinInitResponse->json('protocol'))){
+            throw new InvalidArgumentException("protocol IS EMPTY");
+        }
+
+        $completeResponse = $this->authClient->complete(
+            key: $initResponse->json('key'),
+            salt: $signinInitResponse->json('salt'),
+            b: $signinInitResponse->json('b'),
+            c: $signinInitResponse->json('c'),
+            password: $password,
+            iteration: $signinInitResponse->json('iteration'),
+            protocol: $signinInitResponse->json('protocol')
+        );
+        if (empty($completeResponse->json('M1'))){
+            throw new InvalidArgumentException("M1 IS EMPTY");
+        }
+        if (empty($completeResponse->json('M2'))){
+            throw new InvalidArgumentException("M2 IS EMPTY");
+        }
+        if (empty($completeResponse->json('c'))){
+            throw new InvalidArgumentException("c IS EMPTY");
+        }
+
+        $this->idmsaClient->complete(
+            account: $account,
+            m1: $completeResponse->json('M1'),
+            m2: $completeResponse->json('M2'),
+            c: $completeResponse->json('c'),
+        );
+
+        return $this->auth();
+    }
+
+    /**
+     * @param string $account
+     * @param string $password
+     * @return Response
+     * @throws ConnectionException
+     * @throws GuzzleException
+     * @throws RequestException
+     * @throws UnauthorizedException
+     */
+    public function login(string $account, string $password): Response
+    {
+        $this->idmsa->login($account, $password);
 
         return $this->auth();
     }

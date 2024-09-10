@@ -156,7 +156,7 @@ class IdmsaClient extends BaseClient
      * @param int $id
      * @param string $code
      * @return Response
-     * @throws ConnectionException
+     * @throws ConnectionException|RequestException
      */
     public function validatePhoneSecurityCode(string $code, int $id = 1): Response
     {
@@ -246,7 +246,7 @@ class IdmsaClient extends BaseClient
 
     /**
      * @return Response
-     * @throws ConnectionException
+     * @throws ConnectionException|RequestException
      */
     public function appleAuthRepairComplete(): Response
     {
@@ -257,6 +257,47 @@ class IdmsaClient extends BaseClient
                 'X-Apple-Repair-Session-Token' => $this->user->getHeader('X-Apple-Repair-Session-Token') ?? '',
             ],
             RequestOptions::HTTP_ERRORS => false,
+        ]);
+    }
+
+    /**
+     * @param string $a
+     * @param string $account
+     * @return Response
+     * @throws ConnectionException
+     * @throws RequestException
+     */
+    public function signinInit(string $a, string $account): Response
+    {
+        return $this->request('POST', '/appleauth/auth/signin/init', [
+            RequestOptions::JSON    => [
+                'a'=>$a,
+                'accountName' => $account,
+                'protocols' => ['s2k','s2k_fo'],
+            ],
+        ]);
+    }
+
+    /**
+     * @param string $account
+     * @param string $m1
+     * @param string $m2
+     * @param string $c
+     * @param bool $rememberMe
+     * @return Response
+     * @throws ConnectionException
+     * @throws RequestException
+     */
+    public function complete(string $account, string $m1, string $m2, string $c, bool $rememberMe = false): Response
+    {
+        return $this->request('POST', '/appleauth/auth/signin/complete?isRememberMeEnabled=true', [
+            RequestOptions::JSON    => [
+                'accountName' => $account,
+                'm1'    => $m1,
+                'm2'  => $m2,
+                'c'  => $c,
+                'rememberMe'  => $rememberMe,
+            ],
         ]);
     }
 }

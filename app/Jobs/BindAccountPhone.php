@@ -86,7 +86,7 @@ class BindAccountPhone implements ShouldQueue
                 'job_id' => $this->job->getJobId(),
                 'account_id' => $this->id,
                 'client_id' => $this->clientId,
-                'error' => $e->getMessage()
+                'error' => $e
             ]);
             $this->fail($e);
         }

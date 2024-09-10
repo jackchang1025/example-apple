@@ -32,6 +32,9 @@ class CacheCookie extends CookieJar
         $cookies = $this->cache->get($this->sprintf());
         if (!empty($cookies)) {
             $cookies = json_decode($cookies, true);
+            if (!is_array($cookies)){
+                throw new \InvalidArgumentException('cookies type error');
+            }
             foreach ($cookies as $cookie) {
                 $this->setCookie(new SetCookie($cookie));
             }

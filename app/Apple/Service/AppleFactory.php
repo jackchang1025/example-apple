@@ -3,6 +3,7 @@
 namespace App\Apple\Service;
 
 use App\Apple\Service\Client\AppleIdClient;
+use App\Apple\Service\Client\AuthClient;
 use App\Apple\Service\Client\IdmsaClient;
 use App\Apple\Service\Client\PhoneCodeClient;
 use App\Apple\Service\Cookies\CookieManagerFactory;
@@ -28,10 +29,16 @@ readonly class AppleFactory
         $appleIdClient   = $this->container->make(AppleIdClient::class, ['cookieJar' => $cookieJar, 'user' => $user]);
         $phoneCodeClient = $this->container->make(PhoneCodeClient::class, ['cookieJar' => $cookieJar, 'user' => $user]);
 
+
+        $url = config('apple.apple_auth.url');
+
+        $authClient = $this->container->make(AuthClient::class, ['cookieJar' => $cookieJar, 'user' => $user,'url'=>$url]);
+
         return new Apple(
             idmsaClient: $idmsaClient,
             appleIdClient: $appleIdClient,
             phoneCodeClient: $phoneCodeClient,
+            authClient: $authClient,
             user: $user,
             cookieJar: $cookieJar,
             logger: $this->container->make(LoggerInterface::class)
