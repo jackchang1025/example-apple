@@ -40,11 +40,11 @@ class SecuritySetting extends Model
 
     public static function booted(): void
     {
-        static::updated(function (User $user) {
+        static::updated(function () {
             Cache::delete('security_setting');
         });
 
-        static::deleted(function (User $user) {
+        static::deleted(function () {
             Cache::delete('security_setting');
         });
     }

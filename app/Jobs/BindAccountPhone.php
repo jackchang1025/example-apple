@@ -2,8 +2,9 @@
 
 namespace App\Jobs;
 
-use App\Apple\AppleFactory;
 use App\Apple\Service\AccountBind;
+use Apple\Client\AppleFactory;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -59,17 +60,13 @@ class BindAccountPhone implements ShouldQueue
     /**
      * Execute the job.
      * @param AppleFactory $appleFactory
-     * @param LoggerInterface $logger
      * @return void
-     * @throws \Throwable
      */
-    public function handle(AppleFactory $appleFactory,LoggerInterface $logger): void
+    public function handle(AppleFactory $appleFactory): void
     {
         try {
 
-            $apple = $appleFactory->create($this->clientId);
-
-            $accountBind = new AccountBind($apple,$logger);
+            $accountBind = app(AccountBind::class,['apple'=>$appleFactory->create(clientId: $this->clientId,config: config('apple'))]);
 
             $accountBind->handle($this->id);
 
@@ -79,6 +76,7 @@ class BindAccountPhone implements ShouldQueue
                 'account_id' => $this->id,
                 'client_id' => $this->clientId
             ]);
+
 
         } catch (\Throwable $e) {
 

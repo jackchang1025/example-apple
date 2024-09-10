@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
-use App\Apple\Apple;
+use Apple\Client\Apple;
+use Apple\Client\AppleFactory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
@@ -24,17 +26,15 @@ class AppleServiceProvider extends ServiceProvider
     {
         $this->app->singleton(Apple::class, function () {
 
+            $appleFactory = $this->app->get(AppleFactory::class);
+
             $request = $this->app->get(Request::class);
 
             if (!$clientId = $request->cookie('Guid',$request->input('Guid'))) {
                 throw new \InvalidArgumentException('Guid is not set.');
             }
 
-            return new Apple(
-                cache: $this->app->get(CacheInterface::class),
-                logger: $this->app->get(LoggerInterface::class),
-                clientId: $clientId
-            );
+            return $appleFactory->create(clientId: $clientId,config: config('apple'));
         });
 
     }

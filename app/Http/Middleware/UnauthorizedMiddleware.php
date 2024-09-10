@@ -2,8 +2,8 @@
 
 namespace App\Http\Middleware;
 
-use App\Apple\Apple;
 use App\Apple\Service\Exception\UnauthorizedException;
+use Apple\Client\Apple;
 use Closure;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Http\Request;

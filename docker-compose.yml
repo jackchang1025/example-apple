@@ -77,6 +77,12 @@ services:
                 - ping
             retries: 3
             timeout: 5s
+    nodejs:
+        image: nodejs-apple:latest
+        ports:
+            - "8088:8088"
+        networks:
+            - sail
 #    meilisearch:
 #        image: 'getmeili/meilisearch:latest'
 #        ports:

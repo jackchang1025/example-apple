@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Apple\Service\Common;
 use App\Apple\Service\PhoneCodeParser\PhoneCodeParserFactory;
 use App\Apple\Service\PhoneCodeParser\PhoneCodeParserInterface;
 use App\Apple\Service\PhoneNumber\PhoneNumberFactory;
@@ -11,7 +10,11 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
+use Saloon\Exceptions\Request\FatalRequestException;
+use Saloon\Exceptions\Request\RequestException;
+use Weijiajia\PhoneCode\PhoneConnector;
+use Weijiajia\PhoneCode\Request\PhoneRequest;
+use Weijiajia\PhoneCode\Response;
 
 
 /**
@@ -122,23 +125,6 @@ class Phone extends Model
         );
     }
 
-//    protected function phone(): Attribute
-//    {
-//        return Attribute::make(
-//            set: function ($value) {
-//                $phoneService = app(PhoneNumberFactory::class)->createPhoneNumberService($value);
-////                $this->attributes['country_code'] = $phoneService->getRegionCode();
-////                $this->attributes['country_dial_code'] = $phoneService->getCountryCode();
-//
-//                $this->setAttribute('country_code', $phoneService->getRegionCode());
-//                $this->setAttribute('country_dial_code', $phoneService->getCountryCode());
-//
-//                Log::info("phone :",['attributes' => $this->getAttributes()]);
-//                return $phoneService->format();
-//            }
-//        );
-//    }
-
     /**
      * 获取 PhoneNumberService 实例
      *
@@ -159,6 +145,16 @@ class Phone extends Model
     public function phoneCodeParser():PhoneCodeParserInterface
     {
         return app(PhoneCodeParserFactory::class)->create($this->phone_code_parser ?? 'default');
+    }
+
+    /**
+     * @return Response
+     * @throws FatalRequestException
+     * @throws RequestException
+     */
+    public function getPhoneCode(): \Weijiajia\PhoneCode\Response
+    {
+        return app(PhoneConnector::class)->send(new PhoneRequest($this->phone_address));
     }
 
 }

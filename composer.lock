@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e4bce9bd645ac2bf529946da52417353",
+    "content-hash": "68f3c753869cabeb228961579c228c85",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -71,6 +71,42 @@
                 "source": "https://github.com/AnourValar/eloquent-serialize/tree/1.2.23"
             },
             "time": "2024-07-12T10:52:26+00:00"
+        },
+        {
+            "name": "apple/client",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "/home/code/php/packagist/apple-client",
+                "reference": "6ee46b48118d04360de5a283b66afdeb4b47ecb5"
+            },
+            "require": {
+                "ext-dom": "*",
+                "ext-libxml": "*",
+                "ext-simplexml": "*",
+                "php": "^8.2",
+                "saloonphp/saloon": "^3.10",
+                "symfony/css-selector": "^7.1",
+                "symfony/dom-crawler": "^7.1"
+            },
+            "require-dev": {
+                "roave/security-advisories": "dev-latest"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Apple\\Client\\": "src/"
+                }
+            },
+            "authors": [
+                {
+                    "name": "weijiajia",
+                    "email": "shadowmatthew1025@gmail.com"
+                }
+            ],
+            "transport-options": {
+                "relative": false
+            }
         },
         {
             "name": "blade-ui-kit/blade-heroicons",
@@ -6097,39 +6133,6 @@
             "time": "2024-04-27T21:32:50+00:00"
         },
         {
-            "name": "root/apple-client",
-            "version": "dev-main",
-            "dist": {
-                "type": "path",
-                "url": "/var/www/packagist/apple-client",
-                "reference": "a89d8d118622c74f0e05ddde6729bf85ffc061e1"
-            },
-            "require": {
-                "ext-dom": "*",
-                "ext-libxml": "*",
-                "ext-simplexml": "*",
-                "php": "^8.2",
-                "saloonphp/saloon": "^3.10",
-                "symfony/css-selector": "^7.1",
-                "symfony/dom-crawler": "^7.1"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Apple\\Client\\": "src/"
-                }
-            },
-            "authors": [
-                {
-                    "name": "weijiajia",
-                    "email": "shadowmatthew1025@gmail.com"
-                }
-            ],
-            "transport-options": {
-                "relative": false
-            }
-        },
-        {
             "name": "ryangjchandler/blade-capture-directive",
             "version": "v1.0.0",
             "source": {
@@ -6282,6 +6285,87 @@
                 }
             ],
             "time": "2024-05-17T00:04:27+00:00"
+        },
+        {
+            "name": "saloonphp/saloon",
+            "version": "v3.10.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/saloonphp/saloon.git",
+                "reference": "69c2cbc7636b0a36024479c880a48aad40b781d3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/saloonphp/saloon/zipball/69c2cbc7636b0a36024479c880a48aad40b781d3",
+                "reference": "69c2cbc7636b0a36024479c880a48aad40b781d3",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^7.6",
+                "guzzlehttp/promises": "^1.5 || ^2.0",
+                "guzzlehttp/psr7": "^2.0",
+                "php": "^8.1",
+                "psr/http-factory": "^1.0",
+                "psr/http-message": "^1.1 || ^2.0"
+            },
+            "conflict": {
+                "sammyjo20/saloon": "*"
+            },
+            "require-dev": {
+                "ext-simplexml": "*",
+                "friendsofphp/php-cs-fixer": "^3.5",
+                "illuminate/collections": "^9.39 || ^10.0",
+                "league/flysystem": "^3.0",
+                "pestphp/pest": "^2.10",
+                "phpstan/phpstan": "^1.11.4",
+                "saloonphp/xml-wrangler": "^1.1",
+                "spatie/ray": "^1.33",
+                "symfony/dom-crawler": "^6.0 || ^7.0",
+                "symfony/var-dumper": "^6.3 || ^7.0"
+            },
+            "suggest": {
+                "illuminate/collections": "Required for the response collect() method.",
+                "saloonphp/xml-wrangler": "Required for the response xmlReader() method.",
+                "symfony/dom-crawler": "Required for the response dom() method.",
+                "symfony/var-dumper": "Required for default debugging drivers."
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Saloon\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Sam Carré",
+                    "email": "29132017+Sammyjo20@users.noreply.github.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Build beautiful API integrations and SDKs with Saloon",
+            "homepage": "https://github.com/saloonphp/saloon",
+            "keywords": [
+                "api",
+                "api-integrations",
+                "saloon",
+                "sammyjo20",
+                "sdk"
+            ],
+            "support": {
+                "issues": "https://github.com/saloonphp/saloon/issues",
+                "source": "https://github.com/saloonphp/saloon/tree/v3.10.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/sammyjo20",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-08-03T14:11:59+00:00"
         },
         {
             "name": "spatie/color",
@@ -9167,6 +9251,34 @@
             "time": "2022-06-03T18:03:27+00:00"
         },
         {
+            "name": "weijiajia/phone-code",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "/home/code/php/packagist/phone-code",
+                "reference": "28a43d140e49233f2f86923ed7d55909cb38cd4b"
+            },
+            "require": {
+                "php": "^8.2",
+                "saloonphp/saloon": "^3.10"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Weijiajia\\PhoneCode\\": "src/"
+                }
+            },
+            "authors": [
+                {
+                    "name": "weijiajia",
+                    "email": "shadowmatthew1025@gmail.com"
+                }
+            ],
+            "transport-options": {
+                "relative": false
+            }
+        },
+        {
             "name": "ysfkaya/filament-phone-input",
             "version": "v2.3.6",
             "source": {
@@ -11821,10 +11933,10 @@
         }
     ],
     "aliases": [],
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "stability-flags": {
-        "jenssegers/agent": 20,
-        "root/apple-client": 20
+        "apple/client": 20,
+        "jenssegers/agent": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

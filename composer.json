@@ -9,7 +9,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
-        "bezhansalleh/filament-shield": "^3.2",
+        "apple/client": "dev-master",
         "eightynine/filament-excel-import": "^3.0",
         "filament/filament": "^3.2",
         "filament/notifications": "^3.2",
@@ -22,11 +22,9 @@
         "nyholm/psr7": "^1.8",
         "propaganistas/laravel-phone": "^5.3",
         "pxlrbt/filament-excel": "^2.3",
-        "root/apple-client": "@dev",
         "saade/filament-laravel-log": "^3.0",
-        "saloonphp/laravel-plugin": "^3.0",
         "symfony/dom-crawler": "^7.1",
-        "tomatophp/filament-users": "^1.0",
+        "weijiajia/phone-code": "dev-main",
         "ysfkaya/filament-phone-input": "^2.3"
     },
     "require-dev": {
@@ -36,7 +34,7 @@
         "laravel/sail": "^1.26",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.0",
-        "pestphp/pest": "^3.0"
+        "phpunit/phpunit": "^11.0.1"
     },
     "autoload": {
         "psr-4": {
@@ -82,7 +80,7 @@
             "php-http/discovery": true
         }
     },
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "prefer-stable": true,
     "repositories": [
         {
@@ -91,7 +89,7 @@
         },
         {
             "type": "path",
-            "url": "/var/www/packagist/*"
+            "url": "/home/code/php/packagist/*"
         }
     ]
 }
