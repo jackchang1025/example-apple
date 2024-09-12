@@ -46,7 +46,15 @@ trait HasProxy
             return null;
         }
 
-        return self::$cachedProxyResponse ??= $this->proxy->getProxy($this->getOption());
+        try {
+
+            return self::$cachedProxyResponse ??= $this->proxy->getProxy($this->getOption());
+
+        } catch (\Exception $e) {
+
+            $this->logger->error("Failed to refresh proxy response: {$e}");
+            return null;
+        }
     }
 
     public function setProxyResponse(?ProxyResponse $proxyResponse): static
@@ -55,9 +63,16 @@ trait HasProxy
         return $this;
     }
 
-    public function refreshProxyResponse(): ProxyResponse
+    public function refreshProxyResponse(): ?ProxyResponse
     {
-        return self::$cachedProxyResponse = $this->proxy->getProxy($this->getOption());
+        try {
+
+            return self::$cachedProxyResponse = $this->proxy->getProxy($this->getOption());
+        } catch (\Exception $e) {
+
+            $this->logger->error("Failed to refresh proxy response: {$e}");
+            return null;
+        }
     }
 
     public function setProxy(ProxyInterface $proxy): static

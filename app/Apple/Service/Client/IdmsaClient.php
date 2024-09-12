@@ -3,6 +3,7 @@
 namespace App\Apple\Service\Client;
 
 use App\Apple\Service\Exception\AccountLockoutException;
+use App\Apple\Service\Exception\SignInException;
 use App\Apple\Service\Exception\UnauthorizedException;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Client\ConnectionException;
@@ -284,11 +285,11 @@ class IdmsaClient extends BaseClient
      * @param bool $rememberMe
      * @return Response
      * @throws ConnectionException
-     * @throws RequestException
+     * @throws RequestException|SignInException
      */
     public function complete(string $account, string $m1, string $m2, string $c, bool $rememberMe = false): Response
     {
-        return $this->request('POST', '/appleauth/auth/signin/complete?isRememberMeEnabled=true', [
+        $response =  $this->request('POST', '/appleauth/auth/signin/complete?isRememberMeEnabled=true', [
             RequestOptions::JSON    => [
                 'accountName' => $account,
                 'm1'    => $m1,
@@ -297,5 +298,11 @@ class IdmsaClient extends BaseClient
                 'rememberMe'  => $rememberMe,
             ],
         ]);
+
+        if ($response->status() !== 409){
+            throw new SignInException('登录失败', $response->status());
+        }
+
+        return $response;
     }
 }
