@@ -2,6 +2,7 @@
 
 namespace App\Apple\Service;
 
+use App\Apple\Proxy\ProxyConfiguration;
 use App\Apple\Service\Client\AppleIdClient;
 use App\Apple\Service\Client\AuthClient;
 use App\Apple\Service\Client\IdmsaClient;
@@ -15,8 +16,9 @@ readonly class AppleFactory
 {
     public function __construct(
         protected Container $container,
-        private UserFactory $userFactory,
-        private CookieManagerFactory $cookieManagerFactory,
+        protected UserFactory $userFactory,
+        protected CookieManagerFactory $cookieManagerFactory,
+        protected ProxyConfiguration $configuration,
     ) {
     }
 
@@ -25,10 +27,15 @@ readonly class AppleFactory
         $user      = $this->userFactory->create($guid);
         $cookieJar = $this->cookieManagerFactory->create($guid);
 
+        $configuration = $this->configuration->config();
+
         $idmsaClient     = $this->container->make(IdmsaClient::class, ['cookieJar' => $cookieJar, 'user' => $user]);
         $appleIdClient   = $this->container->make(AppleIdClient::class, ['cookieJar' => $cookieJar, 'user' => $user]);
-        $phoneCodeClient = $this->container->make(PhoneCodeClient::class, ['cookieJar' => $cookieJar, 'user' => $user]);
 
+        $idmsaClient->enableIpaddress($configuration->ipaddress_enabled)->enableProxy($configuration->proxy_enabled);
+        $appleIdClient->enableIpaddress($configuration->ipaddress_enabled)->enableProxy($configuration->proxy_enabled);
+
+        $phoneCodeClient = $this->container->make(PhoneCodeClient::class, ['cookieJar' => $cookieJar, 'user' => $user]);
 
         $url = config('apple.apple_auth.url');
 

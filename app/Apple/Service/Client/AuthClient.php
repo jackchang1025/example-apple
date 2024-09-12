@@ -8,14 +8,13 @@ use App\Apple\Service\User\User;
 use GuzzleHttp\Cookie\CookieJarInterface;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\RequestException;
 use Psr\Log\LoggerInterface;
 
 class AuthClient extends BaseClient
 {
-
     protected string $url = '';
+
     public function __construct(
          ClientFactory $clientFactory,
          CookieJarInterface $cookieJar,
@@ -39,11 +38,11 @@ class AuthClient extends BaseClient
     }
 
     /**
-     * @return PendingRequest
+     * @return array
      */
-    protected function createClient(): PendingRequest
+    protected function defaultOption(): array
     {
-        return $this->clientFactory->create([
+        return [
             'base_uri'              => $this->url,
             'timeout'               => 10,
             'connect_timeout'       => 30,
@@ -51,7 +50,7 @@ class AuthClient extends BaseClient
 
             RequestOptions::HEADERS => [
             ],
-        ]);
+        ];
     }
 
     /**

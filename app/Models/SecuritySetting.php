@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 
 /**
- *
+ * 
  *
  * @property int $id
  * @property array|null $authorized_ips

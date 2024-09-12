@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- *
+ * 
  *
  * @method static \Database\Factories\AccountLogsFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|AccountLogs newModelQuery()

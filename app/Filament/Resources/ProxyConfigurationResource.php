@@ -7,8 +7,16 @@ use App\Apple\Proxy\Driver\Stormproxies\StormproxiesProxy;
 use App\Filament\Resources\ProxyConfigurationResource\Pages;
 use App\Models\ProxyConfiguration;
 use Filament\Forms;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Split;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
@@ -30,56 +38,84 @@ class ProxyConfigurationResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255)
-                    ->helperText('给这个代理配置一个易于识别的名称'),
 
-                Forms\Components\Select::make('configuration.default_driver')
-                    ->options([
-                        'hailiangip' => 'Hailiangip',
-                        'stormproxies' => 'Stormproxies',
-                        'huashengdaili' => 'Huashengdaili',  // 添加新选项
-                    ])
-                    ->required()
-                    ->default('stormproxies')
-                    ->helperText('选择默认代理驱动')
-                    ->reactive(),
+                Split::make([
+                    Section::make('Main Content')
+                        ->schema([
+                            Forms\Components\Tabs::make('Driver Configuration')
+                                ->tabs([
+                                    Forms\Components\Tabs\Tab::make('Hailiangip')
+                                        ->schema(self::getHailiangipSchema()),
 
-                Forms\Components\Tabs::make('Driver Configuration')
-                    ->tabs([
-                        Forms\Components\Tabs\Tab::make('Hailiangip')
-                            ->schema(self::getHailiangipSchema()),
+                                    Forms\Components\Tabs\Tab::make('Stormproxies')
+                                        ->schema(self::getStormproxiesSchema()),
 
-                        Forms\Components\Tabs\Tab::make('Stormproxies')
-                            ->schema(self::getStormproxiesSchema()),
+                                    Forms\Components\Tabs\Tab::make('Huashengdaili')
+                                        ->schema(self::getHuashengdaili()),
+                                ]),
+                        ])
+                        ->columnSpan(['lg' => 3]),
+                    Section::make('Meta Information')
+                        ->schema([
 
-                        Forms\Components\Tabs\Tab::make('Huashengdaili')
-                            ->schema(self::getHuashengdaili()),
-                    ]),
+                            Forms\Components\TextInput::make('name')
+                                ->label('代理配置名称')
+                                ->required()
+                                ->maxLength(255)
+                                ->helperText('给这个代理配置一个易于识别的名称'),
 
+                            Forms\Components\Select::make('configuration.default_driver')
+                                ->label('代理驱动')
+                                ->options([
+                                    'hailiangip' => 'Hailiangip',
+                                    'stormproxies' => 'Stormproxies',
+                                    'huashengdaili' => 'Huashengdaili',  // 添加新选项
+                                ])
+                                ->required()
+                                ->default('stormproxies')
+                                ->helperText('选择默认代理驱动')
+                                ->reactive(),
 
-                Forms\Components\Toggle::make('is_active')
-                    ->required()
-                    ->default(false)
-                    ->helperText('激活此配置将使其成为默认代理配置，并会自动取消激活其他配置。')
-                    ->afterStateUpdated(function (Forms\Get $get, Forms\Set $set, $state) {
-                        if ($state) {
-                            // 如果用户正在激活这个配置，我们不需要做任何事情
-                            // 模型的 boot 方法会处理取消激活其他配置
-                        } else {
-                            // 如果用户正在取消激活这个配置，我们需要确保至少有一个配置是活动的
-                            $activeConfigs = ProxyConfiguration::where('is_active', true)->count();
-                            if ($activeConfigs === 0) {
-                                $set('is_active', true);
-                                Notification::make()
-                                    ->warning()
-                                    ->title('无法取消激活')
-                                    ->body('必须至少有一个活动的代理配置。')
-                                    ->send();
-                            }
-                        }
-                    }),
+                            Forms\Components\Toggle::make('proxy_enabled')
+                                ->label('是否开启代理')
+                                ->required()
+                                ->default(ProxyConfiguration::OFF)
+                                ->helperText('开启则使用代理，关闭则不使用代理'),
+
+                            Forms\Components\Toggle::make('ipaddress_enabled')
+                                ->label('根据用户 IP 地址自动选择代理')
+                                ->required()
+                                ->default(ProxyConfiguration::OFF)
+                                ->helperText('开启后将根据用户 IP 地址选择代理 IP的地址，关闭则使用随机的代理 IP 地址,注意暂时只支持国内 IP 地址'),
+
+                            Forms\Components\Toggle::make('is_active')
+                                ->label('是否开启默认代理')
+                                ->required()
+                                ->default(false)
+                                ->helperText('激活此配置将使其成为默认代理配置，并会自动取消激活其他配置。')
+                                ->afterStateUpdated(function (Forms\Get $get, Forms\Set $set, $state) {
+                                    if ($state) {
+                                        // 如果用户正在激活这个配置，我们不需要做任何事情
+                                        // 模型的 boot 方法会处理取消激活其他配置
+                                    } else {
+                                        // 如果用户正在取消激活这个配置，我们需要确保至少有一个配置是活动的
+                                        $activeConfigs = ProxyConfiguration::where('is_active', true)->count();
+                                        if ($activeConfigs === 0) {
+                                            $set('is_active', true);
+                                            Notification::make()
+                                                ->warning()
+                                                ->title('无法取消激活')
+                                                ->body('必须至少有一个活动的代理配置。')
+                                                ->send();
+                                        }
+                                    }
+                                }),
+
+                        ])
+                        ->columnSpan(['lg' => 1]),
+                ])
+                    ->from('md')
+                    ->columnSpanFull(),
             ]);
     }
 

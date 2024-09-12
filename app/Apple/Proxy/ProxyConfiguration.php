@@ -52,6 +52,12 @@ class ProxyConfiguration
         return $this->config;
     }
 
+    public function config()
+    {
+        return ProxyConfigurationModel::where('is_active', true)
+            ->firstOrFail();
+    }
+
     public function getConfig(string $key, $default = null): mixed
     {
         return Arr::get($this->getConfigs(), $key, $default);

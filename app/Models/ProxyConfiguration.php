@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $name
@@ -23,13 +23,20 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|ProxyConfiguration whereIsActive($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ProxyConfiguration whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ProxyConfiguration whereUpdatedAt($value)
+ * @property int|null  $proxy_enabled {0:关闭代理, 1:开启代理}
+ * @property int|null $ipaddress_enabled {0:不同步用户IP地址, 1:同步用户IP地址}
+ * @method static \Illuminate\Database\Eloquent\Builder|ProxyConfiguration whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProxyConfiguration whereSynchronizeUserIpAddress($value)
  * @mixin \Eloquent
  */
 class ProxyConfiguration extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'configuration', 'is_active'];
+    const int ON = 1;
+    const int OFF = 0;
+
+    protected $fillable = ['name', 'configuration', 'is_active','ipaddress_enabled','proxy_enabled'];
 
     protected $casts = [
         'configuration' => 'array',

@@ -13,17 +13,16 @@ class IdmsaClient extends BaseClient
 {
 
     /**
-     * @return PendingRequest
+     * @return array
      */
-    protected function createClient(): PendingRequest
+    protected function defaultOption(): array
     {
-        return $this->clientFactory->create([
+        return [
             RequestOptions::COOKIES => $this->cookieJar,
             'base_uri'              => self::BASEURL_IDMSA,
             'timeout'               => $this->getConfig()->getTimeOutInterval(),
             'connect_timeout'       => $this->getConfig()->getModuleTimeOutInSeconds(),
             'verify'                => false,
-//            RequestOptions::PROXY => $this->getProxyResponse()->getUrl(),  // 添加这行
 
             RequestOptions::HEADERS => [
                 'X-Apple-Widget-Key'          => $this->getConfig()->getServiceKey(),
@@ -50,18 +49,18 @@ class IdmsaClient extends BaseClient
                 'Sec-Fetch-Mode'              => 'cors',
                 'Sec-Fetch-Dest'              => 'empty',
             ],
-        ]);
+        ];
     }
 
     protected function buildUUid(): string
     {
-        return sprintf('auth-%s', uniqid());
+        return sprintf('auth-%s', uniqid('', true));
     }
 
     /**
      * 获取授权页面
      * @return Response
-     * @throws ConnectionException
+     * @throws ConnectionException|RequestException
      */
     public function authAuthorizeSignin(): Response
     {
@@ -132,7 +131,6 @@ class IdmsaClient extends BaseClient
                 'X-Apple-Domain-Id'           => '1',
             ],
             RequestOptions::HTTP_ERRORS => false,
-            RequestOptions::PROXY       => $this->getProxyResponse()->getUrl(),
         ]);
 
         $response->throwIf(function ($re) use ($response) {
@@ -252,7 +250,7 @@ class IdmsaClient extends BaseClient
     {
         return $this->request('POST', '/appleauth/auth/repair/complete', [
             RequestOptions::HEADERS     => [
-                'X-Apple-ID-Session-Id'        => $this->cookieJar->getCookieByName('aasp')->getValue(),
+                'X-Apple-ID-Session-Id'        => $this->cookieJar->getCookieByName('aasp')?->getValue(),
                 'X-Apple-Auth-Attributes'      => $this->user->getHeader('X-Apple-Auth-Attributes') ?? '',
                 'X-Apple-Repair-Session-Token' => $this->user->getHeader('X-Apple-Repair-Session-Token') ?? '',
             ],

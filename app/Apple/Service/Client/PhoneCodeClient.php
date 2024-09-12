@@ -4,21 +4,17 @@ namespace App\Apple\Service\Client;
 
 use App\Apple\Service\Exception\AttemptBindPhoneCodeException;
 use App\Apple\Service\PhoneCodeParser\PhoneCodeParserInterface;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Http\Client\PendingRequest;
 
 class PhoneCodeClient extends BaseClient
 {
-    protected function createClient(): PendingRequest
+    protected function defaultOption(): array
     {
-        return $this->clientFactory->create()
-            ->withOptions([
+        return [
             'timeout' => 30,
             'connect_timeout' => 60,
             'verify' => false,
-        ]);
+        ];
     }
 
     /**
@@ -26,7 +22,7 @@ class PhoneCodeClient extends BaseClient
      * @param string $url
      * @param PhoneCodeParserInterface $phoneCodeParser
      * @return Response|null
-     * @throws ConnectionException
+     * @throws ConnectionException|\Illuminate\Http\Client\RequestException
      */
     public function getPhoneTokenCode(string $url,PhoneCodeParserInterface $phoneCodeParser): ?string
     {
@@ -41,7 +37,7 @@ class PhoneCodeClient extends BaseClient
      * @param int $sleep
      * @return string
      * @throws AttemptBindPhoneCodeException
-     * @throws ConnectionException
+     * @throws ConnectionException|\Illuminate\Http\Client\RequestException
      */
     public function attemptGetPhoneCode(string $url, PhoneCodeParserInterface $phoneCodeParser, int $attempts = 6, int $sleep = 5): string
     {

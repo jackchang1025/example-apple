@@ -18,4 +18,19 @@ class Ip138Response extends IpResponse
     {
         return $this->get('ip');
     }
+
+    public function cityCode(): ?string
+    {
+        // TODO: Implement cityCode() method.
+    }
+
+    public function proCode(): ?string
+    {
+        // TODO: Implement proCode() method.
+    }
+
+    public function isChain(): bool
+    {
+        // TODO: Implement isChain() method.
+    }
 }
