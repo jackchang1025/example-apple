@@ -20,13 +20,13 @@ class LogView extends ViewLog
     // 修改页面标题
     public static function getNavigationLabel(): string
     {
-        return 'Logs';
+        return '日志';
     }
 
     // 修改页面标题（显示在页面顶部）
     public function getTitle(): string
     {
-        return 'Log Viewer';
+        return '日志';
     }
 
     // 可选：添加一个小标题

@@ -15,8 +15,8 @@ class SecuritySettingResource extends Resource
     protected static ?string $model = SecuritySetting::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $navigationLabel = '安全设置';
-    protected static ?string $modelLabel = '安全设置';
+
+    protected static ?string $label = '安全设置';
     protected static ?string $slug = 'security-settings';
 
     public static function form(Form $form): Form

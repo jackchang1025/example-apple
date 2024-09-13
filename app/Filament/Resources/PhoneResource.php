@@ -23,6 +23,8 @@ class PhoneResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static ?string $label = '手机';
+
 
     protected function getHeaderActions(): array
     {

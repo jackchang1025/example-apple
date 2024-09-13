@@ -20,6 +20,7 @@ class AccountResource extends Resource
 {
     protected static ?string $model = Account::class;
 
+    protected static ?string $label = '账号';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
