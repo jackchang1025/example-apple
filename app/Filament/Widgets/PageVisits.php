@@ -3,11 +3,13 @@
 namespace App\Filament\Widgets;
 
 use App\Apple\WebAnalytics\OnlineUsersService;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class PageVisits extends BaseWidget
 {
+    use HasWidgetShield;
 
     protected function getStats(): array
     {

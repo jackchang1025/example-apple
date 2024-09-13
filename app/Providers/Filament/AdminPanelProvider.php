@@ -2,12 +2,16 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\LogView;
 use App\Filament\Resources\PageVisitsResource\Widgets\GeolocationChart;
 use App\Filament\Resources\PageVisitsResource\Widgets\OnlineUsersChart;
 use App\Filament\Resources\PageVisitsResource\Widgets\TotalVisitsChart;
 use App\Filament\Widgets\PageVisits;
 use App\Http\Middleware\EnforceSecuritySettingsMiddleware;
 use App\Models\SecuritySetting;
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
+use BezhanSalleh\FilamentShield\Resources\RoleResource;
+use Filament\Forms\Components\TextInput;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -24,17 +28,20 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Saade\FilamentLaravelLog\FilamentLaravelLogPlugin;
+use TomatoPHP\FilamentUsers\FilamentUsersPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
+
         return $panel
             ->default()
             ->id('admin')
             ->path($this->getAdminPath())
             ->pages([])
             ->login()
+            // 如果你想支持语言切换
             ->passwordReset()
             ->emailVerification()
             ->profile(isSimple: false)
@@ -43,7 +50,12 @@ class AdminPanelProvider extends PanelProvider
             })
             ->plugins([
 //                \FilipFonal\FilamentLogManager\FilamentLogManager::make(),
-                FilamentLaravelLogPlugin::make(),
+//                FilamentLaravelLogPlugin::make(),
+                FilamentShieldPlugin::make(),
+                FilamentUsersPlugin::make(),
+                FilamentLaravelLogPlugin::make()
+                    ->navigationGroup('')
+                    ->viewLog(LogView::class),
             ])
             ->colors([
                 'primary' => Color::Amber,
@@ -83,8 +95,8 @@ class AdminPanelProvider extends PanelProvider
     {
         try {
             $securitySettings = SecuritySetting::first();
-            return $securitySettings->safe_entrance ? trim(
-                $securitySettings->safe_entrance,
+            return $securitySettings?->safe_entrance ? trim(
+                $securitySettings?->safe_entrance,
                 '/'
             ) : 'admin';
         } catch (\Exception $e) {
