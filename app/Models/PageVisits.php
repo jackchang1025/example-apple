@@ -47,6 +47,9 @@ use Illuminate\Database\Eloquent\Model;
 class PageVisits extends Model
 {
     use HasFactory;
+
+    protected $table = 'page_visits';
+
     protected $fillable = [
         'uri',
         'name',
@@ -58,7 +61,9 @@ class PageVisits extends Model
         'browser',
         'platform',
         'latitude',
-        'longitude'
+        'longitude',
+        'created_at',
+        'updated_at',
     ];
 
     protected $casts = [

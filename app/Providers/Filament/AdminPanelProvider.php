@@ -20,6 +20,8 @@ use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Tables\Columns\Column;
+use Filament\Tables\Table;
 use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -35,6 +37,16 @@ class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
+
+
+        Table::configureUsing(function (Table $table): void {
+            $table->paginationPageOptions([10, 20, 50]);
+        });
+
+        Column::configureUsing(function (Column $column): void {
+            $column->toggleable();
+        });
+
 
         return $panel
             ->default()

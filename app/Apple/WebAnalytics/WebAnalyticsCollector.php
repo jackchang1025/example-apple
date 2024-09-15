@@ -3,6 +3,7 @@
 namespace App\Apple\WebAnalytics;
 
 use App\Models\PageVisits;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
 use Jenssegers\Agent\Agent;
@@ -58,6 +59,7 @@ class WebAnalyticsCollector
             'city'        => $geoData['city'] ?? null,
             'latitude'    => $geoData['latitude'] ?? null,
             'longitude'   => $geoData['longitude'] ?? null,
+            'updated_at'   => Carbon::now(),
         ];
     }
 }

@@ -11,6 +11,7 @@ use Filament\Widgets\TableWidget as BaseWidget;
 class PageVisitsTable extends BaseWidget
 {
     use HasWidgetShield;
+
     protected int | string | array $columnSpan = 'full';
 
     protected static ?string $heading = '访问统计列表';
@@ -24,11 +25,12 @@ class PageVisitsTable extends BaseWidget
     {
         return $table
             ->query(
-                PageVisits::query()->latest('visited_at')
+                PageVisits::query()->latest('updated_at')
             )
             ->columns([
                 Tables\Columns\TextColumn::make('uri')
                     ->label('URL')
+                    ->toggleable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('name')
                     ->label('页面名称')
@@ -51,11 +53,14 @@ class PageVisitsTable extends BaseWidget
                 Tables\Columns\TextColumn::make('platform')
                     ->label('操作系统')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('visited_at')
-                    ->label('访问时间')
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('创建时间')
+                    ->dateTime(),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->label('更新时间')
                     ->dateTime(),
             ])
-            ->defaultSort('visited_at', 'desc')
+            ->defaultSort('updated_at', 'desc')
             ->filters([
                 Tables\Filters\SelectFilter::make('platform')
                     ->label('操作系统')
