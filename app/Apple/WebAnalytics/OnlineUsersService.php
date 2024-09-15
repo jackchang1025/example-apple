@@ -24,7 +24,7 @@ class OnlineUsersService
     /**
      * @var int 在线阈值（秒）
      */
-    protected int $onlineThreshold = 60;
+    protected int $onlineThreshold = 5;
 
     protected ?Collection $data = null;
 
