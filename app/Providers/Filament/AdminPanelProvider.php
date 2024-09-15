@@ -7,6 +7,7 @@ use App\Filament\Resources\PageVisitsResource\Widgets\GeolocationChart;
 use App\Filament\Resources\PageVisitsResource\Widgets\OnlineUsersChart;
 use App\Filament\Resources\PageVisitsResource\Widgets\TotalVisitsChart;
 use App\Filament\Widgets\PageVisits;
+use App\Filament\Widgets\PageVisitsTable;
 use App\Http\Middleware\EnforceSecuritySettingsMiddleware;
 use App\Models\SecuritySetting;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
@@ -72,6 +73,7 @@ class AdminPanelProvider extends PanelProvider
 //                OnlineUsersChart::class,
 //                GeolocationChart::class,
                 PageVisits::class,
+                PageVisitsTable::class,
 //                Widgets\FilamentInfoWidget::class,
             ])
             ->middleware([

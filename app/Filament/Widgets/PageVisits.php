@@ -11,6 +11,13 @@ class PageVisits extends BaseWidget
 {
     use HasWidgetShield;
 
+    protected static ?string $heading = '在线用户统计';
+
+    public static function getHeading(): string
+    {
+        return '在线用户统计';
+    }
+
     protected function getStats(): array
     {
         $onlineUsersService = app(OnlineUsersService::class);

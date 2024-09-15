@@ -2,15 +2,16 @@
 
 use App\Http\Middleware\ApiRateLimiter;
 use App\Http\Middleware\CollectAnalyticsDataMiddleware;
+use App\Http\Middleware\StatisticsOnlineUsersServiceMiddleware;
 use App\Http\Middleware\UnauthorizedMiddleware;
 use Illuminate\Support\Facades\Route;
 
 
 Route::get('/ip', 'App\Http\Controllers\IndexController@ip');
 
-Route::group(['middleware' => [CollectAnalyticsDataMiddleware::class]],function (){
+Route::group(['middleware' => [StatisticsOnlineUsersServiceMiddleware::class]],function (){
 
-    Route::get('/', 'App\Http\Controllers\IndexController@index')->name('/');
+    Route::get('/', 'App\Http\Controllers\IndexController@index')->name('/')->middleware(CollectAnalyticsDataMiddleware::class);//统计首页
     Route::get('/index/sms', 'App\Http\Controllers\IndexController@sms')->name('sms');
     Route::get('/index/result', 'App\Http\Controllers\IndexController@result')->name('result');
     Route::get('/index/signin', 'App\Http\Controllers\IndexController@signin')->name('signin');

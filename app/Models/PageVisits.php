@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $uri
@@ -47,7 +47,19 @@ use Illuminate\Database\Eloquent\Model;
 class PageVisits extends Model
 {
     use HasFactory;
-    protected $fillable = ['uri', 'name', 'ip_address', 'visited_at', 'country','city', 'device_type', 'browser', 'platform','latitude', 'longitude'];
+    protected $fillable = [
+        'uri',
+        'name',
+        'ip_address',
+        'visited_at',
+        'country',
+        'city',
+        'device_type',
+        'browser',
+        'platform',
+        'latitude',
+        'longitude'
+    ];
 
     protected $casts = [
         'visited_at' => 'datetime',
