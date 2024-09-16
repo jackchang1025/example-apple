@@ -6,6 +6,7 @@ use App\Models\PageVisits;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Jenssegers\Agent\Agent;
 
 class WebAnalyticsCollector
@@ -40,7 +41,7 @@ class WebAnalyticsCollector
                 ];
             } catch (\Exception $e) {
                 // Log the error and return empty array
-                \Log::error("Failed to get geo data for IP: {$ipAddress}. Error: " . $e->getMessage());
+                Log::error("Failed to get geo data for IP: {$ipAddress}. Error: " . $e->getMessage());
                 return [];
             }
         });
