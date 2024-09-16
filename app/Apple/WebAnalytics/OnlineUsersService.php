@@ -7,15 +7,19 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Redis\RedisManager;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
+use Psr\SimpleCache\CacheInterface;
 
 /**
  * 在线用户服务类
  *
- * 该类用于跟踪和管理网站的在线用户数据。
- * 它使用 Redis 来存储和检索用户访问信息。
+ * 该类负责跟踪和管理网站的在线用户数据，使用 Redis 进行数据存储和检索。
  */
 class OnlineUsersService
 {
+    use OnlineUsersTrait;
+
     /**
      * @var RedisManager Redis 管理器实例
      */
@@ -26,90 +30,155 @@ class OnlineUsersService
      */
     protected int $onlineThreshold = 5;
 
-    protected ?Collection $data = null;
-
     /**
      * @var string Redis 键前缀
      */
     protected string $keyPrefix = 'online_users:';
 
     /**
+     * @var string|null 默认配置前缀
+     */
+    protected ?string $defaultConfigPrefix = null;
+
+    protected ?Collection $data = null;
+
+    /**
      * 构造函数
      *
      * @param Container $container 容器实例，用于获取 Redis 连接
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
-    public function __construct(protected Container $container)
+    public function __construct(protected Container $container,protected CacheInterface $cache)
     {
         $this->redis = $this->container->get('redis');
-        $this->data = collect();
     }
 
-    public function getConfigPrefix()
+    public function setOnlineThreshold(int $onlineThreshold): void
     {
-        return config('database.redis.options.prefix', '');
+        $this->onlineThreshold = $onlineThreshold;
     }
 
-    public function getOnlineAllPages(): Collection
+    public function getOnlineThreshold(): int
     {
-        $keys = $this->redis->keys($this->formatKey());
-        $now = time();
-        $prefix = $this->getConfigPrefix();
-        foreach ($keys as $key) {
+        return $this->onlineThreshold;
+    }
 
-            // 移除 Laravel 添加的前缀
-            $unprefixedKey = substr($key, strlen($prefix));
-
-            $uri = $this->extractUriFromKey($unprefixedKey);
-
-            $users = $this->redis->hGetAll($unprefixedKey);
-
-            $activeUsersCount = $this->countActiveUsers($users, $now);
-            $this->data[$uri] = $activeUsersCount;
-        }
-
-        return $this->data;
+    /**
+     * 获取 laravel 配置 中 redis 配置的的前缀
+     * @return string|null
+     */
+    public function getDefaultConfigPrefix(): ?string
+    {
+        return $this->defaultConfigPrefix ??= config('database.redis.options.prefix');
     }
 
     /**
      * 获取所有页面的在线用户数量
      *
-     * @param int|null $limit 限制返回的页面数量
-     * @return Collection 包含每个页面在线用户数的数组
+     * @return Collection 包含每个页面在线用户数的集合
      */
-    public function getOnlineCountsForAllPages(?int $limit = null): Collection
+    public function getOnlineAllPages(): Collection
     {
-        $keys = $this->redis->keys($this->formatKey());
-        $now = time();
-        $data = collect();
-
-        $prefix = $this->getConfigPrefix();
-        foreach ($keys as $key) {
-
-            // 移除 Laravel 添加的前缀
-            $unprefixedKey = substr($key, strlen($prefix));
-
-            $uri = $this->extractUriFromKey($unprefixedKey);
-
-            $users = $this->redis->hGetAll($unprefixedKey);
-
-            $activeUsersCount = $this->countActiveUsers($users, $now);
-            $data[$uri] = $activeUsersCount;
+        if ($this->data){
+            return $this->data;
         }
 
-        $data->sort();
+        // 获取所有键
+        // 0 => "laravel_database_online_users:sms_security_code"
+        //  1 => "laravel_database_online_users:get_phone"
+        //  2 => "laravel_database_online_users:verify_security_code"
+        $keys = $this->redis->keys($this->formatKey());
 
-        return $limit !== null ? $data->slice($limit) : $data;
+        $list = collect();
+
+        /**
+         * 遍历所有页面并获取在线用户数据
+         */
+        foreach ($keys as $key) {
+
+            $data = $this->getOnlineByRoute($key);
+
+            $list->put($this->getRouteName($key), $data);
+        }
+
+        return $this->data = $list;
+    }
+
+
+    /**
+     * 去掉 laravel 配置 中 redis 配置的的前缀
+     * @param string $name
+     * @return string
+     */
+    protected function replaceDefaultConfigPrefix(string $name): string
+    {
+        return  Str::replace($this->getDefaultConfigPrefix(), '', $name);
     }
 
     /**
-     * 格式化 Redis 键
-     *
-     * @param string $uri URI
-     * @return string 格式化后的键
+     * 去掉配置的的前缀
+     * @param string $name
+     * @return string
      */
-    public function formatKey(string $uri = '*'): string
+    protected function replaceConfigPrefix(string $name): string
     {
-        return $this->keyPrefix . $uri;
+        return  Str::replace($this->getKeyPrefix(), '', $name);
+    }
+
+    /**
+     * 去掉 laravel 配置 中 redis 的前缀和 配置前缀
+     * @param string $name
+     * @return string
+     */
+    protected function getRouteName(string $name): string
+    {
+        return $this->replaceConfigPrefix($this->replaceDefaultConfigPrefix($name));
+    }
+
+
+    /**
+     * 获取某个页面在线用户数据
+     * @param string $name
+     * @return Collection
+     */
+    protected function getOnlineByRoute(string $name): Collection
+    {
+        /**
+         * 这里需要去掉 laravel 配置 中 redis 配置的的前缀 因为在使用 redis 客户端的时候 laravel 或默认添加前缀
+         */
+        $key = $this->replaceDefaultConfigPrefix($name);
+
+        /**
+         * 获取路由所有的用户数据
+         */
+        $data = $this->redis->hGetAll($key);
+
+        /**
+         * 过滤掉过期只保留在线用户的数据,返回一个集合
+         */
+        return $this->countActiveUsers($data, now()->timestamp);
+    }
+
+    /**
+     * 获取特定路由的在线用户
+     *
+     * @param string $name
+     * @return Collection 在线用户数量
+     */
+    public function getOnlineForRoute(string $name): Collection
+    {
+        $key = $this->formatKey($name);
+
+        /**
+         * 获取路由所有的用户数据
+         */
+        $data = $this->redis->hGetAll($key);
+
+        /**
+         * 过滤掉过期只保留在线用户的数据,返回一个集合
+         */
+        return $this->countActiveUsers($data, now()->timestamp);
     }
 
     /**
@@ -122,72 +191,44 @@ class OnlineUsersService
     public function recordVisit(string $uri, ?string $sessionId = null): string
     {
         $sessionId = $sessionId ?: Str::random(40);
-        $now = time();
         $key = $this->formatKey($uri);
 
-        $this->redis->hSet($key, $sessionId, $now);
+        $this->redis->hSet($key, $sessionId, time());
         $this->redis->expire($key, $this->onlineThreshold);
 
         return $sessionId;
     }
 
     /**
-     * 获取特定页面的在线用户数量
+     * 格式化 Redis 键
      *
-     * @param string $uri 页面 URI
-     * @return int 在线用户数量
+     * @param string $uri URI
+     * @return string 格式化后的键
      */
-    public function getOnlineCount(string $uri): int
+    public function formatKey(string $uri = '*'): string
     {
-        $key = $this->formatKey($uri);
-        $users = $this->redis->hGetAll($key);
+        return sprintf('%s%s', $this->keyPrefix, $uri);
+    }
 
-        return $this->countActiveUsers($users, time());
+    public function setKeyPrefix(string $keyPrefix): void
+    {
+        $this->keyPrefix = $keyPrefix;
+    }
+
+    public function getKeyPrefix(): string
+    {
+        return $this->keyPrefix;
     }
 
     /**
-     * 获取总在线用户数量
      *
-     * @return int 总在线用户数量
-     */
-    public function getTotalOnlineCount(): int
-    {
-        $keys = $this->redis->keys($this->formatKey());
-        $now = time();
-        $total = 0;
-
-        foreach ($keys as $key) {
-            $users = $this->redis->hGetAll($key);
-            $total += $this->countActiveUsers($users, $now);
-        }
-
-        return $total;
-    }
-
-    /**
-     * 从 Redis 键中提取 URI
-     *
-     * @param string $key Redis 键
-     * @return string URI
-     */
-    protected function extractUriFromKey(string $key): string
-    {
-        $name =  str_replace($this->keyPrefix, '', $key);
-
-        $route = Route::tryFrom($name);
-
-        return $route ? $route->description() : $name;
-    }
-
-    /**
-     * 计算活跃用户数量
      *
      * @param array $users 用户访问时间数组
      * @param int $now 当前时间戳
-     * @return int 活跃用户数量
+     * @return Collection 活跃用户数量
      */
-    protected function countActiveUsers(array $users, int $now): int
+    protected function countActiveUsers(array $users, int $now): Collection
     {
-        return count(array_filter($users, fn($lastVisit) => ($now - $lastVisit) <= $this->onlineThreshold));
+        return collect($users)->filter(fn(int $lastVisit) => ($now - $lastVisit) <= $this->onlineThreshold);
     }
 }

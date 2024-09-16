@@ -6,6 +6,7 @@ use App\Apple\WebAnalytics\OnlineUsersService;
 use App\Apple\WebAnalytics\WebAnalyticsCollector;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 class StatisticsOnlineUsersServiceMiddleware
@@ -23,8 +24,13 @@ class StatisticsOnlineUsersServiceMiddleware
     {
         $response = $next($request);
 
-        $name = $request->route()?->getName() ?? $request->path();
-        $this->onlineUsersService->recordVisit($name, $request->session()->getId());
+        try {
+            $name = $request->route()?->getName() ?? $request->path();
+            $this->onlineUsersService->recordVisit($name, $request->session()->getId());
+        } catch (\Exception $e) {
+            // 记录错误，但不中断请求
+            Log::error("Failed to record online user visit: {$e}");
+        }
 
         return $response;
     }
