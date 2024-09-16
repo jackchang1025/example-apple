@@ -82,6 +82,9 @@ class AccountResource extends Resource
 
             ])
             ->filters([
+                Tables\Filters\SelectFilter::make('status')
+                ->options(AccountStatus::getDescriptionValuesArray())
+                ->placeholder('选择状态'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

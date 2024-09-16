@@ -93,7 +93,9 @@ class PhoneResource extends Resource
                     ->toggleable(),
             ])
             ->filters([
-
+                Tables\Filters\SelectFilter::make('status')
+                ->options(Phone::STATUS)
+                ->placeholder('选择状态'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
