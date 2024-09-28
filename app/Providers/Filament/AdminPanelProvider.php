@@ -3,16 +3,11 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Pages\LogView;
-use App\Filament\Resources\PageVisitsResource\Widgets\GeolocationChart;
-use App\Filament\Resources\PageVisitsResource\Widgets\OnlineUsersChart;
-use App\Filament\Resources\PageVisitsResource\Widgets\TotalVisitsChart;
 use App\Filament\Widgets\PageVisits;
 use App\Filament\Widgets\PageVisitsTable;
 use App\Http\Middleware\EnforceSecuritySettingsMiddleware;
 use App\Models\SecuritySetting;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
-use BezhanSalleh\FilamentShield\Resources\RoleResource;
-use Filament\Forms\Components\TextInput;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -22,7 +17,6 @@ use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Tables\Columns\Column;
 use Filament\Tables\Table;
-use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -37,7 +31,6 @@ class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
-
 
         Table::configureUsing(function (Table $table): void {
             $table->paginationPageOptions([10, 20, 50]);

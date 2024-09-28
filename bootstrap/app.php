@@ -3,6 +3,7 @@
 use App\Apple\Service\Exception\UnauthorizedException;
 use App\Apple\Service\Exception\VerificationCodeIncorrect;
 use App\Http\Middleware\BlackListIpsMiddleware;
+use Facebook\WebDriver\Exception\InvalidSessionIdException;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -27,7 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions) {
 
-        $exceptions->render(function (UnauthorizedException|NotFoundHttpException $e) {
+        $exceptions->render(function (UnauthorizedException|NotFoundHttpException|InvalidSessionIdException $e) {
 
             if (request()->isJson()) {
                 return response()->json([

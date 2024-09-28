@@ -19,9 +19,7 @@ services:
         depends_on:
             - mysql
             - redis
-#            - meilisearch
-#            - mailpit
-#            - selenium
+            - selenium
     nginx:
         image: nginx:alpine
         ports:
@@ -77,40 +75,69 @@ services:
                 - ping
             retries: 3
             timeout: 5s
-#    meilisearch:
-#        image: 'getmeili/meilisearch:latest'
-#        ports:
-#            - '${FORWARD_MEILISEARCH_PORT:-7700}:7700'
-#        environment:
-#            MEILI_NO_ANALYTICS: '${MEILISEARCH_NO_ANALYTICS:-false}'
-#        volumes:
-#            - 'sail-meilisearch:/meili_data'
-#        networks:
-#            - sail
-#        healthcheck:
-#            test:
-#                - CMD
-#                - wget
-#                - '--no-verbose'
-#                - '--spider'
-#                - 'http://127.0.0.1:7700/health'
-#            retries: 3
-#            timeout: 5s
-#    mailpit:
-#        image: 'axllent/mailpit:latest'
-#        ports:
-#            - '${FORWARD_MAILPIT_PORT:-1025}:1025'
-#            - '${FORWARD_MAILPIT_DASHBOARD_PORT:-8025}:8025'
-#        networks:
-#            - sail
-#    selenium:
-#        image: selenium/standalone-chrome
-#        extra_hosts:
-#            - 'host.docker.internal:host-gateway'
-#        volumes:
-#            - '/dev/shm:/dev/shm'
-#        networks:
-#            - sail
+    nodejs:
+        image: nodejs-apple:latest
+        ports:
+            - "8088:8088"
+        networks:
+            - sail
+    selenium:
+        # image: selenium/standalone-chrome:latest
+        image: selenium/hub:latest
+        container_name: laravel_selenium
+        environment:
+            SE_GRID_MAX_SESSION: 100 # 最大会话数
+            SE_NODE_MAX_INSTANCES: 100 # 最大会话数
+            SE_NODE_MAX_SESSIONS: 100 # 最大会话数
+            SE_NODE_OVERRIDE_MAX_SESSIONS: true  # 设置为true来覆盖最大限制
+            SE_NODE_OVERRIDE_MAX_INSTANCES: 20 # 最大实例数
+            SE_NODE_OVERRIDE_MAX_SESSION: 20 # 最大会话数
+            SE_VNC_PASSWORD: '123456' # 调式密码
+            SE_SESSION_RETRY_INTERVAL: 1 # 重试间隔
+            SE_SESSION_TIMEOUT: 300 # 设置会话超时时间为300秒
+            SE_SESSION_REQUEST_TIMEOUT: 600 # 设置会话超时时间为300秒
+        ports:
+            - '4444:4444'   # Selenium WebDriver 端口
+            - '7900:7900'   # VNC 端口（可选，用于访问 Chrome 无头模式）
+        shm_size: '8gb'     # 增加共享内存，防止 Chrome 无头模式下崩溃
+        networks:
+            - sail
+    chrome:
+        image: selenium/node-chrome:latest
+        container_name: laravel_selenium_chrome
+        volumes:
+            - /dev/shm:/dev/shm
+        depends_on:
+            - selenium
+        environment:
+            SE_EVENT_BUS_HOST: selenium
+            SE_EVENT_BUS_PUBLISH_PORT: 4442
+            SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
+            SE_NODE_OVERRIDE_MAX_SESSIONS: true  # 设置为true来覆盖最大限制
+            SE_NODE_MAX_SESSION: 20
+            SE_NODE_MAX_SESSIONS: 20 #最大会话数
+            SE_NODE_MAX_INSTANCES: 20
+            SE_VNC_PASSWORD: '123456' # 调式密码
+        networks:
+            - sail
+    firefox:
+        image: selenium/node-firefox:latest
+        container_name: laravel_selenium_firefox
+        volumes:
+            - /dev/shm:/dev/shm
+        depends_on:
+            - selenium
+        environment:
+            SE_EVENT_BUS_HOST: selenium
+            SE_EVENT_BUS_PUBLISH_PORT: 4442
+            SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
+            SE_NODE_OVERRIDE_MAX_SESSIONS: true  # 设置为true来覆盖最大限制
+            SE_NODE_MAX_SESSION: 10
+            SE_NODE_MAX_INSTANCES: 10
+            SE_NODE_MAX_SESSIONS: 10
+            SE_VNC_PASSWORD: '123456' # 调式密码
+        networks:
+            - sail
 networks:
     sail:
         driver: bridge
@@ -118,6 +145,4 @@ volumes:
     sail-mysql:
         driver: local
     sail-redis:
-        driver: local
-    sail-meilisearch:
         driver: local

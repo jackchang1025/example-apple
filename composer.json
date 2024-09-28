@@ -9,6 +9,8 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "behat/mink": "^1.11",
+        "behat/mink-selenium2-driver": "^1.7",
         "bezhansalleh/filament-shield": "^3.2",
         "eightynine/filament-excel-import": "^3.0",
         "filament/filament": "^3.2",
@@ -25,6 +27,7 @@
         "saade/filament-laravel-log": "^3.0",
         "saloonphp/laravel-plugin": "^3.0",
         "symfony/dom-crawler": "^7.1",
+        "symfony/panther": "^2.1",
         "tomatophp/filament-users": "^1.0",
         "ysfkaya/filament-phone-input": "^2.3"
     },
