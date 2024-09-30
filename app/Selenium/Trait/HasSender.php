@@ -53,7 +53,7 @@ trait HasSender
         $capabilities->setCapability('goog:loggingPrefs', ['performance' => 'ALL']);
 
         $browserManager = new SeleniumManager(
-            host: 'http://selenium:4444/wd/hub',
+            host: env('SELENIUM_HOST', 'http://127.0.0.1:4444/wd/hub'),
             capabilities: $capabilities,
             options: [
                 'timeout'         => 300,           // 总超时时间：300 秒
