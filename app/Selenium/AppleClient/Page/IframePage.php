@@ -12,16 +12,6 @@ use Facebook\WebDriver\WebDriverExpectedCondition;
 abstract class IframePage extends Page
 {
 
-    /**
-     * @param WebDriver $driver
-     * @throws \Facebook\WebDriver\Exception\NoSuchElementException
-     * @throws \Facebook\WebDriver\Exception\TimeoutException
-     */
-    public function __construct(WebDriver $driver)
-    {
-        parent::__construct($driver);
-    }
-
     public function isVisible(): bool
     {
         try {

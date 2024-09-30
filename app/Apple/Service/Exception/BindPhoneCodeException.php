@@ -2,7 +2,9 @@
 
 namespace App\Apple\Service\Exception;
 
-class BindPhoneCodeException extends \Exception
+use App\Selenium\Exception\PageException;
+
+class BindPhoneCodeException extends PageException
 {
 
 }

@@ -4,21 +4,28 @@ namespace App\Selenium\AppleClient\Page\SignIn;
 
 use App\Selenium\AppleClient\Actions\PhoneList\DeviceContainerStrategy;
 use App\Selenium\AppleClient\Actions\PhoneList\PhoneListAction;
+use App\Selenium\AppleClient\Elements\Phone;
+use App\Selenium\AppleClient\Elements\PhoneList;
 use App\Selenium\AppleClient\Page\IframePage;
-use App\Selenium\Contract\ArrayStoreContract;
+use App\Selenium\Exception\PageException;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverElement;
-use InvalidArgumentException;
+use Illuminate\Support\Collection;
 
 class SignInSelectPhonePage extends IframePage
 {
 
-    public function getTitle(): string
+    public function title(): string
     {
-        return $this->findElement(WebDriverBy::cssSelector('.choose-phone h1.tk-callout'))->getText();
+        return 'Verify Your Identity';
     }
 
-    public function getPhoneLists():ArrayStoreContract
+    public function getTitle(): string
+    {
+        return $this->findElement(WebDriverBy::cssSelector('h1.tk-callout'))->getText();
+    }
+
+    public function getPhoneLists(): PhoneList
     {
         if ($phoneList = $this->config()->get('phone_list')){
             return $phoneList;
@@ -40,28 +47,21 @@ class SignInSelectPhonePage extends IframePage
     public function selectPhone(int $id)
     {
         /**
-         * @var ?WebDriverElement $phoneElement
+         * @var Phone $phoneElement
          */
         $phoneElement = $this->getPhoneLists()->get($id);
 
         if (!$phoneElement){
-            throw new InvalidArgumentException("Phone id $id not found");
+            throw new PageException($this,"Phone id $id not found");
         }
 
-        $phoneElement->click();
+        $phoneElement->getElement()->click();
 
-        return new SignInAuthPage($this->webDriver());
+        return new TwoFactorAuthenticationPage($this->connector);
     }
 
     public function getPhoneList(int $id):?WebDriverElement
     {
         return $this->getPhoneLists()->get($id);
     }
-
-//    public function resolveRootElement(): WebDriverBy
-//    {
-//        return WebDriverBy::cssSelector('.widget-container.fade-in.restrict-min-content.restrict-max-wh.fade-in');
-//    }
-
-    //
 }

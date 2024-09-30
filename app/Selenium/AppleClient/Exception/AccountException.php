@@ -2,7 +2,9 @@
 
 namespace App\Selenium\AppleClient\Exception;
 
-class AccountException extends \Exception
+use App\Selenium\Exception\PageException;
+
+class AccountException extends PageException
 {
 
 }

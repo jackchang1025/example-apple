@@ -68,11 +68,11 @@ class AddTrustedPhoneNumbersPage extends ModalPage
 
         $this->throw();
 
-        $confirmPasswordPage = new ConfirmPasswordPage($this->driver);
+        $confirmPasswordPage = new ConfirmPasswordPage($this->connector);
         if ($confirmPasswordPage->getTitle() === 'Confirm Your Password'){
             return $confirmPasswordPage;
         }
-        return new ValidateTrustedCodePage($this->driver);
+        return new ValidateTrustedCodePage($this->connector);
     }
 
     public function defaultExceptionSelector(): WebDriverBy

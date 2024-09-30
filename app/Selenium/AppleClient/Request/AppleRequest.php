@@ -23,7 +23,7 @@ class AppleRequest extends Request
 
         $client = $pendingRequest->getConnector()->client();
 
-        $page = new ApplePage($client);
+        $page = new ApplePage($connector);
 
         $pendingRequest->setPage($page);
 

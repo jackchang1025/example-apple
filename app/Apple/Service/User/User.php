@@ -3,6 +3,7 @@
 namespace App\Apple\Service\User;
 
 use App\Models\Account;
+use Illuminate\Support\Collection;
 use Psr\SimpleCache\CacheInterface;
 use Saloon\Repositories\ArrayStore;
 
@@ -33,6 +34,10 @@ class User extends ArrayStore
         return $this->get('account');
     }
 
+    public function setAccount(Account $account): static
+    {
+        return $this->add('account', $account);
+    }
 
     public function setCookie(array $value): static
     {
@@ -85,12 +90,12 @@ class User extends ArrayStore
     }
 
 
-    public function setPhoneInfo(array $value): static
+    public function setPhoneInfo(mixed $value): static
     {
         return $this->add('phone_info', $value);
     }
 
-    public function getPhoneInfo(array $default = []): array
+    public function getPhoneInfo(array $default = []): mixed
     {
         return $this->get('phone_info', $default);
     }

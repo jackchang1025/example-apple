@@ -2,7 +2,9 @@
 
 namespace App\Apple\Service\Exception;
 
-class VerificationCodeIncorrect extends \Exception
+use App\Selenium\Exception\PageException;
+
+class VerificationCodeIncorrect extends PageException
 {
 
 }

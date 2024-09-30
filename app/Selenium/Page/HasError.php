@@ -3,6 +3,7 @@
 namespace App\Selenium\Page;
 
 use App\Selenium\Exception\PageErrorException;
+use App\Selenium\Exception\PageException;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverElement;
 
@@ -18,26 +19,35 @@ trait HasError
         return null;
     }
 
-    public function toException(): ?PageErrorException
+    public function defaultException(Page $page,string $message): PageException
+    {
+        return new PageException($page, $message);
+    }
+
+    public function toException(): ?PageException
     {
         $exceptionElement = $this->getExceptionElement();
         if ($exceptionElement) {
-            return new PageErrorException($this, $exceptionElement, $exceptionElement->getText());
+            return $this->defaultException($this,$exceptionElement->getText());
         }
 
         $alertInfoElement = $this->getAlertInfoElement();
         if ($alertInfoElement) {
-            return new PageErrorException($this, $alertInfoElement, $alertInfoElement->getText());
+            return $this->defaultException($this,$alertInfoElement->getText());
         }
 
         return null;
     }
 
 
+    /**
+     * @return void
+     * @throws PageException
+     */
     public function throw(): void
     {
         if ($exception = $this->toException()){
-            throw new $exception;
+            throw $exception;
         }
     }
 
@@ -45,7 +55,7 @@ trait HasError
     {
         $exception = $this->toException();
 
-        if (is_callable($condition)) {
+        if (is_callable($condition) && $exception) {
             $condition = $condition($this, $exception);
         }
 

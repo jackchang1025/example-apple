@@ -2,6 +2,8 @@
 
 namespace App\Selenium\Trait;
 
+use Carbon\Carbon;
+
 trait HasScreenshot
 {
     use HasWebDriver;
@@ -23,14 +25,14 @@ trait HasScreenshot
         return '';
     }
 
-    public function filePath(string $fileName): string
+    protected function sprintf(string $fileName): string
     {
-        return sprintf('%s/%s', $this->getPath(),$fileName);
+        return sprintf('%s/%s-%s', $this->getPath(), Carbon::now()->format('Y-m-d-H-i-s'),$fileName);
     }
 
     public function takeScreenshot(string $fileName = 'screenshot.png'): string
     {
-        $this->webDriver()->takeScreenshot($path = $this->filePath($fileName));
+        $this->webDriver()->takeScreenshot($path = $this->sprintf($fileName));
 
         return $path;
     }

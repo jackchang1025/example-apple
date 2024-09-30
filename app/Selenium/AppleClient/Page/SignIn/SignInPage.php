@@ -2,7 +2,10 @@
 
 namespace App\Selenium\AppleClient\Page\SignIn;
 
+use App\Selenium\AppleClient\Exception\AccountException;
 use App\Selenium\AppleClient\Page\IframePage;
+use App\Selenium\Exception\PageException;
+use App\Selenium\Page\Page;
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\Exception\TimeoutException;
 use Facebook\WebDriver\Remote\RemoteWebElement;
@@ -11,6 +14,17 @@ use Facebook\WebDriver\WebDriverExpectedCondition;
 
 class SignInPage extends IframePage
 {
+
+    public function title():string
+    {
+        return 'Apple Account';
+    }
+
+    public function getTitle(): string
+    {
+        return $this->findElement(WebDriverBy::cssSelector('h1.si-container-title.tk-callout'))->getText();
+    }
+
     public function defaultExceptionSelector(): WebDriverBy
     {
         return WebDriverBy::cssSelector('.error.pop-bottom.tk-subbody-headline p#errMsg');
@@ -27,16 +41,16 @@ class SignInPage extends IframePage
             WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::id('account_name_text_field'))
         );
 
-        $accountNameField->click()->clear()->sendKeys($accountName);
+        $accountNameField->click()
+            ->clear()
+            ->sendKeys($accountName);
 
         return $accountNameField;
     }
 
     public function inputPassword(string $password)
     {
-        $passwordElement = $this->driver->wait()->until(
-            WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::id('password_text_field'))
-        );
+        $passwordElement = $this->driver->findElement(WebDriverBy::id('password_text_field'));
 
         $passwordElement->click()
             ->clear()
@@ -66,40 +80,69 @@ class SignInPage extends IframePage
     /**
      * @throws NoSuchElementException
      * @throws TimeoutException
-     * @throws \App\Selenium\Exception\PageErrorException
+     * @throws \App\Selenium\Exception\PageErrorException|PageException
      */
-    public function signInPassword(): SignInSelectPhonePage|SignInAuthPage
+    public function signInPassword(): Page
     {
+
         $signInButton = $this->driver->wait()->until(
             WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::id('sign-in'))
         );
-        $signInButton->click();
 
-        $this->throw();
+        try {
 
-        return $this->switchToSignInAuthPage();
+            $signInButton->click();
+
+            $this->throwif(function (Page $page,PageException $exception){
+
+                return $exception->getMessage() !== 'Too many verification codes have been sent. Enter the last code you received or try again later.';
+            });
+
+            return $this->switchToSignInAuthPage();
+        } catch (PageException|NoSuchElementException|TimeoutException $e) {
+
+            $this->takeScreenshot("sign.png");
+
+            throw $e;
+        }
     }
 
-    /**
-     * @return SignInSelectPhonePage|SignInAuthPage
-     * @throws NoSuchElementException
-     * @throws TimeoutException
-     */
-    protected function switchToSignInAuthPage(): SignInSelectPhonePage|SignInAuthPage
+
+    public function defaultException(Page $page,string $message): PageException
+    {
+        return new AccountException($page, $message);
+    }
+
+
+    protected function switchToSignInAuthPage(): Page
     {
         try {
 
-            $page =  new SignInAuthPage($this->driver);
-
-            if ($page->getTitle() === 'Two-Factor Authentication') {
-                return $page;
-            }
-
-            return new SignInSelectPhonePage($this->driver);
+            return $this->attemptSwitchToPage(new TwoFactorAuthenticationPage($this->connector));
 
         } catch (NoSuchElementException|TimeoutException $e) {
-
-            return  new SignInSelectPhonePage($this->driver);
+            // Ignore and attempt next page
         }
+
+        try {
+
+            return $this->attemptSwitchToPage(new SignInSelectPhonePage($this->connector));
+
+        } catch (NoSuchElementException|TimeoutException $e) {
+            // Ignore since we'll rethrow at the end
+        }
+
+        throw new PageException($this, 'Can not switch to sign in auth page');
     }
+
+    private function attemptSwitchToPage(Page $page): Page
+    {
+        if ($page->isCurrentTitle()) {
+            return $page;
+        }
+
+        throw new NoSuchElementException("The page with title '{$page->title()}' is not currently displayed.");
+    }
+
+
 }

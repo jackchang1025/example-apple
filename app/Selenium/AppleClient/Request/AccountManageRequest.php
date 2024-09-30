@@ -11,10 +11,6 @@ class AccountManageRequest extends Request
 {
     protected Method $method = Method::GET;
 
-    public function __construct(protected string $phoneNumber,protected string $password)
-    {
-    }
-
     public function resolveEndpoint(): string
     {
         return 'https://account.apple.com/account/manage';
@@ -26,7 +22,7 @@ class AccountManageRequest extends Request
 
         $client = $pendingRequest->getConnector()->client();
 
-        $AccountManagePage = new AccountManagePage($client);
+        $AccountManagePage = new AccountManagePage($connector);
 
         $pendingRequest->setPage($AccountManagePage);
 

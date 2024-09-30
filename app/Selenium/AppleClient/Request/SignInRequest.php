@@ -32,7 +32,7 @@ class SignInRequest extends Request
 
         $client = $pendingRequest->getConnector()->client();
 
-        $signInPage = new SignInPage($client);
+        $signInPage = new SignInPage($connector);
 
         $pendingRequest->setPage($signInPage);
 

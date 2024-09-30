@@ -49,13 +49,13 @@ class AccountManagePage extends Page
         }
     }
 
-    public function switchToPhoneListPage(): PhoneListPage
+    public function switchToPhoneListPage(): AccountSecurityPage
     {
         if (!$phoneListAction = $this->getPageSectionActions()->get(2)){
             throw new \RuntimeException('button not found');
         }
 
         $phoneListAction->click();
-        return new PhoneListPage($this->driver);
+        return new AccountSecurityPage($this->connector);
     }
 }

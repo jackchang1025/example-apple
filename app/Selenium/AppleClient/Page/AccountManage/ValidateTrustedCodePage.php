@@ -8,9 +8,9 @@ use Facebook\WebDriver\WebDriverBy;
 
 class ValidateTrustedCodePage extends ModalPage
 {
-    private const SUBMIT_BUTTON_SELECTOR = '.modal-form .modal-button-bar .button.button-rounded-rectangle[type="submit"]';
-    private const CANCEL_BUTTON_SELECTOR = '.modal-form .modal-button-bar .button.button-secondary.button-rounded-rectangle';
-    private const INPUTS_SELECTOR = '.modal-body .form-security-code-inputs input.form-security-code-input';
+    private const string SUBMIT_BUTTON_SELECTOR = '.modal-form .modal-button-bar .button.button-rounded-rectangle[type="submit"]';
+    private const string CANCEL_BUTTON_SELECTOR = '.modal-form .modal-button-bar .button.button-secondary.button-rounded-rectangle';
+    private const string INPUTS_SELECTOR = '.modal-body .form-security-code-inputs input.form-security-code-input';
 
     public function inputTrustedCode(string $code): ValidateTrustedCodePage
     {
@@ -29,11 +29,13 @@ class ValidateTrustedCodePage extends ModalPage
         return WebDriverBy::cssSelector('.modal-form .modal-body .form-message-wrapper span.form-message');
     }
 
-    public function submit()
+    public function submit(): AccountSecurityPage
     {
         $this->clickButton(WebDriverBy::cssSelector(self::SUBMIT_BUTTON_SELECTOR));
 
         $this->throw();
+
+        return new AccountSecurityPage($this->connector);//Account Security
     }
 
     public function cancel(): void

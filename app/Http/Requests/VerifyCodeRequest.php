@@ -23,7 +23,6 @@ class VerifyCodeRequest extends FormRequest
     {
         return [
             'apple_verifycode' => 'required|digits_between:6,6',
-            'ID' => 'integer|min:1',
         ];
     }
 }

@@ -4,19 +4,21 @@ namespace App\Selenium\AppleClient\Page\AccountManage;
 
 use App\Selenium\AppleClient\Actions\PhoneList\ModalCardListStrategy;
 use App\Selenium\AppleClient\Actions\PhoneList\PhoneListAction;
-use App\Selenium\AppleClient\Elements\PhoneLists;
+use App\Selenium\AppleClient\Elements\PhoneList;
 use App\Selenium\AppleClient\Page\ModalPage;
+use App\Selenium\Contract\ArrayStoreContract;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
+use Illuminate\Support\Collection;
 
-class PhoneListPage extends ModalPage
+class AccountSecurityPage extends ModalPage
 {
     public function resolveRootElement(): WebDriverBy
     {
         return WebDriverBy::cssSelector('aside.modal.modal-blurry-overlay');
     }
 
-    public function getPhoneList():PhoneLists
+    public function getPhoneList():PhoneList
     {
         if ($phoneList = $this->config()->get('phoneList')){
             return $phoneList;
@@ -36,7 +38,7 @@ class PhoneListPage extends ModalPage
         $addBindPhoneButton = $this->getAddBindPhoneButtonAction();
         $addBindPhoneButton->click();
 
-        return new AddTrustedPhoneNumbersPage($this->driver);
+        return new AddTrustedPhoneNumbersPage($this->connector);
     }
 
     public function getAddBindPhoneButtonAction()

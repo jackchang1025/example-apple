@@ -4,6 +4,8 @@ namespace App\Selenium\AppleClient\Page\AccountManage;
 
 
 use App\Selenium\AppleClient\Page\ModalPage;
+use App\Selenium\Exception\PageException;
+use App\Selenium\Page\Page;
 use Facebook\WebDriver\WebDriverBy;
 
 class ConfirmPasswordPage extends ModalPage
@@ -29,12 +31,12 @@ class ConfirmPasswordPage extends ModalPage
 
         $this->throw();
 
-        return new ValidateTrustedCodePage($this->driver);
+        return new ValidateTrustedCodePage($this->connector);
     }
 
-    public function cancel(): PhoneListPage
+    public function cancel(): AccountSecurityPage
     {
         $this->clickButton(WebDriverBy::cssSelector(self::CANCEL_BUTTON_SELECTOR));
-        return  new PhoneListPage($this->driver);
+        return  new AccountSecurityPage($this->connector);
     }
 }

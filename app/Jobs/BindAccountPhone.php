@@ -2,8 +2,9 @@
 
 namespace App\Jobs;
 
-use App\Apple\Service\AccountBind;
-use App\Apple\Service\AppleFactory;
+use App\Apple\Service\AccountBind\AccountBind;
+use App\Models\Account;
+use App\Selenium\ConnectorManager;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -36,7 +37,7 @@ class BindAccountPhone implements ShouldQueue
      */
     public function uniqueId(): string
     {
-        return $this->id;
+        return $this->guid;
     }
 
     /**
@@ -51,43 +52,41 @@ class BindAccountPhone implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(protected readonly int $id, protected readonly string $clientId)
+    public function __construct(protected readonly string $guid,protected readonly Account $account)
     {
 
     }
 
     /**
      * Execute the job.
-     * @param AppleFactory $appleFactory
+     * @param ConnectorManager $connectorManager
      * @param LoggerInterface $logger
      * @return void
-     * @throws \Throwable
      */
-    public function handle(AppleFactory $appleFactory,LoggerInterface $logger): void
+    public function handle(ConnectorManager $connectorManager,LoggerInterface $logger): void
     {
         try {
 
-            $apple = $appleFactory->create($this->clientId);
+            $accountBind = new AccountBind($connectorManager->getConnector($this->guid),$logger);
 
-            $accountBind = new AccountBind($apple,$logger);
-
-            $accountBind->handle($this->id);
+            $accountBind->handle($this->account);
 
             // 任务成功执行，记录日志
             Log::info("BindAccountPhone job completed successfully", [
                 'job_id' => $this->job->getJobId(),
-                'account_id' => $this->id,
-                'client_id' => $this->clientId
+                'account' => $this->account->account,
+                'guid' => $this->guid
             ]);
 
         } catch (\Throwable $e) {
 
             Log::error("BindAccountPhone job failed", [
                 'job_id' => $this->job->getJobId(),
-                'account_id' => $this->id,
-                'client_id' => $this->clientId,
+                'account' => $this->account->account,
+                'guid' => $this->guid,
                 'error' => $e
             ]);
+
             $this->fail($e);
         }
     }

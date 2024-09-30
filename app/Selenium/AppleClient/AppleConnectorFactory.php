@@ -13,6 +13,8 @@ class AppleConnectorFactory implements ConnectorFactory
         $connector = new AppleConnector();
 
         $connector->setSession($session);
+        $connector->config()
+            ->add('screenshot_path',storage_path("/browser/screenshots/{$session}/"));
 
         return $connector;
     }

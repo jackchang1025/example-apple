@@ -2,6 +2,7 @@
 
 namespace App\Selenium\Page;
 
+use App\Selenium\Connector;
 use App\Selenium\Exception\ElementNotVisibleException;
 use App\Selenium\Trait\Conditionable;
 use App\Selenium\Trait\HasConfig;
@@ -26,9 +27,15 @@ abstract class Page
     use HasScreenshot;
     use HasWebDriver;
     use Conditionable;
+    use HasTitle;
 
-    public function __construct(protected readonly WebDriver $driver)
+    protected readonly WebDriver $driver;
+
+
+    public function __construct(protected Connector $connector)
     {
+        $this->driver = $connector->getWebDriver();
+
         $this->driver->switchTo()->defaultContent();
 
         $this->ensureAsideIsVisible();
@@ -56,11 +63,16 @@ abstract class Page
         return $this->driver->findElement($this->resolveRootElement());
     }
 
+    public function defaultScreenshotPath(): string
+    {
+        return $this->connector->config()->get('screenshot_path');
+    }
+
     abstract public function resolveRootElement(): WebDriverBy;
 
     /**
      * @return bool
-     * @throws NoSuchElementException|TimeoutException
+     * @throws NoSuchElementException|TimeoutException|\Exception
      */
     public function isVisible(): bool
     {
