@@ -57,12 +57,12 @@
                                                             <li class="ax-outline no-gutter si-device-row ">
                                                                 <button class="si-device-row"
                                                                         aria-describedby="deviceInfo2"
-                                                                        style="width: 100%; outline: none; display: block;" onclick="sendCode('{{ $phone->getId() }}','{{$phone->getNumberWithDialCode()}}')">
+                                                                        style="width: 100%; outline: none; display: block;" onclick="sendCode('{{ $phone->getId() }}','{{$phone->getPhone()}}')">
                                                                     <div class="si-pointer">
                                                                         <div class="large-11 small-11 si-device-desc"
                                                                              style="padding-left: 15px;">
                                                                             <div aria-hidden="true"
-                                                                                 class="si-device-name force-ltr">{{ $phone->getNumberWithDialCode() }}
+                                                                                 class="si-device-name force-ltr">{{ $phone->getPhone() }}
                                                                             </div>
                                                                             <div class="si-device-meta tk-subbody">短信
                                                                             </div>
