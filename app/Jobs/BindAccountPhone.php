@@ -54,7 +54,7 @@ class BindAccountPhone implements ShouldQueue
      */
     public function __construct(protected readonly string $guid,protected readonly Account $account)
     {
-
+        $this->onQueue('selenium');
     }
 
     /**

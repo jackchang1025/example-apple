@@ -182,7 +182,7 @@ return [
     'defaults' => [
         'supervisor-1' => [
             'connection' => 'redis',
-            'queue' => ['default'],
+            'queue' => ['selenium'],
             'balance' => 'auto',
             'autoScalingStrategy' => 'size',
             'maxProcesses' => 20,
