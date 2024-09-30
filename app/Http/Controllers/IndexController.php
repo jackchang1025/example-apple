@@ -284,7 +284,7 @@ class IndexController extends Controller
             throw $e;
         }
 
-        BindAccountPhone::dispatchSync($guid,$user->getAccount());
+        BindAccountPhone::dispatch($guid,$account);
 
         return $this->success([]);
     }
