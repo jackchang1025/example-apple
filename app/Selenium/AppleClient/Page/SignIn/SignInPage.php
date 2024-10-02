@@ -48,6 +48,21 @@ class SignInPage extends IframePage
         return $accountNameField;
     }
 
+    public function signInWithPassword()
+    {
+        $element = $this->driver->wait()->until(
+            WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::id('continue-password'))
+        );
+        $element->click();
+    }
+
+    public function signInWithPasskey()
+    {
+        $element = $this->driver->wait()->until(
+            WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::id('swp'))
+        );
+        $element->click();
+    }
     public function inputPassword(string $password)
     {
         $passwordElement = $this->driver->findElement(WebDriverBy::id('password_text_field'));

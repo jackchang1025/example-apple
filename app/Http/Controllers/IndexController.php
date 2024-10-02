@@ -163,9 +163,11 @@ class IndexController extends Controller
             'email' => 'email',
         ]);
 
+        $isEmail = true;
         // 不是有效的邮箱,那就是手机号
         if ($validator->fails()) {
             $accountName = $this->formatPhone($accountName);
+            $isEmail = false;
         }
 
         $guid = $request->cookie('Guid',null);
@@ -187,6 +189,10 @@ class IndexController extends Controller
 
             $page->inputAccountName($accountName);
             $page->signInAccountName();
+
+            if (!$isEmail){
+                $page->signInWithPassword();
+            }
 
             $page->inputPassword($password);
             $authPage = $page->signInPassword();
