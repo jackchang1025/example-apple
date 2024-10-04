@@ -4,31 +4,25 @@ namespace App\Http\Controllers;
 
 use App\Apple\Service\Apple;
 use App\Apple\Service\AppleFactory;
-use App\Apple\Service\DataConstruct\ServiceError;
 use App\Apple\Service\Exception\AccountLockoutException;
 use App\Apple\Service\Exception\UnauthorizedException;
 use App\Apple\Service\Exception\VerificationCodeIncorrect;
 use App\Apple\Service\PhoneNumber\PhoneNumberFactory;
-use App\Apple\Service\User\User;
 use App\Apple\Service\User\UserFactory;
 use App\Events\AccountAuthFailEvent;
 use App\Events\AccountAuthSuccessEvent;
 use App\Events\AccountLoginSuccessEvent;
-use App\Http\Integrations\IpConnector\IpConnector;
-use App\Http\Integrations\IpConnector\Requests\PconLineRequest;
 use App\Http\Requests\VerifyAccountRequest;
 use App\Http\Requests\VerifyCodeRequest;
 use App\Jobs\BindAccountPhone;
 use App\Models\Account;
 use App\Models\SecuritySetting;
-use App\Selenium\AppleClient\Elements\Phone;
 use App\Selenium\AppleClient\Exception\AccountException;
 use App\Selenium\AppleClient\Page\SignIn\TwoFactorAuthenticationPage;
 use App\Selenium\AppleClient\Page\SignIn\SignInSelectPhonePage;
 use App\Selenium\AppleClient\Request\SignInRequest;
 use App\Selenium\ConnectorManager;
 use App\Selenium\Exception\PageException;
-use Carbon\Carbon;
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\Exception\TimeoutException;
 use GuzzleHttp\Exception\GuzzleException;
@@ -51,8 +45,13 @@ use InvalidArgumentException;
 use libphonenumber\NumberParseException;
 use libphonenumber\PhoneNumberFormat;
 use Psr\SimpleCache\CacheInterface;
+use Saloon\Exceptions\Request\ClientException;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
+use Saloon\Exceptions\SaloonException;
+use Weijiajia\IpConnector;
+use Weijiajia\Requests\PconLineRequest;
+use Weijiajia\Responses\IpResponse;
 
 class IndexController extends Controller
 {
@@ -91,7 +90,6 @@ class IndexController extends Controller
 
     public function signin(): Response
     {
-
         $guid = sha1(microtime());
 
         $IpConnector = new IpConnector();
@@ -99,11 +97,17 @@ class IndexController extends Controller
 
         try {
 
-            $ipaddress = $IpConnector->ipaddress(new PconLineRequest(ip: $this->request->ip()));
+            $response = $IpConnector->send(new PconLineRequest(ip: $this->request->ip()));
+
+            /**
+             * @var IpResponse $ipaddress
+             */
+            $ipaddress = $response->dto();
+
             $apple->getUser()->add('ipaddress',$ipaddress);
 
             Log::info('获取IP地址成功',['ipaddress' => $ipaddress->all()]);
-        } catch (FatalRequestException|RequestException $e) {
+        } catch (SaloonException $e) {
 
         }
 

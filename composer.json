@@ -29,6 +29,8 @@
         "symfony/dom-crawler": "^7.1",
         "symfony/panther": "^2.1",
         "tomatophp/filament-users": "^1.0",
+        "weijiajia/ip-address": "^1.0",
+        "weijiajia/ip-proxy-manager": "^1.0",
         "ysfkaya/filament-phone-input": "^2.3"
     },
     "require-dev": {
