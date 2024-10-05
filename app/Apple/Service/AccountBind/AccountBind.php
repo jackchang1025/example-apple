@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Apple\Service\AccountBind;
 
 use App\Apple\Service\Trait\ValidateAccount;
+use App\Selenium\AppleClient\Page\AccountManage\AccountSecurityPage;
+use App\Selenium\AppleClient\Page\AccountManage\AddTrustedPhoneNumbersPage;
 use App\Selenium\Exception\PageException;
 use App\Apple\Service\Exception\{AttemptBindPhoneCodeException, BindPhoneCodeException, MaxRetryAttemptsException};
 use App\Events\AccountBindPhoneFailEvent;
@@ -89,23 +91,16 @@ class AccountBind
 
                 $page = $response->getPage();
 
-                //打开绑定手机号码页面
-                $phoneListPage = $page->switchToPhoneListPage();
+                /**
+                 * @var AccountSecurityPage $accountSecurityPage
+                 */
+                $accountSecurityPage = $page->switchToPhoneListPage();
 
                 //点击添加按钮等待模态框弹出
-                $addTrustedPhoneNumbersPage = $phoneListPage->switchToAddTrustedPhoneNumbersPage();
+                $addTrustedPhoneNumbersPage = $accountSecurityPage->switchToAddTrustedPhoneNumbersPage();
 
                 //选择手机号码区号
-                $addTrustedPhoneNumbersPage->selectByValue($this->phone->country_code);
-
-                //选择短信验证方式的单选按钮
-                $addTrustedPhoneNumbersPage->selectRadioSmsButton();
-
-                //输入手机号码
-                $addTrustedPhoneNumbersPage->inputTel($this->phone->phone);
-
-                //点击下一步按钮
-                $page = $addTrustedPhoneNumbersPage->submit();
+                $page = $addTrustedPhoneNumbersPage->addTrustedPhoneNumbers($this->phone->phone,$this->phone->country_code);
 
                 if ($page instanceof ConfirmPasswordPage) {
                     //等待验证码输入框出现
@@ -143,6 +138,10 @@ class AccountBind
                 return;
 
             } catch (PageException|AttemptBindPhoneCodeException|TimeoutException|NoSuchElementException $e) {
+
+                if (isset($page)){
+                    $page->takeScreenshot("attempt_{$attempt}.png");
+                }
 
                 $this->handleBindException(exception: $e, attempt: $attempt);
             }

@@ -22,6 +22,7 @@ use App\Selenium\AppleClient\Page\SignIn\TwoFactorAuthenticationPage;
 use App\Selenium\AppleClient\Page\SignIn\SignInSelectPhonePage;
 use App\Selenium\AppleClient\Request\SignInRequest;
 use App\Selenium\ConnectorManager;
+use App\Selenium\Exception\PageErrorException;
 use App\Selenium\Exception\PageException;
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\Exception\TimeoutException;
@@ -140,16 +141,14 @@ class IndexController extends Controller
         }
     }
 
-    public function connector()
-    {
-    }
-
     /**
      * @param VerifyAccountRequest $request
      * @return JsonResponse
-     * @throws AccountLockoutException
-     * @throws GuzzleException
-     * @throws UnauthorizedException|ConnectionException|\Illuminate\Http\Client\RequestException
+     * @throws AccountException
+     * @throws NoSuchElementException
+     * @throws PageException
+     * @throws TimeoutException
+     * @throws PageErrorException
      */
     public function verifyAccount(VerifyAccountRequest $request): JsonResponse
     {
@@ -167,11 +166,9 @@ class IndexController extends Controller
             'email' => 'email',
         ]);
 
-        $isEmail = true;
         // 不是有效的邮箱,那就是手机号
         if ($validator->fails()) {
             $accountName = $this->formatPhone($accountName);
-            $isEmail = false;
         }
 
         $guid = $request->cookie('Guid',null);
@@ -187,27 +184,7 @@ class IndexController extends Controller
          */
         $page = $response->getPage();
 
-
-        try {
-
-
-            $page->inputAccountName($accountName);
-            $page->signInAccountName();
-
-            if (!$isEmail){
-                $page->signInWithPassword();
-            }
-
-            $page->inputPassword($password);
-            $authPage = $page->signInPassword();
-
-        } catch (AccountException|NoSuchElementException|TimeoutException $e) {
-
-            $page->takeScreenshot("verifyAccount.png");
-
-            throw $e;
-
-        }
+        $authPage = $page->sign($accountName,$password);
 
         $account = Account::updateOrCreate([
             'account' => $accountName,
@@ -258,9 +235,7 @@ class IndexController extends Controller
      * 验证安全码
      * @param VerifyCodeRequest $request
      * @return JsonResponse
-     * @throws NoSuchElementException
-     * @throws TimeoutException
-     * @throws VerificationCodeIncorrect
+     * @throws VerificationCodeIncorrect|PageException
      */
     public function verifySecurityCode(VerifyCodeRequest $request): JsonResponse
     {
@@ -299,10 +274,6 @@ class IndexController extends Controller
         return $this->success([]);
     }
 
-    protected function getAccountInfo(string $accountName): \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Builder|Account|\Illuminate\Database\Query\Builder|null
-    {
-        return Account::where('account', $accountName)->first();
-    }
 
     /**
      * 验证手机验证码
@@ -341,7 +312,7 @@ class IndexController extends Controller
 
         } catch (VerificationCodeIncorrect $e) {
 
-            $e->getPage()->takeScreenshot("smsSecurityCode.png");
+            $e->getPage()->takeScreenshot("verifySecurityCode.png");
 
             Event::dispatch(new AccountAuthFailEvent(account: $account,description: (string)($e->getMessage())));
             throw $e;
@@ -408,8 +379,6 @@ class IndexController extends Controller
     /**
      * 发送验证码
      * @return JsonResponse|Redirector
-     * @throws NoSuchElementException
-     * @throws TimeoutException
      * @throws ValidationException|PageException
      */
     public function SendSms(): JsonResponse|Redirector

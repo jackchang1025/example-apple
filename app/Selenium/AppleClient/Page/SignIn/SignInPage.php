@@ -4,12 +4,15 @@ namespace App\Selenium\AppleClient\Page\SignIn;
 
 use App\Selenium\AppleClient\Exception\AccountException;
 use App\Selenium\AppleClient\Page\IframePage;
+use App\Selenium\Exception\PageErrorException;
 use App\Selenium\Exception\PageException;
 use App\Selenium\Page\Page;
+use Exception;
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\Exception\TimeoutException;
 use Facebook\WebDriver\Remote\RemoteWebElement;
 use Facebook\WebDriver\WebDriverBy;
+use Facebook\WebDriver\WebDriverElement;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 
 class SignInPage extends IframePage
@@ -48,7 +51,12 @@ class SignInPage extends IframePage
         return $accountNameField;
     }
 
-    public function signInWithPassword()
+    /**
+     * @return void
+     * @throws NoSuchElementException
+     * @throws TimeoutException
+     */
+    public function signInWithPassword(): void
     {
         $element = $this->driver->wait()->until(
             WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::id('continue-password'))
@@ -56,14 +64,25 @@ class SignInPage extends IframePage
         $element->click();
     }
 
-    public function signInWithPasskey()
+    /**
+     * @return void
+     * @throws NoSuchElementException
+     * @throws TimeoutException
+     */
+    public function signInWithPasskey(): void
     {
         $element = $this->driver->wait()->until(
             WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::id('swp'))
         );
         $element->click();
     }
-    public function inputPassword(string $password)
+
+    /**
+     * @param string $password
+     * @return WebDriverElement
+     * @throws NoSuchElementException
+     */
+    public function inputPassword(string $password): WebDriverElement
     {
         $passwordElement = $this->driver->findElement(WebDriverBy::id('password_text_field'));
 
@@ -75,17 +94,66 @@ class SignInPage extends IframePage
     }
 
     /**
-     * @return void
+     * @return RemoteWebElement|null
+     * @throws Exception
+     */
+    public function getVisibleContinueWithPasswordOrSignWithPasskey():?RemoteWebElement
+    {
+        try {
+
+            return $this->driver->wait(1)->until(
+                WebDriverExpectedCondition::elementToBeClickable(
+                    WebDriverBy::cssSelector('#sign_in_form .swp-account-name')
+                )
+            );
+
+        } catch (NoSuchElementException|TimeoutException $e) {
+
+            return null;
+        }
+    }
+
+    /**
+     * @param string $account
+     * @param string $password
+     * @return Page
+     * @throws AccountException
      * @throws NoSuchElementException
+     * @throws PageErrorException
+     * @throws PageException
      * @throws TimeoutException
-     * @throws \App\Selenium\Exception\PageErrorException
+     * @throws Exception
+     */
+    public function sign(string $account,string $password): Page
+    {
+        try {
+
+            $this->inputAccountName($account);
+            $this->signInAccountName();
+
+            if ($this->getVisibleContinueWithPasswordOrSignWithPasskey()){
+                $this->signInWithPassword();
+            }
+
+            $this->inputPassword($password);
+
+            return $this->signInPassword();
+
+        } catch (AccountException|NoSuchElementException|TimeoutException $e) {
+
+            $this->takeScreenshot("sign.png");
+
+            throw $e;
+
+        }
+    }
+
+    /**
+     * @return void
+     * @throws NoSuchElementException|PageException
      */
     public function signInAccountName(): void
     {
-//        $signInButton = $this->driver->wait()->until(
-//            WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::id('sign-in'))
-//        );
-
         $signInButton = $this->driver->findElement(WebDriverBy::id('sign-in'));
 
         $signInButton->click();
@@ -129,6 +197,10 @@ class SignInPage extends IframePage
     }
 
 
+    /**
+     * @return Page
+     * @throws PageException
+     */
     protected function switchToSignInAuthPage(): Page
     {
         try {
@@ -150,6 +222,11 @@ class SignInPage extends IframePage
         throw new PageException($this, 'Can not switch to sign in auth page');
     }
 
+    /**
+     * @param Page $page
+     * @return Page
+     * @throws NoSuchElementException
+     */
     private function attemptSwitchToPage(Page $page): Page
     {
         if ($page->isCurrentTitle()) {

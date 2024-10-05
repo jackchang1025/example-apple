@@ -22,42 +22,31 @@ class PhoneListAction extends Actions
 
     /**
      * @return PhoneList
-     * @throws \Exception
+     * @throws NoSuchElementException
+     * @throws TimeoutException
      */
     public function perform(): PhoneList
     {
 
-        try {
+        $ulGroup = $this->page->webDriver()->wait()->until(
+            WebDriverExpectedCondition::presenceOfElementLocated(
+                $this->listStrategy->containerSelector()
+            )
+        );
 
-            $ulGroup = $this->page->webDriver()->wait()->until(
-                WebDriverExpectedCondition::presenceOfElementLocated(
-                    $this->listStrategy->containerSelector()
-                )
-            );
+        // 2. 获取所有的 li 元素
+        $liElements = $ulGroup->findElements($this->listStrategy->itemSelector());
 
-            // 2. 获取所有的 li 元素
-            $liElements = $ulGroup->findElements($this->listStrategy->itemSelector());
+        foreach ($liElements as $index => $liElement) {
 
-            foreach ($liElements as $index => $liElement) {
+            $index++;
 
-                $index++;
+            $phoneElement = $liElement->findElement($this->listStrategy->phoneSelector());
 
-                try {
+            $this->phoneLists->put($this->listStrategy->keyGenerator($index, $phoneElement), new Phone($index,$phoneElement));
 
-                    $phoneElement = $liElement->findElement($this->listStrategy->phoneSelector());
-
-                    $this->phoneLists->put($this->listStrategy->keyGenerator($index, $phoneElement), new Phone($index,$phoneElement));
-
-                } catch (NoSuchElementException $e) {
-                    continue;
-                }
-            }
-
-            return $this->phoneLists;
-
-        } catch (NoSuchElementException|TimeoutException $e) {
-
-            return $this->phoneLists;
         }
+
+        return $this->phoneLists;
     }
 }

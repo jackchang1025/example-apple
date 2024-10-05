@@ -20,6 +20,35 @@ class AddTrustedPhoneNumbersPage extends ModalPage
     private const SUBMIT_BUTTON_SELECTOR = '.button-bar-nav button[type="submit"]';
 
     /**
+     * @param string $phone
+     * @param string $countryCode
+     * @return ModalPage
+     * @throws NoSuchElementException
+     * @throws UnexpectedTagNameException
+     * @throws WebDriverException
+     */
+    public function addTrustedPhoneNumbers(string $phone,string $countryCode): ModalPage
+    {
+        try {
+
+            //选择手机号码区号
+            $this->selectByValue($countryCode);
+            //选择短信验证方式的单选按钮
+            $this->selectRadioSmsButton();
+            //输入手机号码
+            $this->inputTel($phone);
+            //点击下一步按钮
+            return $this->submit();
+
+        } catch (NoSuchElementException|UnexpectedTagNameException|WebDriverException $e) {
+
+            $this->takeScreenshot("addTrustedPhoneNumbers.png");
+
+            throw $e;
+        }
+    }
+
+    /**
      * @param string $value
      * @return void
      * @throws NoSuchElementException
