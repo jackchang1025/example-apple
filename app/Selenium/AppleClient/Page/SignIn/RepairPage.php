@@ -6,17 +6,28 @@ use App\Selenium\AppleClient\Page\IframePage;
 use App\Selenium\Connector;
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\Exception\TimeoutException;
+use Facebook\WebDriver\Remote\RemoteWebElement;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 
 class RepairPage extends IframePage
 {
 
+    protected ?RemoteWebElement $resolveFrameElement;
+
+
     public function __construct(protected Connector $connector){
 
         parent::__construct($connector);
 
-        $this->driver->switchTo()->frame($this->resolveFrameElement());
+        if ($this->resolveFrameElement = $this->resolveFrameElement()) {
+            $this->driver->switchTo()->frame($this->resolveFrameElement);
+        }
+    }
+
+    public function getResolveFrameElement(): ?RemoteWebElement
+    {
+        return $this->resolveFrameElement;
     }
 
     /**
@@ -52,13 +63,20 @@ class RepairPage extends IframePage
         return $this->findElement(WebDriverBy::cssSelector('h2.tk-manifesto text-centered'))->getText();
     }
 
-    public function resolveFrameElement()
+    public function resolveFrameElement():?RemoteWebElement
     {
-        return $this->driver->wait()->until(
-            WebDriverExpectedCondition::presenceOfElementLocated(
-                WebDriverBy::cssSelector('iframe#repairFrame')
-            )
-        );
+        try {
+
+            return $this->driver->wait()->until(
+                WebDriverExpectedCondition::presenceOfElementLocated(
+                    WebDriverBy::cssSelector('iframe#repairFrame')
+                )
+            );
+
+        } catch (NoSuchElementException|TimeoutException $e) {
+
+            return null;
+        }
     }
 
 }

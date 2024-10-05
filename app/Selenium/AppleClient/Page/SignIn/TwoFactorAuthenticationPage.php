@@ -11,6 +11,7 @@ use App\Selenium\Page\Page;
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\Exception\TimeoutException;
 use Facebook\WebDriver\WebDriverBy;
+use Facebook\WebDriver\WebDriverExpectedCondition;
 
 
 class TwoFactorAuthenticationPage extends IframePage
@@ -44,7 +45,7 @@ class TwoFactorAuthenticationPage extends IframePage
         //判断是否隐私授权页面
         $page = new RepairPage($this->connector);
 
-        if ($page->isVisible()) {
+        if ($page->getResolveFrameElement()) {
             $page->repair();
         }
 
