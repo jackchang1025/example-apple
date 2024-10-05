@@ -67,7 +67,7 @@ class RepairPage extends IframePage
     {
         try {
 
-            return $this->driver->wait()->until(
+            return $this->driver->wait(10)->until(
                 WebDriverExpectedCondition::presenceOfElementLocated(
                     WebDriverBy::cssSelector('iframe#repairFrame')
                 )
