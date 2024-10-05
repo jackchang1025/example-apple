@@ -8,6 +8,8 @@ use App\Selenium\AppleClient\Page\AccountManage\AccountManagePage;
 use App\Selenium\AppleClient\Page\IframePage;
 use App\Selenium\Exception\PageException;
 use App\Selenium\Page\Page;
+use Facebook\WebDriver\Exception\NoSuchElementException;
+use Facebook\WebDriver\Exception\TimeoutException;
 use Facebook\WebDriver\WebDriverBy;
 
 
@@ -23,9 +25,12 @@ class TwoFactorAuthenticationPage extends IframePage
      * @param string $code
      * @return AccountManagePage
      * @throws PageException
+     * @throws NoSuchElementException
+     * @throws TimeoutException
      */
     public function inputTrustedCode(string $code):AccountManagePage
     {
+
         $InputTrustedCodeAction = new InputTrustedCodeAction(
             page: $this,
             locator: WebDriverBy::cssSelector('.form-security-code-input'),
@@ -35,6 +40,13 @@ class TwoFactorAuthenticationPage extends IframePage
         $InputTrustedCodeAction->perform();
 
         $this->throw();
+
+        //判断是否隐私授权页面
+        $page = new RepairPage($this->connector);
+
+        if ($page->isVisible()) {
+            $page->repair();
+        }
 
         return new AccountManagePage($this->connector);
     }

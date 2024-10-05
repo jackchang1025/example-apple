@@ -37,10 +37,14 @@ abstract class Page
         $this->driver = $connector->getWebDriver();
 
         $this->driver->switchTo()->defaultContent();
-
-        $this->ensureAsideIsVisible();
     }
 
+    /**
+     * @return void
+     * @throws ElementNotVisibleException
+     * @throws NoSuchElementException
+     * @throws TimeoutException
+     */
     protected function ensureAsideIsVisible(): void
     {
         if ($this->isVisible()) {
