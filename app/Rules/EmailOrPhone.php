@@ -18,8 +18,12 @@ class EmailOrPhone implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
+        //验证规则解析：
+        //'email:rfc' 验证邮箱的格式是否符合 RFC 标准。
+        //'email:dns' 检查邮箱域名是否有有效的 MX 记录
+
         $emailValidator = Validator::make([$attribute => $value], [
-            $attribute => 'email:rfc,dns'
+            $attribute => 'email'
         ]);
 
         if ($emailValidator->passes()) {
