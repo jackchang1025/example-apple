@@ -233,14 +233,16 @@
                                                 </div>
                                             </div>
 
-                                            <button
-                                                class="button-link si-link ax-outline tk-subbody hide"
-                                                id="diff_phone"
-                                                href="#"
-                                                onclick="window.history.back();"
-                                            >
-                                                切换其他号码
-                                            </button>
+                                           @if($useDifferentPhoneNumber)
+                                                <button
+                                                    class="button-link si-link ax-outline tk-subbody"
+                                                    id="diff_phone"
+                                                    href="#"
+                                                    onclick="useDifferentPhoneNumber()"
+                                                >
+                                                    切换其他号码
+                                                </button>
+                                           @endif
 
                                             <div class="verifying-code-text hide thin">
                                                 正在验证…
@@ -348,7 +350,7 @@
 
     <script type="text/javascript" src="{{ asset('/js/apple/jquery-3.6.1.min.js') }}"></script>
     <script type="text/javascript" src="{{ asset('/js/apple/jquery.cookie.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('/js/apple/sms.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('/js/apple/sms.js?v='.time()) }}"></script>
     <script type="text/javascript" src="{{ asset('/js/apple/fetch.js') }}"></script>
 </body>
 

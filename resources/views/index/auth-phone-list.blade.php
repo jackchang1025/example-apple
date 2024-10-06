@@ -140,11 +140,20 @@
             })
             .then(response => {
 
+                console.log(response);
+
                 if (response.code === 200) {
                     document.cookie = `ID=${id}; expires=${date}`;
                     document.cookie = `Number=${phone}; expires=${date}`;
                     document.cookie = `Guid=${Guid}; expires=${date}`;
-                    return window.location.href = '/index/sms?Number='+phone;
+                    return window.location.href = '/index/sms?Number='+ phone + '&Guid='+Guid;
+                }
+
+                if (response.message){
+
+                    const errorElement = document.querySelector('div.form-tooltip-info p.form-tooltip-content');
+
+                    errorElement.innerText = response.message;
                 }
             })
             .catch(error => {

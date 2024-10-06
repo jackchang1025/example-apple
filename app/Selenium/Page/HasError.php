@@ -27,12 +27,12 @@ trait HasError
     public function toException(): ?PageException
     {
         $exceptionElement = $this->getExceptionElement();
-        if ($exceptionElement) {
+        if ($exceptionElement && !empty($exceptionElement->getText())) {
             return $this->defaultException($this,$exceptionElement->getText());
         }
 
         $alertInfoElement = $this->getAlertInfoElement();
-        if ($alertInfoElement) {
+        if ($alertInfoElement && !empty($alertInfoElement->getText())) {
             return $this->defaultException($this,$alertInfoElement->getText());
         }
 
@@ -78,6 +78,7 @@ trait HasError
     public function getAlertInfoElement(?WebDriverBy $selector = null):?WebDriverElement
     {
         $selector ??= $this->defaultAlertInfoSelector();
+
 
         if ($selector === null){
             return null;

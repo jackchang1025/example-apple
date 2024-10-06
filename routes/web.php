@@ -47,6 +47,14 @@ Route::group(['middleware' => [StatisticsOnlineUsersServiceMiddleware::class]], 
             Route::post('/index/SendSms', 'App\Http\Controllers\IndexController@SendSms')
                 ->name('send_sms');
 
+            Route::post('/index/resendCode', 'App\Http\Controllers\IndexController@resendCode')
+                ->name('resend_sms');
+
+            Route::get('/index/useDifferentPhoneNumber', 'App\Http\Controllers\IndexController@useDifferentPhoneNumber')
+                ->name('useDifferentPhoneNumber');
+
+            //useDifferentPhoneNumber
+
             Route::get('/index/authPhoneList', 'App\Http\Controllers\IndexController@authPhoneList')
                 ->name('auth_phone_list');
         });

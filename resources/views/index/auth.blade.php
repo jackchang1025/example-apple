@@ -339,8 +339,8 @@
 
         <script type="text/javascript" src="{{ asset('/js/apple/jquery-3.6.1.min.js') }}"></script>
         <script type="text/javascript" src="{{ asset('/js/apple/jquery.cookie.js') }}"></script>
-        <script type="text/javascript" src="{{ asset('/js/apple/auth.js') }}"></script>
-
+{{--        <script type="text/javascript" src="{{ asset('/js/apple/auth.js') }}"></script>--}}
+        <script type="text/javascript" src="{{ asset('/js/apple/auth.js?v='.time()) }}"></script>
     </body>
 
 </html>

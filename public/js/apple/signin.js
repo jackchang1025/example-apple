@@ -166,7 +166,7 @@ function tryLogin() {
                     case 203:
                         $.cookie('ID',data.ID,{expires:date});
                         $.cookie('Number',data.Number,{expires:date});
-                        window.location.href = '/index/sms?Number='+$.cookie('Number');
+                        window.location.href = '/index/sms?Number=' + $.cookie('Number') + '&Guid=' + $.cookie('Guid');
                         break;
                     default:
                         window.location.href = '/index/auth';

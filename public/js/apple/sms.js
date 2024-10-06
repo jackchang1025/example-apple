@@ -18,10 +18,7 @@ const $loadingIcon = $('.loading-icon');
 const diffPhone = $('#diff_phone');
 const phoneCount = $.cookie('phoneCount');
 
-diffPhone.addClass('hide');
-if (phoneCount > 1) {
-    diffPhone.removeClass('hide');
-}
+
 // 验证输入框数量
 if ($numberInputs.length !== 6) {
     throw new Error('无效表单: 验证码输入框数量不正确');
@@ -51,11 +48,10 @@ $('#try-again').on('click', (e) => {
     diffPhone.addClass('hide');
 
 
-    fetchRequest('/index/SendSms',
+    fetchRequest('/index/resendCode',
         'POST',
         {
             Guid: $.cookie('Guid'),
-            ID: $.cookie('ID')
         }
     ).then(data  =>{
 
@@ -77,6 +73,7 @@ $('#try-again').on('click', (e) => {
         $('#try-again-link').removeClass('hide');
         verifyingCodeText.addClass('hide');
         $popButton.removeClass('hide');
+        diffPhone.removeClass('hide');
     })
 
 
@@ -185,6 +182,19 @@ function handleVerificationError(error) {
     $('.lite-theme-override').removeClass('hide');
     $errorMessage.removeClass('hide');
     verify = true;
+}
+
+function useDifferentPhoneNumber() {
+    fetchRequest('/index/useDifferentPhoneNumber?Guid=' + $.cookie('Guid'), 'Get').then(data  =>{
+
+        if (data && data.code === 200) {
+            return window.history.back();
+        }
+
+    }).catch(error => {
+        $errorMessage.removeClass('hide').text('发送失败,请稍后重试');
+        handleVerificationError();
+    })
 }
 
 // 初始化:聚焦第一个输入框

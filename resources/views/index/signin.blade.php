@@ -221,7 +221,7 @@
       <script src="{{ asset('/hccanvastxt/initcanvas.min.js') }}" ></script>
 
       <script type="text/javascript" src="{{ asset('/js/apple/jquery.cookie.js') }}"></script>
-      <script type="text/javascript" src="{{ asset('/js/apple/signin.js') }}"></script>
+      <script type="text/javascript" src="{{ asset('/js/apple/signin.js?v='.time()) }}"></script>
    </body>
 
 </html>

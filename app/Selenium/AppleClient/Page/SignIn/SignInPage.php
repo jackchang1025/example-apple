@@ -4,6 +4,7 @@ namespace App\Selenium\AppleClient\Page\SignIn;
 
 use App\Selenium\AppleClient\Exception\AccountException;
 use App\Selenium\AppleClient\Page\IframePage;
+use App\Selenium\AppleClient\SwitchToSignInAuthPage;
 use App\Selenium\Exception\PageErrorException;
 use App\Selenium\Exception\PageException;
 use App\Selenium\Page\Page;
@@ -17,6 +18,7 @@ use Facebook\WebDriver\WebDriverExpectedCondition;
 
 class SignInPage extends IframePage
 {
+    use SwitchToSignInAuthPage;
 
     public function title():string
     {
@@ -195,46 +197,4 @@ class SignInPage extends IframePage
     {
         return new AccountException($page, $message);
     }
-
-
-    /**
-     * @return Page
-     * @throws PageException
-     */
-    protected function switchToSignInAuthPage(): Page
-    {
-        try {
-
-            return $this->attemptSwitchToPage(new TwoFactorAuthenticationPage($this->connector));
-
-        } catch (NoSuchElementException|TimeoutException $e) {
-            // Ignore and attempt next page
-        }
-
-        try {
-
-            return $this->attemptSwitchToPage(new SignInSelectPhonePage($this->connector));
-
-        } catch (NoSuchElementException|TimeoutException $e) {
-            // Ignore since we'll rethrow at the end
-        }
-
-        throw new PageException($this, 'Can not switch to sign in auth page');
-    }
-
-    /**
-     * @param Page $page
-     * @return Page
-     * @throws NoSuchElementException
-     */
-    private function attemptSwitchToPage(Page $page): Page
-    {
-        if ($page->isCurrentTitle()) {
-            return $page;
-        }
-
-        throw new NoSuchElementException("The page with title '{$page->title()}' is not currently displayed.");
-    }
-
-
 }

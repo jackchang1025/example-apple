@@ -55,10 +55,11 @@ class SignInSelectPhonePage extends IframePage
         return $phoneList;
     }
 
-    public function defaultExceptionSelector(): WebDriverBy
+    public function defaultAlertInfoSelector(): ?WebDriverBy
     {
-        return WebDriverBy::cssSelector('.form-tooltip-info p.form-tooltip-content');
+        return WebDriverBy::cssSelector('div.form-tooltip-info p.form-tooltip-content');
     }
+
 
     /**
      * @param int $id
@@ -80,6 +81,8 @@ class SignInSelectPhonePage extends IframePage
         }
 
         $phoneElement->getElement()->click();
+
+        $this->throw();
 
         return new TwoFactorAuthenticationPage($this->connector);
     }

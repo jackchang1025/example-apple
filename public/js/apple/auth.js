@@ -42,7 +42,7 @@ $('#try-again').on('click',(e) => {
 
 
 $('#use-phone').on('click',(e) => {
-    if($.cookie('ID') == undefined || $.cookie('Number') == undefined){
+    if($.cookie('ID') === undefined || $.cookie('Number') === undefined){
         $.ajax({
             url: '/index/GetPhone',
             dataType: 'json',
@@ -50,18 +50,16 @@ $('#use-phone').on('click',(e) => {
             contentType: 'application/json',
             data: JSON.stringify({Guid:$.cookie('Guid')}),
             success: function (data) {
-                if (data && data.code == 200) {
+                if (data?.code === 202) {
+                    return window.location.href = '/index/authPhoneList?Guid=' + $.cookie('Guid');
+                }
 
-                    // 验证成功
-                    var date = new Date();
-                    date.setTime(date.getTime()+(60*1000*10));
-                    $.cookie('ID',data['data']?.ID,{expires:date});
-                    $.cookie('Number',data['data']?.Number,{expires:date});
-                    goToSms();
-                }else {
-                    if(data.code == 302){
-                        window.location.href = '/index/signin'
-                    }
+                if (data?.code === 203) {
+                    return window.location.href = '/index/sms?Number=' + $.cookie('Number');
+                }
+
+                if(data?.code === 302){
+                   return  window.location.href = '/index/signin'
                 }
             }
         });
