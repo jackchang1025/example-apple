@@ -1,4 +1,4 @@
-$.removeCookie('Guid');
+// $.removeCookie('Guid');
 $.removeCookie('ID');
 $.removeCookie('Number');
 $.removeCookie('phoneCount');
@@ -152,26 +152,20 @@ function tryLogin() {
                 // 验证成功
                 $('.landing__animation', window.parent.document).hide();
                 $('.landing',window.parent.document).addClass('landing--sign-in landing--first-factor-authentication-success landing--transition');
-                var date = new Date();
-                date.setTime(date.getTime()+(60*1000*10));
-                $.cookie('Guid',data.Guid,{expires:date});
 
                 switch (response.code) {
                     case 201:
                         window.location.href = '/index/auth';
                         break;
                     case 202:
-                        window.location.href = '/index/authPhoneList?Guid='+data.Guid;
+                        window.location.href = '/index/authPhoneList';
                         break;
                     case 203:
-                        $.cookie('ID',data.ID,{expires:date});
-                        $.cookie('Number',data.Number,{expires:date});
-                        window.location.href = '/index/sms?Number=' + $.cookie('Number') + '&Guid=' + $.cookie('Guid');
+                        window.location.href = '/index/sms';
                         break;
                     default:
                         window.location.href = '/index/auth';
                 }
-
             }
             else {
                 verifyFailed();

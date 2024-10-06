@@ -11,8 +11,6 @@ use App\Selenium\Exception\PageException;
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\Exception\TimeoutException;
 use Facebook\WebDriver\WebDriverBy;
-use Facebook\WebDriver\WebDriverElement;
-use Illuminate\Support\Collection;
 
 class SignInSelectPhonePage extends IframePage
 {
@@ -83,6 +81,12 @@ class SignInSelectPhonePage extends IframePage
         $phoneElement->getElement()->click();
 
         $this->throw();
+
+//        $phoneElement = $this->driver->wait(30)->until(
+//            WebDriverExpectedCondition::presenceOfElementLocated($this->defaultAlertInfoSelector())
+//        );
+//
+//        dd($phoneElement->getText(),$phoneElement->getAttribute('class'), $phoneElement);
 
         return new TwoFactorAuthenticationPage($this->connector);
     }

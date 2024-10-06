@@ -25,7 +25,7 @@ class UnauthorizedMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (empty($guid = $request->input('Guid'))){
+        if (empty($guid = $request->cookie('Guid'))){
             throw new UnauthorizedException('Unauthorized',401);
         }
 
