@@ -13,6 +13,8 @@ use Facebook\WebDriver\WebDriverExpectedCondition;
 class AccountManagePage extends Page
 {
 
+    protected ?ArrayStoreContract $pageSectionActions = null;
+
     public function resolveRootElement(): WebDriverBy
     {
         return WebDriverBy::id('root');
@@ -23,39 +25,50 @@ class AccountManagePage extends Page
         return WebDriverBy::cssSelector('.error.pop-bottom.tk-subbody-headline p#errMsg');
     }
 
+    /**
+     * @return ArrayStoreContract
+     * @throws NoSuchElementException
+     * @throws TimeoutException
+     */
     public function getPageSectionActions(): ArrayStoreContract
     {
-        if ($pageSectionAction = $this->config()->get('pageSectionAction')){
-            return $pageSectionAction;
-        }
-
-        $pageSectionAction = new ArrayStore($this->performPageSectionActions());
-
-        $this->config()->add('pageSectionAction',$pageSectionAction);
-
-        return $pageSectionAction;
+        return $this->pageSectionActions ??= new ArrayStore($this->performPageSectionActions());
     }
 
+    /**
+     * @return array
+     * @throws NoSuchElementException
+     * @throws TimeoutException
+     */
     protected function performPageSectionActions(): array
+    {
+        return $this->driver->wait()->until(
+            WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(
+                WebDriverBy::cssSelector('.section .button.button-bare.button-expand.button-rounded-rectangle')
+            )
+        );
+    }
+
+    /**
+     * @return AccountSecurityPage
+     * @throws \Exception
+     */
+    public function switchToPhoneListPage(): AccountSecurityPage
     {
         try {
 
-            return $this->driver->wait(10)->until(
-                WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::cssSelector('.section .button.button-bare.button-expand.button-rounded-rectangle'))
-            );
+            if (!$phoneListAction = $this->getPageSectionActions()->get(2)) {
+                throw new \RuntimeException('button not found');
+            }
+            $phoneListAction->click();
 
-        } catch (NoSuchElementException|TimeoutException $e) {
-            return [];
+            return new AccountSecurityPage($this->connector);
+
+        } catch (\Exception $e) {
+
+            $this->takeScreenshot("switchToPhoneListPage.png");
+
+            throw $e;
         }
-    }
-
-    public function switchToPhoneListPage(): AccountSecurityPage
-    {
-        if (!$phoneListAction = $this->getPageSectionActions()->get(2)){
-            throw new \RuntimeException('button not found');
-        }
-
-        $phoneListAction->click();
-        return new AccountSecurityPage($this->connector);
     }
 }

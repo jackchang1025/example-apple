@@ -13,11 +13,11 @@ use Facebook\WebDriver\WebDriverSelect;
 
 class AddTrustedPhoneNumbersPage extends ModalPage
 {
-    private const SELECT_SELECTOR = '.modal-body .form-dropdown .form-dropdown-select';
-    private const TEL_INPUT_SELECTOR = 'input.form-textbox-input.form-textbox-input-ltr';
-    private const SMS_RADIO_SELECTOR = '.verify-phone-by input[value="sms"]';
-    private const VOICE_RADIO_SELECTOR = '.verify-phone-by input[value="voice"]';
-    private const SUBMIT_BUTTON_SELECTOR = '.button-bar-nav button[type="submit"]';
+    private const string SELECT_SELECTOR = '.modal-body .form-dropdown .form-dropdown-select';
+    private const string TEL_INPUT_SELECTOR = 'input.form-textbox-input.form-textbox-input-ltr';
+    private const string SMS_RADIO_SELECTOR = '.verify-phone-by input[value="sms"]';
+    private const string VOICE_RADIO_SELECTOR = '.verify-phone-by input[value="voice"]';
+    private const string SUBMIT_BUTTON_SELECTOR = '.button-bar-nav button[type="submit"]';
 
     /**
      * @param string $phone

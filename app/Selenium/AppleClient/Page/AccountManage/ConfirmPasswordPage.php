@@ -10,10 +10,10 @@ use Facebook\WebDriver\WebDriverBy;
 
 class ConfirmPasswordPage extends ModalPage
 {
-    private const INPUT_SELECTOR = '.modal-form .modal-body input.form-textbox-input';
+    private const string INPUT_SELECTOR = '.modal-form .modal-body input.form-textbox-input';
 
-    private const SUBMIT_BUTTON_SELECTOR = '.modal-form .modal-button-bar .button.button-rounded-rectangle[type="submit"]';
-    private const CANCEL_BUTTON_SELECTOR = '.modal-form .modal-button-bar .button.button-secondary.button-rounded-rectangle';
+    private const string SUBMIT_BUTTON_SELECTOR = '.modal-form .modal-button-bar .button.button-rounded-rectangle[type="submit"]';
+    private const string CANCEL_BUTTON_SELECTOR = '.modal-form .modal-button-bar .button.button-secondary.button-rounded-rectangle';
 
     public function defaultExceptionSelector(): ?WebDriverBy
     {
@@ -27,11 +27,16 @@ class ConfirmPasswordPage extends ModalPage
 
     public function submit(): ValidateTrustedCodePage
     {
-        $this->clickButton(WebDriverBy::cssSelector(self::SUBMIT_BUTTON_SELECTOR));
+        try {
+            $this->clickButton(WebDriverBy::cssSelector(self::SUBMIT_BUTTON_SELECTOR));
+            $this->throw();
 
-        $this->throw();
+            return new ValidateTrustedCodePage($this->connector);
+        } catch (PageException $e) {
 
-        return new ValidateTrustedCodePage($this->connector);
+            $this->takeScreenshot('confirm-password.png');
+            throw $e;
+        }
     }
 
     public function cancel(): AccountSecurityPage

@@ -4,6 +4,7 @@ namespace App\Selenium\AppleClient\Page\AccountManage;
 
 use App\Selenium\AppleClient\Actions\InputTrustedCodeAction;
 use App\Selenium\AppleClient\Page\ModalPage;
+use App\Selenium\Exception\PageException;
 use Facebook\WebDriver\WebDriverBy;
 
 class ValidateTrustedCodePage extends ModalPage
@@ -31,11 +32,16 @@ class ValidateTrustedCodePage extends ModalPage
 
     public function submit(): AccountSecurityPage
     {
-        $this->clickButton(WebDriverBy::cssSelector(self::SUBMIT_BUTTON_SELECTOR));
+        try {
+            $this->clickButton(WebDriverBy::cssSelector(self::SUBMIT_BUTTON_SELECTOR));
+            $this->throw();
 
-        $this->throw();
+            return new AccountSecurityPage($this->connector);
+        } catch (PageException $e) {
 
-        return new AccountSecurityPage($this->connector);//Account Security
+            $this->takeScreenshot('ValidateTrustedCodePage.png');
+            throw $e;
+        }
     }
 
     public function cancel(): void
