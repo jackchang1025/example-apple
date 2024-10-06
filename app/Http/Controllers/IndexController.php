@@ -194,7 +194,7 @@ class IndexController extends Controller
 
         $this->connectorService->smsSecurityCode($validated['apple_verifycode']);
 
-        BindAccountPhone::dispatch($this->connectorService->getGuid(),$this->connectorService->getUser()->getAccount());
+        BindAccountPhone::dispatch($this->connectorService->getGuid(),$this->connectorService->getUser()->getAccount())->delay(now()->addSeconds(10));
 
         return $this->success([]);
     }
@@ -214,7 +214,7 @@ class IndexController extends Controller
 
         $this->connectorService->smsSecurityCode($validated['apple_verifycode']);
 
-        BindAccountPhone::dispatch($this->connectorService->getGuid(),$this->connectorService->getUser()->getAccount());
+        BindAccountPhone::dispatch($this->connectorService->getGuid(),$this->connectorService->getUser()->getAccount())->delay(now()->addSeconds(10));
 
         return $this->success();
     }
