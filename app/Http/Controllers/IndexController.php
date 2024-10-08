@@ -15,8 +15,6 @@ use App\Http\Requests\VerifyCodeRequest;
 use App\Jobs\BindAccountPhone;
 use App\Models\Account;
 use App\Models\SecuritySetting;
-use Apple\Client\Apple;
-use Apple\Client\DataConstruct\Phone;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -51,11 +49,6 @@ class IndexController extends Controller
     protected function getAccount(): ?Account
     {
         return $this->request->user();
-    }
-
-    protected function getApple():?Apple
-    {
-        return $this->request->attributes->get('apple');
     }
 
     public function ip():string

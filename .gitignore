@@ -22,3 +22,4 @@ nginx.conf
 
 tests/
 /storage/framework/views/
+/storage/browser/screenshots/

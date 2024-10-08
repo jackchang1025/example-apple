@@ -9,7 +9,6 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
-        "apple/client": "dev-master",
         "eightynine/filament-excel-import": "^3.0",
         "filament/filament": "^3.2",
         "filament/notifications": "^3.2",
@@ -24,7 +23,7 @@
         "pxlrbt/filament-excel": "^2.3",
         "saade/filament-laravel-log": "^3.0",
         "symfony/dom-crawler": "^7.1",
-        "weijiajia/phone-code": "dev-main",
+        "weijiajia/apple-client": "dev-master",
         "ysfkaya/filament-phone-input": "^2.3"
     },
     "require-dev": {
@@ -84,12 +83,12 @@
     "prefer-stable": true,
     "repositories": [
         {
-            "type": "composer",
-            "url": "https://repo.packagist.org"
-        },
-        {
             "type": "path",
             "url": "/home/code/php/packagist/*"
+        },
+        {
+            "type": "composer",
+            "url": "https://repo.packagist.org"
         }
     ]
 }
