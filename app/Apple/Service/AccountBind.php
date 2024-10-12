@@ -6,16 +6,12 @@ namespace App\Apple\Service;
 
 use App\Events\AccountBindPhoneFailEvent;
 use App\Events\AccountBindPhoneSuccessEvent;
-use Apple\Client\Exception\BindPhoneException;
-use Apple\Client\Exception\PhoneException;
-use Apple\Client\Exception\PhoneNumberAlreadyExistsException;
-use Apple\Client\Exception\VerificationCodeException;
-use Apple\Client\Exception\VerificationCodeSentTooManyTimesException;
-use Apple\Client\Integrations\Response;
-use App\Apple\Service\Exception\{AttemptBindPhoneCodeException,
-    BindPhoneCodeException,
+use App\Apple\Service\Exception\{
+    AttemptBindPhoneCodeException,
     MaxRetryAttemptsException,
-    UnauthorizedException};
+    BindPhoneCodeException,
+    UnauthorizedException
+};
 use App\Models\{Account, Phone, User};
 use Exception;
 use Filament\Notifications\Notification;
@@ -214,6 +210,35 @@ class AccountBind
             phoneNumber: $this->phone->national_number,
             countryDialCode: $this->phone->country_dial_code
         );
+
+        // 验证手机验证码是否发生异常
+        $response->throwIf(function ($re) use ($response) {
+
+            if ($response->status() === 200 || $response->status() === 423){
+                return false;
+            }
+
+            $error = $response->service_errors_first();
+            // 骏证码无法发送至该电话号码。请稍后重试
+            if ($error?->getCode() == -28248) {
+                throw new BindPhoneCodeException(
+                    "绑定失败 phone: {$this->phone ->phone} failed: {$error?->getMessage()} body: {$response->body()}", -28248
+                );
+            }
+
+            $error = $response->validationErrorsFirst();
+            if($error?->getCode() === 'phone.number.already.exists'){
+                throw new BindPhoneCodeException(
+                    "绑定失败 phone: {$this->phone ->phone} failed: {$error?->getMessage()} body: {$response->body()}", -28248
+                );
+            }
+
+            throw new BindPhoneCodeException(
+                "绑定失败 phone: {$this->phone->phone} body: {$response->body()}"
+            );
+        });
+
+        return $response;
     }
 
     /**
@@ -276,10 +301,15 @@ class AccountBind
 
     protected function handlePhoneException(Throwable $exception): void
     {
-        $this->phone?->where('status' ,Phone::STATUS_BINDING)
-            ->update([
-                'status' => $exception instanceof PhoneException ? Phone::STATUS_INVALID : Phone::STATUS_NORMAL
-            ]);
+        if (!$this->phone){
+            return;
+        }
+
+        $status = $exception instanceof BindPhoneCodeException && $exception->getCode() == -28248
+            ? Phone::STATUS_INVALID
+            : Phone::STATUS_NORMAL;
+
+        $this->phone->where('status' ,Phone::STATUS_BINDING)->update(['status' => $status]);
 
         $this->usedPhoneIds[] = $this->phone->id;
     }

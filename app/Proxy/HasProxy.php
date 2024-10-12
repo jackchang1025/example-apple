@@ -1,15 +1,13 @@
 <?php
 
-namespace App\Apple\Service\Client;
+namespace App\Proxy;
 
-use App\Apple\Proxy\ProxyInterface;
-use App\Apple\Proxy\ProxyResponse;
+use Weijiajia\ProxyResponse;
 
 trait HasProxy
 {
-    protected static ?ProxyResponse $cachedProxyResponse = null;
+    protected ?ProxyResponse $proxy = null;
 
-    protected ProxyInterface $proxy;
     protected bool $proxyEnabled = false;
     protected bool $ipaddressEnabled = false;
 
@@ -35,11 +33,6 @@ trait HasProxy
         return $this->proxyEnabled;
     }
 
-    public function getProxyResponse(): ?ProxyResponse
-    {
-        return self::$cachedProxyResponse;
-    }
-
     public function getOrCreateProxyResponse(): ?ProxyResponse
     {
         if (!$this->isProxyEnabled()) {
@@ -57,11 +50,7 @@ trait HasProxy
         }
     }
 
-    public function setProxyResponse(?ProxyResponse $proxyResponse): static
-    {
-        self::$cachedProxyResponse = $proxyResponse;
-        return $this;
-    }
+
 
     public function refreshProxyResponse(): ?ProxyResponse
     {
@@ -75,13 +64,13 @@ trait HasProxy
         }
     }
 
-    public function setProxy(ProxyInterface $proxy): static
+    public function setProxy(ProxyResponse $proxy): static
     {
         $this->proxy = $proxy;
         return $this;
     }
 
-    public function getProxy(): ProxyInterface
+    public function getProxy(): ProxyResponse
     {
         return $this->proxy;
     }

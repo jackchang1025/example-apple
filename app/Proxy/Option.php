@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Apple\Proxy;
+namespace App\Proxy;
 
 use Illuminate\Config\Repository;
 
