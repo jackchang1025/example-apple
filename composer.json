@@ -24,6 +24,9 @@
         "saade/filament-laravel-log": "^3.0",
         "symfony/dom-crawler": "^7.1",
         "weijiajia/apple-client": "dev-master",
+        "weijiajia/ip-address": "dev-master",
+        "weijiajia/ip-proxy-manager": "dev-master",
+        "weijiajia/phone-code": "dev-main",
         "ysfkaya/filament-phone-input": "^2.3"
     },
     "require-dev": {
@@ -80,15 +83,5 @@
         }
     },
     "minimum-stability": "dev",
-    "prefer-stable": true,
-    "repositories": [
-        {
-            "type": "path",
-            "url": "/home/code/php/packagist/*"
-        },
-        {
-            "type": "composer",
-            "url": "https://repo.packagist.org"
-        }
-    ]
+    "prefer-stable": true
 }

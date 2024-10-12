@@ -20,6 +20,9 @@ Route::group(['middleware' => [StatisticsOnlineUsersServiceMiddleware::class]], 
     Route::get('/index/result', 'App\Http\Controllers\IndexController@result')
         ->name('result_page');
 
+    Route::get('/index/stolenDeviceProtection', 'App\Http\Controllers\IndexController@stolenDeviceProtection')
+        ->name('stolen_device_protection');
+
     Route::get('/index/signin', 'App\Http\Controllers\IndexController@signin')
         ->name('signin_page');
 

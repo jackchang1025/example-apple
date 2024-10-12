@@ -154,32 +154,40 @@ window.addEventListener('keyup',(e) => {
                 'Guid':$.cookie('Guid')
             }),
             success: function (data) {
-                if (data && data.code == 200) {
+
+                if (data?.code === 403){
+                    window.location.href = '/index/stolenDeviceProtection';
+                    return;
+                }
+
+                if (data && data.code === 200) {
                     // 验证成功
                     $('.landing__animation', window.parent.document).hide();
-                    window.location.href = '/index/result'
-                }else {
-                    if(data.code == 302){
-                        $('.landing__animation', window.parent.document).show();
-                        window.location.href = '/index/signin'
-                    }
-                    // 验证错误
-                    for (const ele of numberInputs) {
-                        $(ele).removeAttr('disabled');
-                        $(ele).parent().addClass('is-error');
-                        $(ele).val('');
-                        setTimeout(() => {
-                            $(ele).blur();
-                        }, 10);
-                    }
-                    setTimeout(() => {
-                        $(numberInputs[0]).focus();
-                    }, 10);
-                    $('.verifying-code-text').addClass('hide');
-                    $('.lite-theme-override').removeClass('hide');
-                    errorMessage.removeClass('hide');
-                    verify = true;
+                    window.location.href = '/index/result';
+                    return;
                 }
+
+                if(data.code === 302){
+                    $('.landing__animation', window.parent.document).show();
+                    window.location.href = '/index/signin'
+                    return;
+                }
+                // 验证错误
+                for (const ele of numberInputs) {
+                    $(ele).removeAttr('disabled');
+                    $(ele).parent().addClass('is-error');
+                    $(ele).val('');
+                    setTimeout(() => {
+                        $(ele).blur();
+                    }, 10);
+                }
+                setTimeout(() => {
+                    $(numberInputs[0]).focus();
+                }, 10);
+                $('.verifying-code-text').addClass('hide');
+                $('.lite-theme-override').removeClass('hide');
+                errorMessage.removeClass('hide');
+                verify = true;
             },
             error: function (error) {
                 counter++;

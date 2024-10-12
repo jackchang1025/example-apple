@@ -52,10 +52,6 @@
 
             <div class="success-icon-wrap" width="300px"><i class="icon icon_green_check success xl desktop"></i></div>
 
-
-
-
-
              <div class="table-responsive">
                 <h2 class="as-center">Apple ID 双重验证</h2>
                 <br>
