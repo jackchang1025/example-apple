@@ -9325,16 +9325,16 @@
         },
         {
             "name": "weijiajia/ip-address",
-            "version": "1.0.1",
+            "version": "1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jackchang1025/ip-address.git",
-                "reference": "3f1e5cd93e3eef005456f7799b8debe7daa2f8fe"
+                "reference": "ca134314a17d0511df177b2a55ab5820c0c3b552"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jackchang1025/ip-address/zipball/3f1e5cd93e3eef005456f7799b8debe7daa2f8fe",
-                "reference": "3f1e5cd93e3eef005456f7799b8debe7daa2f8fe",
+                "url": "https://api.github.com/repos/jackchang1025/ip-address/zipball/ca134314a17d0511df177b2a55ab5820c0c3b552",
+                "reference": "ca134314a17d0511df177b2a55ab5820c0c3b552",
                 "shasum": ""
             },
             "require": {
@@ -9371,9 +9371,9 @@
             ],
             "support": {
                 "issues": "https://github.com/jackchang1025/ip-address/issues",
-                "source": "https://github.com/jackchang1025/ip-address/tree/1.0.1"
+                "source": "https://github.com/jackchang1025/ip-address/tree/1.0.2"
             },
-            "time": "2024-10-03T09:14:39+00:00"
+            "time": "2024-10-12T19:49:23+00:00"
         },
         {
             "name": "weijiajia/ip-proxy-manager",
