@@ -2,7 +2,8 @@
 
 namespace App\Proxy;
 
-use Weijiajia\ProxyResponse;
+
+use Weijiajia\IpProxyManager\ProxyResponse;
 
 trait HasProxy
 {
@@ -31,47 +32,5 @@ trait HasProxy
     public function isProxyEnabled(): bool
     {
         return $this->proxyEnabled;
-    }
-
-    public function getOrCreateProxyResponse(): ?ProxyResponse
-    {
-        if (!$this->isProxyEnabled()) {
-            return null;
-        }
-
-        try {
-
-            return self::$cachedProxyResponse ??= $this->proxy->getProxy($this->getOption());
-
-        } catch (\Exception $e) {
-
-            $this->logger->error("Failed to refresh proxy response: {$e}");
-            return null;
-        }
-    }
-
-
-
-    public function refreshProxyResponse(): ?ProxyResponse
-    {
-        try {
-
-            return self::$cachedProxyResponse = $this->proxy->getProxy($this->getOption());
-        } catch (\Exception $e) {
-
-            $this->logger->error("Failed to refresh proxy response: {$e}");
-            return null;
-        }
-    }
-
-    public function setProxy(ProxyResponse $proxy): static
-    {
-        $this->proxy = $proxy;
-        return $this;
-    }
-
-    public function getProxy(): ProxyResponse
-    {
-        return $this->proxy;
     }
 }

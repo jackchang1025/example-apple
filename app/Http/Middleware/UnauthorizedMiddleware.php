@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Apple\Service\Exception\UnauthorizedException;
+use App\Apple\Exception\UnauthorizedException;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;

@@ -3,10 +3,10 @@
 namespace App\Proxy;
 
 use Psr\Log\LoggerInterface;
-use Weijiajia\BaseDto;
-use Weijiajia\ProxyConnector;
-use Weijiajia\ProxyResponse;
-use Weijiajia\Request;
+use Weijiajia\IpProxyManager\BaseDto;
+use Weijiajia\IpProxyManager\ProxyConnector;
+use Weijiajia\IpProxyManager\ProxyResponse;
+use Weijiajia\IpProxyManager\Request;
 
 class ProxyService
 {
@@ -43,7 +43,7 @@ class ProxyService
 
         $list = $dot->getProxyList();
 
-        return $this->proxy ??=$list->first();
+        return $this->proxy ??= $list->first();
     }
 
     public function getProxy(array $option = []): ?ProxyResponse

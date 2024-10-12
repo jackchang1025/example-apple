@@ -2,11 +2,11 @@
 
 namespace App\Rules;
 
-use App\Apple\Service\PhoneNumber\PhoneNumberFactory;
+use App\Apple\PhoneNumber\PhoneNumberFactory;
+use App\Models\Phone;
 use Closure;
 use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Contracts\Validation\ValidationRule;
-use App\Models\Phone;
 use Illuminate\Support\Facades\Log;
 
 class ValidPhoneNumber implements ValidationRule, DataAwareRule

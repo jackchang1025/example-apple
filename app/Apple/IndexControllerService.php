@@ -3,7 +3,7 @@
 namespace App\Apple;
 
 
-use App\Apple\Service\PhoneNumber\PhoneNumberFactory;
+use App\Apple\PhoneNumber\PhoneNumberFactory;
 use App\Events\AccountAuthFailEvent;
 use App\Events\AccountAuthSuccessEvent;
 use App\Events\AccountLoginSuccessEvent;

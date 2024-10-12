@@ -1,6 +1,6 @@
 <?php
 
-use App\Apple\Service\Exception\UnauthorizedException;
+use App\Apple\Exception\UnauthorizedException;
 use App\Apple\Service\Exception\VerificationCodeIncorrect;
 use App\Http\Middleware\BlackListIpsMiddleware;
 use GuzzleHttp\Exception\ClientException;

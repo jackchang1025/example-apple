@@ -2,13 +2,13 @@
 
 namespace App\Apple;
 
-use App\Apple\Service\Trait\HasAuth;
-use App\Apple\Service\Trait\HasBindPhone;
-use App\Apple\Service\Trait\HasNotification;
-use App\Apple\Service\Trait\HasPhone;
-use App\Apple\Service\Trait\HasRetry;
-use App\Apple\Service\Trait\HasSign;
-use App\Apple\Service\Trait\HasStore;
+use App\Apple\Trait\HasAuth;
+use App\Apple\Trait\HasBindPhone;
+use App\Apple\Trait\HasNotification;
+use App\Apple\Trait\HasPhone;
+use App\Apple\Trait\HasRetry;
+use App\Apple\Trait\HasSign;
+use App\Apple\Trait\HasStore;
 use App\Ip\IpService;
 use App\Proxy\ProxyService;
 use Closure;

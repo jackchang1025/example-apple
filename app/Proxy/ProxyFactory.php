@@ -6,14 +6,14 @@ use App\Models\ProxyConfiguration;
 use App\Proxy\Exception\ProxyConfigurationNotFoundException;
 use App\Proxy\Exception\ProxyModelNotFoundException;
 use Psr\Log\LoggerInterface;
-use Weijiajia\HuaSheng\Dto\ExtractDto;
-use Weijiajia\HuaSheng\HuaShengConnector;
-use Weijiajia\HuaSheng\Requests\ExtractRequest;
-use Weijiajia\Stormproxies\DTO\AccountPasswordDto;
-use Weijiajia\Stormproxies\DTO\DynamicDto;
-use Weijiajia\Stormproxies\Request\AccountPasswordRequest;
-use Weijiajia\Stormproxies\Request\DynamicRequest;
-use Weijiajia\Stormproxies\StormConnector;
+use Weijiajia\IpProxyManager\HuaSheng\Dto\ExtractDto;
+use Weijiajia\IpProxyManager\HuaSheng\HuaShengConnector;
+use Weijiajia\IpProxyManager\HuaSheng\Requests\ExtractRequest;
+use Weijiajia\IpProxyManager\Stormproxies\DTO\AccountPasswordDto;
+use Weijiajia\IpProxyManager\Stormproxies\DTO\DynamicDto;
+use Weijiajia\IpProxyManager\Stormproxies\Request\AccountPasswordRequest;
+use Weijiajia\IpProxyManager\Stormproxies\Request\DynamicRequest;
+use Weijiajia\IpProxyManager\Stormproxies\StormConnector;
 
 class ProxyFactory
 {
@@ -24,13 +24,14 @@ class ProxyFactory
     /**
      * Create a proxy connector based on the configuration.
      *
-     * @param ProxyService|null $config
+     * @param ProxyConfiguration|null $config
      * @return ProxyService
-     * @throws ProxyModelNotFoundException|ProxyConfigurationNotFoundException
+     * @throws ProxyConfigurationNotFoundException
+     * @throws ProxyModelNotFoundException
      */
-    public function create(?ProxyService $config = null): ProxyService
+    public function create(?ProxyConfiguration $config = null): ProxyService
     {
-        $config = $config ?? ProxyConfiguration::where('is_active', true)->first();
+        $config = $config ?: ProxyConfiguration::where('is_active', true)->first();
 
         $driver = $config['configuration']['default_driver'];
         $mode = $config['configuration'][$driver]['mode'];

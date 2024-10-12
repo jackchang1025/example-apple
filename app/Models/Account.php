@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-use App\Apple\Service\Enums\AccountStatus;
+use App\Apple\Enums\AccountStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $created_at

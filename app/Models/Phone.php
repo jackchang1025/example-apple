@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use App\Apple\PhoneNumber\PhoneNumberFactory;
+use App\Apple\PhoneNumber\PhoneNumberService;
 use App\Apple\Service\PhoneCodeParser\PhoneCodeParserFactory;
 use App\Apple\Service\PhoneCodeParser\PhoneCodeParserInterface;
-use App\Apple\Service\PhoneNumber\PhoneNumberFactory;
-use App\Apple\Service\PhoneNumber\PhoneNumberService;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -18,7 +18,7 @@ use Weijiajia\PhoneCode\Response;
 
 
 /**
- * 
+ *
  *
  * @method static \Illuminate\Database\Eloquent\Builder|Phone newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Phone newQuery()

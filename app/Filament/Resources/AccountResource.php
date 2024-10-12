@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources;
 
-use App\Apple\Service\Enums\AccountStatus;
+use App\Apple\Enums\AccountStatus;
 use App\Filament\Resources\AccountLogsResource\RelationManagers\AccountRelationManager;
 use App\Filament\Resources\AccountResource\Pages;
 use App\Models\Account;
