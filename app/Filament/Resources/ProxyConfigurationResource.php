@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources;
 
-use App\Apple\Proxy\Driver\Hailiangip\HailiangipProxy;
-use App\Apple\Proxy\Driver\Stormproxies\StormproxiesProxy;
 use App\Filament\Resources\ProxyConfigurationResource\Pages;
 use App\Models\ProxyConfiguration;
 use Filament\Forms;
@@ -18,15 +16,11 @@ use Filament\Forms\Components\Split;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ProxyConfigurationResource extends Resource
 {

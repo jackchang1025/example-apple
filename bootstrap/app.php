@@ -10,6 +10,8 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Weijiajia\Exception\StolenDeviceProtectionException;
+use Weijiajia\Exception\VerificationCodeException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -27,6 +29,13 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions) {
 
+        $exceptions->render(function (StolenDeviceProtectionException $e) {
+            return response()->json([
+                'code'    => 403,
+                'message' => $e->getMessage(),
+            ]);
+        });
+
         $exceptions->render(function (UnauthorizedException|NotFoundHttpException $e) {
 
             if (request()->isJson()) {
@@ -39,7 +48,7 @@ return Application::configure(basePath: dirname(__DIR__))
             return redirect('/index/signin');
         });
 
-        $exceptions->render(function (ValidationException|VerificationCodeIncorrect|ClientException $e) {
+        $exceptions->render(function (ValidationException|VerificationCodeException|ClientException $e) {
             return response()->json([
                 'code'    => 400,
                 'message' => $e->getMessage(),

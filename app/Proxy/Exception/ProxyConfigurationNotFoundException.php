@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Apple\Proxy\Exception;
+namespace App\Proxy\Exception;
 
-class ProxyModelNotFoundException extends \Exception
+class ProxyConfigurationNotFoundException extends \Exception
 {
     public function __construct(string $driver)
     {

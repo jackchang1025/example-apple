@@ -2,16 +2,14 @@
 
 namespace App\Jobs;
 
-use App\Apple\Service\AccountBind;
-use Apple\Client\AppleFactory;
-use Carbon\Carbon;
+use App\Apple\AppleClientService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-use Psr\Log\LoggerInterface;
+use Weijiajia\AppleClientFactory;
 
 class BindAccountPhone implements ShouldQueue
 {
@@ -59,16 +57,18 @@ class BindAccountPhone implements ShouldQueue
 
     /**
      * Execute the job.
-     * @param AppleFactory $appleFactory
+     * @param AppleClientFactory $appleClientFactory
      * @return void
      */
-    public function handle(AppleFactory $appleFactory): void
+    public function handle(AppleClientFactory $appleClientFactory): void
     {
         try {
 
-            $accountBind = app(AccountBind::class,['apple'=>$appleFactory->create(clientId: $this->clientId,config: config('apple'))]);
+            $appleClient = $appleClientFactory->create(clientId: $this->clientId,config: config('apple'));
 
-            $accountBind->handle($this->id);
+            $appleClientService = app(AppleClientService::class,['appleClient' => $appleClient]);
+
+            $appleClientService->handleBindPhone($this->id);
 
             // 任务成功执行，记录日志
             Log::info("BindAccountPhone job completed successfully", [

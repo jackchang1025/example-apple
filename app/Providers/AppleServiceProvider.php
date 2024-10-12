@@ -2,13 +2,10 @@
 
 namespace App\Providers;
 
-use Apple\Client\Apple;
-use Apple\Client\AppleFactory;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
-use Psr\Log\LoggerInterface;
-use Psr\SimpleCache\CacheInterface;
+use Weijiajia\AppleClient;
+use Weijiajia\AppleClientFactory;
 
 class AppleServiceProvider extends ServiceProvider
 {
@@ -24,17 +21,18 @@ class AppleServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $this->app->singleton(Apple::class, function () {
+        $this->app->singleton(AppleClient::class, function () {
 
-            $appleFactory = $this->app->get(AppleFactory::class);
+            $appleFactory = $this->app->get(AppleClientFactory::class);
 
             $request = $this->app->get(Request::class);
 
-            if (!$clientId = $request->cookie('Guid',$request->input('Guid'))) {
+            $guid = $request->input('Guid',$request->cookie('Guid'));
+            if (!$guid) {
                 throw new \InvalidArgumentException('Guid is not set.');
             }
 
-            return $appleFactory->create(clientId: $clientId,config: config('apple'));
+            return $appleFactory->create(clientId: $guid,config: config('apple'));
         });
 
     }

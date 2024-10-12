@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Apple\Proxy\Exception;
+namespace App\Proxy\Exception;
 
 class ProxyException extends \Exception
 {

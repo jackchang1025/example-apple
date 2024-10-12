@@ -4,7 +4,6 @@ namespace App\Providers;
 
 use App\Hook\AutoRefreshTableWidgetHook;
 use App\Listeners\AccountStatusSubscriber;
-use App\Livewire\PageVisitsTablePolling;
 use Filament\Support\Facades\FilamentView;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
