@@ -7,13 +7,18 @@ use App\Apple\Exception\MaxRetryAttemptsException;
 use App\Models\Phone;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Saloon\Exceptions\Request\FatalRequestException;
+use Saloon\Exceptions\Request\RequestException;
 use Throwable;
 use Weijiajia\Exception\AppleClientException;
 use Weijiajia\Exception\PhoneException;
 use Weijiajia\Exception\PhoneNumberAlreadyExistsException;
+use Weijiajia\Exception\StolenDeviceProtectionException;
+use Weijiajia\Exception\VerificationCodeException;
 use Weijiajia\Exception\VerificationCodeSentTooManyTimesException;
 use Weijiajia\PhoneCode\Exception\AttemptBindPhoneCodeException;
 use Weijiajia\PhoneCode\Helpers\PhoneCodeParser;
+use Weijiajia\Response\Response;
 
 trait HasBindPhone
 {
@@ -65,8 +70,13 @@ trait HasBindPhone
                 // 绑定成功后更新账号状态
                 $this->handleBindSuccess();
                 return;
-            } catch (AppleClientException $e) {
+            } catch (AppleClientException|AttemptBindPhoneCodeException|BindPhoneCodeException $e) {
+
                 $this->handleException(exception: $e, attempt: $attempt);
+
+                if ($e instanceof StolenDeviceProtectionException){
+                    throw $e;
+                }
             }
         }
 
@@ -109,21 +119,54 @@ trait HasBindPhone
         $id = $response->phoneNumberVerification()['phoneNumber']['id'] ?? null;
         if (empty($id)) {
             throw new BindPhoneCodeException(
-                "绑定失败 phone: {$this->phone ->phone} 获取号码 ID 为空 body: {$response->body()}"
+                "绑定失败 phone: {$this->phone->phone} 获取号码 ID 为空 body: {$response->body()}"
             );
         }
 
         // 这里循环获取手机验证码
         $code =  $this->getPhoneConnector()->attemptGetPhoneCode($this->getPhone()->phone_address,new PhoneCodeParser());
 
-        // 验证手机验证码
-        $this->appleClient->securityVerifyPhoneSecurityCode(
-            id: $id,
-            phoneNumber: $this->phone->national_number,
-            countryCode: $this->phone->country_code,
-            countryDialCode: $this->phone->country_dial_code,
-            code: $code
-        );
+        $this->securityVerifyPhoneSecurityCode($id,$code);
+    }
+
+    /**
+     * @param int $id
+     * @param string $code
+     * @return Response
+     * @throws FatalRequestException
+     * @throws VerificationCodeException
+     */
+    protected function securityVerifyPhoneSecurityCode(int $id,string $code): Response
+    {
+        try {
+
+            return $this->appleClient->securityVerifyPhoneSecurityCode(
+                id: $id,
+                phoneNumber: $this->phone->national_number,
+                countryCode: $this->phone->country_code,
+                countryDialCode: $this->phone->country_dial_code,
+                code: $code
+            );
+
+        } catch (RequestException $e) {
+
+            /**
+             * @var Response $response
+             */
+            $response = $e->getResponse();
+
+//            $error = $response->getFirstServiceError();
+//
+//            if ($error?->getCode() === -21669) {
+//                throw new PhoneException(
+//                    response: $response
+//                );
+//            }
+
+            throw new VerificationCodeException(
+                $response
+            );
+        }
     }
 
     /**
