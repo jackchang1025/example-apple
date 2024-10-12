@@ -11,13 +11,14 @@ use Illuminate\Http\Client\PendingRequest;
 class AppleIdClient extends BaseClient
 {
 
-    protected function defaultOption(): array
+    protected function createClient(): PendingRequest
     {
-        return [
+        return $this->clientFactory->create([
             'base_uri'              => self::BASEURL_APPLEID,
             'timeout'               => 30,
             'connect_timeout'       => 60,
             'verify'                => false,
+            //           'proxy'                 => $this->getProxyResponse()->getUrl(),  // 添加这行
             RequestOptions::COOKIES => $this->cookieJar,
             RequestOptions::HEADERS => [
                 'Connection'                => 'Keep-Alive',
@@ -29,15 +30,14 @@ class AppleIdClient extends BaseClient
                 'Sec-Fetch-Site'            => 'same-origin',
                 'Sec-Fetch-Mode'            => 'cors',
                 'Sec-Fetch-Dest'            => 'empty',
-                'User-Agent'            => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
             ],
-        ];
+        ]);
     }
 
     /**
      * 获取token
      * @return Response
-     * @throws ConnectionException|\Illuminate\Http\Client\RequestException
+     * @throws ConnectionException
      */
     public function accountManageToken(): Response
     {
@@ -48,7 +48,7 @@ class AppleIdClient extends BaseClient
      * 验证密码
      * @param string $password
      * @return Response
-     * @throws ConnectionException|\Illuminate\Http\Client\RequestException
+     * @throws ConnectionException
      */
     public function password(string $password): Response
     {
@@ -66,7 +66,7 @@ class AppleIdClient extends BaseClient
      * @param string $countryDialCode
      * @param bool $nonFTEU
      * @return Response
-     * @throws ConnectionException|\Illuminate\Http\Client\RequestException
+     * @throws ConnectionException
      */
     public function bindPhoneSecurityVerify(
         string $phoneNumber,
@@ -89,13 +89,14 @@ class AppleIdClient extends BaseClient
                 ],
             ],
             RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::PROXY       => $this->getProxyResponse()->getUrl(),
         ]);
     }
 
     /**
      * 获取 bootstrap
      * @return Response
-     * @throws ConnectionException|\Illuminate\Http\Client\RequestException
+     * @throws ConnectionException
      */
     public function bootstrap(): Response
     {
@@ -111,7 +112,7 @@ class AppleIdClient extends BaseClient
      * @param string $countryDialCode
      * @param string $code
      * @return Response
-     * @throws ConnectionException|\Illuminate\Http\Client\RequestException
+     * @throws ConnectionException
      */
     public function manageVerifyPhoneSecurityCode(
         int $id,
@@ -140,14 +141,14 @@ class AppleIdClient extends BaseClient
 
     /**
      * @return Response
-     * @throws GuzzleException|ConnectionException|\Illuminate\Http\Client\RequestException
+     * @throws GuzzleException|ConnectionException
      */
     public function managePrivacyAccept(): Response
     {
         return $this->request('OPTIONS', '/account/manage/privacy/accept', [
             RequestOptions::HEADERS => [
                 'X-Apple-Widget-Key'    => $this->getConfig()->getServiceKey(),
-                'X-Apple-ID-Session-Id' => $this->cookieJar->getCookieByName('aidsp')?->getValue(),
+                'X-Apple-ID-Session-Id' => $this->cookieJar->getCookieByName('aidsp')->getValue(),
                 'X-Apple-OAuth-Context' => $this->user->getHeader('X-Apple-OAuth-Context') ?? '',
                 'X-Apple-Session-Token' => $this->user->getHeader('X-Apple-Session-Token') ?? '',
             ],
@@ -156,14 +157,14 @@ class AppleIdClient extends BaseClient
 
     /**
      * @return Response
-     * @throws GuzzleException|ConnectionException|\Illuminate\Http\Client\RequestException
+     * @throws GuzzleException|ConnectionException
      */
     public function manageRepairOptions(): Response
     {
         return $this->request('GET', '/account/manage/repair/options', [
             RequestOptions::HEADERS => [
                 'X-Apple-Widget-Key'    => $this->getConfig()->getServiceKey(),
-                'X-Apple-ID-Session-Id' => $this->cookieJar->getCookieByName('aidsp')?->getValue(),
+                'X-Apple-ID-Session-Id' => $this->cookieJar->getCookieByName('aidsp')->getValue(),
                 'X-Apple-OAuth-Context' => $this->user->getHeader('X-Apple-OAuth-Context') ?? '',
                 'X-Apple-Session-Token' => $this->user->getHeader('X-Apple-Repair-Session-Token') ?? '',
             ],

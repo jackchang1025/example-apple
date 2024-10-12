@@ -3,9 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Apple\Service\Exception\UnauthorizedException;
-use Apple\Client\Apple;
 use Closure;
-use Illuminate\Contracts\Container\Container;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 

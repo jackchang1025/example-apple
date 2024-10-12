@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Apple\Service;
 
+use App\Apple\Service\Client\Response;
 use App\Events\AccountBindPhoneFailEvent;
 use App\Events\AccountBindPhoneSuccessEvent;
 use App\Apple\Service\Exception\{
@@ -16,13 +17,12 @@ use App\Models\{Account, Phone, User};
 use Exception;
 use Filament\Notifications\Notification;
 use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Psr\Log\LoggerInterface;
 use Throwable;
-use Apple\Client\Apple;
-use Weijiajia\PhoneCode\Helpers\PhoneCodeParser;
-use Weijiajia\PhoneCode\PhoneConnector;
 
 class AccountBind
 {
@@ -40,7 +40,6 @@ class AccountBind
     public function __construct(
         protected readonly Apple $apple,
         protected readonly LoggerInterface $logger,
-        protected readonly PhoneConnector $phoneConnector,
         protected readonly int $maxRetryAttempts = self::MAX_RETRY_ATTEMPTS,
         protected readonly int $phoneCodeRetryAttempts = self::PHONE_CODE_RETRY_ATTEMPTS,
         protected readonly int $phoneCodeRetryDelay = self::PHONE_CODE_RETRY_DELAY,
@@ -92,7 +91,7 @@ class AccountBind
 
             $this->attemptBind();
 
-        } catch (\Throwable|Exception  $e) {
+        } catch (\Throwable  $e) {
             $this->handleException($e);
             throw $e;
         }
@@ -105,13 +104,19 @@ class AccountBind
 
     /**
      * @return void
-     * @throws \Saloon\Exceptions\Request\FatalRequestException
-     * @throws \Saloon\Exceptions\Request\RequestException
+     * @throws ConnectionException
+     * @throws RequestException
      */
     protected function authenticateApple(): void
     {
-        $this->apple->token();
-        $this->apple->authenticatePassword($this->account->password);
+        $this->apple->appleId->accountManageToken()->throw();
+        $this->apple->appleId->password($this->account->password)->throwIf(function (\Illuminate\Http\Client\Response  $response) {
+            //204
+            if (in_array($response->status(),[204,409])){
+                return false;
+            }
+            return true;
+        });
     }
 
     /**
@@ -157,7 +162,7 @@ class AccountBind
                 // 绑定成功后更新账号状态
                 $this->handleBindSuccess();
                 return;
-            } catch (BindPhoneException|AttemptBindPhoneCodeException|PhoneException|PhoneNumberAlreadyExistsException|VerificationCodeException|VerificationCodeSentTooManyTimesException $e) {
+            } catch (BindPhoneCodeException|AttemptBindPhoneCodeException $e) {
                 $this->handleBindException(exception: $e, attempt: $attempt);
             }
         }
@@ -191,24 +196,19 @@ class AccountBind
         });
     }
 
+
     /**
      * @return Response
-     * @throws BindPhoneException
-     * @throws PhoneException
-     * @throws PhoneNumberAlreadyExistsException
-     * @throws VerificationCodeSentTooManyTimesException
-     * @throws \Apple\Client\Exception\AccountLockoutException
-     * @throws \Apple\Client\Exception\ErrorException
-     * @throws \Saloon\Exceptions\Request\FatalRequestException
-     * @throws \Saloon\Exceptions\Request\RequestException
+     * @throws ConnectionException
+     * @throws RequestException
      */
     protected function sendBindRequest(): Response
     {
         //绑定手机号码
-        return $this->apple->securityVerifyPhone(
-            countryCode:$this->phone->country_code,
-            phoneNumber: $this->phone->national_number,
-            countryDialCode: $this->phone->country_dial_code
+        $response = $this->apple->appleId->bindPhoneSecurityVerify(
+            $this->phone ->national_number,
+            $this->phone ->country_code,
+            (string) $this->phone ->country_dial_code
         );
 
         // 验证手机验证码是否发生异常
@@ -245,6 +245,8 @@ class AccountBind
      * @return void
      * @throws AttemptBindPhoneCodeException
      * @throws BindPhoneCodeException
+     * @throws ConnectionException
+     * @throws RequestException
      * @throws \Throwable
      */
     private function bindPhoneToAccount(): void
@@ -261,17 +263,44 @@ class AccountBind
         }
 
         // 这里循环获取手机验证码
-        $code =  $this->phoneConnector->attemptGetPhoneCode($this->phone->phone_address,new PhoneCodeParser());
+        $code = $this->getPhoneCode();
 
         // 验证手机验证码
-        $this->apple->securityVerifyPhoneSecurityCode(
+        $response = $this->apple->appleId->manageVerifyPhoneSecurityCode(
             id: $id,
             phoneNumber: $this->phone->national_number,
             countryCode: $this->phone->country_code,
-            countryDialCode: $this->phone->country_dial_code,
+            countryDialCode: (string)$this->phone->country_dial_code,
             code: $code
         );
+
+        $response->throwIf(function () use ($response){
+
+            if ($response->successful()){
+                return false;
+            }
+            throw new BindPhoneCodeException(
+                "绑定失败 phone: {$this->phone->phone} failed: {$response->service_errors_first()?->getMessage()} body: {$response->body()}"
+            );
+        });
     }
+
+    /**
+     * @return string
+     * @throws ConnectionException|AttemptBindPhoneCodeException|ConnectionException
+     */
+    public function getPhoneCode(): string
+    {
+        sleep($this->phoneCodeWaitTime);
+
+        return $this->apple->phoneCode->attemptGetPhoneCode(
+            $this->phone->phone_address,
+            $this->phone->phoneCodeParser(),
+            $this->phoneCodeRetryAttempts,
+            $this->phoneCodeRetryDelay
+        );
+    }
+
 
     /**
      * @return void
@@ -298,6 +327,8 @@ class AccountBind
             ->success()
             ->sendToDatabase(User::get());
     }
+
+
 
     protected function handlePhoneException(Throwable $exception): void
     {
