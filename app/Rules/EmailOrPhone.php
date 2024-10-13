@@ -6,7 +6,6 @@ use App\Models\SecuritySetting;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 use Propaganistas\LaravelPhone\PhoneNumber;
 
 class EmailOrPhone implements ValidationRule
@@ -19,7 +18,7 @@ class EmailOrPhone implements ValidationRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         $emailValidator = Validator::make([$attribute => $value], [
-            $attribute => 'email:rfc,dns'
+            $attribute => 'email'
         ]);
 
         if ($emailValidator->passes()) {
