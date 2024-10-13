@@ -17,21 +17,22 @@ use Illuminate\Support\Str;
 use libphonenumber\NumberParseException;
 use libphonenumber\PhoneNumberFormat;
 use Modules\AppleClient\Service\DataConstruct\Phone;
+use Modules\AppleClient\Service\Exception\UnauthorizedException;
 use Modules\AppleClient\Service\Exception\VerificationCodeException;
 use Modules\AppleClient\Service\Response\Response;
 use Modules\IpAddress\Service\IpService;
 use Modules\IpProxyManager\Service\ProxyService;
+use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
 
-class IndexControllerService
+readonly class AppleClientControllerService
 {
 
-
     public function __construct(
-        protected readonly AppleClientService $appleClientService,
-        protected readonly PhoneNumberFactory $phoneNumberFactory,
-        protected readonly IpService          $ipService,
-        protected readonly ProxyService       $proxyService,
+        protected AppleClientService $appleClientService,
+        protected PhoneNumberFactory $phoneNumberFactory,
+        protected IpService          $ipService,
+        protected ProxyService       $proxyService,
     )
     {
 
@@ -67,8 +68,10 @@ class IndexControllerService
      * @param string $accountName
      * @param string $password
      * @return Response
-     * @throws Exception\UnauthorizedException
+     * @throws UnauthorizedException
+     * @throws RequestException
      * @throws \JsonException
+     * @throws FatalRequestException
      */
     public function verifyAccount(string $accountName,string $password): Response
     {
@@ -83,20 +86,40 @@ class IndexControllerService
         return $response;
     }
 
+    /**
+     * @return Collection
+     * @throws FatalRequestException
+     * @throws RequestException
+     * @throws UnauthorizedException
+     */
     public function getPhoneLists(): Collection
     {
         return $this->appleClientService->getPhoneLists();
     }
+
+    /**
+     * @return Phone|null
+     * @throws FatalRequestException
+     * @throws RequestException
+     * @throws UnauthorizedException
+     */
     public function getTrustedPhoneNumber(): ?Phone
     {
         return $this->appleClientService->getTrustedPhoneNumber();
     }
 
+    /**
+     * @return string|null
+     */
     protected function getCountryCode():?string
     {
         return SecuritySetting::first()?->configuration['country_code'] ?? null;
     }
 
+    /**
+     * @param string $phone
+     * @return string
+     */
     protected function formatPhone(string $phone): string
     {
         if (empty($countryCode = $this->getCountryCode())) {
@@ -116,12 +139,23 @@ class IndexControllerService
         }
     }
 
-    public function sendSms(int $id)
+    /**
+     * @param int $id
+     * @return Response
+     * @throws FatalRequestException
+     * @throws RequestException
+     */
+    public function sendSms(int $id): Response
     {
         return $this->appleClientService->sendPhoneSecurityCode($id);
     }
 
-    public function sendSecurityCode()
+    /**
+     * @return Response
+     * @throws FatalRequestException
+     * @throws RequestException
+     */
+    public function sendSecurityCode(): Response
     {
         return $this->appleClientService->sendSecurityCode();
     }

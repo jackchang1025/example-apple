@@ -4,6 +4,8 @@ namespace Modules\AppleClient\Service\Trait;
 
 use App\Models\Account;
 use Modules\AppleClient\Service\Response\Response;
+use Saloon\Exceptions\Request\FatalRequestException;
+use Saloon\Exceptions\Request\RequestException;
 
 trait HasSign
 {
@@ -18,6 +20,8 @@ trait HasSign
      * 随后获取认证响应、存储电话号码数据至数据库、缓存可信电话号码、
      * 更新或创建用户账号信息，并最终建立登录会话。
      * @throws \JsonException
+     * @throws FatalRequestException
+     * @throws RequestException
      */
     public function sign(string $accountName,string $password): Response
     {
@@ -38,13 +42,12 @@ trait HasSign
 
     /**
      * 认证用户账户
-     *
-     * 根据提供的用户名和密码，尝试登录苹果客户端认证服务。
-     *
-     * @param string $accountName 用户名
-     * @param string $password 密码
-     *
+     * @param string $accountName
+     * @param string $password
      * @return void
+     * @throws \JsonException
+     * @throws \Saloon\Exceptions\Request\FatalRequestException
+     * @throws \Saloon\Exceptions\Request\RequestException
      */
     private function authenticate(string $accountName, string $password): void
     {
@@ -55,6 +58,8 @@ trait HasSign
      * 获取认证响应
      *
      * @return Response 认证服务的响应对象
+     * @throws FatalRequestException
+     * @throws RequestException
      */
     private function fetchAuthResponse(): Response
     {

@@ -17,9 +17,11 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Modules\AppleClient\Service\DataConstruct\Phone;
-use Modules\AppleClient\Service\DataConstruct\ServiceError;
+use Modules\AppleClient\Service\Exception\StolenDeviceProtectionException;
+use Modules\AppleClient\Service\Exception\UnauthorizedException;
 use Modules\AppleClient\Service\Exception\VerificationCodeException;
-use Modules\AppleClient\Service\IndexControllerService;
+use Modules\AppleClient\Service\AppleClientControllerService;
+use Modules\AppleClient\Service\ServiceError\ServiceError;
 use Modules\IpAddress\Service\IpService;
 use Psr\Log\LoggerInterface;
 use Saloon\Exceptions\Request\FatalRequestException;
@@ -59,13 +61,12 @@ class AppleClientController extends Controller
 
     /**
      * @param VerifyAccountRequest $request
-     * @param IndexControllerService $controllerService
+     * @param AppleClientControllerService $controllerService
      * @return JsonResponse
-     * @throws FatalRequestException
-     * @throws RequestException
+     * @throws UnauthorizedException
      * @throws \JsonException
      */
-    public function verifyAccount(VerifyAccountRequest $request, IndexControllerService  $controllerService): JsonResponse
+    public function verifyAccount(VerifyAccountRequest $request, AppleClientControllerService  $controllerService): JsonResponse
     {
         // 获取验证过的数据
         $validatedData = $request->validated();
@@ -111,22 +112,22 @@ class AppleClientController extends Controller
     }
 
     /**
-     * @param IndexControllerService $controllerService
+     * @param AppleClientControllerService $controllerService
      * @return Factory|Application|View|\Illuminate\Contracts\Foundation\Application|JsonResponse
      */
-    public function authPhoneList(IndexControllerService  $controllerService): Factory|Application|View|\Illuminate\Contracts\Foundation\Application|JsonResponse
+    public function authPhoneList(AppleClientControllerService  $controllerService): Factory|Application|View|\Illuminate\Contracts\Foundation\Application|JsonResponse
     {
         return view('index.auth-phone-list',['trustedPhoneNumbers' => $controllerService->getPhoneLists()]);
     }
 
     /**
      * @param VerifyCodeRequest $request
-     * @param IndexControllerService $controllerService
+     * @param AppleClientControllerService $controllerService
      * @return JsonResponse
      * @throws \JsonException
      * @throws VerificationCodeException
      */
-    public function verifySecurityCode(VerifyCodeRequest $request,IndexControllerService  $controllerService): JsonResponse
+    public function verifySecurityCode(VerifyCodeRequest $request,AppleClientControllerService  $controllerService): JsonResponse
     {
         $validated = $request->validated();
 
@@ -137,12 +138,16 @@ class AppleClientController extends Controller
 
     /**
      * @param VerifyCodeRequest $request
-     * @param IndexControllerService $controllerService
+     * @param AppleClientControllerService $controllerService
      * @return JsonResponse
-     * @throws \InvalidArgumentException
+     * @throws FatalRequestException
+     * @throws RequestException
      * @throws VerificationCodeException
+     * @throws \JsonException
+     * @throws StolenDeviceProtectionException
+     * @throws UnauthorizedException
      */
-    public function smsSecurityCode(VerifyCodeRequest $request,IndexControllerService  $controllerService): JsonResponse
+    public function smsSecurityCode(VerifyCodeRequest $request,AppleClientControllerService  $controllerService): JsonResponse
     {
         // 检索验证过的输入数据...
         $validated = $request->validated();
@@ -157,11 +162,11 @@ class AppleClientController extends Controller
     }
 
     /**
-     * @param IndexControllerService $controllerService
+     * @param AppleClientControllerService $controllerService
      * @return JsonResponse
      * @throws \JsonException
      */
-    public function SendSecurityCode(IndexControllerService  $controllerService): JsonResponse
+    public function SendSecurityCode(AppleClientControllerService  $controllerService): JsonResponse
     {
         $response = $controllerService->sendSecurityCode();
 
@@ -169,10 +174,10 @@ class AppleClientController extends Controller
     }
 
     /**
-     * @param IndexControllerService $controllerService
+     * @param AppleClientControllerService $controllerService
      * @return JsonResponse
      */
-    public function GetPhone(IndexControllerService  $controllerService): JsonResponse
+    public function GetPhone(AppleClientControllerService  $controllerService): JsonResponse
     {
         $trustedPhoneNumber = $controllerService->getTrustedPhoneNumber();
 
@@ -183,12 +188,12 @@ class AppleClientController extends Controller
     }
 
     /**
-     * @param IndexControllerService $controllerService
+     * @param AppleClientControllerService $controllerService
      * @return JsonResponse|Redirector
      * @throws ValidationException
      * @throws \JsonException
      */
-    public function SendSms(IndexControllerService  $controllerService): JsonResponse|Redirector
+    public function SendSms(AppleClientControllerService  $controllerService): JsonResponse|Redirector
     {
         $params = Validator::make($this->request->all(), [
             'ID' => 'required|integer|min:1'
@@ -199,7 +204,7 @@ class AppleClientController extends Controller
         /**
          * @var $error ServiceError
          */
-        $error = $response->getServiceErrors()->first();
+        $error = $response->getFirstServiceError();
 
         Session::flash('Error',$error?->getMessage());
 
