@@ -1,0 +1,11 @@
+{
+    "name": "PhoneCode",
+    "alias": "phonecode",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\PhoneCode\\Providers\\PhoneCodeServiceProvider"
+    ],
+    "files": []
+}

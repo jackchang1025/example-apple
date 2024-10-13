@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f45cd2f14e515e60faf51a907da44445",
+    "content-hash": "5e59cbbc63917f406e5a7dd97a0d5cbc",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -4746,6 +4746,95 @@
             "time": "2024-09-05T15:25:50+00:00"
         },
         {
+            "name": "nwidart/laravel-modules",
+            "version": "v11.1.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nWidart/laravel-modules.git",
+                "reference": "fb1f6bd7b168baaa6212dee678c18fc983d47ed4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/nWidart/laravel-modules/zipball/fb1f6bd7b168baaa6212dee678c18fc983d47ed4",
+                "reference": "fb1f6bd7b168baaa6212dee678c18fc983d47ed4",
+                "shasum": ""
+            },
+            "require": {
+                "ext-dom": "*",
+                "ext-json": "*",
+                "ext-simplexml": "*",
+                "php": ">=8.2",
+                "wikimedia/composer-merge-plugin": "^2.1"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^v3.52",
+                "laravel/framework": "^v11.0",
+                "laravel/pint": "^1.16",
+                "mockery/mockery": "^1.6",
+                "orchestra/testbench": "^v9.0",
+                "phpstan/phpstan": "^1.4",
+                "phpunit/phpunit": "^11.0",
+                "spatie/phpunit-snapshot-assertions": "^5.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Nwidart\\Modules\\LaravelModulesServiceProvider"
+                    ],
+                    "aliases": {
+                        "Module": "Nwidart\\Modules\\Facades\\Module"
+                    }
+                },
+                "branch-alias": {
+                    "dev-master": "11.0-dev"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/helpers.php"
+                ],
+                "psr-4": {
+                    "Nwidart\\Modules\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Widart",
+                    "email": "n.widart@gmail.com",
+                    "homepage": "https://nicolaswidart.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Laravel Module management",
+            "keywords": [
+                "laravel",
+                "module",
+                "modules",
+                "nwidart",
+                "rad"
+            ],
+            "support": {
+                "issues": "https://github.com/nWidart/laravel-modules/issues",
+                "source": "https://github.com/nWidart/laravel-modules/tree/v11.1.4"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/dcblogdev",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nwidart",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-09-22T20:04:49+00:00"
+        },
+        {
             "name": "nyholm/psr7",
             "version": "1.8.2",
             "source": {
@@ -9251,41 +9340,42 @@
             "time": "2022-06-03T18:03:27+00:00"
         },
         {
-            "name": "weijiajia/apple-client",
-            "version": "1.0.1",
+            "name": "wikimedia/composer-merge-plugin",
+            "version": "v2.1.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/jackchang1025/apple-client.git",
-                "reference": "3e0b36e91be62d69f64bef761b42c5482a12637c"
+                "url": "https://github.com/wikimedia/composer-merge-plugin.git",
+                "reference": "a03d426c8e9fb2c9c569d9deeb31a083292788bc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jackchang1025/apple-client/zipball/3e0b36e91be62d69f64bef761b42c5482a12637c",
-                "reference": "3e0b36e91be62d69f64bef761b42c5482a12637c",
+                "url": "https://api.github.com/repos/wikimedia/composer-merge-plugin/zipball/a03d426c8e9fb2c9c569d9deeb31a083292788bc",
+                "reference": "a03d426c8e9fb2c9c569d9deeb31a083292788bc",
                 "shasum": ""
             },
             "require": {
-                "ext-dom": "*",
-                "ext-libxml": "*",
-                "ext-simplexml": "*",
-                "illuminate/collections": "^11.22",
-                "illuminate/support": "^11.23",
-                "php": "^8.2",
-                "saloonphp/saloon": "^3.10",
-                "symfony/css-selector": "^7.1",
-                "symfony/dom-crawler": "^7.1"
+                "composer-plugin-api": "^1.1||^2.0",
+                "php": ">=7.2.0"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.64",
-                "mockery/mockery": "^1.6",
-                "pestphp/pest": "^3.0",
-                "phpstan/phpstan": "^1.12",
-                "roave/security-advisories": "dev-latest"
+                "composer/composer": "^1.1||^2.0",
+                "ext-json": "*",
+                "mediawiki/mediawiki-phan-config": "0.11.1",
+                "php-parallel-lint/php-parallel-lint": "~1.3.1",
+                "phpspec/prophecy": "~1.15.0",
+                "phpunit/phpunit": "^8.5||^9.0",
+                "squizlabs/php_codesniffer": "~3.7.1"
             },
-            "type": "library",
+            "type": "composer-plugin",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.x-dev"
+                },
+                "class": "Wikimedia\\Composer\\Merge\\V2\\MergePlugin"
+            },
             "autoload": {
                 "psr-4": {
-                    "Weijiajia\\": "src/"
+                    "Wikimedia\\Composer\\Merge\\V2\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -9294,182 +9384,16 @@
             ],
             "authors": [
                 {
-                    "name": "weijiajia",
-                    "email": "shadowmatthew1025@gmail.com"
+                    "name": "Bryan Davis",
+                    "email": "bd808@wikimedia.org"
                 }
             ],
-            "description": "A powerful PHP client for interacting with Apple services",
-            "keywords": [
-                "2fa",
-                "Authentication",
-                "account-management",
-                "api",
-                "apple",
-                "apple-auth",
-                "apple-id",
-                "apple-services",
-                "client",
-                "idmsa",
-                "oauth",
-                "phone-verification",
-                "php",
-                "saloon",
-                "security-code",
-                "two-factor-authentication"
-            ],
+            "description": "Composer plugin to merge multiple composer.json files",
             "support": {
-                "issues": "https://github.com/jackchang1025/apple-client/issues",
-                "source": "https://github.com/jackchang1025/apple-client/tree/1.0.1"
+                "issues": "https://github.com/wikimedia/composer-merge-plugin/issues",
+                "source": "https://github.com/wikimedia/composer-merge-plugin/tree/v2.1.0"
             },
-            "time": "2024-10-12T17:25:24+00:00"
-        },
-        {
-            "name": "weijiajia/ip-address",
-            "version": "1.0.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/jackchang1025/ip-address.git",
-                "reference": "ca134314a17d0511df177b2a55ab5820c0c3b552"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/jackchang1025/ip-address/zipball/ca134314a17d0511df177b2a55ab5820c0c3b552",
-                "reference": "ca134314a17d0511df177b2a55ab5820c0c3b552",
-                "shasum": ""
-            },
-            "require": {
-                "ext-mbstring": "*",
-                "php": "^8.2",
-                "psr/log": "^3.0",
-                "saloonphp/saloon": "^3.10"
-            },
-            "require-dev": {
-                "pestphp/pest": "^3.2"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Weijiajia\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "weijiajia",
-                    "email": "shadowmatthew1025@gmail.com",
-                    "role": "Developer"
-                }
-            ],
-            "description": "IP address information query system, integrating multiple IP geographic location services",
-            "homepage": "https://github.com/jackchang1025/ip-address",
-            "keywords": [
-                "IP Info",
-                "ip address"
-            ],
-            "support": {
-                "issues": "https://github.com/jackchang1025/ip-address/issues",
-                "source": "https://github.com/jackchang1025/ip-address/tree/1.0.2"
-            },
-            "time": "2024-10-12T19:49:23+00:00"
-        },
-        {
-            "name": "weijiajia/ip-proxy-manager",
-            "version": "1.1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/jackchang1025/ip-proxy-manager.git",
-                "reference": "5374ced08275637209b98cc9f4d368255860dd23"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/jackchang1025/ip-proxy-manager/zipball/5374ced08275637209b98cc9f4d368255860dd23",
-                "reference": "5374ced08275637209b98cc9f4d368255860dd23",
-                "shasum": ""
-            },
-            "require": {
-                "illuminate/collections": "^11.26",
-                "nesbot/carbon": "^3.8",
-                "php": "^8.2",
-                "psr/log": "^3.0",
-                "saloonphp/saloon": "^3.10"
-            },
-            "require-dev": {
-                "mockery/mockery": "^1.6",
-                "pestphp/pest": "^3.2"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Weijiajia\\IpProxyManager\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "weijiajia",
-                    "email": "shadowmatthew1025@gmail.com",
-                    "role": "Developer"
-                }
-            ],
-            "description": "A powerful PHP IP proxy service management framework providing a unified interface for multiple proxy providers.",
-            "homepage": "https://github.com/jackchang1025/ip-proxy-manager",
-            "keywords": [
-                "huasheng",
-                "ip management",
-                "ip proxy",
-                "proxy manager",
-                "proxy service",
-                "stormproxies"
-            ],
-            "support": {
-                "issues": "https://github.com/jackchang1025/ip-proxy-manager/issues",
-                "source": "https://github.com/jackchang1025/ip-proxy-manager/tree/1.1.0"
-            },
-            "time": "2024-10-12T18:42:49+00:00"
-        },
-        {
-            "name": "weijiajia/phone-code",
-            "version": "1.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/jackchang1025/phone-code.git",
-                "reference": "965a98c448da636c09f749b4b6a72183cb960192"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/jackchang1025/phone-code/zipball/965a98c448da636c09f749b4b6a72183cb960192",
-                "reference": "965a98c448da636c09f749b4b6a72183cb960192",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^8.2",
-                "psr/log": "^3.0",
-                "saloonphp/saloon": "^3.10"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Weijiajia\\PhoneCode\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "authors": [
-                {
-                    "name": "weijiajia",
-                    "email": "shadowmatthew1025@gmail.com"
-                }
-            ],
-            "support": {
-                "issues": "https://github.com/jackchang1025/phone-code/issues",
-                "source": "https://github.com/jackchang1025/phone-code/tree/1.0.0"
-            },
-            "time": "2024-10-12T18:17:07+00:00"
+            "time": "2023-04-15T19:07:00+00:00"
         },
         {
             "name": "ysfkaya/filament-phone-input",

@@ -1,7 +1,5 @@
 <?php
 
-use App\Apple\Exception\UnauthorizedException;
-use App\Apple\Service\Exception\VerificationCodeIncorrect;
 use App\Http\Middleware\BlackListIpsMiddleware;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Foundation\Application;
@@ -9,9 +7,10 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Validation\ValidationException;
+use Modules\AppleClient\Service\Exception\StolenDeviceProtectionException;
+use Modules\AppleClient\Service\Exception\UnauthorizedException;
+use Modules\AppleClient\Service\Exception\VerificationCodeException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Weijiajia\Exception\StolenDeviceProtectionException;
-use Weijiajia\Exception\VerificationCodeException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(

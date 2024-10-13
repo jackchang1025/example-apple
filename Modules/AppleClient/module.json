@@ -1,0 +1,11 @@
+{
+    "name": "AppleClient",
+    "alias": "appleclient",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\AppleClient\\Providers\\AppleClientServiceProvider"
+    ],
+    "files": []
+}

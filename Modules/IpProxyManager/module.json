@@ -1,0 +1,11 @@
+{
+    "name": "IpProxyManager",
+    "alias": "ipproxymanager",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\IpProxyManager\\Providers\\IpProxyManagerServiceProvider"
+    ],
+    "files": []
+}

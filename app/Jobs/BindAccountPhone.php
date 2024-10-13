@@ -2,14 +2,14 @@
 
 namespace App\Jobs;
 
-use App\Apple\AppleClientService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-use Weijiajia\AppleClientFactory;
+use Modules\AppleClient\Service\AppleClientFactory;
+use Modules\AppleClient\Service\AppleClientService;
 
 class BindAccountPhone implements ShouldQueue
 {
@@ -76,7 +76,6 @@ class BindAccountPhone implements ShouldQueue
                 'account_id' => $this->id,
                 'client_id' => $this->clientId
             ]);
-
 
         } catch (\Throwable $e) {
 

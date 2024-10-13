@@ -2,9 +2,9 @@
 
 namespace App\Http\Middleware;
 
-use App\Apple\Exception\UnauthorizedException;
 use Closure;
 use Illuminate\Http\Request;
+use Modules\AppleClient\Service\Exception\UnauthorizedException;
 use Symfony\Component\HttpFoundation\Response;
 
 class UnauthorizedMiddleware

@@ -1,0 +1,11 @@
+{
+    "name": "IpAddress",
+    "alias": "ipaddress",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+
+    ],
+    "files": []
+}
