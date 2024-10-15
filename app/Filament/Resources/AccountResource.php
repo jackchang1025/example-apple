@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Apple\Enums\AccountStatus;
+use App\Apple\Enums\AccountType;
 use App\Filament\Resources\AccountLogsResource\RelationManagers\AccountRelationManager;
 use App\Filament\Resources\AccountResource\Pages;
 use App\Models\Account;
@@ -65,6 +66,11 @@ class AccountResource extends Resource
                     ->color(fn (AccountStatus $state): string => $state->color())
                     ->toggleable(),
 
+                Tables\Columns\TextColumn::make('type')
+                    ->formatStateUsing(fn(AccountType $state): string => $state->description())
+                    ->color(fn(AccountType $state): string => $state->color())
+                    ->toggleable(),
+
                 Tables\Columns\TextColumn::make('bind_phone')
                     ->toggleable(),
 
@@ -85,6 +91,10 @@ class AccountResource extends Resource
                 Tables\Filters\SelectFilter::make('status')
                 ->options(AccountStatus::getDescriptionValuesArray())
                 ->placeholder('选择状态'),
+
+                Tables\Filters\SelectFilter::make('type')
+                    ->options(AccountType::getDescriptionValuesArray())
+                    ->placeholder('选择类型'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -107,6 +117,12 @@ class AccountResource extends Resource
                         TextEntry::make('status')->label('状态')
                             ->formatStateUsing(fn (AccountStatus $state): string => $state->description())
                             ->color(fn (AccountStatus $state): string => $state->color()),
+
+                        TextEntry::make('type')->label('类型')
+                            ->formatStateUsing(fn(AccountType $state): string => $state->description())
+                            ->color(fn(AccountType $state): string => $state->color()),
+
+
                         TextEntry::make('bind_phone')->label('绑定手机号码'),
                         TextEntry::make('bind_phone_address')->label('绑定手机号码地址'),
                         TextEntry::make('created_at')->label('创建时间')->dateTime('Y-m-d H:i:s'),

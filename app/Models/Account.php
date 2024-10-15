@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Apple\Enums\AccountStatus;
+use App\Apple\Enums\AccountType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -43,6 +44,7 @@ class Account extends Model
 
     protected $casts = [
         'status' => AccountStatus::class,
+        'type' => AccountType::class,
     ];
 
     public function getStatusDescriptionAttribute(): string
@@ -50,7 +52,7 @@ class Account extends Model
         return $this->status->description();
     }
 
-    protected $fillable = ['account', 'password', 'bind_phone', 'bind_phone_address','id','status'];
+    protected $fillable = ['account', 'password', 'bind_phone', 'bind_phone_address', 'id', 'status', 'type'];
 
     public function logs(): HasMany
     {
