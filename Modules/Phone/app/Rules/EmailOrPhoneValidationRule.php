@@ -1,15 +1,22 @@
 <?php
 
-namespace App\Rules;
+namespace Modules\Phone\Rules;
 
-use App\Models\SecuritySetting;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Facades\Validator;
-use Propaganistas\LaravelPhone\PhoneNumber;
+use Modules\Phone\Service\PhoneNumberFactory;
+use Modules\Phone\Service\PhoneService;
 
-class EmailOrPhone implements ValidationRule
+class EmailOrPhoneValidationRule implements ValidationRule
 {
+    protected PhoneService $phoneService;
+
+    public function __construct(protected PhoneNumberFactory $phoneNumberFactory)
+    {
+
+    }
+
     /**
      * Run the validation rule.
      *
@@ -25,12 +32,12 @@ class EmailOrPhone implements ValidationRule
             return; // It's a valid email, so we're done
         }
 
-        $countryCode = SecuritySetting::first()?->configuration['country_code'] ?? 'CN';
-
         // If it's not a valid email, check if it's a valid phone number
         try {
-            $phone = new PhoneNumber ($value,$countryCode);
-            if (!$phone->isValid()) {
+
+            $this->phoneService = $this->phoneNumberFactory->create($value);
+
+            if (!$this->phoneService->isValid()) {
                 $fail(':attribute 必须是一个有效的电子邮件地址或电话号码.');
             }
         } catch (\Exception $e) {
