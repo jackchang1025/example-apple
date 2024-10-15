@@ -2,19 +2,16 @@
 
 namespace App\Models;
 
-use App\Apple\PhoneNumber\PhoneNumberFactory;
-use App\Apple\PhoneNumber\PhoneNumberService;
-use App\Apple\Service\PhoneCodeParser\PhoneCodeParserFactory;
-use App\Apple\Service\PhoneCodeParser\PhoneCodeParserInterface;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Log;
+use Modules\Phone\Service\PhoneNumberFactory;
+use Modules\Phone\Service\PhoneService;
+use Modules\PhoneCode\Service\PhoneConnector;
+use Modules\PhoneCode\Service\Request\PhoneRequest;
+use Modules\PhoneCode\Service\Response;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
-use Weijiajia\PhoneCode\PhoneConnector;
-use Weijiajia\PhoneCode\Request\PhoneRequest;
-use Weijiajia\PhoneCode\Response;
 
 
 /**
@@ -76,15 +73,7 @@ class Phone extends Model
     {
         return Attribute::make(
             set: function (?string $value, array $attributes) {
-                try {
-                    $getCountryCode =  $this->getPhoneNumberService($attributes)->getCountryCode();
-                    Log::info("Parsed countryDialCode code :".$getCountryCode);
-                    return $getCountryCode;
-                } catch (\Exception $e) {
-                    // 如果解析失败,返回原始值
-                    Log::error("Parsed countryDialCode Error :".$e->getMessage());
-                    return $value;
-                }
+                return $this->getPhoneNumberService($attributes)->getCountryCode();
             }
         );
     }
@@ -103,15 +92,7 @@ class Phone extends Model
         return Attribute::make(
             set: function (?string $value, array $attributes) {
 
-                try {
-                    $phoneService = $this->getPhoneNumberService($attributes);
-                    $regionCode = $phoneService->getRegionCode();
-                    Log::info("Parsed countryCode code: " . $regionCode);
-                    return $regionCode;
-                } catch (\Exception $e) {
-                    Log::error("Parsed countryCode Error: " . $e->getMessage());
-                    return $value;
-                }
+                return $this->getPhoneNumberService($attributes)->getCountry();
             }
         );
     }
@@ -129,22 +110,12 @@ class Phone extends Model
      * 获取 PhoneNumberService 实例
      *
      * @param array $attributes
-     * @return PhoneNumberService
-     * @throws \InvalidArgumentException|\libphonenumber\NumberParseException
+     * @return PhoneService
+     * @throws \InvalidArgumentException
      */
-    public function getPhoneNumberService(array $attributes): PhoneNumberService
+    public function getPhoneNumberService(array $attributes): PhoneService
     {
-        return app(PhoneNumberFactory::class)->createPhoneNumberService($attributes['phone'] ?? '', $attributes['country_code'] ?? null);
-    }
-
-
-    /**
-     * @return PhoneCodeParserInterface
-     * @throws \Exception
-     */
-    public function phoneCodeParser():PhoneCodeParserInterface
-    {
-        return app(PhoneCodeParserFactory::class)->create($this->phone_code_parser ?? 'default');
+        return app(PhoneNumberFactory::class)->create($attributes['phone'], [$attributes['country_code']]);
     }
 
     /**
@@ -152,9 +123,8 @@ class Phone extends Model
      * @throws FatalRequestException
      * @throws RequestException
      */
-    public function getPhoneCode(): \Weijiajia\PhoneCode\Response
+    public function getPhoneCode(): Response
     {
         return app(PhoneConnector::class)->send(new PhoneRequest($this->phone_address));
     }
-
 }

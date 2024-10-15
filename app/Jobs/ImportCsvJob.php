@@ -3,17 +3,9 @@
 namespace App\Jobs;
 
 use Filament\Actions\Imports\Jobs\ImportCsv;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use libphonenumber\NumberParseException;
 
-class ImportCsvJob extends ImportCsv implements ShouldQueue
+class ImportCsvJob extends ImportCsv
 {
-    use InteractsWithQueue, Queueable, SerializesModels;
-
     /**
      * 任务可以尝试的次数。
      *
@@ -39,7 +31,7 @@ class ImportCsvJob extends ImportCsv implements ShouldQueue
 
             parent::handle();
 
-        } catch (NumberParseException $e) {
+        } catch (\Exception $e) {
             // 对于验证错误，我们直接标记作业为失败，而不进行重试
             $this->fail($e);
         }

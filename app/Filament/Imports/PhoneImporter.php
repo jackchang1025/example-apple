@@ -3,14 +3,11 @@
 namespace App\Filament\Imports;
 
 use App\Models\Phone;
-use App\Rules\ValidPhoneNumber;
+use Filament\Actions\Imports\Exceptions\RowImportFailedException;
 use Filament\Actions\Imports\ImportColumn;
 use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\Models\FailedImportRow;
 use Filament\Actions\Imports\Models\Import;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\Rule;
 
 class PhoneImporter extends Importer
 {
@@ -20,16 +17,12 @@ class PhoneImporter extends Importer
     {
         return [
 
-//            ImportColumn::make('country_code')
-//                ->requiredMapping()
-//                ->rules(['required', 'max:255']),
-
             ImportColumn::make('phone')
                 ->requiredMapping()
                 ->rules([
                     'required',
                     'max:255',
-                    App::make(ValidPhoneNumber::class),
+                    'phone:AUTO',
                 ])->examples(["\t+8613065851245", "\t+16134589339"]),
 
             ImportColumn::make('phone_address')
@@ -54,11 +47,22 @@ class PhoneImporter extends Importer
         ];
     }
 
+    /**
+     * @return Phone|null
+     * @throws RowImportFailedException
+     */
     public function resolveRecord(): ?Phone
     {
+        $phone    = $this->data['phone'];
+        $existing = Phone::where('phone', $phone)->exists();
+
+        if ($existing) {
+            // 如果账号已存在,返回 null 以忽略此记录
+            throw new RowImportFailedException("{$phone} 已存在，无法导入。");
+        }
+
         $this->data['country_code'] = null;
         $this->data['country_dial_code'] = null;
-        Log::info("resolveRecord",['data'=>$this->data]);
         return new Phone($this->data);
     }
 
