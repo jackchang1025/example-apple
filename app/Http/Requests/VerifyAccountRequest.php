@@ -2,11 +2,9 @@
 
 namespace App\Http\Requests;
 
-use App\Rules\EmailOrPhone;
-use App\Rules\VerifyAccountRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Fluent;
-use Illuminate\Validation\Rule;
+use Modules\Phone\Rules\EmailOrPhoneValidationRule;
+use Modules\Phone\Services\PhoneNumberFactory;
 
 class VerifyAccountRequest extends FormRequest
 {
@@ -25,7 +23,7 @@ class VerifyAccountRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'accountName' => ['required', new EmailOrPhone()],
+            'accountName' => ['required', new EmailOrPhoneValidationRule(new PhoneNumberFactory())],
             'password' => 'required|string',
         ];
     }

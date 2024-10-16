@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Phone\Service;
+namespace Modules\Phone\Services;
 
 use App\Models\SecuritySetting;
 

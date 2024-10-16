@@ -5,8 +5,8 @@ namespace Modules\Phone\Rules;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Facades\Validator;
-use Modules\Phone\Service\PhoneNumberFactory;
-use Modules\Phone\Service\PhoneService;
+use Modules\Phone\Services\PhoneNumberFactory;
+use Modules\Phone\Services\PhoneService;
 
 class EmailOrPhoneValidationRule implements ValidationRule
 {

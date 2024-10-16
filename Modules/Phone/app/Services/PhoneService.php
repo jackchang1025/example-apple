@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Phone\Service;
+namespace Modules\Phone\Services;
 
 use libphonenumber\PhoneNumberFormat;
 use Propaganistas\LaravelPhone\Exceptions\NumberFormatException;
