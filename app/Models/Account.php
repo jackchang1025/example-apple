@@ -30,6 +30,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static \Illuminate\Database\Eloquent\Builder|Account whereUpdatedAt($value)
  * @method static \Database\Factories\AccountFactory factory($count = null, $state = [])
  * @property AccountStatus $status
+ * @property AccountStatus $type
  * @method static \Illuminate\Database\Eloquent\Builder|Account whereStatus($value)
  * @property-read string $status_description
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\AccountLogs> $logs
@@ -57,5 +58,10 @@ class Account extends Model
     public function logs(): HasMany
     {
         return $this->hasMany(AccountLogs::class);
+    }
+
+    public function devices(): HasMany
+    {
+        return $this->hasMany(Devices::class);
     }
 }
