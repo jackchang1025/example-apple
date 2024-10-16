@@ -35,6 +35,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Account $account
+ * @mixin \Eloquent
  */
 class Devices extends Model
 {
@@ -90,5 +91,19 @@ class Devices extends Model
     public function account(): BelongsTo
     {
         return $this->belongsTo(Account::class);
+    }
+
+    public function saveOrUpdate(): Model|Devices
+    {
+        $attributes = $this->getAttributes();
+
+        // 使用 account_id 和 device_id 作为唯一标识
+        $keys = ['account_id' => $this->account_id, 'device_id' => $this->device_id];
+
+        // 移除 keys 中的字段，避免重复更新
+        $values = array_diff_key($attributes, $keys);
+
+        // 使用静态方法 updateOrCreate
+        return self::updateOrCreate($keys, $values);
     }
 }

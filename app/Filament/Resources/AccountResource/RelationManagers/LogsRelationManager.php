@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\AccountLogsResource\RelationManagers;
+namespace App\Filament\Resources\AccountResource\RelationManagers;
 
 use App\Filament\Resources\AccountResource\Pages\ViewAccount;
 use Filament\Infolists\Components\TextEntry;
@@ -10,7 +10,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 
-class AccountRelationManager extends RelationManager
+class LogsRelationManager extends RelationManager
 {
     protected static string $relationship = 'logs';
 

@@ -4,8 +4,9 @@ namespace App\Filament\Resources;
 
 use App\Apple\Enums\AccountStatus;
 use App\Apple\Enums\AccountType;
-use App\Filament\Resources\AccountLogsResource\RelationManagers\AccountRelationManager;
 use App\Filament\Resources\AccountResource\Pages;
+use App\Filament\Resources\AccountResource\RelationManagers\DevicesRelationManager;
+use App\Filament\Resources\AccountResource\RelationManagers\LogsRelationManager;
 use App\Models\Account;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -46,7 +47,8 @@ class AccountResource extends Resource
     public static function getRelations(): array
     {
         return [
-            AccountRelationManager::class,
+            LogsRelationManager::class,
+            DevicesRelationManager::class,
         ];
     }
 
@@ -87,6 +89,7 @@ class AccountResource extends Resource
                     ->toggleable(),
 
             ])
+            ->defaultSort('updated_at', 'desc')
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
                 ->options(AccountStatus::getDescriptionValuesArray())
