@@ -7,6 +7,7 @@
 
 namespace Modules\AppleClient\Service;
 
+use JsonException;
 use Modules\AppleClient\Service\Exception\BindPhoneException;
 use Modules\AppleClient\Service\Exception\ErrorException;
 use Modules\AppleClient\Service\Exception\PhoneException;
@@ -14,13 +15,14 @@ use Modules\AppleClient\Service\Exception\PhoneNumberAlreadyExistsException;
 use Modules\AppleClient\Service\Exception\StolenDeviceProtectionException;
 use Modules\AppleClient\Service\Exception\VerificationCodeSentTooManyTimesException;
 use Modules\AppleClient\Service\Integrations\AppleId\AppleIdConnector;
+use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\Payment;
+use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\SecurityDevices;
 use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\SecurityVerifyPhone;
 use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\SecurityVerifyPhoneSecurityCode;
 use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\Token;
 use Modules\AppleClient\Service\Integrations\AppleId\Request\AuthenticatePassword;
 use Modules\AppleClient\Service\Integrations\AppleId\Request\Bootstrap;
 use Modules\AppleClient\Service\Response\Response;
-use JsonException;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
 
@@ -157,5 +159,27 @@ trait AppleId
     ): Response {
         return $this->getAppleIdConnector()
             ->send(new SecurityVerifyPhoneSecurityCode($id, $phoneNumber, $countryCode, $countryDialCode, $code));
+    }
+
+    /**
+     * @return Response
+     * @throws FatalRequestException
+     * @throws RequestException
+     */
+    public function securityDevices(): Response
+    {
+        return $this->getAppleIdConnector()
+            ->send(new SecurityDevices());
+    }
+
+    /**
+     * @return Response
+     * @throws FatalRequestException
+     * @throws RequestException
+     */
+    public function payment(): Response
+    {
+        return $this->getAppleIdConnector()
+            ->send(new Payment());
     }
 }

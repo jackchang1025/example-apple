@@ -49,9 +49,9 @@ trait HasSign
      * @throws \Saloon\Exceptions\Request\FatalRequestException
      * @throws \Saloon\Exceptions\Request\RequestException
      */
-    private function authenticate(string $accountName, string $password): void
+    public function authenticate(string $accountName, string $password): void
     {
-        $this->appleClient->authLogin($accountName, $password);
+        $this->client->authLogin($accountName, $password);
     }
 
     /**
@@ -61,9 +61,9 @@ trait HasSign
      * @throws FatalRequestException
      * @throws RequestException
      */
-    private function fetchAuthResponse(): Response
+    public function fetchAuthResponse(): Response
     {
-        return $this->appleClient->auth();
+        return $this->client->auth();
     }
 
     /**

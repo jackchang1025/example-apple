@@ -8,11 +8,11 @@
 namespace Modules\AppleClient\Service\Logger;
 
 use Illuminate\Support\Str;
+use Modules\AppleClient\Service\Trait\HasPipeline;
 use Psr\Log\LoggerInterface;
 use Saloon\Enums\PipeOrder;
 use Saloon\Http\PendingRequest;
 use Saloon\Http\Response;
-use Modules\AppleClient\Service\Trait\HasPipeline;
 
 trait Logger
 {
@@ -76,8 +76,10 @@ trait Logger
         return $this->logger;
     }
 
-    public function setLogger(?LoggerInterface $logger): void
+    public function withLogger(?LoggerInterface $logger): static
     {
         $this->logger = $logger;
+
+        return $this;
     }
 }

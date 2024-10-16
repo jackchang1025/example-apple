@@ -35,7 +35,7 @@ trait HasAuth
      */
     public function verifyPhoneCode(string $id,string $code): Response|bool
     {
-        $this->appleClient->verifyPhoneCode($id,$code);
+        $this->client->verifyPhoneCode($id, $code);
         return $this->validateStolenDeviceProtection();
     }
 
@@ -53,7 +53,7 @@ trait HasAuth
      */
     public function verifySecurityCode(string $code): Response|bool
     {
-       $this->appleClient->verifySecurityCode($code);
+        $this->client->verifySecurityCode($code);
 
         return $this->validateStolenDeviceProtection();
     }
@@ -70,8 +70,8 @@ trait HasAuth
      */
     protected function authenticateApple(): void
     {
-        $this->appleClient->token();
-        $this->appleClient->authenticatePassword($this->getAccountByCache()->password);
+        $this->client->token();
+        $this->client->authenticatePassword($this->getAccountByCache()->password);
     }
 
     /**
@@ -120,7 +120,7 @@ trait HasAuth
         bool $nonFTEU = true
     ): Response
     {
-        return $this->appleClient->securityVerifyPhone(
+        return $this->client->securityVerifyPhone(
             countryCode:$countryCode,
             phoneNumber: $phoneNumber,
             countryDialCode: $countryDialCode,

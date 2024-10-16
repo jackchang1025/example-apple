@@ -3,6 +3,7 @@
 namespace Modules\IpProxyManager\Service;
 
 use App\Models\ProxyConfiguration;
+use Modules\IpAddress\Service\IpService;
 use Modules\IpProxyManager\Service\Exception\ProxyConfigurationNotFoundException;
 use Modules\IpProxyManager\Service\Exception\ProxyModelNotFoundException;
 use Modules\IpProxyManager\Service\HuaSheng\Dto\ExtractDto;
@@ -17,7 +18,7 @@ use Psr\Log\LoggerInterface;
 
 class ProxyFactory
 {
-    public function __construct(protected  LoggerInterface $logger)
+    public function __construct(protected LoggerInterface $logger, protected IpService $ipService)
     {
     }
 
@@ -68,6 +69,7 @@ class ProxyFactory
         return new ProxyService(
             new StormConnector(),
             $this->logger,
+            $this->ipService,
             $request,
         );
     }
@@ -91,6 +93,7 @@ class ProxyFactory
         return new ProxyService(
             new HuaShengConnector(),
             $this->logger,
+            $this->ipService,
             new ExtractRequest(new ExtractDto($config)),
         );
     }

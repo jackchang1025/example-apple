@@ -30,11 +30,31 @@ class PhoneConnector extends Connector
         return Response::class;
     }
 
+    /**
+     * @param string $url
+     * @return \Saloon\Http\Response
+     * @throws \Saloon\Exceptions\Request\FatalRequestException
+     * @throws \Saloon\Exceptions\Request\RequestException
+     */
+    public function getPhoneCode(string $url): \Saloon\Http\Response
+    {
+        return $this->send(new PhoneRequest($url));
+    }
+
+    /**
+     * @param string $url
+     * @param PhoneCodeParserInterface $phoneCodeParser
+     * @param int $attempts
+     * @return string
+     * @throws AttemptBindPhoneCodeException
+     * @throws \Saloon\Exceptions\Request\FatalRequestException
+     * @throws \Saloon\Exceptions\Request\RequestException
+     */
     public function attemptGetPhoneCode(string $url, PhoneCodeParserInterface $phoneCodeParser, int $attempts = 5): string
     {
         for ($i = 0; $i < $attempts; $i++) {
 
-            $response = $this->send(new PhoneRequest($url));
+            $response = $this->getPhoneCode($url);
 
             if ($code = $phoneCodeParser->parse($response->body())) {
                 return $code;

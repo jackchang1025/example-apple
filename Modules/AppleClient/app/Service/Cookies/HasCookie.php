@@ -7,9 +7,9 @@
 
 namespace Modules\AppleClient\Service\Cookies;
 
+use Modules\AppleClient\Service\Trait\HasPipeline;
 use Saloon\Http\PendingRequest;
 use Saloon\Http\Response;
-use Modules\AppleClient\Service\Trait\HasPipeline;
 
 trait HasCookie
 {
@@ -36,9 +36,11 @@ trait HasCookie
         }
     }
 
-    public function setCookieJar(?CookieJarInterface $cookieJar): void
+    public function withCookies(?CookieJarInterface $cookieJar): static
     {
         $this->cookieJar = $cookieJar;
+
+        return $this;
     }
 
     public function getCookieJar(): ?CookieJarInterface

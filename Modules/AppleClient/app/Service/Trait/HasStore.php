@@ -56,7 +56,8 @@ trait HasStore
         if (!$this->hasLogin()){
             throw new UnauthorizedException("is not login");
         }
-        return  $this->appleClient->getCacheStore()?->get(static::CACHE_KEY_ACCOUNT);
+
+        return $this->client->getCacheStore()?->get(static::CACHE_KEY_ACCOUNT);
     }
 
     /**
@@ -101,7 +102,7 @@ trait HasStore
         }
 
         return $this->getCacheStore()?->get(static::CACHE_KEY_TRUSTED_PHONE_NUMBER)
-            ?? $this->cacheTrustedPhoneNumber($this->getAppleClient()->auth());
+            ?? $this->cacheTrustedPhoneNumber($this->getClient()->auth());
     }
 
     /**
@@ -121,7 +122,7 @@ trait HasStore
         }
 
         return $this->getCacheStore()?->get(static::CACHE_KEY_PHONE_LIST)
-            ?? $this->storePhoneData($this->getAppleClient()->auth());
+            ?? $this->storePhoneData($this->getClient()->auth());
     }
 
     /**

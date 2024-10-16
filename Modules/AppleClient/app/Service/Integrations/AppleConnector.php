@@ -17,16 +17,16 @@ use Modules\AppleClient\Service\Helpers\Helpers;
 use Modules\AppleClient\Service\Logger\Logger;
 use Modules\AppleClient\Service\Proxy\HasProxy;
 use Modules\AppleClient\Service\Response\Response;
+use Modules\AppleClient\Service\Trait\HasTries;
 use Psr\Log\LoggerInterface;
 use Saloon\Contracts\ArrayStore;
+use Saloon\Exceptions\Request\FatalRequestException;
+use Saloon\Exceptions\Request\RequestException;
 use Saloon\Http\Connector;
 use Saloon\Http\Faking\MockClient;
 use Saloon\Http\Request;
 use Saloon\Traits\Plugins\AlwaysThrowOnErrors;
 use Saloon\Traits\Plugins\HasTimeout;
-use Modules\AppleClient\Service\Trait\HasTries;
-use Saloon\Exceptions\Request\FatalRequestException;
-use Saloon\Exceptions\Request\RequestException;
 
 
 abstract class AppleConnector extends Connector
@@ -98,6 +98,7 @@ abstract class AppleConnector extends Connector
      */
     public function send(Request $request, MockClient $mockClient = null, callable $handleRetry = null): Response
     {
+        $this->middleware()->merge($this->apple->middleware());
         /**
          * @var Response $response
          */

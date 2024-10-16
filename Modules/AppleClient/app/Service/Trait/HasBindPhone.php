@@ -142,7 +142,7 @@ trait HasBindPhone
     {
         try {
 
-            return $this->appleClient->securityVerifyPhoneSecurityCode(
+            return $this->client->securityVerifyPhoneSecurityCode(
                 id: $id,
                 phoneNumber: $this->phone->national_number,
                 countryCode: $this->phone->country_code,

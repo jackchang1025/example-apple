@@ -16,9 +16,11 @@ trait HasHeaderSynchronize
 {
     protected ?ArrayStore $headerRepositories = null;
 
-    public function setHeaderRepositories(?ArrayStore $headerRepositories): void
+    public function withHeaderRepositories(?ArrayStore $headerRepositories): static
     {
         $this->headerRepositories = $headerRepositories;
+
+        return $this;
     }
 
     public function getHeaderRepositories(): ?ArrayStore

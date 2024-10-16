@@ -49,7 +49,7 @@ class AppleClientServiceProvider extends ServiceProvider
                 throw new \InvalidArgumentException('Guid is not set.');
             }
 
-            return $appleFactory->create(clientId: $guid,config: config('apple'));
+            return $appleFactory->create($guid);
         });
     }
 

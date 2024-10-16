@@ -18,7 +18,7 @@ use Modules\AppleClient\Service\Exception\VerificationCodeException;
 use Modules\AppleClient\Service\Response\Response;
 use Modules\IpAddress\Service\IpService;
 use Modules\IpProxyManager\Service\ProxyService;
-use Modules\Phone\Service\PhoneNumberFactory;
+use Modules\Phone\Services\PhoneNumberFactory;
 use Propaganistas\LaravelPhone\Exceptions\NumberFormatException;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
@@ -38,7 +38,7 @@ readonly class AppleClientControllerService
 
     public function getGuid(): string
     {
-        return $this->appleClientService->getGuid();
+        return $this->appleClientService->getSessionId();
     }
 
     /**

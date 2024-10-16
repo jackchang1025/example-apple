@@ -7,9 +7,7 @@
 
 namespace Modules\AppleClient\Service;
 
-use Saloon\Traits\Conditionable;
 use Modules\AppleClient\Service\Config\HasConfig;
-use Modules\AppleClient\Service\Cookies\CookieJarInterface;
 use Modules\AppleClient\Service\Cookies\HasCookie;
 use Modules\AppleClient\Service\Header\HasHeaderSynchronize;
 use Modules\AppleClient\Service\Helpers\Helpers;
@@ -18,12 +16,11 @@ use Modules\AppleClient\Service\Integrations\AppleId\AppleIdConnector;
 use Modules\AppleClient\Service\Integrations\Idmsa\IdmsaConnector;
 use Modules\AppleClient\Service\Logger\Logger;
 use Modules\AppleClient\Service\Proxy\HasProxy;
-use Psr\Log\LoggerInterface;
-use Saloon\Contracts\ArrayStore as ArrayStoreContract;
-use Saloon\Traits\Macroable;
-use Modules\AppleClient\Service\Store\CacheStore;
 use Modules\AppleClient\Service\Store\HasCacheStore;
 use Modules\AppleClient\Service\Trait\HasTries;
+use Saloon\Traits\Conditionable;
+use Saloon\Traits\Macroable;
+use Saloon\Traits\RequestProperties\HasMiddleware;
 
 class AppleClient
 {
@@ -40,35 +37,26 @@ class AppleClient
     use Conditionable;
     use HasCacheStore;
     use HasTries;
+    use HasMiddleware;
 
     protected AppleIdConnector $appleIdConnector;
     protected IdmsaConnector $idmsaConnector;
     protected AppleAuthConnector $appleAuthConnector;
 
-
     /**
-     * @param ArrayStoreContract $config
-     * @param ArrayStoreContract|null $headerRepositories
-     * @param CookieJarInterface|null $cookieJar
-     * @param LoggerInterface|null $logger
-     * @param CacheStore|null $cacheStore
+     * @param string $sessionId
      */
     public function __construct(
-        ArrayStoreContract $config,
-        ?ArrayStoreContract $headerRepositories = null,
-        ?CookieJarInterface $cookieJar = null,
-        ?LoggerInterface $logger = null,
-        ?CacheStore $cacheStore = null,
+        protected string $sessionId
     ) {
-        $this->withConfig($config);
-        $this->withCacheStore($cacheStore);
-        $this->setLogger($logger);
-        $this->setHeaderRepositories($headerRepositories);
-        $this->setCookieJar($cookieJar);
-
         $this->appleIdConnector = new AppleIdConnector($this);
         $this->idmsaConnector = new IdmsaConnector($this);
         $this->appleAuthConnector = new AppleAuthConnector($this);
+    }
+
+    public function getSessionId(): string
+    {
+        return $this->sessionId;
     }
 
     public function getAppleIdConnector(): AppleIdConnector
@@ -84,6 +72,11 @@ class AppleClient
     public function getAppleAuthConnector(): AppleAuthConnector
     {
         return $this->appleAuthConnector;
+    }
+
+    public static function builder(string $sessionId): AppleBuilder
+    {
+        return new AppleBuilder(new self($sessionId));
     }
 
     /**

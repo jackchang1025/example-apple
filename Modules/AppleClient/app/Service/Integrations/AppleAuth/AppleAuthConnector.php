@@ -8,27 +8,19 @@
 namespace Modules\AppleClient\Service\Integrations\AppleAuth;
 
 use Modules\AppleClient\Service\AppleAuth;
-use Modules\AppleClient\Service\AppleClient;
 use Modules\AppleClient\Service\Integrations\AppleConnector;
+use Saloon\Http\PendingRequest;
 
 class AppleAuthConnector extends AppleConnector
 {
     use AppleAuth;
-
     protected bool $proxyEnabled = false;
 
-    protected ?array $options;
-
-    public function __construct(protected AppleClient $apple)
+    public function boot(PendingRequest $pendingRequest): void
     {
-        $this->options = $this->apple->config()
-            ->get('apple_auth', []);
-
-        if (empty($this->options['url'])) {
+        if (empty($this->apple->config()->get('apple_auth')['url'])) {
             throw new \InvalidArgumentException('apple_auth config is empty');
         }
-
-        parent::__construct($apple);
     }
 
     public function getAppleAuthConnector(): AppleAuthConnector
@@ -36,14 +28,9 @@ class AppleAuthConnector extends AppleConnector
         return $this;
     }
 
-    public function defaultConfig(): array
-    {
-        return $this->options['config'] ?? [];
-    }
-
     public function resolveBaseUrl(): string
     {
-        return $this->options['url'];
+        return $this->apple->config()->get('apple_auth')['url'];
     }
 
     protected function defaultHeaders(): array
