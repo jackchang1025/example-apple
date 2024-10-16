@@ -64,4 +64,10 @@ class Account extends Model
     {
         return $this->hasMany(Devices::class);
     }
+
+    public function payment(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
 }
