@@ -4,10 +4,11 @@ namespace Modules\AppleClient\Service;
 
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
-use Modules\AppleClient\Service\Trait\HasAccountManage;
 use Modules\AppleClient\Service\Trait\HasAuth;
 use Modules\AppleClient\Service\Trait\HasBindPhone;
+use Modules\AppleClient\Service\Trait\HasDevices;
 use Modules\AppleClient\Service\Trait\HasNotification;
+use Modules\AppleClient\Service\Trait\HasPayment;
 use Modules\AppleClient\Service\Trait\HasPhone;
 use Modules\AppleClient\Service\Trait\HasRetry;
 use Modules\AppleClient\Service\Trait\HasSign;
@@ -29,7 +30,8 @@ class AppleClientService
     use HasRetry;
     use HasBindPhone;
     use HasNotification;
-    use HasAccountManage;
+    use HasPayment;
+    use HasDevices;
 
     private const int|float LOGIN_CACHE_TTL = 60 * 5;
 
@@ -44,7 +46,6 @@ class AppleClientService
         protected IpService $ipService,
         protected PhoneConnector $phoneConnector,
         protected LoggerInterface $logger,
-        protected \Illuminate\Http\Request $request,
     ) {
 
     }
