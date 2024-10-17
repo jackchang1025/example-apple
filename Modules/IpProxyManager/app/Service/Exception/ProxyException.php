@@ -2,6 +2,8 @@
 
 namespace Modules\IpProxyManager\Service\Exception;
 
-class ProxyException extends \Exception
+use Saloon\Exceptions\Request\RequestException;
+
+class ProxyException extends RequestException
 {
 }

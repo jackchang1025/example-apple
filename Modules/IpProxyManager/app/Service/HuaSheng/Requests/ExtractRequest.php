@@ -2,14 +2,14 @@
 
 namespace Modules\IpProxyManager\Service\HuaSheng\Requests;
 
+use Carbon\Carbon;
+use Illuminate\Support\Collection;
 use Modules\IpProxyManager\Service\BaseDto;
 use Modules\IpProxyManager\Service\Exception\ProxyException;
 use Modules\IpProxyManager\Service\HuaSheng\DTO\ExtractDto;
 use Modules\IpProxyManager\Service\ProxyResponse;
-use Carbon\Carbon;
-use Illuminate\Support\Collection;
-use Saloon\Enums\Method;
 use Modules\IpProxyManager\Service\Request;
+use Saloon\Enums\Method;
 use Saloon\Http\Response;
 
 class ExtractRequest extends Request
@@ -37,7 +37,7 @@ class ExtractRequest extends Request
     {
         $data = $response->json();
         if ($data['status'] !== '0' || empty($data['list'])) {
-            throw new ProxyException($response,$response->body());
+            throw new ProxyException(response: $response, message: $response->body());
         }
 
         $this->dto->setProxyList((new Collection($data['list']))->map(fn(array $item) => new ProxyResponse(
