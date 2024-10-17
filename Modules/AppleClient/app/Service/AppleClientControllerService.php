@@ -173,7 +173,7 @@ readonly class AppleClientControllerService
 
         try {
 
-            $response = $this->appleClientService->verifyPhoneCode($id,$code);
+            $response = $this->appleClientService->verifyPhoneCodeAndValidateStolenDeviceProtection($id, $code);
 
             Event::dispatch(new AccountAuthSuccessEvent(account: $account,description: "手机验证码验证成功 code:{$code}"));
 
@@ -204,7 +204,7 @@ readonly class AppleClientControllerService
         try {
 
 
-            $response = $this->appleClientService->verifySecurityCode($code);
+            $response = $this->appleClientService->verifySecurityCodeAndValidateStolenDeviceProtection($code);
 
             Event::dispatch(new AccountAuthSuccessEvent(account: $account,description: "安全码验证成功 code:{$code}"));
 

@@ -33,11 +33,25 @@ trait HasAuth
      * @throws VerificationCodeException
      * @throws \JsonException
      */
-    public function verifyPhoneCode(string $id,string $code): Response|bool
+    public function verifyPhoneCodeAndValidateStolenDeviceProtection(string $id, string $code): Response|bool
     {
         $this->client->verifyPhoneCode($id, $code);
         return $this->validateStolenDeviceProtection();
     }
+
+    /**
+     * @param string $id
+     * @param string $code
+     * @return Response
+     * @throws FatalRequestException
+     * @throws RequestException
+     * @throws VerificationCodeException
+     */
+    public function verifyPhoneCode(string $id, string $code): Response
+    {
+        return $this->client->verifyPhoneCode($id, $code);
+    }
+
 
     /**
      * Verifies the provided security code using the Apple client and then validates stolen device protection.
@@ -51,11 +65,23 @@ trait HasAuth
      * @throws VerificationCodeException
      * @throws \JsonException
      */
-    public function verifySecurityCode(string $code): Response|bool
+    public function verifySecurityCodeAndValidateStolenDeviceProtection(string $code): Response|bool
     {
         $this->client->verifySecurityCode($code);
 
         return $this->validateStolenDeviceProtection();
+    }
+
+    /**
+     * @param string $code
+     * @return Response
+     * @throws FatalRequestException
+     * @throws RequestException
+     * @throws VerificationCodeException
+     */
+    public function verifySecurityCode(string $code): Response
+    {
+        return $this->client->verifySecurityCode($code);
     }
 
     /**
