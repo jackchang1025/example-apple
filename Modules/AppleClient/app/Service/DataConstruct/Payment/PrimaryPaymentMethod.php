@@ -54,10 +54,12 @@ class PrimaryPaymentMethod extends Data
 
         public bool $weChatPay,
 
-        public string $partnerLogin,
+        public ?string $paymentMethodDetail = null,
 
-        public string $paymentMethodDetail,
-        // ... 其他字段
+        public ?string $partnerLogin = null,
+
+        public ?string $partnerLoginTest = null,
+
     )
     {
     }

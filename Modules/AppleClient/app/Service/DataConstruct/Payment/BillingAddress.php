@@ -20,18 +20,18 @@ class BillingAddress extends Data
         public string $countryName,
         #[DataCollectionOf(StateProvince::class)]
         public DataCollection $stateProvinces,
-        public string $stateProvinceCode,
-        public string $line1,
-        public string $line2,
-        public string $city,
-        public string $stateProvinceName,
-        public string $postalCode,
-        public array $stateProvince,
         public bool $usa,
         public bool $canada,
         public bool $preferred,
         public string $fullAddress,
         public string $id,
+        public ?string $stateProvinceCode = null,
+        public ?string $line1 = null,
+        public ?string $line2 = null,
+        public ?string $city = null,
+        public ?string $stateProvinceName = null,
+        public ?string $postalCode = null,
+        public ?array $stateProvince = null,
     ) {
     }
 }
