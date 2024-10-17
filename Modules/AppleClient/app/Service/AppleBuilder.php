@@ -93,7 +93,7 @@ class AppleBuilder
     protected function withRetryCallback(): self
     {
         $this->client->setHandleRetry(function (FatalRequestException|RequestException $exception, Request $request) {
-            if ($this->isConnectionException($exception)) {
+            if ($this->isConnectionException($exception) && $this->proxyService->isProxyEnabled()) {
                 $this->client->withProxy(
                     $this->proxyService->refreshProxy()?->url
                 );
@@ -126,7 +126,7 @@ class AppleBuilder
     {
         $this->proxyService = $proxyService;
 
-        if ($proxyService->enableProxy()) {
+        if ($proxyService->isIpaddressEnabled()) {
             $this->client->withProxy($proxyService->getProxy()?->url);
         }
 
