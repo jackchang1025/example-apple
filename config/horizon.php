@@ -188,6 +188,19 @@ return [
             'maxProcesses' => 20,
             'maxTime' => 0,
             'maxJobs' => 0,
+            'memory'  => 128,
+            'tries'   => 1,
+            'timeout' => 60 * 30,
+            'nice'    => 0,
+        ],
+        'supervisor-2' => [
+            'connection'          => 'redis',
+            'queue'               => ['account-processing'],
+            'balance'             => 'auto',
+            'autoScalingStrategy' => 'size',
+            'maxProcesses'        => 10,
+            'maxTime'             => 0,
+            'maxJobs'             => 0,
             'memory' => 128,
             'tries' => 1,
             'timeout' => 60 * 30,
@@ -202,11 +215,19 @@ return [
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
+            'supervisor-2' => [
+                'maxProcesses'    => 20,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
         ],
 
         'local' => [
             'supervisor-1' => [
                 'maxProcesses' => 10,
+            ],
+            'supervisor-2' => [
+                'maxProcesses' => 20,
             ],
         ],
     ],
