@@ -15,7 +15,7 @@ use Saloon\Exceptions\Request\RequestException;
 
 
 /**
- *
+ * 
  *
  * @method static \Illuminate\Database\Eloquent\Builder|Phone newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Phone newQuery()

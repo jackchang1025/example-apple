@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- *
+ * 
  *
  * @property int $id
  * @property string $name
@@ -27,6 +27,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property int|null $ipaddress_enabled {0:不同步用户IP地址, 1:同步用户IP地址}
  * @method static \Illuminate\Database\Eloquent\Builder|ProxyConfiguration whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ProxyConfiguration whereSynchronizeUserIpAddress($value)
+ * @method static \Database\Factories\ProxyConfigurationFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder|ProxyConfiguration whereIpaddressEnabled($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProxyConfiguration whereProxyEnabled($value)
  * @mixin \Eloquent
  */
 class ProxyConfiguration extends Model

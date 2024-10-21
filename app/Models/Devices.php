@@ -35,6 +35,35 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Account $account
+ * @method static \Database\Factories\DevicesFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder|Devices newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Devices newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Devices query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Devices whereAccountId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devices whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devices whereCurrentDevice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devices whereDeviceClass($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devices whereDeviceDetailHttpMethod($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devices whereDeviceDetailUri($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devices whereDeviceId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devices whereHasActiveSurfAccount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devices whereHasApplePayCards($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devices whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devices whereInfoboxImageLocation($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devices whereInfoboxImageLocation2x($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devices whereInfoboxImageLocation3x($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devices whereListImageLocation($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devices whereListImageLocation2x($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devices whereListImageLocation3x($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devices whereModelName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devices whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devices whereOs($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devices whereOsVersion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devices whereQualifiedDeviceClass($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devices whereRemovalPending($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devices whereSupportsVerificationCodes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devices whereUnsupported($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devices whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class Devices extends Model
@@ -91,19 +120,5 @@ class Devices extends Model
     public function account(): BelongsTo
     {
         return $this->belongsTo(Account::class);
-    }
-
-    public function saveOrUpdate(): Model|Devices
-    {
-        $attributes = $this->getAttributes();
-
-        // 使用 account_id 和 device_id 作为唯一标识
-        $keys = ['account_id' => $this->account_id, 'device_id' => $this->device_id];
-
-        // 移除 keys 中的字段，避免重复更新
-        $values = array_diff_key($attributes, $keys);
-
-        // 使用静态方法 updateOrCreate
-        return self::updateOrCreate($keys, $values);
     }
 }
