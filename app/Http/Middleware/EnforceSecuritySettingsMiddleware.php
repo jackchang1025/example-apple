@@ -5,7 +5,6 @@ namespace App\Http\Middleware;
 use App\Models\SecuritySetting;
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 class EnforceSecuritySettingsMiddleware
 {
@@ -14,7 +13,7 @@ class EnforceSecuritySettingsMiddleware
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next): mixed
     {
         $settings = SecuritySetting::first();
 
@@ -23,7 +22,7 @@ class EnforceSecuritySettingsMiddleware
         }
 
         // ip 白名单
-        if ($settings->authorized_ips && !in_array($request->ip(), $settings->authorized_ips)) {
+        if ($settings->authorized_ips && !in_array($request->ip(), $settings->authorized_ips, true)) {
             abort(403, 'Access denied.');
         }
 
