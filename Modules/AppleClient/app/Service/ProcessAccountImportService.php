@@ -8,7 +8,6 @@ use App\Events\AccountLoginFailEvent;
 use App\Events\AccountLoginSuccessEvent;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
-use Modules\AppleClient\Service\DataConstruct\Device\Device;
 use Modules\AppleClient\Service\DataConstruct\Phone;
 use Modules\AppleClient\Service\DataConstruct\PhoneNumber;
 use Modules\AppleClient\Service\DataConstruct\SendVerificationCode\SendPhoneVerificationCode;
@@ -158,14 +157,15 @@ class ProcessAccountImportService
      */
     protected function attemptVerifyPhoneCode(PhoneNumber $phone): VerifyPhoneSecurityCode
     {
+
         for ($attempts = 0; $attempts < $this->getTries(); $attempts++) {
 
-            $this->sendPhoneSecurityCode($phone);
-
-            //为了防止拿到上一次验证码导致错误，这里建议睡眠一段时间再尝试
-            usleep($this->getSleepTime($attempts, $this->getRetryInterval(), true));
-
             try {
+
+                $this->sendPhoneSecurityCode($phone);
+
+                //为了防止拿到上一次验证码导致错误，这里建议睡眠一段时间再尝试
+                usleep($this->getSleepTime($attempts, $this->getRetryInterval(), true));
 
                 return $this->handlePhoneVerification($phone);
 
@@ -181,6 +181,7 @@ class ProcessAccountImportService
                     "授权失败",
                     "{$this->accountManager->getAccount()->account} {$e->getMessage()}"
                 );
+
             }
         }
 

@@ -7,8 +7,11 @@
 
 namespace Modules\AppleClient\Service;
 
+use InvalidArgumentException;
+use JsonException;
 use Modules\AppleClient\Service\Config\Config;
 use Modules\AppleClient\Service\Exception\VerificationCodeException;
+use Modules\AppleClient\Service\Exception\VerificationCodeSentTooManyTimesException;
 use Modules\AppleClient\Service\Integrations\Idmsa\IdmsaConnector;
 use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\Auth;
 use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\AuthorizeComplete;
@@ -21,8 +24,6 @@ use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\SigninInit;
 use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\VerifyPhoneSecurityCode;
 use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\VerifyTrustedDeviceSecurityCode;
 use Modules\AppleClient\Service\Response\Response;
-use InvalidArgumentException;
-use JsonException;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
 
@@ -232,13 +233,33 @@ trait Idmsa
     /**
      * @param int $id
      *
-     * @throws FatalRequestException
-     * @throws RequestException
-     *
      * @return Response
+     *@throws RequestException
+     * @throws VerificationCodeSentTooManyTimesException
+     *
+     * @throws FatalRequestException
      */
     public function sendPhoneSecurityCode(int $id): Response
     {
-        return $this->getIdmsaConnector()->send(new SendPhoneSecurityCode($id));
+        try {
+
+            return $this->getIdmsaConnector()->send(new SendPhoneSecurityCode($id));
+
+        } catch (RequestException $e) {
+
+            /**
+             * @var Response $response
+             */
+            $response = $e->getResponse();
+
+            if ($response->status() === 423) {
+                throw new VerificationCodeSentTooManyTimesException(
+                    $response,
+                    $response->getFirstServiceError()?->getMessage() ?? '验证码发送次数过多'
+                );
+            }
+
+            throw $e;
+        }
     }
 }

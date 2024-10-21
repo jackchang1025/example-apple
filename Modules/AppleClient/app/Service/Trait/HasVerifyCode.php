@@ -2,14 +2,12 @@
 
 namespace Modules\AppleClient\Service\Trait;
 
+use JsonException;
 use Modules\AppleClient\Service\DataConstruct\NullData;
 use Modules\AppleClient\Service\DataConstruct\SecurityVerifyPhone\SecurityVerifyPhone;
 use Modules\AppleClient\Service\DataConstruct\SendVerificationCode\SendDeviceSecurityCode;
 use Modules\AppleClient\Service\DataConstruct\SendVerificationCode\SendPhoneVerificationCode;
-use Modules\AppleClient\Service\DataConstruct\Sign\Sign;
-use Modules\AppleClient\Service\DataConstruct\VerificationCode\AuthenticationData;
 use Modules\AppleClient\Service\DataConstruct\VerifyPhoneSecurityCode\VerifyPhoneSecurityCode;
-use Modules\AppleClient\Service\Exception\AccountLockoutException;
 use Modules\AppleClient\Service\Exception\BindPhoneException;
 use Modules\AppleClient\Service\Exception\ErrorException;
 use Modules\AppleClient\Service\Exception\PhoneException;
@@ -17,7 +15,6 @@ use Modules\AppleClient\Service\Exception\PhoneNumberAlreadyExistsException;
 use Modules\AppleClient\Service\Exception\StolenDeviceProtectionException;
 use Modules\AppleClient\Service\Exception\VerificationCodeException;
 use Modules\AppleClient\Service\Exception\VerificationCodeSentTooManyTimesException;
-use Modules\AppleClient\Service\Response\Response;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
 
@@ -29,7 +26,7 @@ trait HasVerifyCode
      * @return VerifyPhoneSecurityCode
      * @throws FatalRequestException
      * @throws RequestException
-     * @throws VerificationCodeException|\JsonException
+     * @throws VerificationCodeException|JsonException
      */
     public function verifyPhoneCode(string $id, string $code): VerifyPhoneSecurityCode
     {
@@ -40,7 +37,8 @@ trait HasVerifyCode
      * @param int $id
      * @return SendPhoneVerificationCode
      * @throws FatalRequestException
-     * @throws RequestException|\JsonException
+     * @throws VerificationCodeSentTooManyTimesException
+     * @throws RequestException|JsonException
      */
     public function sendPhoneSecurityCode(int $id): SendPhoneVerificationCode
     {
@@ -50,7 +48,7 @@ trait HasVerifyCode
     /**
      * @return SendDeviceSecurityCode
      * @throws FatalRequestException
-     * @throws RequestException|\JsonException
+     * @throws RequestException|JsonException
      */
     public function sendSecurityCode(): SendDeviceSecurityCode
     {
@@ -62,7 +60,7 @@ trait HasVerifyCode
      * @return NullData
      * @throws FatalRequestException
      * @throws RequestException
-     * @throws VerificationCodeException|\JsonException
+     * @throws VerificationCodeException|JsonException
      */
     public function verifySecurityCode(string $code): NullData
     {
@@ -89,7 +87,7 @@ trait HasVerifyCode
      * @throws RequestException
      * @throws StolenDeviceProtectionException
      * @throws VerificationCodeSentTooManyTimesException
-     * @throws \JsonException
+     * @throws JsonException
      * @throws BindPhoneException
      */
     public function securityVerifyPhone(
@@ -116,7 +114,7 @@ trait HasVerifyCode
      * @param string $code
      * @return SecurityVerifyPhone
      * @throws FatalRequestException
-     * @throws \JsonException|VerificationCodeException
+     * @throws JsonException|VerificationCodeException
      */
     public function securityVerifyPhoneSecurityCode(
         int $id,
