@@ -2,8 +2,13 @@
 
 namespace Modules\AppleClient\Service\DataConstruct\Payment;
 
+use App\Models\Payment;
 use Modules\AppleClient\Service\DataConstruct\Data;
+use Spatie\LaravelData\Attributes\MapName;
+use Spatie\LaravelData\Attributes\MapOutputName;
+use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 
+#[MapOutputName(SnakeCaseMapper::class)]
 class PrimaryPaymentMethod extends Data
 {
     public function __construct(
@@ -54,6 +59,11 @@ class PrimaryPaymentMethod extends Data
 
         public bool $weChatPay,
 
+        #[MapName('id')]
+        public int $paymentId,
+
+        public ?string $type = null,
+
         public ?string $paymentMethodDetail = null,
 
         public ?string $partnerLogin = null,
@@ -62,5 +72,16 @@ class PrimaryPaymentMethod extends Data
 
     )
     {
+    }
+
+    public function updateOrCreate(int $accountId): Payment
+    {
+        return Payment::updateOrCreate(
+            [
+                'account_id' => $accountId,
+                'payment_id' => $this->paymentId,
+            ],
+            $this->toArray()
+        );
     }
 }

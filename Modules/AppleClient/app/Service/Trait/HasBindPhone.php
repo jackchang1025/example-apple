@@ -9,7 +9,6 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use JsonException;
-use Modules\AppleClient\Service\DataConstruct\Device\Device;
 use Modules\AppleClient\Service\DataConstruct\SecurityVerifyPhone\SecurityVerifyPhone;
 use Modules\AppleClient\Service\Exception\AccountException;
 use Modules\AppleClient\Service\Exception\AppleClientException;
@@ -27,7 +26,6 @@ use Modules\PhoneCode\Service\Exception\AttemptBindPhoneCodeException;
 use Modules\PhoneCode\Service\Helpers\PhoneCodeParser;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
-use Spatie\LaravelData\DataCollection;
 use Throwable;
 
 trait HasBindPhone
@@ -45,6 +43,8 @@ trait HasBindPhone
             $this->validateAccount();
 
             $this->fetchDevices();
+
+            $this->fetchPaymentConfig();
 
             $this->attemptBind();
 

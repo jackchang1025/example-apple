@@ -10,6 +10,8 @@ use App\Filament\Resources\AccountResource\RelationManagers\LogsRelationManager;
 use App\Models\Account;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\Fieldset;
+use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
@@ -129,7 +131,73 @@ class AccountResource extends Resource
                         TextEntry::make('created_at')->label('创建时间')->dateTime('Y-m-d H:i:s'),
                         TextEntry::make('updated_at')->label('更新时间')->dateTime('Y-m-d H:i:s'),
                     ])
-                    ->columns(2)
+                    ->columns(2),
+
+                Section::make('支付信息')
+                    ->schema([
+                        TextEntry::make('payment.payment_method_name')->label('支付方式名称'),
+                        TextEntry::make('payment.payment_method_detail')->label('支付方式详情'),
+                        TextEntry::make('payment.partner_login')->label('合作伙伴登录信息'),
+                        TextEntry::make('payment.payment_account_country_code')->label('支付账户国家代码'),
+                        TextEntry::make('payment.type')->label('支付方式类型'),
+
+                        IconEntry::make('payment.is_primary')
+                            ->label('是否主要支付方式')
+                            ->icon(fn(bool $state): string => $state ? 'heroicon-o-check-circle' : 'heroicon-o-x-circle'
+                            )
+                            ->color(fn(bool $state): string => $state ? 'success' : 'danger'),
+
+
+                        TextEntry::make('payment.is_primary')
+                            ->label('是否主要支付方式')
+                            ->formatStateUsing(fn(bool $state): string => $state ? '是' : '否'),
+
+                        TextEntry::make('payment.we_chat_pay')
+                            ->label('是否微信支付')
+                            ->formatStateUsing(fn(bool $state): string => $state ? '是' : '否'),
+
+                        TextEntry::make('payment.payment_supported')
+                            ->label('是否支持支付')
+                            ->formatStateUsing(fn(bool $state): string => $state ? '是' : '否'),
+
+                        TextEntry::make('payment.family_card')
+                            ->label('是否家庭卡')
+                            ->formatStateUsing(fn(bool $state): string => $state ? '是' : '否'),
+
+                        TextEntry::make('payment.expiration_supported')
+                            ->label('是否支持过期')
+                            ->formatStateUsing(fn(bool $state): string => $state ? '是' : '否'),
+
+                        //
+                        //                        TextEntry::make('payment.is_primary')->label('是否主要支付方式'),
+                        //                        TextEntry::make('payment.we_chat_pay')->label('是否微信支付'),
+                        //                        TextEntry::make('payment.payment_supported')->label('是否支持支付'),
+                        //                        TextEntry::make('payment.family_card')->label('是否家庭卡'),
+                        //                        TextEntry::make('payment.expiration_supported')->label('是否支持过期'),
+
+                        Fieldset::make('电话信息')
+                            ->schema([
+                                TextEntry::make('payment.phone_number.number')->label('号码'),
+                                TextEntry::make('payment.phone_number.countryCode')->label('国家代码'),
+                            ]),
+
+                        Fieldset::make('所有者信息')
+                            ->schema([
+                                TextEntry::make('payment.owner_name.firstName')->label('名'),
+                                TextEntry::make('payment.owner_name.lastName')->label('姓'),
+                            ]),
+
+                        Fieldset::make('账单地址')
+                            ->schema([
+                                TextEntry::make('payment.billing_address.line1')->label('地址行1'),
+                                TextEntry::make('payment.billing_address.line2')->label('地址行2'),
+                                TextEntry::make('payment.billing_address.city')->label('城市'),
+                                TextEntry::make('payment.billing_address.stateProvince')->label('州/省'),
+                                TextEntry::make('payment.billing_address.postalCode')->label('邮编'),
+                                TextEntry::make('payment.billing_address.countryName')->label('国家'),
+                            ]),
+                    ])
+                    ->columns(2),
             ]);
     }
 

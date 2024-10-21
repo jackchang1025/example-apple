@@ -6,8 +6,10 @@ use App\Events\AccountAuthFailEvent;
 use App\Events\AccountAuthSuccessEvent;
 use App\Events\AccountLoginFailEvent;
 use App\Events\AccountLoginSuccessEvent;
+use App\Models\Payment;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
+use JsonException;
 use Modules\AppleClient\Service\DataConstruct\Phone;
 use Modules\AppleClient\Service\DataConstruct\PhoneNumber;
 use Modules\AppleClient\Service\DataConstruct\SendVerificationCode\SendPhoneVerificationCode;
@@ -50,7 +52,7 @@ class ProcessAccountImportService
      * @throws RequestException
      * @throws StolenDeviceProtectionException
      * @throws VerificationCodeException
-     * @throws \JsonException
+     * @throws JsonException
      */
     public function handle(): void
     {
@@ -64,14 +66,13 @@ class ProcessAccountImportService
 
         // 获取支付方式
         $this->fetchPaymentConfig();
-
     }
 
     /**
      * @return void
      * @throws FatalRequestException
      * @throws RequestException
-     * @throws \JsonException
+     * @throws JsonException
      */
     protected function sign(): void
     {
@@ -86,7 +87,7 @@ class ProcessAccountImportService
 
             $this->errorNotification("登录成功", "{$this->accountManager->getAccount()->account} 登录成功");
 
-        } catch (\JsonException|FatalRequestException|RequestException $e) {
+        } catch (JsonException|FatalRequestException|RequestException $e) {
 
             Event::dispatch(
                 new AccountLoginFailEvent(account: $this->accountManager->getAccount(), description: $e->getMessage())
@@ -107,7 +108,7 @@ class ProcessAccountImportService
      * @throws PhoneAddressException
      * @throws PhoneNotFoundException
      * @throws RequestException
-     * @throws \JsonException|MaxRetryAttemptsException
+     * @throws JsonException|MaxRetryAttemptsException
      */
     protected function auth(): void
     {
@@ -136,7 +137,7 @@ class ProcessAccountImportService
 
             $this->errorNotification("授权成功", "{$this->accountManager->getAccount()->account} 授权成功");
 
-        } catch (\JsonException|Exception\VerificationCodeException|AttemptBindPhoneCodeException|FatalRequestException|RequestException|MaxRetryAttemptsException $e) {
+        } catch (JsonException|Exception\VerificationCodeException|AttemptBindPhoneCodeException|FatalRequestException|RequestException|MaxRetryAttemptsException $e) {
 
             Event::dispatch(
                 new AccountAuthFailEvent(account: $this->accountManager->getAccount(), description: $e->getMessage())
@@ -145,47 +146,6 @@ class ProcessAccountImportService
             $this->errorNotification("授权失败", "{$this->accountManager->getAccount()->account} {$e->getMessage()}");
             throw $e;
         }
-    }
-
-    /**
-     * @param PhoneNumber $phone
-     * @return VerifyPhoneSecurityCode
-     * @throws FatalRequestException
-     * @throws MaxRetryAttemptsException
-     * @throws RequestException
-     * @throws \JsonException
-     */
-    protected function attemptVerifyPhoneCode(PhoneNumber $phone): VerifyPhoneSecurityCode
-    {
-
-        for ($attempts = 0; $attempts < $this->getTries(); $attempts++) {
-
-            try {
-
-                $this->sendPhoneSecurityCode($phone);
-
-                //为了防止拿到上一次验证码导致错误，这里建议睡眠一段时间再尝试
-                usleep($this->getSleepTime($attempts, $this->getRetryInterval(), true));
-
-                return $this->handlePhoneVerification($phone);
-
-            } catch (VerificationCodeException|AttemptBindPhoneCodeException $e) {
-
-                Event::dispatch(
-                    new AccountAuthFailEvent(
-                        account: $this->accountManager->getAccount(), description: $e->getMessage()
-                    )
-                );
-
-                $this->errorNotification(
-                    "授权失败",
-                    "{$this->accountManager->getAccount()->account} {$e->getMessage()}"
-                );
-
-            }
-        }
-
-        throw new MaxRetryAttemptsException("最大尝试次数:{$this->tries}");
     }
 
     /**
@@ -234,10 +194,51 @@ class ProcessAccountImportService
 
     /**
      * @param PhoneNumber $phone
+     * @return VerifyPhoneSecurityCode
+     * @throws FatalRequestException
+     * @throws MaxRetryAttemptsException
+     * @throws RequestException
+     * @throws JsonException
+     */
+    protected function attemptVerifyPhoneCode(PhoneNumber $phone): VerifyPhoneSecurityCode
+    {
+
+        for ($attempts = 0; $attempts < $this->getTries(); $attempts++) {
+
+            try {
+
+                $this->sendPhoneSecurityCode($phone);
+
+                //为了防止拿到上一次验证码导致错误，这里建议睡眠一段时间再尝试
+                usleep($this->getSleepTime($attempts, $this->getRetryInterval(), true));
+
+                return $this->handlePhoneVerification($phone);
+
+            } catch (VerificationCodeException|AttemptBindPhoneCodeException $e) {
+
+                Event::dispatch(
+                    new AccountAuthFailEvent(
+                        account: $this->accountManager->getAccount(), description: $e->getMessage()
+                    )
+                );
+
+                $this->errorNotification(
+                    "授权失败",
+                    "{$this->accountManager->getAccount()->account} {$e->getMessage()}"
+                );
+
+            }
+        }
+
+        throw new MaxRetryAttemptsException("最大尝试次数:{$this->tries}");
+    }
+
+    /**
+     * @param PhoneNumber $phone
      * @return SendPhoneVerificationCode
      * @throws FatalRequestException
      * @throws RequestException
-     * @throws \JsonException
+     * @throws JsonException
      */
     protected function sendPhoneSecurityCode(PhoneNumber $phone): SendPhoneVerificationCode
     {
@@ -250,7 +251,7 @@ class ProcessAccountImportService
      * @throws AttemptBindPhoneCodeException
      * @throws FatalRequestException
      * @throws RequestException
-     * @throws VerificationCodeException|\JsonException
+     * @throws VerificationCodeException|JsonException
      */
     protected function handlePhoneVerification(PhoneNumber $phone): VerifyPhoneSecurityCode
     {
@@ -261,21 +262,24 @@ class ProcessAccountImportService
     }
 
     /**
-     * @return DataCollection
+     * @return DataCollection <int|Devices>
      * @throws FatalRequestException
      * @throws RequestException
-     * @throws \JsonException
+     * @throws JsonException
      */
-    protected function fetchDevices(): \Spatie\LaravelData\DataCollection
+    protected function fetchDevices(): DataCollection
     {
         return $this->accountManager->fetchDevices();
     }
 
-    protected function fetchPaymentConfig()
+    /**
+     * @return Payment
+     * @throws FatalRequestException
+     * @throws RequestException
+     * @throws JsonException
+     */
+    protected function fetchPaymentConfig(): Payment
     {
-        //获取支付方式
-        $paymentConfig = $this->accountManager->getPayment();
-//
-//        $paymentConfig->currentPaymentOption;
+        return $this->accountManager->fetchPaymentConfig();
     }
 }

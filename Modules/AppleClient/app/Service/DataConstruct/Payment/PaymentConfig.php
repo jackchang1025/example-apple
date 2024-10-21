@@ -2,9 +2,9 @@
 
 namespace Modules\AppleClient\Service\DataConstruct\Payment;
 
+use Modules\AppleClient\Service\DataConstruct\Data;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Attributes\MapName;
-use Modules\AppleClient\Service\DataConstruct\Data;
 use Spatie\LaravelData\DataCollection;
 
 class PaymentConfig extends Data
@@ -73,4 +73,6 @@ class PaymentConfig extends Data
     {
         return self::from(json_decode($json, true, 512, JSON_THROW_ON_ERROR));
     }
+
+
 }

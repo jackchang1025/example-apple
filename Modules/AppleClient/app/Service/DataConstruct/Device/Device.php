@@ -3,9 +3,12 @@
 namespace Modules\AppleClient\Service\DataConstruct\Device;
 
 use App\Models\Devices;
-use Spatie\LaravelData\Attributes\MapName;
 use Modules\AppleClient\Service\DataConstruct\Data;
+use Spatie\LaravelData\Attributes\MapName;
+use Spatie\LaravelData\Attributes\MapOutputName;
+use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 
+#[MapOutputName(SnakeCaseMapper::class)]
 class Device extends Data
 {
     public function __construct(
@@ -34,7 +37,7 @@ class Device extends Data
     ) {
     }
 
-    public function updateOrCreate(int $accountId): \Illuminate\Database\Eloquent\Model|Devices
+    public function updateOrCreate(int $accountId): Devices
     {
         return Devices::updateOrCreate(
             [

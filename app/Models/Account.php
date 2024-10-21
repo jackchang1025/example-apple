@@ -35,6 +35,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read string $status_description
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\AccountLogs> $logs
  * @property-read int|null $logs_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Devices> $devices
+ * @property-read int|null $devices_count
+ * @property-read \App\Models\Payment|null $payment
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereType($value)
  * @mixin \Eloquent
  */
 class Account extends Model
@@ -65,14 +69,19 @@ class Account extends Model
         return $this->hasMany(Devices::class);
     }
 
-    public function payment(): HasMany
+//    public function payment(): HasMany
+//    {
+//        return $this->hasMany(Payment::class);
+//    }
+
+    public function payment(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
-        return $this->hasMany(Payment::class);
+        return $this->hasOne(Payment::class);
     }
 
     public function getSessionId(): string
     {
-        return md5(sprintf('%s_%s', $this->account, $this->password));
+        return md5(sprintf('%s_%s_%s', $this->account, $this->password, time()));
     }
 
 }
