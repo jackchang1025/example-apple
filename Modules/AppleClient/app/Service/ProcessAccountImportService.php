@@ -6,18 +6,21 @@ use App\Events\AccountAuthFailEvent;
 use App\Events\AccountAuthSuccessEvent;
 use App\Events\AccountLoginFailEvent;
 use App\Events\AccountLoginSuccessEvent;
-use App\Models\Account;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
 use Modules\AppleClient\Service\DataConstruct\Device\Device;
 use Modules\AppleClient\Service\DataConstruct\Phone;
+use Modules\AppleClient\Service\DataConstruct\PhoneNumber;
+use Modules\AppleClient\Service\DataConstruct\SendVerificationCode\SendPhoneVerificationCode;
+use Modules\AppleClient\Service\DataConstruct\VerifyPhoneSecurityCode\VerifyPhoneSecurityCode;
 use Modules\AppleClient\Service\Exception\AccountException;
+use Modules\AppleClient\Service\Exception\MaxRetryAttemptsException;
 use Modules\AppleClient\Service\Exception\PhoneAddressException;
 use Modules\AppleClient\Service\Exception\PhoneNotFoundException;
 use Modules\AppleClient\Service\Exception\StolenDeviceProtectionException;
 use Modules\AppleClient\Service\Exception\VerificationCodeException;
-use Modules\AppleClient\Service\Response\Response;
+use Modules\AppleClient\Service\Trait\HasNotification;
+use Modules\AppleClient\Service\Trait\HasTries;
 use Modules\PhoneCode\Service\Exception\AttemptBindPhoneCodeException;
 use Modules\PhoneCode\Service\Helpers\PhoneCodeParser;
 use Saloon\Exceptions\Request\FatalRequestException;
@@ -26,13 +29,31 @@ use Spatie\LaravelData\DataCollection;
 
 class ProcessAccountImportService
 {
+    use HasNotification;
+    use HasTries;
 
-    public function __construct(protected Account $account, protected AppleClientService $appleClientService)
+
+    public function __construct(protected AppleAccountManager $accountManager)
     {
-
+        $this->tries                 = 5;
+        $this->retryInterval         = 5;
+        $this->useExponentialBackoff = true;
     }
 
-    public function handle()
+    /**
+     * @return void
+     * @throws AccountException
+     * @throws AttemptBindPhoneCodeException
+     * @throws FatalRequestException
+     * @throws MaxRetryAttemptsException
+     * @throws PhoneAddressException
+     * @throws PhoneNotFoundException
+     * @throws RequestException
+     * @throws StolenDeviceProtectionException
+     * @throws VerificationCodeException
+     * @throws \JsonException
+     */
+    public function handle(): void
     {
 
         $this->sign();
@@ -58,13 +79,21 @@ class ProcessAccountImportService
 
         try {
 
-            $this->appleClientService->authenticate($this->account->account, $this->account->password);
+            $this->accountManager->sign();
 
-            Event::dispatch(new AccountLoginSuccessEvent(account: $this->account, description: "登录成功"));
+            Event::dispatch(
+                new AccountLoginSuccessEvent(account: $this->accountManager->getAccount(), description: "登录成功")
+            );
+
+            $this->errorNotification("登录成功", "{$this->accountManager->getAccount()->account} 登录成功");
+
         } catch (\JsonException|FatalRequestException|RequestException $e) {
 
-            Event::dispatch(new AccountLoginFailEvent(account: $this->account, description: $e->getMessage()));
+            Event::dispatch(
+                new AccountLoginFailEvent(account: $this->accountManager->getAccount(), description: $e->getMessage())
+            );
 
+            $this->errorNotification("登录失败", "{$this->accountManager->getAccount()->account} {$e->getMessage()}");
             throw $e;
         }
     }
@@ -79,7 +108,7 @@ class ProcessAccountImportService
      * @throws PhoneAddressException
      * @throws PhoneNotFoundException
      * @throws RequestException
-     * @throws \JsonException
+     * @throws \JsonException|MaxRetryAttemptsException
      */
     protected function auth(): void
     {
@@ -88,25 +117,74 @@ class ProcessAccountImportService
 
             $this->validatePhoneBinding();
 
-            $response = $this->appleClientService->fetchAuthResponse();
+            $auth = $this->accountManager->auth();
 
-            $phone = $this->findTrustedPhone($response->getTrustedPhoneNumbers());
+            $phone = $this->findTrustedPhone($auth->getTrustedPhoneNumbers());
             if (!$phone) {
-                throw new PhoneNotFoundException("未找到该账号绑定的手机号码");
+                throw new PhoneNotFoundException("未找到该账号绑定的手机号码", [
+                    'account'       => $this->accountManager->getAccount()->toArray(),
+                    'trusted_phone' => $auth->getTrustedPhoneNumbers()->toArray(),
+                ]);
             }
 
-            $this->sendPhoneSecurityCode($response, $phone);
+            $this->attemptVerifyPhoneCode($phone);
 
-            $this->handlePhoneVerification($phone);
-            $this->appleClientService->token();
+            $this->accountManager->token();
 
-            Event::dispatch(new AccountAuthSuccessEvent(account: $this->account, description: "授权成功"));
+            Event::dispatch(
+                new AccountAuthSuccessEvent(account: $this->accountManager->getAccount(), description: "授权成功")
+            );
 
-        } catch (\JsonException|Exception\VerificationCodeException|AttemptBindPhoneCodeException|FatalRequestException|RequestException $e) {
+            $this->errorNotification("授权成功", "{$this->accountManager->getAccount()->account} 授权成功");
 
-            Event::dispatch(new AccountAuthFailEvent(account: $this->account, description: $e->getMessage()));
+        } catch (\JsonException|Exception\VerificationCodeException|AttemptBindPhoneCodeException|FatalRequestException|RequestException|MaxRetryAttemptsException $e) {
+
+            Event::dispatch(
+                new AccountAuthFailEvent(account: $this->accountManager->getAccount(), description: $e->getMessage())
+            );
+
+            $this->errorNotification("授权失败", "{$this->accountManager->getAccount()->account} {$e->getMessage()}");
             throw $e;
         }
+    }
+
+    /**
+     * @param PhoneNumber $phone
+     * @return VerifyPhoneSecurityCode
+     * @throws FatalRequestException
+     * @throws MaxRetryAttemptsException
+     * @throws RequestException
+     * @throws \JsonException
+     */
+    protected function attemptVerifyPhoneCode(PhoneNumber $phone): VerifyPhoneSecurityCode
+    {
+        for ($attempts = 0; $attempts < $this->getTries(); $attempts++) {
+
+            $this->sendPhoneSecurityCode($phone);
+
+            //为了防止拿到上一次验证码导致错误，这里建议睡眠一段时间再尝试
+            usleep($this->getSleepTime($attempts, $this->getRetryInterval(), true));
+
+            try {
+
+                return $this->handlePhoneVerification($phone);
+
+            } catch (VerificationCodeException|AttemptBindPhoneCodeException $e) {
+
+                Event::dispatch(
+                    new AccountAuthFailEvent(
+                        account: $this->accountManager->getAccount(), description: $e->getMessage()
+                    )
+                );
+
+                $this->errorNotification(
+                    "授权失败",
+                    "{$this->accountManager->getAccount()->account} {$e->getMessage()}"
+                );
+            }
+        }
+
+        throw new MaxRetryAttemptsException("最大尝试次数:{$this->tries}");
     }
 
     /**
@@ -116,7 +194,8 @@ class ProcessAccountImportService
      */
     protected function validatePhoneBinding(): void
     {
-        if (!$this->account->bind_phone || !$this->account->bind_phone_address) {
+        if (!$this->accountManager->getAccount()->bind_phone || !$this->accountManager->getAccount(
+            )->bind_phone_address) {
             throw new AccountException("未绑定手机号");
         }
 
@@ -132,8 +211,8 @@ class ProcessAccountImportService
     {
         try {
 
-            return (bool)$this->appleClientService->getPhoneConnector()
-                ->getPhoneCode($this->account->bind_phone_address);
+            return (bool)$this->accountManager->getPhoneConnector()
+                ->getPhoneCode($this->accountManager->getAccount()->bind_phone_address);
 
         } catch (FatalRequestException|RequestException $e) {
 
@@ -142,46 +221,42 @@ class ProcessAccountImportService
     }
 
     /**
-     * @param Collection $trustedPhones
+     * @param DataCollection $trustedPhones
      * @return Phone|null
      */
-    protected function findTrustedPhone(Collection $trustedPhones): ?Phone
+    protected function findTrustedPhone(DataCollection $trustedPhones): ?PhoneNumber
     {
-        return $trustedPhones->first(function (Phone $phone) {
-            return Str::contains($this->account->bind_phone, $phone->getLastTwoDigits());
+        return $trustedPhones->first(function (PhoneNumber $phone) {
+            return Str::contains($this->accountManager->getAccount()->bind_phone, $phone->lastTwoDigits);
         });
     }
 
     /**
-     * @param Response $response
-     * @param Phone $phone
-     * @return void
+     * @param PhoneNumber $phone
+     * @return SendPhoneVerificationCode
      * @throws FatalRequestException
      * @throws RequestException
      * @throws \JsonException
      */
-    protected function sendPhoneSecurityCode(Response $response, Phone $phone): void
+    protected function sendPhoneSecurityCode(PhoneNumber $phone): SendPhoneVerificationCode
     {
-        if ($response->hasTrustedDevices() || $response->getTrustedPhoneNumbers()->count() >= 2) {
-            $this->appleClientService->sendPhoneSecurityCode($phone->getId());
-        }
+        return $this->accountManager->sendPhoneSecurityCode($phone->id);
     }
 
     /**
-     * @param Phone $phone
-     * @return void
+     * @param PhoneNumber $phone
+     * @return VerifyPhoneSecurityCode
      * @throws AttemptBindPhoneCodeException
-     * @throws Exception\StolenDeviceProtectionException
-     * @throws Exception\VerificationCodeException
      * @throws FatalRequestException
      * @throws RequestException
+     * @throws VerificationCodeException|\JsonException
      */
-    protected function handlePhoneVerification(Phone $phone): void
+    protected function handlePhoneVerification(PhoneNumber $phone): VerifyPhoneSecurityCode
     {
-        $code = $this->appleClientService->getPhoneConnector()
-            ->attemptGetPhoneCode($this->account->bind_phone_address, new PhoneCodeParser());
+        $code = $this->accountManager->getPhoneConnector()
+            ->attemptGetPhoneCode($this->accountManager->getAccount()->bind_phone_address, new PhoneCodeParser());
 
-        $this->appleClientService->verifyPhoneCode($phone->getId(), $code);
+        return $this->accountManager->verifyPhoneCode($phone->id, $code);
     }
 
     /**
@@ -192,17 +267,13 @@ class ProcessAccountImportService
      */
     protected function fetchDevices(): \Spatie\LaravelData\DataCollection
     {
-        return $this->appleClientService
-            ->getDevices()->devices
-            ->map(function (Device $device) {
-                return $device->updateOrCreate($this->account->id);
-            });
+        return $this->accountManager->fetchDevices();
     }
 
     protected function fetchPaymentConfig()
     {
         //获取支付方式
-        $paymentConfig = $this->appleClientService->getPayment();
+        $paymentConfig = $this->accountManager->getPayment();
 //
 //        $paymentConfig->currentPaymentOption;
     }

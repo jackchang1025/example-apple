@@ -26,7 +26,6 @@ trait HasCookie
                     return $this->getCookieJar()?->withCookieHeader($pendingRequest);
 
                 },'withCookieHeader');
-
         }
 
         if(!$this->responsePipelineExists($pendingRequest,'extractCookies')){
@@ -36,12 +35,19 @@ trait HasCookie
         }
     }
 
-    public function withCookies(?CookieJarInterface $cookieJar): static
+    public function withCookies(CookieJarInterface|array|null $cookies, bool $strictMode = false): static
     {
-        $this->cookieJar = $cookieJar;
+        if (is_array($cookies)) {
+            $this->cookieJar = new CookieJar($strictMode, $cookies);
+        } elseif ($cookies instanceof CookieJarInterface) {
+            $this->cookieJar = $cookies;
+        } else {
+            $this->cookieJar = null;
+        }
 
         return $this;
     }
+
 
     public function getCookieJar(): ?CookieJarInterface
     {

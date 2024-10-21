@@ -6,8 +6,6 @@ use Modules\IpProxyManager\Service\ProxyResponse;
 
 trait HasProxy
 {
-    protected ?ProxyResponse $proxy = null;
-
     protected bool $proxyEnabled = false;
     protected bool $ipaddressEnabled = false;
 

@@ -17,7 +17,7 @@ use Modules\AppleClient\Service\Helpers\Helpers;
 use Modules\AppleClient\Service\Logger\Logger;
 use Modules\AppleClient\Service\Proxy\HasProxy;
 use Modules\AppleClient\Service\Response\Response;
-use Modules\AppleClient\Service\Trait\HasTries;
+use Modules\IpProxyManager\Service\ProxyService;
 use Psr\Log\LoggerInterface;
 use Saloon\Contracts\ArrayStore;
 use Saloon\Exceptions\Request\FatalRequestException;
@@ -40,17 +40,18 @@ abstract class AppleConnector extends Connector
     use HasProxy;
     use HasConfig;
     use Helpers;
-    use HasTries;
     use HasConfig {
         HasConfig::config as baseConfig;
     }
 
     public function __construct(protected AppleClient $apple)
     {
-        $this->setTries(3);
+        $this->tries           = $this->apple->getTries();
+        $this->retryInterval   = $this->apple->getRetryInterval();
+        $this->throwOnMaxTries = $this->apple->getRetryWhenCallback();
     }
 
-    public function getProxy(): ?string
+    public function getProxy(): ?ProxyService
     {
         return $this->proxy ?? $this->apple->getProxy();
     }
@@ -109,7 +110,7 @@ abstract class AppleConnector extends Connector
 
     public function handleRetry(FatalRequestException|RequestException $exception, Request $request): bool
     {
-        $handleRetry = $this->getHandleRetry() ?? $this->apple->getHandleRetry() ?? static fn (): bool => true;
+        $handleRetry = $this->apple->getHandleRetry() ?? static fn(): bool => true;
 
        return $handleRetry($exception,$request);
     }

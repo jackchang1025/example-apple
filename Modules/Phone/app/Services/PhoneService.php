@@ -61,4 +61,13 @@ class PhoneService
     {
         return $this->phone->toLibPhoneObject()?->getCountryCode();
     }
+
+    /**
+     * @return int|null
+     * @throws \Propaganistas\LaravelPhone\Exceptions\NumberParseException
+     */
+    public function getNationalNumber(): ?int
+    {
+        return $this->phone->toLibPhoneObject()?->getNationalNumber();
+    }
 }

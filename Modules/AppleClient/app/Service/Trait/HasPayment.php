@@ -21,6 +21,14 @@ trait HasPayment
         return $this->payment ??= $this->payment();
     }
 
+    public function fetchPaymentConfig()
+    {
+        //获取支付方式
+        $paymentConfig = $this->getPayment();
+//
+//        $paymentConfig->currentPaymentOption;
+    }
+
     /**
      * @return PaymentConfig
      * @throws \JsonException

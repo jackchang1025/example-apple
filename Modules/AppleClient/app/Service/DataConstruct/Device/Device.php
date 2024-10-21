@@ -4,7 +4,7 @@ namespace Modules\AppleClient\Service\DataConstruct\Device;
 
 use App\Models\Devices;
 use Spatie\LaravelData\Attributes\MapName;
-use Spatie\LaravelData\Data;
+use Modules\AppleClient\Service\DataConstruct\Data;
 
 class Device extends Data
 {

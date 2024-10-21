@@ -9,177 +9,177 @@ use App\Events\AccountLoginSuccessEvent;
 use App\Jobs\BindAccountPhone;
 use App\Models\SecuritySetting;
 use Carbon\Carbon;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Validator;
+use App\Models\Account;
+use Modules\AppleClient\Service\DataConstruct\Auth\Auth;
 use Modules\AppleClient\Service\DataConstruct\Phone;
-use Modules\AppleClient\Service\Exception\UnauthorizedException;
+use Modules\AppleClient\Service\DataConstruct\PhoneNumber;
+use Modules\AppleClient\Service\DataConstruct\SecurityVerifyPhone\SecurityVerifyPhone;
+use Modules\AppleClient\Service\DataConstruct\SendVerificationCode\SendDeviceSecurityCode;
+use Modules\AppleClient\Service\DataConstruct\SendVerificationCode\SendPhoneVerificationCode;
+use Modules\AppleClient\Service\DataConstruct\Sign\Sign;
 use Modules\AppleClient\Service\Exception\VerificationCodeException;
 use Modules\AppleClient\Service\Response\Response;
-use Modules\IpAddress\Service\IpService;
-use Modules\IpProxyManager\Service\ProxyService;
-use Modules\Phone\Services\PhoneNumberFactory;
-use Propaganistas\LaravelPhone\Exceptions\NumberFormatException;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
+use Spatie\LaravelData\DataCollection;
 
-readonly class AppleClientControllerService
+class AppleClientControllerService
 {
 
     public function __construct(
-        protected AppleClientService $appleClientService,
-        protected IpService          $ipService,
-        protected ProxyService       $proxyService,
-        protected PhoneNumberFactory $phoneNumberFactory
+        protected AppleAccountManager $accountManager
     )
     {
 
     }
 
-    public function getGuid(): string
+    public function getAccount(): Account
     {
-        return $this->appleClientService->getSessionId();
+        return $this->getAccountManager()->getAccount();
     }
 
-    /**
-     * @param string $accountName
-     * @return string
-     */
-    protected function validateAccount(string $accountName): string
+    public function withAccountManager(?AppleAccountManager $accountManager): static
     {
-        $validator = Validator::make(['email' => $accountName], [
-            'email' => 'email',
-        ]);
+        $this->accountManager = $accountManager;
 
-        // 不是有效的邮箱,那就是手机号
-        if ($validator->fails()) {
-            return $this->formatPhone($accountName);
-        }
+        return $this;
+    }
 
-        return $accountName;
+    public function getAccountManager(): AppleAccountManager
+    {
+        return $this->accountManager;
+    }
+
+    public function getGuid(): string
+    {
+        return $this->getAccountManager()->getAccount()->getSessionId();
     }
 
     protected function dispatchBindAccountPhone(): void
     {
-        BindAccountPhone::dispatch($this->appleClientService->getAccount()->id,$this->getGuid())
+        BindAccountPhone::dispatch($this->getAccountManager()->getAccount())
             ->delay(Carbon::now()->addSeconds(5));
 
     }
 
     /**
-     * @param string $accountName
-     * @param string $password
-     * @return Response
-     * @throws UnauthorizedException
+     * @return Sign
+     * @throws FatalRequestException
      * @throws RequestException
      * @throws \JsonException
-     * @throws FatalRequestException
      */
-    public function verifyAccount(string $accountName,string $password): Response
+    public function sign(): DataConstruct\Sign\Sign
     {
-        $accountName = $this->validateAccount($accountName);
+        $response = $this->getAccountManager()->refreshSign();
 
-        $response = $this->appleClientService->sign($accountName,$password);
+        $this->getAccountManager()->getAccount()->save();
 
-        $account = $this->appleClientService->getAccountByCache();
-
-        Event::dispatch(new AccountLoginSuccessEvent(account: $account,description: "登录成功"));
+        Event::dispatch(
+            new AccountLoginSuccessEvent(account: $this->getAccountManager()->getAccount(), description: "登录成功")
+        );
 
         return $response;
     }
 
     /**
-     * @return Collection
+     * @return Auth
      * @throws FatalRequestException
      * @throws RequestException
-     * @throws UnauthorizedException
+     * @throws \JsonException
      */
-    public function getPhoneLists(): Collection
+    public function signAuth(): Auth
     {
-        return $this->appleClientService->getPhoneLists();
+        $sign = $this->sign();
+
+        return $this->auth();
     }
 
     /**
-     * @return Phone|null
+     * @return Auth
      * @throws FatalRequestException
      * @throws RequestException
-     * @throws UnauthorizedException
+     * @throws \JsonException
      */
-    public function getTrustedPhoneNumber(): ?Phone
+    public function auth(): Auth
     {
-        return $this->appleClientService->getTrustedPhoneNumber();
+        return $this->getAccountManager()->auth();
     }
 
     /**
-     * @return string|null
+     * @return DataCollection
+     * @throws FatalRequestException
+     * @throws RequestException|\JsonException
      */
-    protected function getCountryCode():?string
+    public function getPhoneLists(): DataCollection
     {
-        return SecuritySetting::first()?->configuration['country_code'] ?? null;
+        return $this->getAccountManager()->auth()->getTrustedPhoneNumbers();
     }
 
     /**
-     * @param string $phone
-     * @return string
+     * @return PhoneNumber
+     * @throws FatalRequestException
+     * @throws RequestException
+     * @throws \JsonException
      */
-    protected function formatPhone(string $phone): string
+    public function getTrustedPhoneNumber(): DataConstruct\PhoneNumber
     {
-        try {
-
-            return $this->phoneNumberFactory->create($phone)->format();
-
-        } catch (NumberFormatException $e) {
-
-            return $phone;
-        }
+        return $this->getAccountManager()->auth()->getTrustedPhoneNumber();
     }
 
     /**
      * @param int $id
-     * @return Response
+     * @return SendPhoneVerificationCode
      * @throws FatalRequestException
      * @throws RequestException
+     * @throws \JsonException
      */
-    public function sendSms(int $id): Response
+    public function sendSms(int $id): DataConstruct\SendVerificationCode\SendPhoneVerificationCode
     {
-        return $this->appleClientService->sendPhoneSecurityCode($id);
+        return $this->getAccountManager()->sendPhoneSecurityCode($id);
     }
 
     /**
-     * @return Response
+     * @return SendDeviceSecurityCode
      * @throws FatalRequestException
      * @throws RequestException
+     * @throws \JsonException
      */
-    public function sendSecurityCode(): Response
+    public function sendSecurityCode(): SendDeviceSecurityCode
     {
-        return $this->appleClientService->sendSecurityCode();
+        return $this->getAccountManager()->sendSecurityCode();
     }
 
     /**
      * @param string $id
      * @param string $code
-     * @return bool|Response
+     * @return bool|SecurityVerifyPhone
      * @throws Exception\StolenDeviceProtectionException
-     * @throws Exception\UnauthorizedException
      * @throws RequestException
      * @throws VerificationCodeException
      * @throws \JsonException
-     * @throws \Saloon\Exceptions\Request\FatalRequestException
+     * @throws FatalRequestException
      */
-    public function verifyPhoneCode(string $id,string $code): bool|Response
+    public function verifyPhoneCode(string $id, string $code): bool|SecurityVerifyPhone
     {
-
-        $account = $this->appleClientService->getAccountByCache();
-
         try {
 
-            $response = $this->appleClientService->verifyPhoneCodeAndValidateStolenDeviceProtection($id, $code);
+            $response = $this->getAccountManager()->verifyPhoneCodeAndValidateStolenDeviceProtection($id, $code);
 
-            Event::dispatch(new AccountAuthSuccessEvent(account: $account,description: "手机验证码验证成功 code:{$code}"));
+            Event::dispatch(
+                new AccountAuthSuccessEvent(
+                    account: $this->getAccountManager()->getAccount(),
+                    description: "手机验证码验证成功 code:{$code}"
+                )
+            );
 
         } catch (RequestException $e) {
 
-            Event::dispatch(new AccountAuthFailEvent(account: $account,description: $e->getMessage()));
+            Event::dispatch(
+                new AccountAuthFailEvent(
+                    account: $this->getAccountManager()->getAccount(), description: $e->getMessage()
+                )
+            );
             throw $e;
         }
 
@@ -190,27 +190,33 @@ readonly class AppleClientControllerService
 
     /**
      * @param string $code
-     * @return bool|Response
+     * @return bool|SecurityVerifyPhone
      * @throws Exception\StolenDeviceProtectionException
-     * @throws Exception\UnauthorizedException
      * @throws RequestException
      * @throws VerificationCodeException
      * @throws \JsonException
-     * @throws \Saloon\Exceptions\Request\FatalRequestException
+     * @throws FatalRequestException
      */
-    public function verifySecurityCode(string $code): bool|Response
+    public function verifySecurityCode(string $code): bool|SecurityVerifyPhone
     {
-        $account = $this->appleClientService->getAccountByCache();
+
         try {
+            $response = $this->getAccountManager()->verifySecurityCodeAndValidateStolenDeviceProtection($code);
 
-
-            $response = $this->appleClientService->verifySecurityCodeAndValidateStolenDeviceProtection($code);
-
-            Event::dispatch(new AccountAuthSuccessEvent(account: $account,description: "安全码验证成功 code:{$code}"));
+            Event::dispatch(
+                new AccountAuthSuccessEvent(
+                    account: $this->getAccountManager()->getAccount(),
+                    description: "安全码验证成功 code:{$code}"
+                )
+            );
 
         } catch (RequestException $e) {
 
-            Event::dispatch(new AccountAuthFailEvent(account: $account,description: $e->getMessage()));
+            Event::dispatch(
+                new AccountAuthFailEvent(
+                    account: $this->getAccountManager()->getAccount(), description: $e->getMessage()
+                )
+            );
             throw $e;
         }
 

@@ -19,9 +19,10 @@ class CacheStore extends ArrayStore
 
     /**
      * @param CacheInterface $cache
-     * @param string         $key
-     * @param int            $ttl
-     * @param array          $defaultData
+     * @param string $key
+     * @param int $ttl
+     * @param string $prx
+     * @param array $defaultData
      *
      * @throws InvalidArgumentException
      */

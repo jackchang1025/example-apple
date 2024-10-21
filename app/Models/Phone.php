@@ -5,8 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Modules\Phone\Service\PhoneNumberFactory;
-use Modules\Phone\Service\PhoneService;
+use Modules\Phone\Services\PhoneNumberFactory;
+use Modules\Phone\Services\PhoneService;
 use Modules\PhoneCode\Service\PhoneConnector;
 use Modules\PhoneCode\Service\Request\PhoneRequest;
 use Modules\PhoneCode\Service\Response;
@@ -73,7 +73,8 @@ class Phone extends Model
     {
         return Attribute::make(
             set: function (?string $value, array $attributes) {
-                return $this->getPhoneNumberService($attributes)->getCountryCode();
+                return $this->getPhoneNumberService($attributes['phone'], $attributes['country_code'])->getCountryCode(
+                );
             }
         );
     }
@@ -82,7 +83,10 @@ class Phone extends Model
     {
         return Attribute::make(
             get: function (?string $value, array $attributes) {
-                return $this->getPhoneNumberService($attributes)->getNationalNumber();
+                return $this->getPhoneNumberService(
+                    $attributes['phone'],
+                    $attributes['country_code']
+                )->getNationalNumber();
             }
         );
     }
@@ -91,8 +95,7 @@ class Phone extends Model
     {
         return Attribute::make(
             set: function (?string $value, array $attributes) {
-
-                return $this->getPhoneNumberService($attributes)->getCountry();
+                return $this->getPhoneNumberService($attributes['phone'], $value)->getCountry();
             }
         );
     }
@@ -109,13 +112,13 @@ class Phone extends Model
     /**
      * 获取 PhoneNumberService 实例
      *
-     * @param array $attributes
+     * @param string $phone
+     * @param string|null $countryCode
      * @return PhoneService
-     * @throws \InvalidArgumentException
      */
-    public function getPhoneNumberService(array $attributes): PhoneService
+    public function getPhoneNumberService(string $phone, ?string $countryCode = null): PhoneService
     {
-        return app(PhoneNumberFactory::class)->create($attributes['phone'], [$attributes['country_code']]);
+        return app(PhoneNumberFactory::class)->create($phone, [$countryCode]);
     }
 
     /**

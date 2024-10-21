@@ -32,7 +32,6 @@ trait Logger
                     $this->getLogger()?->debug('request', [
                         'method' => $request->getMethod(),
                         'uri'    => (string)$request->getUri(),
-                        'store'  => $request->getConnector()->getApple()->getCacheStore()->all(),
                         'config'  => $request->config()->all(),
                         'headers' => $request->headers()->all(),
                         'body'    => $request->body()?->all(),

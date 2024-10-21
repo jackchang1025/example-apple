@@ -2,7 +2,7 @@
 
 namespace Modules\AppleClient\Service\DataConstruct\Payment;
 
-use Spatie\LaravelData\Data;
+use Modules\AppleClient\Service\DataConstruct\Data;
 
 class StringData extends Data
 {

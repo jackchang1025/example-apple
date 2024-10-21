@@ -4,7 +4,7 @@ namespace Modules\AppleClient\Service\DataConstruct\Payment;
 
 use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Attributes\MapName;
-use Spatie\LaravelData\Data;
+use Modules\AppleClient\Service\DataConstruct\Data;
 use Spatie\LaravelData\DataCollection;
 
 class PaymentConfig extends Data

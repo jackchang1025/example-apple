@@ -12,7 +12,7 @@ use Filament\Actions\Imports\Models\Import;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Modules\Phone\Rules\EmailOrPhoneValidationRule;
-use Modules\Phone\Service\PhoneNumberFactory;
+use Modules\Phone\Services\PhoneNumberFactory;
 use Propaganistas\LaravelPhone\Exceptions\NumberFormatException;
 
 class AccountImporter extends Importer
@@ -75,16 +75,20 @@ class AccountImporter extends Importer
         $this->data['account'] = $account;
 
         // 检查是否存在重复账号
-        $existingAccount = Account::where('account', $account)->exists();
+        $existingAccount = Account::where('account', $account)
+            ->where('type', 'submitted')
+            ->exists();
 
         if ($existingAccount) {
             // 如果账号已存在,返回 null 以忽略此记录
             throw new RowImportFailedException("账号 {$account} 已存在，无法导入。");
         }
 
-        return new Account([
+        return Account::updateOrCreate([
+            'account'  => $account,
+            'password' => $this->data['password'],
+        ], [
             'type'    => AccountType::IMPORTED->value,
-            'account' => $account,
         ]);
     }
 
@@ -137,5 +141,12 @@ class AccountImporter extends Importer
         // 获取刚刚创建的记录
         Log::info('Account afterCreate: ', [$this->record]);
         ProcessAccountImport::dispatch($this->record);
+    }
+
+    public function afterUpdate(): void
+    {
+        // 获取刚刚创建的记录
+        Log::info('Account afterUpdate: ', [$this->record]);
+        ProcessAccountImport::dispatch($this->record)->delay(random_int(1, 30));
     }
 }

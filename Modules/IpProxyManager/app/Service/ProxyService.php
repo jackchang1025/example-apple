@@ -10,6 +10,8 @@ class ProxyService
 {
     use HasProxy;
 
+    protected ?ProxyResponse $proxy = null;
+
     protected BaseDto $dto;
 
     /**

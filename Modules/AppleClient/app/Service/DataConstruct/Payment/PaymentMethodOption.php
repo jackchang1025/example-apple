@@ -4,7 +4,7 @@ namespace Modules\AppleClient\Service\DataConstruct\Payment;
 
 
 use Spatie\LaravelData\Attributes\MapInputName;
-use Spatie\LaravelData\Data;
+use Modules\AppleClient\Service\DataConstruct\Data;
 
 class PaymentMethodOption extends Data
 {

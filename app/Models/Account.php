@@ -70,4 +70,9 @@ class Account extends Model
         return $this->hasMany(Payment::class);
     }
 
+    public function getSessionId(): string
+    {
+        return md5(sprintf('%s_%s', $this->account, $this->password));
+    }
+
 }

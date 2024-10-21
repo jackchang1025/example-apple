@@ -15,7 +15,7 @@ class AccountFactory extends Factory
     public function definition(): array
     {
         return [
-            'account' => $this->faker->unique()->safeEmail,
+            'account' => $this->faker->unique()->email(),
             'password' => bcrypt('password'),
             'bind_phone' => $this->faker->phoneNumber,
             'bind_phone_address' => $this->faker->city,

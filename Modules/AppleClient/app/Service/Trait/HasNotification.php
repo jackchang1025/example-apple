@@ -8,9 +8,25 @@ use App\Events\AccountBindPhoneSuccessEvent;
 use App\Models\User;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Event;
+use Psr\Log\LoggerInterface;
 
 trait HasNotification
 {
+    protected LoggerInterface $logger;
+
+    public function withLogger(LoggerInterface $logger): static
+    {
+        $this->logger = $logger;
+
+        return $this;
+    }
+
+    public function getLogger(): LoggerInterface
+    {
+        return $this->logger;
+    }
+
+
     /**
      * 发送成功通知至数据库并记录日志。
      *
@@ -22,18 +38,13 @@ trait HasNotification
      */
     public function successNotification(string $title, string $message): void
     {
-
-        $this->logger->info($message);
-
-        Event::dispatch(
-            new AccountBindPhoneSuccessEvent(account: $this->getAccount(), description:$message)
-        );
+        $this->getLogger()->info($message);
 
         Notification::make()
             ->title($title)
             ->body($message)
             ->success()
-            ->sendToDatabase(User::get());
+            ->sendToDatabase(User::first());
     }
 
 
@@ -48,16 +59,12 @@ trait HasNotification
      */
     public function errorNotification(string $title,string $message): void
     {
-        $this->logger->error($message);
-
-        $this->getAccount() && Event::dispatch(
-            new AccountBindPhoneFailEvent(account: $this->account, description: $message)
-        );
+        $this->getLogger()->error($message);
 
         Notification::make()
             ->title($title)
             ->body($message)
             ->warning()
-            ->sendToDatabase(User::get());
+            ->sendToDatabase(User::first());
     }
 }

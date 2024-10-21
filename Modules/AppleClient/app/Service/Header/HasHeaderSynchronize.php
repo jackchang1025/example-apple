@@ -16,8 +16,11 @@ trait HasHeaderSynchronize
 {
     protected ?ArrayStore $headerRepositories = null;
 
-    public function withHeaderRepositories(?ArrayStore $headerRepositories): static
+    public function withHeaderRepositories(ArrayStore|array|null $headerRepositories): static
     {
+        if (is_array($headerRepositories)) {
+            $headerRepositories = new \Saloon\Repositories\ArrayStore($headerRepositories);
+        }
         $this->headerRepositories = $headerRepositories;
 
         return $this;

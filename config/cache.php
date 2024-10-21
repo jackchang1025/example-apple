@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Str;
-
 return [
 
     /*
@@ -15,7 +14,7 @@ return [
     |
     */
 
-    'default' => env('CACHE_STORE', 'database'),
+    'default' => 'file',//env('CACHE_STORE', 'database'),
 
     /*
     |--------------------------------------------------------------------------
@@ -35,7 +34,7 @@ return [
 
         'array' => [
             'driver' => 'array',
-            'serialize' => false,
+            'serialize' => true,
         ],
 
         'database' => [

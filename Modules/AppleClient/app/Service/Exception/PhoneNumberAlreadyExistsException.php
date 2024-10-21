@@ -7,6 +7,6 @@
 
 namespace Modules\AppleClient\Service\Exception;
 
-class PhoneNumberAlreadyExistsException extends PhoneException
+class PhoneNumberAlreadyExistsException extends AppleClientException
 {
 }

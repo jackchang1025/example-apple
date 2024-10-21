@@ -79,7 +79,7 @@ trait AppleId
      * @throws ErrorException
      * @throws PhoneNumberAlreadyExistsException
      * @throws StolenDeviceProtectionException
-     * @throws BindPhoneException|JsonException|FatalRequestException
+     * @throws BindPhoneException|FatalRequestException
      *
      */
     public function securityVerifyPhone(

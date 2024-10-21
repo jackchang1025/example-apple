@@ -9,9 +9,10 @@ use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-use Modules\AppleClient\Service\AppleClientFactory;
-use Modules\AppleClient\Service\AppleClientService;
+use Modules\AppleClient\Service\AppleAccountManagerFactory;
+use Modules\AppleClient\Service\AppleAccountManager;
 use Modules\AppleClient\Service\ProcessAccountImportService;
+use Psr\Log\LoggerInterface;
 
 class ProcessAccountImport implements ShouldQueue
 {
@@ -23,16 +24,26 @@ class ProcessAccountImport implements ShouldQueue
     }
 
 
-    public function handle(AppleClientFactory $appleClientFactory): void
+    public function handle(AppleAccountManagerFactory $accountManagerFactory, LoggerInterface $logger): void
     {
         Log::info('开始处理账号数据', ['account' => $this->account->toArray()]);
 
-        $client             = $appleClientFactory->create($this->account);
-        $appleClientService = app(AppleClientService::class, ['client' => $client]);
+        try {
 
-        $processAccountImportService = new ProcessAccountImportService($this->account, $appleClientService);
+            $accountManager              = $accountManagerFactory->create($this->account);
+            $processAccountImportService = new ProcessAccountImportService($accountManager);
+            $processAccountImportService->withLogger($logger);
+            $processAccountImportService->handle();
 
-        $processAccountImportService->handle();
+        } catch (\Exception $e) {
+
+            Log::error('处理账号数据失败', [
+                'account' => $this->account->toArray(),
+                'message' => $e,
+            ]);
+
+            $this->fail($e);
+        }
 
         // 执行账号处理逻辑
         // ...

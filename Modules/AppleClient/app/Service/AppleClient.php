@@ -16,7 +16,6 @@ use Modules\AppleClient\Service\Integrations\AppleId\AppleIdConnector;
 use Modules\AppleClient\Service\Integrations\Idmsa\IdmsaConnector;
 use Modules\AppleClient\Service\Logger\Logger;
 use Modules\AppleClient\Service\Proxy\HasProxy;
-use Modules\AppleClient\Service\Store\HasCacheStore;
 use Modules\AppleClient\Service\Trait\HasTries;
 use Saloon\Traits\Conditionable;
 use Saloon\Traits\Macroable;
@@ -35,7 +34,6 @@ class AppleClient
     use Helpers;
     use Logger;
     use Conditionable;
-    use HasCacheStore;
     use HasTries;
     use HasMiddleware;
 
@@ -43,20 +41,11 @@ class AppleClient
     protected IdmsaConnector $idmsaConnector;
     protected AppleAuthConnector $appleAuthConnector;
 
-    /**
-     * @param string $sessionId
-     */
-    public function __construct(
-        protected string $sessionId
-    ) {
-        $this->appleIdConnector = new AppleIdConnector($this);
-        $this->idmsaConnector = new IdmsaConnector($this);
-        $this->appleAuthConnector = new AppleAuthConnector($this);
-    }
-
-    public function getSessionId(): string
+    public function __construct()
     {
-        return $this->sessionId;
+        $this->appleIdConnector = new AppleIdConnector($this);
+        $this->idmsaConnector   = new IdmsaConnector($this);
+        $this->appleAuthConnector = new AppleAuthConnector($this);
     }
 
     public function getAppleIdConnector(): AppleIdConnector
@@ -72,44 +61,5 @@ class AppleClient
     public function getAppleAuthConnector(): AppleAuthConnector
     {
         return $this->appleAuthConnector;
-    }
-
-    public static function builder(string $sessionId): AppleBuilder
-    {
-        return new AppleBuilder(new self($sessionId));
-    }
-
-    /**
-     * @param string $account
-     * @param string $password
-     *
-     * @throws \Saloon\Exceptions\Request\FatalRequestException
-     * @throws \Saloon\Exceptions\Request\RequestException
-     * @throws \JsonException
-     *
-     * @return Response\Response
-     */
-    public function authLogin(string $account, string $password): Response\Response
-    {
-        $initResponse = $this->getAppleAuthConnector()->appleAuthInit($account);
-
-        $signinInitResponse = $this->getIdmsaConnector()->init(a: $initResponse->json('value'), account: $account);
-
-        $completeResponse = $this->getAppleAuthConnector()->appleAuthComplete(
-            key: $initResponse->json('key'),
-            salt: $signinInitResponse->json('salt'),
-            b: $signinInitResponse->json('b'),
-            c: $signinInitResponse->json('c'),
-            password: $password,
-            iteration: $signinInitResponse->json('iteration'),
-            protocol: $signinInitResponse->json('protocol')
-        );
-
-        return $this->getIdmsaConnector()->complete(
-            account: $account,
-            m1: $completeResponse->json('M1'),
-            m2: $completeResponse->json('M2'),
-            c: $completeResponse->json('c'),
-        );
     }
 }

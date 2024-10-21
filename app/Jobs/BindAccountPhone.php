@@ -8,8 +8,8 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-use Modules\AppleClient\Service\AppleClientFactory;
-use Modules\AppleClient\Service\AppleClientService;
+use Modules\AppleClient\Service\AppleAccountManagerFactory;
+use App\Models\Account;
 
 class BindAccountPhone implements ShouldQueue
 {
@@ -35,7 +35,7 @@ class BindAccountPhone implements ShouldQueue
      */
     public function uniqueId(): string
     {
-        return $this->id;
+        return $this->account->account;
     }
 
     /**
@@ -50,39 +50,35 @@ class BindAccountPhone implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(protected readonly int $id, protected readonly string $clientId)
+    public function __construct(protected readonly Account $account)
     {
 
     }
 
     /**
      * Execute the job.
-     * @param AppleClientFactory $appleClientFactory
+     * @param AppleAccountManagerFactory $accountManagerFactory
      * @return void
      */
-    public function handle(AppleClientFactory $appleClientFactory): void
+    public function handle(AppleAccountManagerFactory $accountManagerFactory): void
     {
         try {
 
-            $appleClient = $appleClientFactory->create(clientId: $this->clientId,config: config('apple'));
+            $accountManager = $accountManagerFactory->create($this->account);
 
-            $appleClientService = app(AppleClientService::class,['appleClient' => $appleClient]);
-
-            $appleClientService->handleBindPhone($this->id);
+            $accountManager->handleBindPhone();
 
             // 任务成功执行，记录日志
             Log::info("BindAccountPhone job completed successfully", [
                 'job_id' => $this->job->getJobId(),
-                'account_id' => $this->id,
-                'client_id' => $this->clientId
+                'account' => $this->account,
             ]);
 
         } catch (\Throwable $e) {
 
             Log::error("BindAccountPhone job failed", [
                 'job_id' => $this->job->getJobId(),
-                'account_id' => $this->id,
-                'client_id' => $this->clientId,
+                'account' => $this->account,
                 'error' => $e
             ]);
             $this->fail($e);

@@ -7,49 +7,36 @@
 
 namespace Modules\AppleClient\Service\Proxy;
 
-use Modules\AppleClient\Service\Config\HasConfig;
 use GuzzleHttp\RequestOptions;
 use InvalidArgumentException;
+use Modules\IpProxyManager\Service\ProxyService;
 use Saloon\Http\PendingRequest;
 
 trait HasProxy
 {
-    use HasConfig;
-
-    protected ?string $proxy = null;
-
-    protected bool $proxyEnabled = true;
-
-    public function isProxyEnabled(): bool
-    {
-        return $this->proxyEnabled;
-    }
-
-    public function setProxyEnabled(bool $proxyEnabled): void
-    {
-        $this->proxyEnabled = $proxyEnabled;
-    }
+    protected ?ProxyService $proxy = null;
 
     public function bootHasProxy(PendingRequest $pendingRequest): void
     {
-        if ($this->getProxy() && $this->isProxyEnabled()) {
+        if ($this->getProxy()?->isProxyEnabled()) {
+
+            $proxyUrl = $this->getProxy()->getProxy()->url;
+            if ($proxyUrl !== null && !$this->isValidProxyUrl($proxyUrl)) {
+                throw new InvalidArgumentException("Invalid proxy URL: $proxyUrl");
+            }
 
             $pendingRequest->config()
-                ->add(RequestOptions::PROXY, $this->getProxy());
+                ->add(RequestOptions::PROXY, $proxyUrl);
         }
     }
 
-    public function getProxy(): ?string
+    public function getProxy(): ?ProxyService
     {
         return $this->proxy;
     }
 
-    public function withProxy(?string $proxy = null): static
+    public function withProxy(?ProxyService $proxy = null): static
     {
-        if ($proxy !== null && !$this->isValidProxyUrl($proxy)) {
-            throw new InvalidArgumentException("Invalid proxy URL: $proxy");
-        }
-
         $this->proxy = $proxy;
 
         return $this;

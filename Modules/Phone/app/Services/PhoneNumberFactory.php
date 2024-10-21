@@ -17,10 +17,25 @@ class PhoneNumberFactory
         ?array $countryCode = null,
         ?int $phoneNumberFormat = null
     ): PhoneService {
-        $phoneNumberFormat = $phoneNumberFormat ?? config('phone.format');
 
-        $countryCode = $countryCode ?? [SecuritySetting::first()?->configuration['country_code']];
+        $phoneNumberFormat = $phoneNumberFormat ?: config('phone.format');
 
-        return new PhoneService($phoneNumber, $countryCode, $phoneNumberFormat);
+        $defaultCountryCode = $this->getDefaultCountryCode($countryCode);
+
+        return new PhoneService($phoneNumber, $defaultCountryCode, $phoneNumberFormat);
+    }
+
+    private function getDefaultCountryCode(?array $countryCode): array
+    {
+        if ($countryCode) {
+            return $countryCode;
+        }
+
+        $securitySetting = SecuritySetting::first();
+        if ($securitySetting && isset($securitySetting->configuration['country_code'])) {
+            return [$securitySetting->configuration['country_code']];
+        }
+
+        return config('phone.country_code');
     }
 }

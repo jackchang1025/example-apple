@@ -32,6 +32,7 @@ class Cookies extends CookieJar
         $cookies = $this->cache->get($this->getCacheKey(), []);
 
         if (!is_array($cookies)) {
+
             throw new \RuntimeException('Cookie cache is not an array');
         }
 
@@ -41,9 +42,9 @@ class Cookies extends CookieJar
     /**
      * @param int|null $cookieCacheTtl
      *
-     * @throws InvalidArgumentException
-     *
      * @return void
+     * @throws InvalidArgumentException|\Psr\SimpleCache\InvalidArgumentException
+     *
      */
     public function save(?int $cookieCacheTtl = null): void
     {

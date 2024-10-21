@@ -27,6 +27,7 @@
         "saloonphp/saloon": "^3.10",
         "spatie/laravel-data": "^4.10",
         "symfony/dom-crawler": "^7.1",
+        "symfony/property-access": "^7.1",
         "tomatophp/filament-users": "*",
         "ysfkaya/filament-phone-input": "^2.3"
     },
