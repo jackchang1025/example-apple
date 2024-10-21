@@ -81,7 +81,7 @@ class Account extends Model
 
     public function getSessionId(): string
     {
-        return md5(sprintf('%s_%s_%s', $this->account, $this->password, time()));
+        return md5(sprintf('%s_%s', $this->account, $this->password));
     }
 
 }
