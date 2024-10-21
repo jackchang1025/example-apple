@@ -80,7 +80,7 @@ class AppleClientController extends Controller
 
         $appleClientControllerService = new AppleClientControllerService(
             $this->accountManagerFactory->create([
-                'account' => $this->formatPhone($validatedData['accountName']),
+                'account' => $this->formatAccount($validatedData['accountName']),
                 'password' => $validatedData['password'],
             ])
         );
