@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Str;
+
 return [
 
     /*
@@ -14,7 +15,7 @@ return [
     |
     */
 
-    'default' => 'file',//env('CACHE_STORE', 'database'),
+    'default' => env('CACHE_STORE', 'database'),
 
     /*
     |--------------------------------------------------------------------------
