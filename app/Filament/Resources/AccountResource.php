@@ -37,10 +37,8 @@ class AccountResource extends Resource
                 Forms\Components\Select::make('status')
                     ->options(AccountStatus::getDescriptionValuesArray())
                     ->required(),
-                Forms\Components\TextInput::make('bind_phone')
-                    ->required(),
-                Forms\Components\TextInput::make('bind_phone_address')
-                    ->required(),
+                Forms\Components\TextInput::make('bind_phone')->rules(['nullable', 'phone:AUTO']),
+                Forms\Components\TextInput::make('bind_phone_address')->rule(['nullable', 'url', 'max:255']),
             ]);
     }
 

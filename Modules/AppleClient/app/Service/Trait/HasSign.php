@@ -2,10 +2,8 @@
 
 namespace Modules\AppleClient\Service\Trait;
 
-use App\Models\Account;
 use Modules\AppleClient\Service\DataConstruct\Sign\Sign;
 use Modules\AppleClient\Service\Response\Response;
-use Modules\Phone\Services\HasPhoneNumber;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
 
@@ -31,7 +29,7 @@ trait HasSign
         }
 
         $response = $this->authLogin(
-            $this->formatAccount($this->account->account),
+            $this->account->account,
             $this->account->password
         );
 
@@ -50,7 +48,7 @@ trait HasSign
     {
         $this->sign = Sign::fromResponse(
             $this->authLogin(
-                $this->formatAccount($this->account->account),
+                $this->account->account,
                 $this->account->password
             )
         );

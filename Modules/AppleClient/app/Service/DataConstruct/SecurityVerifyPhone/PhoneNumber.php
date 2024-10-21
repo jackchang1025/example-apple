@@ -24,8 +24,6 @@ class PhoneNumber extends Data
         public string $countryDialCode,
         public string $number,
         public bool $vetted,
-        public string $createDate,
-        public string $updateDate,
         public string $rawNumberWithDialCode,
         public bool $pending,
         public string $lastTwoDigits,
@@ -33,7 +31,9 @@ class PhoneNumber extends Data
         public string $countryCodeAsString,
         public string $obfuscatedNumber,
         public string $name,
-        public int $id
+        public int $id,
+        public ?string $createDate = null,
+        public ?string $updateDate = null,
     ) {
     }
 }

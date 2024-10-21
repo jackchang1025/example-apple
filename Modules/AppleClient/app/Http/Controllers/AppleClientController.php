@@ -18,11 +18,12 @@ use Illuminate\Support\Facades\Validator;
 use InvalidArgumentException;
 use JsonException;
 use Modules\AppleClient\Service\AppleAccountManagerFactory;
+use Modules\AppleClient\Service\AppleClientControllerService;
 use Modules\AppleClient\Service\DataConstruct\Phone;
 use Modules\AppleClient\Service\Exception\StolenDeviceProtectionException;
 use Modules\AppleClient\Service\Exception\VerificationCodeException;
-use Modules\AppleClient\Service\AppleClientControllerService;
 use Modules\AppleClient\Service\ServiceError\ServiceError;
+use Modules\Phone\Services\HasPhoneNumber;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 use Saloon\Exceptions\Request\FatalRequestException;
@@ -30,6 +31,8 @@ use Saloon\Exceptions\Request\RequestException;
 
 class AppleClientController extends Controller
 {
+    use HasPhoneNumber;
+
     public function __construct(
         protected readonly Request $request,
         protected readonly LoggerInterface $logger,
@@ -77,7 +80,7 @@ class AppleClientController extends Controller
 
         $appleClientControllerService = new AppleClientControllerService(
             $this->accountManagerFactory->create([
-                'account'  => $validatedData['accountName'],
+                'account' => $this->formatPhone($validatedData['accountName']),
                 'password' => $validatedData['password'],
             ])
         );
