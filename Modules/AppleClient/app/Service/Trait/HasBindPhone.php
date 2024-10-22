@@ -36,21 +36,46 @@ trait HasBindPhone
 
     private int $attempts = 1;
 
+    /**
+     * @return void
+     * @throws AccountException
+     * @throws BindPhoneException
+     * @throws FatalRequestException
+     * @throws JsonException
+     * @throws MaxRetryAttemptsException
+     * @throws PhoneNotFoundException
+     * @throws RequestException
+     * @throws Throwable
+     */
     public function handleBindPhone(): void
     {
         try {
 
             $this->validateAccount();
 
-            $this->fetchDevices();
-
-            $this->fetchPaymentConfig();
+            $this->fetchInfo();
 
             $this->attemptBind();
 
         } catch (Throwable|Exception $e) {
+
             $this->handleException($e);
+
             throw $e;
+        }
+    }
+
+    protected function fetchInfo(): void
+    {
+        try {
+
+            $this->fetchDevices();
+
+            $this->fetchPaymentConfig();
+
+        } catch (Exception $e) {
+
+            $this->errorNotification("获取用户信息失败", $e->getMessage());
         }
     }
 

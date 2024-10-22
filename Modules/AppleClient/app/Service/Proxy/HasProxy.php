@@ -16,17 +16,19 @@ trait HasProxy
 {
     protected bool $proxyEnabled = true;
 
+    protected ?ProxyService $proxy = null;
+
     public function isProxyEnabled(): bool
     {
         return $this->proxyEnabled;
     }
 
-    public function setProxyEnabled(bool $proxyEnabled): void
+    public function withProxyEnabled(bool $proxyEnabled): static
     {
         $this->proxyEnabled = $proxyEnabled;
-    }
 
-    protected ?ProxyService $proxy = null;
+        return $this;
+    }
 
     public function bootHasProxy(PendingRequest $pendingRequest): void
     {
