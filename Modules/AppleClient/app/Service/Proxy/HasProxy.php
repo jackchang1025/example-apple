@@ -14,11 +14,23 @@ use Saloon\Http\PendingRequest;
 
 trait HasProxy
 {
+    protected bool $proxyEnabled = true;
+
+    public function isProxyEnabled(): bool
+    {
+        return $this->proxyEnabled;
+    }
+
+    public function setProxyEnabled(bool $proxyEnabled): void
+    {
+        $this->proxyEnabled = $proxyEnabled;
+    }
+
     protected ?ProxyService $proxy = null;
 
     public function bootHasProxy(PendingRequest $pendingRequest): void
     {
-        if ($this->getProxy()?->isProxyEnabled()) {
+        if ($this->isProxyEnabled() && $this->getProxy()?->isProxyEnabled()) {
 
             $proxyUrl = $this->getProxy()->getProxy()->url;
             if ($proxyUrl !== null && !$this->isValidProxyUrl($proxyUrl)) {
