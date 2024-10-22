@@ -44,11 +44,28 @@ abstract class AppleConnector extends Connector
         HasConfig::config as baseConfig;
     }
 
+    public ?int $tries = 5;
+
+    /**
+     * The interval in milliseconds Saloon should wait between retries.
+     *
+     * For example 500ms = 0.5 seconds.
+     *
+     * Set to null to disable the retry interval.
+     */
+    public ?int $retryInterval = null;
+
+    /**
+     * Should Saloon use exponential backoff during retries?
+     *
+     * When true, Saloon will double the retry interval after each attempt.
+     */
+    public ?bool $useExponentialBackoff = true;
+
+
     public function __construct(protected AppleClient $apple)
     {
-        $this->tries           = $this->apple->getTries();
-        $this->retryInterval   = $this->apple->getRetryInterval();
-        $this->throwOnMaxTries = $this->apple->getRetryWhenCallback();
+
     }
 
     public function getProxy(): ?ProxyService

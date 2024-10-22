@@ -41,14 +41,12 @@ class ClientFactory
                 defaultData: []
             )
         )
-            ->withHandleRetry(function (RequestException $exception, Request $request) {
+            ->withHandleRetry(function (FatalRequestException|RequestException $exception, Request $request) {
 
                 if ($this->isConnectionException($exception) && $this->proxyService->isProxyEnabled()) {
                     $this->proxyService->refreshProxy();
-
                     return true;
                 }
-
                 return false;
             })
             ->withLogger($this->logger)

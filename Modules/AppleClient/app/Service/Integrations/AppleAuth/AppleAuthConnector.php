@@ -9,7 +9,10 @@ namespace Modules\AppleClient\Service\Integrations\AppleAuth;
 
 use Modules\AppleClient\Service\AppleAuth;
 use Modules\AppleClient\Service\Integrations\AppleConnector;
+use Saloon\Exceptions\Request\FatalRequestException;
+use Saloon\Exceptions\Request\RequestException;
 use Saloon\Http\PendingRequest;
+use Saloon\Http\Request;
 
 class AppleAuthConnector extends AppleConnector
 {
@@ -40,5 +43,10 @@ class AppleAuthConnector extends AppleConnector
             'Accept' => 'application/json, text/plain, */*',
             'Accept-Language' => 'zh-CN,en;q=0.9,zh;q=0.8',
         ];
+    }
+
+    public function handleRetry(FatalRequestException|RequestException $exception, Request $request): bool
+    {
+        return true;
     }
 }

@@ -32,7 +32,7 @@ trait HasProxy
     {
         if ($this->isProxyEnabled() && $this->getProxy()?->isProxyEnabled()) {
 
-            $proxyUrl = $this->getProxy()->getProxy()->url;
+            $proxyUrl = $this->getProxy()->getProxy()?->url;
             if ($proxyUrl !== null && !$this->isValidProxyUrl($proxyUrl)) {
                 throw new InvalidArgumentException("Invalid proxy URL: $proxyUrl");
             }
