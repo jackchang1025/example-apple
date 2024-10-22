@@ -7,19 +7,16 @@ use App\Events\AccountAuthFailEvent;
 use App\Events\AccountAuthSuccessEvent;
 use App\Events\AccountLoginSuccessEvent;
 use App\Jobs\BindAccountPhone;
-use App\Models\SecuritySetting;
+use App\Models\Account;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Event;
-use App\Models\Account;
 use Modules\AppleClient\Service\DataConstruct\Auth\Auth;
-use Modules\AppleClient\Service\DataConstruct\Phone;
 use Modules\AppleClient\Service\DataConstruct\PhoneNumber;
 use Modules\AppleClient\Service\DataConstruct\SecurityVerifyPhone\SecurityVerifyPhone;
 use Modules\AppleClient\Service\DataConstruct\SendVerificationCode\SendDeviceSecurityCode;
 use Modules\AppleClient\Service\DataConstruct\SendVerificationCode\SendPhoneVerificationCode;
 use Modules\AppleClient\Service\DataConstruct\Sign\Sign;
 use Modules\AppleClient\Service\Exception\VerificationCodeException;
-use Modules\AppleClient\Service\Response\Response;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
 use Spatie\LaravelData\DataCollection;
@@ -136,7 +133,22 @@ class AppleClientControllerService
      */
     public function sendSms(int $id): DataConstruct\SendVerificationCode\SendPhoneVerificationCode
     {
-        return $this->getAccountManager()->sendPhoneSecurityCode($id);
+        try {
+
+            $response = $this->getAccountManager()->sendPhoneSecurityCode($id);
+
+            $this->getAccountManager()->getAccount()->logs()
+                ->create(['action' => '发送手机号码', 'description' => '发送手机号码成功']);
+
+            return $response;
+
+        } catch (\JsonException|Exception\VerificationCodeSentTooManyTimesException|FatalRequestException|RequestException $e) {
+
+            $this->getAccountManager()->getAccount()->logs()
+                ->create(['action' => '发送手机号码', 'description' => "发送手机号码失败:{$e->getMessage()}"]);
+
+            throw $e;
+        }
     }
 
     /**
@@ -147,7 +159,21 @@ class AppleClientControllerService
      */
     public function sendSecurityCode(): SendDeviceSecurityCode
     {
-        return $this->getAccountManager()->sendSecurityCode();
+        try {
+
+            $response = $this->getAccountManager()->sendSecurityCode();
+
+            $this->getAccountManager()->getAccount()->logs()
+                ->create(['action' => '发送设备码', 'description' => '发送设备码成功']);
+
+            return $response;
+
+        } catch (\JsonException|FatalRequestException|RequestException $e) {
+
+            $this->getAccountManager()->getAccount()->logs()
+                ->create(['action' => '发送设备码', 'description' => "发送设备码失败:{$e->getMessage()}"]);
+            throw $e;
+        }
     }
 
     /**
