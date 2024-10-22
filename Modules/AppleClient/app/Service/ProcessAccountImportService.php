@@ -35,7 +35,7 @@ class ProcessAccountImportService
 
     public function __construct(protected AppleAccountManager $accountManager)
     {
-        $this->tries                 = 5;
+        $this->tries = 3;
         $this->retryInterval         = 5;
         $this->useExponentialBackoff = true;
     }
@@ -43,7 +43,6 @@ class ProcessAccountImportService
     /**
      * @return void
      * @throws AccountException
-     * @throws AttemptBindPhoneCodeException
      * @throws FatalRequestException
      * @throws MaxRetryAttemptsException
      * @throws PhoneAddressException
@@ -100,7 +99,6 @@ class ProcessAccountImportService
     /**
      * @return void
      * @throws AccountException
-     * @throws AttemptBindPhoneCodeException
      * @throws StolenDeviceProtectionException
      * @throws VerificationCodeException
      * @throws FatalRequestException
@@ -118,7 +116,7 @@ class ProcessAccountImportService
 
             $auth = $this->accountManager->auth();
 
-            $phone = $this->findTrustedPhone($auth->getTrustedPhoneNumbers());
+            $phone = $this->filterTrustedPhone($auth->getTrustedPhoneNumbers());
 
             $this->attemptVerifyPhoneCode($phone);
 
@@ -130,7 +128,7 @@ class ProcessAccountImportService
 
             $this->errorNotification("授权成功", "{$this->accountManager->getAccount()->account} 授权成功");
 
-        } catch (JsonException|Exception\VerificationCodeException|AttemptBindPhoneCodeException|FatalRequestException|RequestException|MaxRetryAttemptsException $e) {
+        } catch (JsonException|VerificationCodeException|FatalRequestException|RequestException|MaxRetryAttemptsException $e) {
 
             Event::dispatch(
                 new AccountAuthFailEvent(account: $this->accountManager->getAccount(), description: $e->getMessage())
@@ -148,13 +146,18 @@ class ProcessAccountImportService
      */
     protected function validatePhoneBinding(): void
     {
-        if (!$this->accountManager->getAccount()->bind_phone || !$this->accountManager->getAccount(
-            )->bind_phone_address) {
+        $account = $this->accountManager->getAccount();
+
+        if (empty($account->bind_phone)) {
             throw new AccountException("未绑定手机号");
         }
 
+        if (empty($account->bind_phone_address)) {
+            throw new AccountException("未绑定手机号地址");
+        }
+
         if (!$this->validatePhoneAddress()) {
-            throw new PhoneAddressException("绑定手机号地址无效");
+            throw new PhoneAddressException("手机号地址无效");
         }
     }
 
@@ -176,71 +179,89 @@ class ProcessAccountImportService
 
     /**
      * @param DataCollection $trustedPhones
-     * @return PhoneNumber
+     * @return DataCollection
+     * @throws JsonException
      * @throws PhoneNotFoundException
      */
-    protected function findTrustedPhone(DataCollection $trustedPhones): PhoneNumber
+    protected function filterTrustedPhone(DataCollection $trustedPhones): DataCollection
     {
         $phoneList = $trustedPhones->filter(function (PhoneNumber $phone) {
             return Str::contains($this->accountManager->getAccount()->bind_phone, $phone->lastTwoDigits);
         });
 
         if ($phoneList->count() === 0) {
-            throw new PhoneNotFoundException("该账号未绑定该手机号码，无法授权登陆", [
+            throw new PhoneNotFoundException(sprintf("%s:%s", '该账号未绑定该手机号码，无法授权登陆', json_encode([
                 'account'       => $this->accountManager->getAccount()->toArray(),
                 'trusted_phone' => $trustedPhones->toArray(),
-            ]);
+            ], JSON_THROW_ON_ERROR)));
         }
 
-        if ($phoneList->count() > 1) {
-            throw new PhoneNotFoundException("该账号绑定了多个相识的手机号码，系统无法确定使用哪一个号码", [
-                'account'       => $this->accountManager->getAccount()->toArray(),
-                'trusted_phone' => $trustedPhones->toArray(),
-            ]);
-        }
-
-        return $phoneList->first();
+        return $phoneList;
     }
 
     /**
-     * @param PhoneNumber $phone
+     * @param DataCollection $phoneList
      * @return VerifyPhoneSecurityCode
      * @throws FatalRequestException
+     * @throws JsonException
      * @throws MaxRetryAttemptsException
      * @throws RequestException
-     * @throws JsonException
      */
-    protected function attemptVerifyPhoneCode(PhoneNumber $phone): VerifyPhoneSecurityCode
+    protected function attemptVerifyPhoneCode(DataCollection $phoneList): VerifyPhoneSecurityCode
     {
 
-        for ($attempts = 0; $attempts < $this->getTries(); $attempts++) {
+        for ($attempts = 1; $attempts <= $this->getTries(); $attempts++) {
+
+            if ($verifyPhoneSecurityCode = $this->foreachPhoneListVerifyPhoneCode($phoneList, $attempts)) {
+                return $verifyPhoneSecurityCode;
+            }
+        }
+
+        throw new MaxRetryAttemptsException("最大尝试次数:{$this->tries}");
+    }
+
+    /**
+     * @param DataCollection $phoneList
+     * @param int $attempts
+     * @return VerifyPhoneSecurityCode|void
+     * @throws FatalRequestException
+     * @throws JsonException
+     * @throws RequestException
+     */
+    protected function foreachPhoneListVerifyPhoneCode(
+        DataCollection $phoneList,
+        int $attempts = 1
+    ): ?VerifyPhoneSecurityCode {
+        foreach ($phoneList as $phone) {
 
             try {
 
+                /**
+                 * @var PhoneNumber $phone
+                 */
                 $this->sendPhoneSecurityCode($phone);
 
                 //为了防止拿到上一次验证码导致错误，这里建议睡眠一段时间再尝试
-                usleep($this->getSleepTime($attempts, $this->getRetryInterval(), true));
+                usleep($this->getSleepTime($attempts, $this->getRetryInterval(), false));
 
                 return $this->handlePhoneVerification($phone);
 
             } catch (VerificationCodeException|AttemptBindPhoneCodeException $e) {
 
+                $message = "phone id: {$phone->id} 第：{$attempts} 次授权失败:{$e->getMessage()} 剩余尝试次数: ".$this->getTries(
+                    ) - $attempts;
+
                 Event::dispatch(
                     new AccountAuthFailEvent(
-                        account: $this->accountManager->getAccount(), description: $e->getMessage()
+                        account: $this->accountManager->getAccount(), description: $message
                     )
                 );
 
-                $this->errorNotification(
-                    "授权失败",
-                    "{$this->accountManager->getAccount()->account} {$e->getMessage()}"
-                );
-
+                $this->errorNotification("授权失败", $message);
             }
         }
 
-        throw new MaxRetryAttemptsException("最大尝试次数:{$this->tries}");
+        return null;
     }
 
     /**

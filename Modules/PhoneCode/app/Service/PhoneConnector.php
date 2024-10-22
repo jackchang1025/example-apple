@@ -59,6 +59,8 @@ class PhoneConnector extends Connector
             if ($code = $phoneCodeParser->parse($response->body())) {
                 return $code;
             }
+
+            usleep(5000);
         }
 
         throw new AttemptBindPhoneCodeException("Attempt {$attempts} times failed to get phone code");
