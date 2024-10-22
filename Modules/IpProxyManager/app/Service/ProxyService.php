@@ -2,9 +2,12 @@
 
 namespace Modules\IpProxyManager\Service;
 
+use JsonException;
 use Modules\IpAddress\Service\IpService;
 use Modules\IpProxyManager\Service\Trait\HasProxy;
 use Psr\Log\LoggerInterface;
+use Saloon\Exceptions\Request\FatalRequestException;
+use Saloon\Exceptions\Request\RequestException;
 
 class ProxyService
 {
@@ -36,16 +39,7 @@ class ProxyService
 
     public function refreshProxy(array $option = []): ?ProxyResponse
     {
-        $response = $this->send(array_merge($option, $this->getProxyOption()));
-
-        /**
-         * @var BaseDto $dot
-         */
-        $dot = $response->dto();
-
-        $list = $dot->getProxyList();
-
-        return $this->proxy ??= $list->first();
+        return $this->proxy = $this->fetchProxy($option);
     }
 
     /**
@@ -75,22 +69,35 @@ class ProxyService
         ];
     }
 
+    protected function fetchProxy(array $option = []): ProxyResponse|null
+    {
+        try {
+
+            $response = $this->send(array_merge($option, $this->getProxyOption()));
+
+            /**
+             * @throws JsonException
+             * @var BaseDto $dot
+             */
+            $dot = $response->dto();
+
+            $list = $dot->getProxyList();
+
+            return $this->proxy ??= $list->first();
+
+        } catch (FatalRequestException|RequestException|JsonException $e) {
+
+            return null;
+        }
+    }
+
+    /**
+     * @param array $option
+     * @return ProxyResponse|null
+     */
     public function getProxy(array $option = []): ?ProxyResponse
     {
-        if ($this->proxy){
-            return $this->proxy;
-        }
-
-        $response = $this->send(array_merge($option, $this->getProxyOption()));
-
-        /**
-         * @var BaseDto $dot
-         */
-        $dot = $response->dto();
-
-        $list = $dot->getProxyList();
-
-        return $this->proxy ??= $list->first();
+        return $this->proxy ??= $this->fetchProxy($option);
     }
 
     public function setProxy(?ProxyResponse $proxy): void
@@ -98,6 +105,12 @@ class ProxyService
         $this->proxy = $proxy;
     }
 
+    /**
+     * @param array $option
+     * @return \Saloon\Http\Response
+     * @throws \Saloon\Exceptions\Request\FatalRequestException
+     * @throws \Saloon\Exceptions\Request\RequestException
+     */
     public function send(array $option = []): \Saloon\Http\Response
     {
         $this->dto->merge($option);
