@@ -154,25 +154,8 @@ trait Idmsa
      */
     public function verifySecurityCode(string $code): Response
     {
-        try {
-            return $this->getIdmsaConnector()
-                ->send(new VerifyTrustedDeviceSecurityCode($code));
-        } catch (RequestException $e) {
-            /**
-             * @var Response $response
-             */
-            $response = $e->getResponse();
-
-            if ($response->status() === 400) {
-                throw new VerificationCodeException($response,$response->getFirstServiceError()?->getMessage() ?? '验证码错误', $response->status());
-            }
-
-            if ($response->status() === 412) {
-                return $this->managePrivacyAccept();
-            }
-
-            throw $e;
-        }
+        return $this->getIdmsaConnector()
+            ->send(new VerifyTrustedDeviceSecurityCode($code));
     }
 
     /**
@@ -198,25 +181,8 @@ trait Idmsa
      */
     public function verifyPhoneCode(string $id, string $code): Response
     {
-        try {
-            return $this->getIdmsaConnector()
-                ->send(new VerifyPhoneSecurityCode($id, $code));
-        } catch (RequestException $e) {
-            /**
-             * @var Response $response
-             */
-            $response = $e->getResponse();
-
-            if ($response->status() === 400) {
-                throw new VerificationCodeException($response,$response->getFirstServiceError()?->getMessage() ?? '验证码错误', $response->status());
-            }
-
-            if ($response->status() === 412) {
-                return $this->managePrivacyAccept();
-            }
-
-            throw $e;
-        }
+        return $this->getIdmsaConnector()
+            ->send(new VerifyPhoneSecurityCode($id, $code));
     }
 
     /**

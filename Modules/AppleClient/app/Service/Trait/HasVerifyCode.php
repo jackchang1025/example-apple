@@ -15,6 +15,7 @@ use Modules\AppleClient\Service\Exception\PhoneNumberAlreadyExistsException;
 use Modules\AppleClient\Service\Exception\StolenDeviceProtectionException;
 use Modules\AppleClient\Service\Exception\VerificationCodeException;
 use Modules\AppleClient\Service\Exception\VerificationCodeSentTooManyTimesException;
+use Modules\AppleClient\Service\Response\Response;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
 
@@ -30,7 +31,42 @@ trait HasVerifyCode
      */
     public function verifyPhoneCode(string $id, string $code): VerifyPhoneSecurityCode
     {
-        return VerifyPhoneSecurityCode::fromResponse($this->getClient()->verifyPhoneCode($id, $code));
+        try {
+
+            return VerifyPhoneSecurityCode::fromResponse($this->getClient()->verifyPhoneCode($id, $code));
+
+        } catch (RequestException $e) {
+            /**
+             * @var Response $response
+             */
+            $response = $e->getResponse();
+
+            if ($response->status() === 400) {
+                throw new VerificationCodeException(
+                    $response,
+                    $response->getFirstServiceError()?->getMessage() ?? '验证码错误'
+                );
+            }
+
+            if ($response->status() === 412) {
+                $this->managePrivacyAccept();
+
+                return VerifyPhoneSecurityCode::fromResponse($response);
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * @return NullData
+     * @throws FatalRequestException
+     * @throws JsonException
+     * @throws RequestException
+     */
+    public function managePrivacyAccept(): NullData
+    {
+        return NullData::fromResponse($this->getClient()->managePrivacyAccept());
     }
 
     /**
@@ -64,7 +100,32 @@ trait HasVerifyCode
      */
     public function verifySecurityCode(string $code): NullData
     {
-        return NullData::fromResponse($this->getClient()->verifySecurityCode($code));
+
+        try {
+
+            return NullData::fromResponse($this->getClient()->verifySecurityCode($code));
+
+        } catch (RequestException $e) {
+            /**
+             * @var Response $response
+             */
+            $response = $e->getResponse();
+
+            if ($response->status() === 400) {
+                throw new VerificationCodeException(
+                    $response,
+                    $response->getFirstServiceError()?->getMessage() ?? '验证码错误'
+                );
+            }
+
+            if ($response->status() === 412) {
+                $this->managePrivacyAccept();
+
+                return NullData::fromResponse($response);
+            }
+
+            throw $e;
+        }
     }
 
     /**
