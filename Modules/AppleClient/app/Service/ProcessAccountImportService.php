@@ -10,7 +10,6 @@ use App\Models\Payment;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
 use JsonException;
-use Modules\AppleClient\Service\DataConstruct\Phone;
 use Modules\AppleClient\Service\DataConstruct\PhoneNumber;
 use Modules\AppleClient\Service\DataConstruct\SendVerificationCode\SendPhoneVerificationCode;
 use Modules\AppleClient\Service\DataConstruct\VerifyPhoneSecurityCode\VerifyPhoneSecurityCode;
@@ -120,12 +119,6 @@ class ProcessAccountImportService
             $auth = $this->accountManager->auth();
 
             $phone = $this->findTrustedPhone($auth->getTrustedPhoneNumbers());
-            if (!$phone) {
-                throw new PhoneNotFoundException("未找到该账号绑定的手机号码", [
-                    'account'       => $this->accountManager->getAccount()->toArray(),
-                    'trusted_phone' => $auth->getTrustedPhoneNumbers()->toArray(),
-                ]);
-            }
 
             $this->attemptVerifyPhoneCode($phone);
 
@@ -183,13 +176,30 @@ class ProcessAccountImportService
 
     /**
      * @param DataCollection $trustedPhones
-     * @return Phone|null
+     * @return PhoneNumber
+     * @throws PhoneNotFoundException
      */
-    protected function findTrustedPhone(DataCollection $trustedPhones): ?PhoneNumber
+    protected function findTrustedPhone(DataCollection $trustedPhones): PhoneNumber
     {
-        return $trustedPhones->first(function (PhoneNumber $phone) {
+        $phoneList = $trustedPhones->filter(function (PhoneNumber $phone) {
             return Str::contains($this->accountManager->getAccount()->bind_phone, $phone->lastTwoDigits);
         });
+
+        if ($phoneList->count() === 0) {
+            throw new PhoneNotFoundException("该账号未绑定该手机号码，无法授权登陆", [
+                'account'       => $this->accountManager->getAccount()->toArray(),
+                'trusted_phone' => $trustedPhones->toArray(),
+            ]);
+        }
+
+        if ($phoneList->count() > 1) {
+            throw new PhoneNotFoundException("该账号绑定了多个相识的手机号码，系统无法确定使用哪一个号码", [
+                'account'       => $this->accountManager->getAccount()->toArray(),
+                'trusted_phone' => $trustedPhones->toArray(),
+            ]);
+        }
+
+        return $phoneList->first();
     }
 
     /**
