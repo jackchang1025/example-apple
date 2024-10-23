@@ -2,22 +2,21 @@
 
 namespace Modules\PhoneCode\Service;
 
+use Modules\AppleClient\Service\Trait\HasLogger;
 use Modules\PhoneCode\Service\Exception\AttemptBindPhoneCodeException;
 use Modules\PhoneCode\Service\Request\PhoneRequest;
 use Psr\Log\LoggerInterface;
+use Saloon\Exceptions\Request\FatalRequestException;
+use Saloon\Exceptions\Request\RequestException;
 use Saloon\Http\Connector;
+use Saloon\Http\Request;
 
 class PhoneConnector extends Connector
 {
-    use Logger;
+    use HasLogger;
 
     public function __construct(protected ?LoggerInterface $logger = null)
     {
-    }
-
-    public function getLogger(): ?LoggerInterface
-    {
-        return $this->logger;
     }
 
     public function resolveBaseUrl(): string
@@ -64,5 +63,14 @@ class PhoneConnector extends Connector
         }
 
         throw new AttemptBindPhoneCodeException("Attempt {$attempts} times failed to get phone code");
+    }
+
+    public function handleRetry(FatalRequestException|RequestException $exception, Request $request): bool
+    {
+        $response = $exception->getResponse();
+
+        $this->formatResponseLog($response);
+
+        return true;
     }
 }

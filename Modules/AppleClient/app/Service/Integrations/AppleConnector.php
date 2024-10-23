@@ -14,9 +14,9 @@ use Modules\AppleClient\Service\Cookies\HasCookie;
 use Modules\AppleClient\Service\Header\HasHeaderSynchronize;
 use Modules\AppleClient\Service\Header\HasPersistentHeaders;
 use Modules\AppleClient\Service\Helpers\Helpers;
-use Modules\AppleClient\Service\Logger\Logger;
 use Modules\AppleClient\Service\Proxy\HasProxy;
 use Modules\AppleClient\Service\Response\Response;
+use Modules\AppleClient\Service\Trait\HasLogger;
 use Modules\IpProxyManager\Service\ProxyService;
 use Psr\Log\LoggerInterface;
 use Saloon\Contracts\ArrayStore;
@@ -24,6 +24,7 @@ use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
 use Saloon\Http\Connector;
 use Saloon\Http\Faking\MockClient;
+use Saloon\Http\PendingRequest;
 use Saloon\Http\Request;
 use Saloon\Traits\Plugins\AlwaysThrowOnErrors;
 use Saloon\Traits\Plugins\HasTimeout;
@@ -36,7 +37,7 @@ abstract class AppleConnector extends Connector
     use HasHeaderSynchronize;
     use AlwaysThrowOnErrors;
     use HasPersistentHeaders;
-    use Logger;
+    use HasLogger;
     use HasProxy;
     use HasConfig;
     use Helpers;
@@ -127,8 +128,25 @@ abstract class AppleConnector extends Connector
 
     public function handleRetry(FatalRequestException|RequestException $exception, Request $request): bool
     {
+        $response = $exception->getResponse();
+
+        $this->formatResponseLog($response);
+
         $handleRetry = $this->apple->getHandleRetry() ?? static fn(): bool => true;
 
        return $handleRetry($exception,$request);
+    }
+
+    protected function formatRequestLog(PendingRequest $request): ?PendingRequest
+    {
+        $this->getLogger()?->debug('request', [
+            'method'  => $request->getMethod(),
+            'uri'     => (string)$request->getUri(),
+            'config'  => $request->config()->all(),
+            'headers' => $request->headers()->all(),
+            'body'    => $request->body()?->all(),
+        ]);
+
+        return $request;
     }
 }

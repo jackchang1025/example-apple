@@ -14,8 +14,8 @@ use Modules\AppleClient\Service\Helpers\Helpers;
 use Modules\AppleClient\Service\Integrations\AppleAuth\AppleAuthConnector;
 use Modules\AppleClient\Service\Integrations\AppleId\AppleIdConnector;
 use Modules\AppleClient\Service\Integrations\Idmsa\IdmsaConnector;
-use Modules\AppleClient\Service\Logger\Logger;
 use Modules\AppleClient\Service\Proxy\HasProxy;
+use Modules\AppleClient\Service\Trait\HasLogger;
 use Modules\AppleClient\Service\Trait\HasTries;
 use Saloon\Traits\Conditionable;
 use Saloon\Traits\Macroable;
@@ -32,7 +32,7 @@ class AppleClient
     use HasCookie;
     use HasHeaderSynchronize;
     use Helpers;
-    use Logger;
+    use HasLogger;
     use Conditionable;
     use HasTries;
     use HasMiddleware;

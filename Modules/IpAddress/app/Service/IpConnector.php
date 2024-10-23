@@ -2,6 +2,7 @@
 
 namespace Modules\IpAddress\Service;
 
+use Modules\AppleClient\Service\Trait\HasLogger;
 use Saloon\Http\Connector;
 use Saloon\Traits\Plugins\AcceptsJson;
 
