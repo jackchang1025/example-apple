@@ -2,6 +2,7 @@
 
 namespace Modules\AppleClient\Service\Trait;
 
+use Illuminate\Support\Facades\Cache;
 use Modules\AppleClient\Service\DataConstruct\Auth\Auth;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
@@ -25,7 +26,11 @@ trait HasAuth
      */
     public function auth(): Auth
     {
-        return $this->auth ??= Auth::fromResponse($this->getClient()->auth());
+        return $this->auth ??= Cache::remember(
+            "{$this->getAccount()->getSessionId()}:auth",
+            60 * 5,
+            fn() => Auth::fromResponse($this->getClient()->auth())
+        );
     }
 
     /**
