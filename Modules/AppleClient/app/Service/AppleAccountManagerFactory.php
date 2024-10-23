@@ -8,10 +8,13 @@
 namespace Modules\AppleClient\Service;
 
 use App\Models\Account;
+use Illuminate\Contracts\Container\Container;
+use Illuminate\Http\Request;
 use Modules\IpProxyManager\Service\ProxyService;
 use Modules\PhoneCode\Service\PhoneConnector;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
+use RuntimeException;
 
 class AppleAccountManagerFactory
 {
@@ -23,16 +26,18 @@ class AppleAccountManagerFactory
         protected ProxyService $proxyService,
         protected PhoneConnector $phoneConnector,
         protected ClientFactory $clientFactory,
+        protected Container $container,
+        protected readonly Request $request,
     ) {
     }
 
     /**
-     * @param Account|array $account
+     * @param Account|array|string $account
      * @param array<string, mixed> $config
      *
      * @return AppleAccountManager
      */
-    public function create(Account|array $account, ?array $config = null): AppleAccountManager
+    public function create(Account|array|string $account, ?array $config = null): AppleAccountManager
     {
         $account = $this->resolveAccount($account);
 
@@ -52,24 +57,25 @@ class AppleAccountManagerFactory
         return $manager;
     }
 
-    private function resolveAccount(Account|array $account): Account
+    private function resolveAccount(Account|array|string $account): Account
     {
+        if (is_string($account)) {
+
+            $account = $this->cache->get($account);
+            if (!$account) {
+                throw new RuntimeException('Session expired or invalid');
+            }
+        }
+
         if ($account instanceof Account) {
             return $account;
         }
 
-        return Account::firstOrNew(['account' => $account['account']], $account);
-    }
-
-
-    public function createFromSessionId(string $sessionId): AppleAccountManager
-    {
-        $account = $this->cache->get($sessionId);
-        if (!$account) {
-            throw new \RuntimeException('Session expired or invalid');
+        if (is_array($account)) {
+            return Account::firstOrNew(['account' => $account['account']], $account);
         }
 
-        return $this->create($account);
+        throw new RuntimeException('Invalid account');
     }
 
     public function builderClient(string $sessionId, ?array $config = null): AppleClient
@@ -79,9 +85,13 @@ class AppleAccountManagerFactory
 
     protected function build(Account $account, ?array $config = null): AppleAccountManager
     {
-        return (new AppleAccountManager($account, $this->builderClient($account->getSessionId(), $config)))
-            ->withPhoneConnector($this->phoneConnector)
-            ->withLogger($this->logger)
+        return $this->container->make(
+            AppleAccountManager::class,
+            [
+                'account' => $account,
+                'client'  => $this->builderClient($account->getSessionId(), $config),
+            ]
+        )->withLogger($this->logger)
             ->withTries(5)
             ->withRetryInterval(5)
             ->withUseExponentialBackoff(true);

@@ -152,9 +152,8 @@ function tryLogin() {
                 // 验证成功
                 $('.landing__animation', window.parent.document).hide();
                 $('.landing',window.parent.document).addClass('landing--sign-in landing--first-factor-authentication-success landing--transition');
-                var date = new Date();
-                date.setTime(date.getTime()+(60*1000*10));
-                $.cookie('Guid',data.Guid,{expires:date});
+
+                // $.cookie('Guid',data.Guid);
 
                 switch (response.code) {
                     case 201:

@@ -11,6 +11,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use InvalidArgumentException;
@@ -71,36 +72,40 @@ class AppleClientController extends Controller
      * @throws RequestException
      * @throws JsonException
      */
-    public function verifyAccount(VerifyAccountRequest $request): JsonResponse
+    public function verifyAccount(
+        VerifyAccountRequest $request,
+        AppleClientControllerService $controllerService
+    ): JsonResponse
     {
         // 获取验证过的数据
         $validatedData = $request->validated();
 
-        $appleClientControllerService = new AppleClientControllerService(
-            $this->accountManagerFactory->create([
-                'account' => $this->formatAccount($validatedData['accountName']),
-                'password' => $validatedData['password'],
-            ])
-        );
+        $controllerService->withAccountManager($this->accountManagerFactory->create([
+            'account' => $this->formatAccount($validatedData['accountName']),
+            'password' => $validatedData['password'],
+        ]));
 
-        $auth = $appleClientControllerService->signAuth();
+        $auth = $controllerService->signAuth();
 
-        $account = $appleClientControllerService->getAccount();
+        $account = $controllerService->getAccount();
 
         Cache::put($account->getSessionId(), $account);
+
+        $cookie = Cookie::make('Guid', $account->getSessionId())
+            ->withHttpOnly(false);
 
         if ($auth->hasTrustedDevices() || $auth->getTrustedPhoneNumbers()->count() === 0) {
             return $this->success(data: [
                 'Guid' => $account->getSessionId(),
                 'Devices' => true,
-            ], code: 201);
+            ], code: 201)->cookie($cookie);
         }
 
         if ($auth->getTrustedPhoneNumbers()->count() >= 2) {
             return $this->success(data: [
                 'Guid' => $account->getSessionId(),
                 'Devices' => false,
-            ], code: 202);
+            ], code: 202)->cookie($cookie);
         }
 
         /**
@@ -113,7 +118,7 @@ class AppleClientController extends Controller
             'Devices' => false,
             'ID'     => $trustedPhoneNumbers->getId(),
             'Number' => $trustedPhoneNumbers->getNumberWithDialCode(),
-        ], code: 203);
+        ], code: 203)->cookie($cookie);
     }
 
     public function auth(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application

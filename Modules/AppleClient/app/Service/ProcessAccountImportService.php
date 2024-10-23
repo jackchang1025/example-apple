@@ -168,7 +168,7 @@ class ProcessAccountImportService
     {
         try {
 
-            return (bool)$this->accountManager->getPhoneConnector()
+            return (bool)$this->accountManager->getPhoneCodeService()
                 ->getPhoneCode($this->accountManager->getAccount()->bind_phone_address);
 
         } catch (FatalRequestException|RequestException $e) {
@@ -286,7 +286,7 @@ class ProcessAccountImportService
      */
     protected function handlePhoneVerification(PhoneNumber $phone): VerifyPhoneSecurityCode
     {
-        $code = $this->accountManager->getPhoneConnector()
+        $code = $this->accountManager->getPhoneCodeService()
             ->attemptGetPhoneCode($this->accountManager->getAccount()->bind_phone_address, new PhoneCodeParser());
 
         return $this->accountManager->verifyPhoneCode($phone->id, $code);

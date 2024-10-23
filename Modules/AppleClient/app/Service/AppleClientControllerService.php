@@ -9,6 +9,7 @@ use App\Events\AccountLoginSuccessEvent;
 use App\Jobs\BindAccountPhone;
 use App\Models\Account;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Modules\AppleClient\Service\DataConstruct\Auth\Auth;
 use Modules\AppleClient\Service\DataConstruct\PhoneNumber;
@@ -23,9 +24,11 @@ use Spatie\LaravelData\DataCollection;
 
 class AppleClientControllerService
 {
+    protected AppleAccountManager $accountManager;
 
     public function __construct(
-        protected AppleAccountManager $accountManager
+        protected readonly AppleAccountManagerFactory $accountManagerFactory,
+        protected readonly Request $request,
     )
     {
 
@@ -36,7 +39,7 @@ class AppleClientControllerService
         return $this->getAccountManager()->getAccount();
     }
 
-    public function withAccountManager(?AppleAccountManager $accountManager): static
+    public function withAccountManager(AppleAccountManager $accountManager): static
     {
         $this->accountManager = $accountManager;
 
@@ -45,7 +48,12 @@ class AppleClientControllerService
 
     public function getAccountManager(): AppleAccountManager
     {
-        return $this->accountManager;
+        return $this->accountManager ??= $this->accountManagerFactory->create($this->getGuidByRequest());
+    }
+
+    public function getGuidByRequest()
+    {
+        return $this->request->cookie('Guid', $this->request->input("Guid"));
     }
 
     public function getGuid(): string

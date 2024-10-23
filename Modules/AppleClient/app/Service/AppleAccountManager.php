@@ -15,7 +15,7 @@ use Modules\AppleClient\Service\Trait\HasValidatePassword;
 use Modules\AppleClient\Service\Trait\HasValidateStolenDeviceProtection;
 use Modules\AppleClient\Service\Trait\HasVerifyCode;
 use Modules\Phone\Services\HasPhoneNumber;
-use Modules\PhoneCode\Service\PhoneConnector;
+use Modules\PhoneCode\Service\PhoneCodeService;
 
 /**
  * @mixin AppleClient
@@ -35,11 +35,10 @@ class AppleAccountManager
     use HasValidatePassword;
     use HasPhoneNumber;
 
-    protected PhoneConnector $phoneConnector;
-
     public function __construct(
         protected Account $account,
-        protected AppleClient $client
+        protected AppleClient $client,
+        protected PhoneCodeService $phoneCodeService
     ) {
     }
 
@@ -53,16 +52,16 @@ class AppleAccountManager
      *
      * This method returns the currently set phone connector object which can be used for further communication operations.
      *
-     * @return PhoneConnector The phone connector instance configured for the application.
+     * @return PhoneCodeService The phone connector instance configured for the application.
      */
-    public function getPhoneConnector(): PhoneConnector
+    public function getPhoneCodeService(): PhoneCodeService
     {
-        return $this->phoneConnector;
+        return $this->phoneCodeService;
     }
 
-    public function withPhoneConnector(PhoneConnector $phoneConnector): static
+    public function withPhoneConnector(PhoneCodeService $phoneConnector): static
     {
-        $this->phoneConnector = $phoneConnector;
+        $this->phoneCodeService = $phoneConnector;
 
         return $this;
     }

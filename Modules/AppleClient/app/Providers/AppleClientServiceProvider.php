@@ -2,12 +2,8 @@
 
 namespace Modules\AppleClient\Providers;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
-use Modules\AppleClient\Service\AppleAccountManager;
-use Modules\AppleClient\Service\AppleClient;
-use Modules\AppleClient\Service\AppleAccountManagerFactory;
 use Nwidart\Modules\Traits\PathNamespace;
 
 class AppleClientServiceProvider extends ServiceProvider
@@ -38,20 +34,6 @@ class AppleClientServiceProvider extends ServiceProvider
     {
         $this->app->register(EventServiceProvider::class);
         $this->app->register(RouteServiceProvider::class);
-
-        $this->app->singleton(AppleAccountManager::class, function () {
-
-            $appleFactory = $this->app->get(AppleAccountManagerFactory::class);
-
-            $request = $this->app->get(Request::class);
-
-            $guid = $request->input('Guid',$request->cookie('Guid'));
-            if (!$guid) {
-                throw new \InvalidArgumentException('Guid is not set.');
-            }
-
-            return $appleFactory->createFromSessionId($guid);
-        });
     }
 
     /**

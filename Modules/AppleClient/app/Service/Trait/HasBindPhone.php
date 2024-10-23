@@ -196,7 +196,7 @@ trait HasBindPhone
         //为了防止拿到上一次验证码导致错误，这里建议睡眠一段时间再尝试
         usleep($this->getSleepTime($this->attempts, $this->getRetryInterval(), $this->getUseExponentialBackoff()));
 
-        $code = $this->getPhoneConnector()->attemptGetPhoneCode(
+        $code = $this->getPhoneCodeService()->attemptGetPhoneCode(
             $this->getPhone()->phone_address,
             new PhoneCodeParser()
         );

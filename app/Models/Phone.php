@@ -7,15 +7,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Phone\Services\PhoneNumberFactory;
 use Modules\Phone\Services\PhoneService;
-use Modules\PhoneCode\Service\PhoneConnector;
-use Modules\PhoneCode\Service\Request\PhoneRequest;
+use Modules\PhoneCode\Service\PhoneCodeService;
 use Modules\PhoneCode\Service\Response;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
 
 
 /**
- * 
+ *
  *
  * @method static \Illuminate\Database\Eloquent\Builder|Phone newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Phone newQuery()
@@ -128,6 +127,6 @@ class Phone extends Model
      */
     public function getPhoneCode(): Response
     {
-        return app(PhoneConnector::class)->send(new PhoneRequest($this->phone_address));
+        return app(PhoneCodeService::class)->getPhoneCode($this->phone_address);
     }
 }
