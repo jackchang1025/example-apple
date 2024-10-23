@@ -24,78 +24,60 @@ $('body').on('click', (e) => {
 
 $('#try-again').on('click',(e) => {
     errorMessage.addClass('hide');
-    $.ajax({
-        url: '/index/SendSecurityCode',
-        dataType: 'json',
-        type: 'post',
-        async: true,
-        contentType: 'application/json',
-        data: JSON.stringify({Guid:$.cookie('Guid')}),
-        success:function(data){
-            if(data.code == 302){
-                window.location.href = '/index/signin';
+
+    fetchRequest('/index/SendSecurityCode', 'post', {Guid: $.cookie('Guid')})
+        .then(response => {
+
+            if (response.code === 302) {
+                return window.location.href = '/index/signin';
             }
-        }
-    });
+
+        })
     popMenu.addClass('hide');
 })
-
 
 $('#use-phone').on('click',(e) => {
-    if($.cookie('ID') == undefined || $.cookie('Number') == undefined){
-        $.ajax({
-            url: '/index/GetPhone',
-            dataType: 'json',
-            type: 'post',
-            contentType: 'application/json',
-            data: JSON.stringify({Guid:$.cookie('Guid')}),
-            success: function (data) {
-                if (data && data.code == 200) {
 
-                    // 验证成功
-                    var date = new Date();
-                    date.setTime(date.getTime()+(60*1000*10));
-                    $.cookie('ID',data['data']?.ID,{expires:date});
-                    $.cookie('Number',data['data']?.Number,{expires:date});
-                    goToSms();
-                }else {
-                    if(data.code == 302){
-                        window.location.href = '/index/signin'
-                    }
-                }
+    fetchRequest('/index/GetPhone', 'post', {Guid: $.cookie('Guid')})
+        .then(response => {
+
+            switch (response.code) {
+                case 202:
+                    window.location.href = '/index/authPhoneList?Guid=' + $.cookie('Guid');
+                    break;
+                case 203:
+                    window.location.href = `/index/SendSms?ID=${response.data.ID}&Number=${response.data.Number}&Guid=${$.cookie('Guid')}`;
+                    break;
+                default:
+                    window.location.href = '/index/auth';
             }
         });
-    }else{
-        goToSms();
-    }
+
     popMenu.addClass('hide');
 })
 
-function  goToSms(){
-    $.ajax({
-        url: '/index/SendSms',
-        dataType: 'json',
-        type: 'post',
-        contentType: 'application/json',
-        data: JSON.stringify({Guid:$.cookie('Guid'),ID:$.cookie('ID')}),
-        success: function (data) {
-            if (data && data.code == 200) {
-                // 验证成功
-                $('.landing__animation', window.parent.document).hide();
-                window.location.href = '/index/sms?Number='+$.cookie('Number');
-            }else {
-                if(data.code == 302){
-                    window.location.href = '/index/signin';
-                }
-            }
+function goToSms(id, Number) {
+
+    fetchRequest('/index/SendSms', 'post', {
+        Guid: $.cookie('Guid'),
+        ID: id
+    }).then(response => {
+
+        if (response.code === 200) {
+            // 验证成功
+            $('.landing__animation', window.parent.document).hide();
+            return window.location.href = `/index/sms?Number=${Number}`;
         }
+
+    }).catch(err => {
+        console.log(err);
     });
 }
 
 var counter = 0;
 numberInputs[0].focus();
 window.addEventListener('keyup',(e) => {
-    let = index = e.target.getAttribute('data-index');
+    let index = e.target.getAttribute('data-index');
     var ex = /^\d+$/;
     var data = numberInputs[index].value;
     if(!ex.test(data)){

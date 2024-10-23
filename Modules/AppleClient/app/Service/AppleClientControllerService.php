@@ -108,7 +108,7 @@ class AppleClientControllerService
      * @throws FatalRequestException
      * @throws RequestException|\JsonException
      */
-    public function getPhoneLists(): DataCollection
+    public function getTrustedPhoneNumbers(): DataCollection
     {
         return $this->getAccountManager()->auth()->getTrustedPhoneNumbers();
     }

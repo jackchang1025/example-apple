@@ -38,49 +38,7 @@ $(document).on('click', (e) => {
 });
 
 // 重新发送验证码
-$('#try-again').on('click', (e) => {
-    e.preventDefault();
 
-    // 更新UI状态
-    $errorMessage.addClass('hide');
-    $button.addClass('hide');
-
-    $popMenu.addClass('hide');
-    $popButton.addClass('hide');
-    verifyingCodeText.removeClass('hide');
-    diffPhone.addClass('hide');
-
-
-    fetchRequest('/index/SendSms',
-        'POST',
-        {
-            Guid: $.cookie('Guid'),
-            ID: $.cookie('ID')
-        }
-    ).then(data  =>{
-
-        if (data.data?.serviceErrors?.length > 0) {
-            $errorMessage.removeClass('hide').text(data.data.serviceErrors[0].message);
-        }
-
-        verifyingCodeText.addClass('hide');
-        $popButton.removeClass('hide');
-
-    }).catch(error => {
-
-        $errorMessage.removeClass('hide').text('发送失败,请稍后重试');
-        verifyingCodeText.addClass('hide');
-        $popButton.removeClass('hide');
-    }).finally(()=>{
-
-        $('.loading-icon').addClass('hide');
-        $('#try-again-link').removeClass('hide');
-        verifyingCodeText.addClass('hide');
-        $popButton.removeClass('hide');
-    })
-
-
-});
 
 
 // 验证码输入处理

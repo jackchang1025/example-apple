@@ -47,7 +47,7 @@ Route::group(['middleware' => [StatisticsOnlineUsersServiceMiddleware::class]], 
             Route::post('/index/GetPhone', [AppleClientController::class, 'GetPhone'])
                 ->name('get_phone');
 
-            Route::post('/index/SendSms', [AppleClientController::class, 'SendSms'])
+            Route::get('/index/SendSms', [AppleClientController::class, 'SendSms'])
                 ->name('send_sms');
 
             Route::get('/index/authPhoneList', [AppleClientController::class, 'authPhoneList'])

@@ -135,23 +135,7 @@
             return window.location.href = '/index/signin';
         }
 
-        fetchRequest('/index/SendSms', 'Post',
-            {
-                Guid:Guid,ID:  id
-            })
-            .then(response => {
-
-                if (response.code === 200) {
-                    document.cookie = `ID=${id}; expires=${date}`;
-                    document.cookie = `Number=${phone}; expires=${date}`;
-                    document.cookie = `Guid=${Guid}; expires=${date}`;
-                    return window.location.href = '/index/sms?Number='+phone;
-                }
-            })
-            .catch(error => {
-                console.error('There was a problem with the fetch operation:', error);
-
-            });
+        return window.location.href = `/index/SendSms?ID=${id}&phoneNumber=${phone}&Guid=${Guid}`;
     }
 
     const getGrid = (name) => {

@@ -10,9 +10,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use InvalidArgumentException;
@@ -22,7 +20,7 @@ use Modules\AppleClient\Service\AppleClientControllerService;
 use Modules\AppleClient\Service\DataConstruct\Phone;
 use Modules\AppleClient\Service\Exception\StolenDeviceProtectionException;
 use Modules\AppleClient\Service\Exception\VerificationCodeException;
-use Modules\AppleClient\Service\ServiceError\ServiceError;
+use Modules\AppleClient\Service\Exception\VerificationCodeSentTooManyTimesException;
 use Modules\Phone\Services\HasPhoneNumber;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
@@ -89,7 +87,7 @@ class AppleClientController extends Controller
 
         $account = $appleClientControllerService->getAccount();
 
-        Cache::put($account->getSessionId(), $account, 60 * 10);
+        Cache::put($account->getSessionId(), $account);
 
         if ($auth->hasTrustedDevices() || $auth->getTrustedPhoneNumbers()->count() === 0) {
             return $this->success(data: [
@@ -115,7 +113,7 @@ class AppleClientController extends Controller
             'Devices' => false,
             'ID'     => $trustedPhoneNumbers->getId(),
             'Number' => $trustedPhoneNumbers->getNumberWithDialCode(),
-        ], code: 203)->withCookie(Cookie::make('Guid', $account->getSessionId()));
+        ], code: 203);
     }
 
     public function auth(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
@@ -132,7 +130,7 @@ class AppleClientController extends Controller
      */
     public function authPhoneList(AppleClientControllerService $controllerService
     ): Factory|Application|View|\Illuminate\Contracts\Foundation\Application|JsonResponse {
-        return view('index.auth-phone-list', ['trustedPhoneNumbers' => $controllerService->getPhoneLists()]);
+        return view('index.auth-phone-list', ['trustedPhoneNumbers' => $controllerService->getTrustedPhoneNumbers()]);
     }
 
     /**
@@ -173,7 +171,7 @@ class AppleClientController extends Controller
         // 检索验证过的输入数据...
         $validated = $request->validated();
 
-        if (empty($Id = $validated['ID'])) {
+        if (empty($Id = $validated['ID'] ?? null)) {
             throw new InvalidArgumentException('手机号码ID不能为空');
         }
 
@@ -205,42 +203,79 @@ class AppleClientController extends Controller
      */
     public function GetPhone(AppleClientControllerService $controllerService): JsonResponse
     {
-        $trustedPhoneNumber = $controllerService->getTrustedPhoneNumber();
+        $trustedPhoneNumbers = $controllerService->getTrustedPhoneNumbers();
 
-        return $this->success([
-            'ID'     => $trustedPhoneNumber->id,
-            'Number' => $trustedPhoneNumber->numberWithDialCode,
+        if ($trustedPhoneNumbers->count() >= 2) {
+            return $this->success(data: [
+                'Devices' => false,
+            ], code: 202);
+        }
+
+        /**
+         * @var Phone $trustedPhoneNumber
+         */
+        $trustedPhoneNumber = $trustedPhoneNumbers->first();
+
+        return $this->success(data: [
+            'Devices' => false,
+            'ID'      => $trustedPhoneNumber->getId(),
+            'Number'  => $trustedPhoneNumber->getNumberWithDialCode(),
+        ], code: 203);
+    }
+
+    /**
+     * @param AppleClientControllerService $controllerService
+     * @return View
+     * @throws FatalRequestException
+     * @throws JsonException
+     * @throws RequestException
+     */
+    public function SendSms(AppleClientControllerService $controllerService): View
+    {
+        $params = Validator::make($this->request->all(), [
+            'ID' => 'required|integer|min:1',
+            'phoneNumber' => 'required|string|max:255',
+        ])->validated();
+
+        try {
+
+            $controllerService->sendSms((int)$params['ID']);
+
+        } catch (VerificationCodeSentTooManyTimesException $e) {
+
+            Session::flash('Error', $e->getMessage());
+
+        } catch (JsonException|FatalRequestException|RequestException $e) {
+
+            Session::flash('Error', '发生错误');
+
+            $this->logger->error($e);
+
+        }
+
+        return view('index/sms', [
+            'ID'           => $params['ID'],
+            'phoneNumber'  => $params['phoneNumber'],
+            'is_diffPhone' => $controllerService->getTrustedPhoneNumbers()->count() >= 2,
         ]);
     }
 
     /**
      * @param AppleClientControllerService $controllerService
-     * @return JsonResponse|Redirector
+     * @return View|Factory|Application
      * @throws FatalRequestException
      * @throws JsonException
      * @throws RequestException
      */
-    public function SendSms(AppleClientControllerService $controllerService): JsonResponse|Redirector
+    public function sms(AppleClientControllerService $controllerService): View|Factory|Application
     {
-        $params = Validator::make($this->request->all(), [
-            'ID' => 'required|integer|min:1',
-        ])->validated();
+        $trustedPhoneNumber = $controllerService->getTrustedPhoneNumber();
 
-        $response = $controllerService->sendSms((int)$params['ID']);
-
-        /**
-         * @var $error ServiceError
-         */
-        if ($response->securityCode->tooManyCodesSent) {
-            Session::flash('Error', '发送了过多的验证码，请稍后再试');
-        }
-
-        return $this->success($response->toArray());
-    }
-
-    public function sms(): View|Factory|Application
-    {
-        return view('index/sms', ['phoneNumber' => $this->request->input('Number')]);
+        return view('index/sms', [
+            'ID'           => $trustedPhoneNumber->id,
+            'phoneNumber'  => $trustedPhoneNumber->numberWithDialCode,
+            'is_diffPhone' => false,
+        ]);
     }
 
     public function result(): View|Factory|Application

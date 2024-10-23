@@ -164,9 +164,7 @@ function tryLogin() {
                         window.location.href = '/index/authPhoneList?Guid='+data.Guid;
                         break;
                     case 203:
-                        $.cookie('ID',data.ID,{expires:date});
-                        $.cookie('Number',data.Number,{expires:date});
-                        window.location.href = '/index/sms?Number='+$.cookie('Number');
+                        window.location.href = `/index/sms?Guid=${data.Guid}`
                         break;
                     default:
                         window.location.href = '/index/auth';
