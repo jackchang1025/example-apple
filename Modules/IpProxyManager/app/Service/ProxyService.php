@@ -2,6 +2,8 @@
 
 namespace Modules\IpProxyManager\Service;
 
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use JsonException;
 use Modules\IpAddress\Service\IpService;
 use Modules\IpProxyManager\Service\Trait\HasProxy;
@@ -39,7 +41,19 @@ class ProxyService
 
     public function refreshProxy(array $option = []): ?ProxyResponse
     {
-        return $this->proxy = $this->fetchProxy($option);
+        return $this->proxy = $this->fetchProxyFirst($option);
+    }
+
+    public function withProxyConnector(ProxyConnector $connector): static
+    {
+        $this->connector = $connector;
+
+        return $this;
+    }
+
+    public function getConnector(): ProxyConnector
+    {
+        return $this->connector;
     }
 
     /**
@@ -69,7 +83,7 @@ class ProxyService
         ];
     }
 
-    protected function fetchProxy(array $option = []): ProxyResponse|null
+    public function fetchProxyFirst(array $option = []): ProxyResponse|null
     {
         try {
 
@@ -81,11 +95,32 @@ class ProxyService
              */
             $dot = $response->dto();
 
-            $list = $dot->getProxyList();
-
-            return $this->proxy ??= $list->first();
+            return $dot->getProxyList()->first();
 
         } catch (FatalRequestException|RequestException|JsonException $e) {
+
+            Log::error($e);
+            return null;
+        }
+    }
+
+    public function fetchProxyList(array $option = []): Collection|null
+    {
+        try {
+
+            $response = $this->send(array_merge($option, $this->getProxyOption()));
+
+            /**
+             * @throws JsonException
+             * @var BaseDto $dot
+             */
+            $dot = $response->dto();
+
+            return $dot->getProxyList();
+
+        } catch (FatalRequestException|RequestException|JsonException $e) {
+
+            Log::error($e);
 
             return null;
         }
@@ -97,7 +132,7 @@ class ProxyService
      */
     public function getProxy(array $option = []): ?ProxyResponse
     {
-        return $this->proxy ??= $this->fetchProxy($option);
+        return $this->proxy ??= $this->fetchProxyFirst($option);
     }
 
     public function setProxy(?ProxyResponse $proxy): void
