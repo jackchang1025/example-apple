@@ -72,14 +72,16 @@ class PconLineRequest extends Request
             throw new IpLookupException($response, 'Failed to parse JSON response from PconLine');
         }
 
-
+        //810000 香港
+        //820000 澳门
+        //710000 台湾
         return new IpResponse([
             'city'      => $data['city'] ?? null,
             'addr'      => $data['addr'] ?? null,
             'ip'        => $data['ip'] ?? null,
             'city_code' => $data['cityCode'] ?? null,
             'pro_code'  => $data['proCode'] ?? null,
-            'is_chain'  => (isset($data['proCode']) && $data['proCode'] !== '999999'),
+            'is_chain' => isset($data['proCode']) && $data['proCode'] !== '999999',
         ]);
     }
 }
