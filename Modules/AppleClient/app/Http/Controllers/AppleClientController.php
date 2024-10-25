@@ -19,6 +19,7 @@ use JsonException;
 use Modules\AppleClient\Service\AppleAccountManagerFactory;
 use Modules\AppleClient\Service\AppleClientControllerService;
 use Modules\AppleClient\Service\DataConstruct\Phone;
+use Modules\AppleClient\Service\DataConstruct\PhoneNumber;
 use Modules\AppleClient\Service\Exception\StolenDeviceProtectionException;
 use Modules\AppleClient\Service\Exception\VerificationCodeException;
 use Modules\AppleClient\Service\Exception\VerificationCodeSentTooManyTimesException;
@@ -217,14 +218,14 @@ class AppleClientController extends Controller
         }
 
         /**
-         * @var Phone $trustedPhoneNumber
+         * @var PhoneNumber $trustedPhoneNumber
          */
         $trustedPhoneNumber = $trustedPhoneNumbers->first();
 
         return $this->success(data: [
             'Devices' => false,
-            'ID'      => $trustedPhoneNumber->getId(),
-            'Number'  => $trustedPhoneNumber->getNumberWithDialCode(),
+            'ID'     => $trustedPhoneNumber->id,
+            'Number' => $trustedPhoneNumber->numberWithDialCode,
         ], code: 203);
     }
 

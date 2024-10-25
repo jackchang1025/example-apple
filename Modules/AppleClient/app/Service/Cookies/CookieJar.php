@@ -214,7 +214,7 @@ class CookieJar implements CookieJarInterface
 
     public function extractCookies(PendingRequest $request, Response $response): void
     {
-        if ($cookieHeader = $response->header('Set-Cookie')) {
+        if (($cookieHeader = $response->header('Set-Cookie')) && is_array($cookieHeader)) {
             foreach ($cookieHeader as $cookie) {
                 $sc = SetCookie::fromString($cookie);
 

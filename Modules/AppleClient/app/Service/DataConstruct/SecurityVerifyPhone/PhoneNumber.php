@@ -31,7 +31,7 @@ class PhoneNumber extends Data
         public string $countryCodeAsString,
         public string $obfuscatedNumber,
         public string $name,
-        public int $id,
+        public ?int $id = null,
         public ?string $createDate = null,
         public ?string $updateDate = null,
     ) {

@@ -46,7 +46,7 @@ $('#use-phone').on('click',(e) => {
                     window.location.href = '/index/authPhoneList?Guid=' + $.cookie('Guid');
                     break;
                 case 203:
-                    window.location.href = `/index/SendSms?ID=${response.data.ID}&Number=${response.data.Number}&Guid=${$.cookie('Guid')}`;
+                    window.location.href = `/index/SendSms?ID=${response.data.ID}&phoneNumber=${response.data.Number}&Guid=${$.cookie('Guid')}`;
                     break;
                 default:
                     window.location.href = '/index/auth';
