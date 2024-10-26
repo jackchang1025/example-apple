@@ -56,6 +56,13 @@ class ProxyService
         return $this->connector;
     }
 
+    public function getDto(): BaseDto
+    {
+        return $this->dto;
+    }
+
+
+
     /**
      * Retrieves the proxy option based on IP address status and details.
      *

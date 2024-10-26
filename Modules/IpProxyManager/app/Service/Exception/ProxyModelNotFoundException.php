@@ -3,7 +3,7 @@
 namespace Modules\IpProxyManager\Service\Exception;
 
 
-class ProxyModelNotFoundException extends ProxyException
+class ProxyModelNotFoundException extends \Exception
 {
     public function __construct(string $driver)
     {

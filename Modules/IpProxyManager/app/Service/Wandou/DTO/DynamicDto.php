@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\IpProxyManager\Service\Stormproxies\DTO;
+namespace Modules\IpProxyManager\Service\Wandou\DTO;
 
 use Modules\IpProxyManager\Service\BaseDto;
 use Saloon\Contracts\DataObjects\WithResponse;

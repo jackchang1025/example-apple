@@ -4,7 +4,7 @@ namespace Modules\IpProxyManager\Providers;
 
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
-use Modules\IpProxyManager\Service\ProxyFactory;
+use Modules\IpProxyManager\Service\ProxyManager;
 use Modules\IpProxyManager\Service\ProxyService;
 use Nwidart\Modules\Traits\PathNamespace;
 
@@ -39,7 +39,7 @@ class IpProxyManagerServiceProvider extends ServiceProvider
 
         $this->app->singleton(ProxyService::class, function () {
 
-            return $this->app->get(ProxyFactory::class)->create();
+            return $this->app->get(ProxyManager::class)->connector();
         });
     }
 
@@ -83,7 +83,11 @@ class IpProxyManagerServiceProvider extends ServiceProvider
      */
     protected function registerConfig(): void
     {
+
         $this->publishes([module_path($this->name, 'config/config.php') => config_path($this->nameLower.'.php')], 'config');
+
+//        dump(static::class,static::$publishes[static::class],static::$publishGroups['config']);
+
         $this->mergeConfigFrom(module_path($this->name, 'config/config.php'), $this->nameLower);
     }
 

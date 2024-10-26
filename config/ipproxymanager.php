@@ -94,16 +94,15 @@ return [
                     'request'        => AccountPasswordRequest::class,
                     'dto'            => AccountPasswordDto::class,
                     'default_config' => [
-                        'session'  => null,    // 对应一个随机ip
+                        'session'  => time(),    // 对应一个随机ip
                         'username' => null,
                         'password' => null,
                         'life'     => 5,          // 尽可能保持一个ip的使用时间
-                        'isp'      => 0,          // 运营商
-                        'pid'      => null,       // 省份id
+                        'isp'      => null,          // 运营商
+                        'pid'      => 0,       // 省份id
                         'cid'      => null,       // 城市id
                         'host'     => 'gw.wandouapp.com',           // 代理的地址
                         'port'     => '1000',           // 代理的地址
-
                     ],
                 ],
                 'dynamic' => [

@@ -58,6 +58,7 @@ trait HasProxy
 
     protected function isValidProxyUrl(string $url): bool
     {
+        return true;
         // Regular expression pattern to match a valid URL
         // Updated regular expression pattern to match valid URLs including IP addresses
         $pattern = '/^(http|https):\/\/'

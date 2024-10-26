@@ -5,16 +5,8 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ProxyConfigurationResource\Pages;
 use App\Models\ProxyConfiguration;
 use Filament\Forms;
-use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Split;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
@@ -48,6 +40,9 @@ class ProxyConfigurationResource extends Resource
 
                                     Forms\Components\Tabs\Tab::make('Huashengdaili')
                                         ->schema(self::getHuashengdaili()),
+
+                                    Forms\Components\Tabs\Tab::make('Wandou')
+                                        ->schema(self::getWandouSchema()),
                                 ]),
                         ])
                         ->columnSpan(['lg' => 3]),
@@ -66,6 +61,7 @@ class ProxyConfigurationResource extends Resource
                                     'hailiangip' => 'Hailiangip',
                                     'stormproxies' => 'Stormproxies',
                                     'huashengdaili' => 'Huashengdaili',  // 添加新选项
+                                    'wandou' => '豌豆代理',  // 新增豌豆代理选项
                                 ])
                                 ->required()
                                 ->default('stormproxies')
@@ -375,6 +371,82 @@ class ProxyConfigurationResource extends Resource
             //                        ->default('city,time')
             //                        ->helperText('其他返还信息'),
 
+        ];
+    }
+
+    // 新增豌豆代理配置schema
+    protected static function getWandouSchema(): array
+    {
+        return [
+            Forms\Components\Select::make('configuration.wandou.mode')
+                ->options([
+                    'flow'    => '账密模式',
+                    'dynamic' => '通道模式',
+                ])
+                ->default('flow')
+                ->helperText('选择代理模式'),
+
+            Forms\Components\TextInput::make('configuration.wandou.app_key')
+                ->helperText('通道模式时需要 开放的app_key,可以通过用户个人中心获取'),
+
+            //            Forms\Components\TextInput::make('configuration.wandou.session')
+            //                ->helperText('账密模式时需要 session 值'),
+
+            Forms\Components\TextInput::make('configuration.wandou.username')
+                ->helperText('账密模式时需要，可以通过用户个人中心获取'),
+
+            Forms\Components\TextInput::make('configuration.wandou.password')
+                ->helperText('账密模式时需要，可以通过用户个人中心获取'),
+
+            Forms\Components\TextInput::make('configuration.wandou.host')
+                ->default('api.wandoujia.com')
+                ->helperText('账密模式时需要，可以通过用户个人中心获取'),
+
+            Forms\Components\TextInput::make('configuration.wandou.port')
+                ->default('1000')
+                ->helperText(' 账密模式时需要，可以通过用户个人中心获取'),
+
+            Forms\Components\Select::make('configuration.wandou.xy')
+                ->options([
+                    1 => 'HTTP/HTTPS',
+                    3 => 'SOCKS5',
+                ])
+                ->default(1)
+                ->helperText('代理协议'),
+
+            Forms\Components\Select::make('configuration.wandou.isp')
+                ->options([
+                    null => '不限',
+                    1    => '电信',
+                    2    => '移动',
+                    3    => '联通',
+                ])
+                ->default(null)
+                ->helperText('运营商选择'),
+
+            //            Forms\Components\TextInput::make('configuration.wandou.area_id')
+            //                ->default(0)
+            //                ->helperText('地区id,默认0全国混播,多个地区使用|分割'),
+
+            Forms\Components\TextInput::make('configuration.wandou.num')
+                ->numeric()
+                ->default(1)
+                ->helperText('通道模式时需要单次提取IP数量,最大100'),
+
+            Forms\Components\Toggle::make('configuration.wandou.nr')
+                ->default(false)
+                ->helperText('通道模式时需要 是否自动去重'),
+
+            Forms\Components\TextInput::make('configuration.wandou.life')
+                ->numeric()
+                ->default(1)
+                ->helperText('通道模式时需要 尽可能保持一个ip的使用时间(分钟)'),
+
+            //            Forms\Components\TextInput::make('configuration.wandou.pid')
+            //                ->helperText('省份id'),
+            //
+            //            Forms\Components\TextInput::make('configuration.wandou.cid')
+            //                ->helperText('城市id'),
         ];
     }
 

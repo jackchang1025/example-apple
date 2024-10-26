@@ -2,10 +2,10 @@
 
 namespace Modules\IpProxyManager\Service\Exception;
 
-class ProxyConfigurationNotFoundException extends ProxyException
+class ProxyConfigurationNotFoundException extends \Exception
 {
-    public function __construct(string $driver)
+    public function __construct(string $message)
     {
-        parent::__construct("Configuration for driver {$driver} not found.");
+        parent::__construct($message);
     }
 }
