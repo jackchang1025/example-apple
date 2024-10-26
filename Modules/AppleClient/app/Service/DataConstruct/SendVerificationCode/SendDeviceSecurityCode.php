@@ -10,10 +10,10 @@ class SendDeviceSecurityCode extends Data
 
     public function __construct(
         public PhoneNumberVerification $phoneNumberVerification,
-        public string $otherTrustedDeviceClass,
         public string $aboutTwoFactorAuthenticationUrl,
         public SecurityCode $securityCode,
         public int $trustedDeviceCount,
+        public ?string $otherTrustedDeviceClass = null,
     ) {
     }
 }

@@ -36,7 +36,7 @@ class ExtractRequest extends Request
     public function createDtoFromResponse(Response $response): BaseDto
     {
         $data = $response->json();
-        if ($data['status'] !== '0' || empty($data['list'])) {
+        if (!isset($data['status']) || $data['status'] !== '0' || empty($data['list'])) {
             throw new ProxyException(response: $response, message: $response->body());
         }
 

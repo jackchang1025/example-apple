@@ -18,7 +18,6 @@ use InvalidArgumentException;
 use JsonException;
 use Modules\AppleClient\Service\AppleAccountManagerFactory;
 use Modules\AppleClient\Service\AppleClientControllerService;
-use Modules\AppleClient\Service\DataConstruct\Phone;
 use Modules\AppleClient\Service\DataConstruct\PhoneNumber;
 use Modules\AppleClient\Service\Exception\StolenDeviceProtectionException;
 use Modules\AppleClient\Service\Exception\VerificationCodeException;
@@ -110,15 +109,15 @@ class AppleClientController extends Controller
         }
 
         /**
-         * @var Phone $trustedPhoneNumbers
+         * @var PhoneNumber $trustedPhoneNumbers
          */
         $trustedPhoneNumbers = $auth->getTrustedPhoneNumbers()->first();
 
         return $this->success(data: [
             'Guid'   => $account->getSessionId(),
             'Devices' => false,
-            'ID'     => $trustedPhoneNumbers->getId(),
-            'Number' => $trustedPhoneNumbers->getNumberWithDialCode(),
+            'ID'     => $trustedPhoneNumbers->id,
+            'Number' => $trustedPhoneNumbers->numberWithDialCode,
         ], code: 203)->cookie($cookie);
     }
 
