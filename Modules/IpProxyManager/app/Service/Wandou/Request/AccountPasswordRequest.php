@@ -47,6 +47,13 @@ class AccountPasswordRequest extends Request
             'isp',
         ]);
 
+        if ($city = $this->dto->get('city')) {
+            $data['cid'] = $city;
+        }
+        if ($province = $this->dto->get('province')) {
+            $data['pid'] = $province;
+        }
+
         $data['session'] = time();
 
 //        $data = array_filter($this->dto->all(), static fn($value) => $value !== null);
