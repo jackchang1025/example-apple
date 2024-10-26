@@ -2,6 +2,7 @@
 
 namespace Modules\IpProxyManager\Service\Wandou\Request;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Modules\IpProxyManager\Service\BaseDto;
 use Modules\IpProxyManager\Service\ProxyResponse;
@@ -21,10 +22,6 @@ class AccountPasswordRequest extends Request
     {
         parent::__construct($dto);
 
-        if (empty($this->dto->get('session'))) {
-            throw new \InvalidArgumentException("请配置代理 session");
-        }
-
         if (empty($this->dto->get('username'))) {
             throw new \InvalidArgumentException("请配置代理用户名");
         }
@@ -43,20 +40,20 @@ class AccountPasswordRequest extends Request
     {
         $username = $this->dto->get('username');
 
-//        $data = Arr::only($this->dto->all(),[
-//            'session',
-//            'life',
-//            'pid',
-//            'cid',
-//            'isp',
-//        ]);
+        $data = Arr::only($this->dto->all(), [
+            'life',
+            'pid',
+            'cid',
+            'isp',
+        ]);
 
-        $data = array_filter($this->dto->all(), static fn($value) => $value !== null);
+        $data['session'] = time();
+
+//        $data = array_filter($this->dto->all(), static fn($value) => $value !== null);
 
         foreach ($data as $key => $value) {
             $username .= sprintf("_%s-%s", $key, $value);
         }
-
 
         //curl -x db1z2pgm_session-23424_life-2_pid-0_isp-1:o5njazji@gw.wandouapp.com:1000 api.ip.cc
         //curl -x db1z2pgm_session-17299_life-5_isp-0_pid-0:o5njazji@gw.wandouapp.com:1000 api.ip.cc

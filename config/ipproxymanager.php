@@ -94,10 +94,9 @@ return [
                     'request'        => AccountPasswordRequest::class,
                     'dto'            => AccountPasswordDto::class,
                     'default_config' => [
-                        'session'  => time(),    // 对应一个随机ip
                         'username' => null,
                         'password' => null,
-                        'life'     => 5,          // 尽可能保持一个ip的使用时间
+                        'life' => 1,          // 尽可能保持一个ip的使用时间
                         'isp'      => null,          // 运营商
                         'pid'      => 0,       // 省份id
                         'cid'      => null,       // 城市id
