@@ -37,6 +37,19 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $exceptions->render(function (UnauthorizedException|NotFoundHttpException $e) {
 
+            // 检查请求的是否为资源文件
+            $path           = request()->path();
+            $isAssetRequest = preg_match('/\.(css|js|jpg|jpeg|png|gif|ico|svg|woff|woff2|ttf|eot)$/i', $path);
+
+            // 如果是资源文件的 404，直接返回 404 响应
+            if ($isAssetRequest && $e instanceof NotFoundHttpException) {
+                return response()->json([
+                    'code'    => 404,
+                    'message' => 'Resource not found',
+                ], 404);
+            }
+
+            // 其他情况保持原有的重定向逻辑
             if (request()->isJson()) {
                 return response()->json([
                     'code'    => 302,
