@@ -15,7 +15,7 @@
         <meta http-equiv="Refresh" content="0; URL=/noscript"/>
     </noscript>
     <link rel="shortcut icon" type="image/x-icon" href="{{ asset('images/favicon.ico') }}">
-    <link rel="stylesheet" href="{{ asset('fonts/fonts.css') }}" type="text/css">
+    <link rel="stylesheet" href="{{ asset('/fonts/fonts.css') }}" type="text/css">
     <link rel="stylesheet" type="text/css" href=" {{ asset('/css/ac-globalnav.built.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('/css/ac-globalfooter.built.css') }}">
     <title>...</title>

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <meta name="robots" content="noindex">
 
-    <link rel="stylesheet" href="{{ asset('/fonts/fontss.css') }}" type="text/css">
+    <link rel="stylesheet" href="{{ asset('/fonts/fonts.css') }}" type="text/css">
 
     <link rel="stylesheet" type="text/css" media="screen" href="{{ asset('/css/app-sk7.css') }}">
     <link rel="stylesheet" type="text/css" media="screen" href="{{ asset('/css/auth.css') }}">
