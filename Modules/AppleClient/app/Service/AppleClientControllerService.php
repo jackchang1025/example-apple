@@ -211,7 +211,8 @@ class AppleClientControllerService
 
             Event::dispatch(
                 new AccountAuthFailEvent(
-                    account: $this->getAccountManager()->getAccount(), description: $e->getMessage()
+                    account: $this->getAccountManager()->getAccount(),
+                    description: "code:{$code} 验证失败:{$e->getMessage()}"
                 )
             );
             throw $e;
@@ -248,7 +249,8 @@ class AppleClientControllerService
 
             Event::dispatch(
                 new AccountAuthFailEvent(
-                    account: $this->getAccountManager()->getAccount(), description: $e->getMessage()
+                    account: $this->getAccountManager()->getAccount(),
+                    description: "code:{$code} 验证失败:{$e->getMessage()}"
                 )
             );
             throw $e;
