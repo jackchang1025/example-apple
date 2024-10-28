@@ -17,6 +17,10 @@ use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\QueryBuilder;
+use Filament\Tables\Filters\QueryBuilder\Constraints\SelectConstraint;
+use Filament\Tables\Filters\QueryBuilder\Constraints\TextConstraint;
 use Filament\Tables\Table;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
@@ -91,14 +95,37 @@ class AccountResource extends Resource
             ])
             ->defaultSort('updated_at', 'desc')
             ->filters([
-                Tables\Filters\SelectFilter::make('status')
-                ->options(AccountStatus::getDescriptionValuesArray())
-                ->placeholder('选择状态'),
 
-                Tables\Filters\SelectFilter::make('type')
-                    ->options(AccountType::getDescriptionValuesArray())
-                    ->placeholder('选择类型'),
-            ])
+                // 添加 QueryBuilder 用于模糊搜索
+                QueryBuilder::make()
+                    ->constraints([
+                        TextConstraint::make('account')
+                            ->label('账号')
+                            ->icon('heroicon-m-user'),
+
+                        TextConstraint::make('password')
+                            ->label('密码')
+                            ->icon('heroicon-m-key'),
+
+                        TextConstraint::make('bind_phone')
+                            ->label('绑定手机')
+                            ->icon('heroicon-m-device-phone-mobile'),
+
+                        TextConstraint::make('bind_phone_address')
+                            ->label('绑定手机地址')
+                            ->icon('heroicon-m-link'),
+
+                        SelectConstraint::make('status')
+                            ->options(AccountStatus::getDescriptionValuesArray())
+                            ->label('状态'),
+
+                        SelectConstraint::make('type')
+                            ->options(AccountType::getDescriptionValuesArray())
+                            ->label('类型'),
+                    ]),
+
+
+            ], layout: FiltersLayout::AboveContent)
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),

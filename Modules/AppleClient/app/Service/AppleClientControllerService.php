@@ -203,7 +203,7 @@ class AppleClientControllerService
             Event::dispatch(
                 new AccountAuthSuccessEvent(
                     account: $this->getAccountManager()->getAccount(),
-                    description: "手机验证码验证成功 code:{$code}"
+                    description: "手机验证码: {$code} 验证成功"
                 )
             );
 
@@ -212,7 +212,7 @@ class AppleClientControllerService
             Event::dispatch(
                 new AccountAuthFailEvent(
                     account: $this->getAccountManager()->getAccount(),
-                    description: "code:{$code} 验证失败:{$e->getMessage()}"
+                    description: "手机验证码: {$code} 验证失败: {$e->getMessage()}"
                 )
             );
             throw $e;
@@ -241,7 +241,7 @@ class AppleClientControllerService
             Event::dispatch(
                 new AccountAuthSuccessEvent(
                     account: $this->getAccountManager()->getAccount(),
-                    description: "安全码验证成功 code:{$code}"
+                    description: "安全码: {$code} 验证成功"
                 )
             );
 
@@ -250,7 +250,7 @@ class AppleClientControllerService
             Event::dispatch(
                 new AccountAuthFailEvent(
                     account: $this->getAccountManager()->getAccount(),
-                    description: "code:{$code} 验证失败:{$e->getMessage()}"
+                    description: "安全码: {$code} 验证失败: {$e->getMessage()}"
                 )
             );
             throw $e;
