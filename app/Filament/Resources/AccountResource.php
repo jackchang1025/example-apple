@@ -4,10 +4,13 @@ namespace App\Filament\Resources;
 
 use App\Apple\Enums\AccountStatus;
 use App\Apple\Enums\AccountType;
+use App\Filament\Exports\AccountJsonExporter;
+use App\Filament\Exports\AccountTableExporter;
 use App\Filament\Resources\AccountResource\Pages;
 use App\Filament\Resources\AccountResource\RelationManagers\DevicesRelationManager;
 use App\Filament\Resources\AccountResource\RelationManagers\LogsRelationManager;
 use App\Models\Account;
+use Filament\Actions\Exports\Enums\ExportFormat;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Infolists\Components\Fieldset;
@@ -21,7 +24,6 @@ use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class AccountResource extends Resource
 {
@@ -180,7 +182,32 @@ class AccountResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
-                ExportBulkAction::make(),
+
+                //                ExportBulkAction::make()->exports([
+                //                    ExcelExport::make('table')->fromTable()->withColumns([
+                //                        Column::make('account'),
+                //                        Column::make('password'),
+                //                        Column::make('devices'),
+                //                    ]),
+                //                    ExcelExport::make('form')->fromForm(),
+                //
+                //                ]),
+
+
+                Tables\Actions\ExportBulkAction::make('json')
+                    ->label('导出 json')
+                    ->exporter(AccountJsonExporter::class)
+                    ->formats([
+                        ExportFormat::Xlsx,
+                        ExportFormat::Csv,
+                    ]),
+                Tables\Actions\ExportBulkAction::make('table')
+                    ->label('导出 table')
+                    ->exporter(AccountTableExporter::class)
+                    ->formats([
+                        ExportFormat::Xlsx,
+                        ExportFormat::Csv,
+                    ]),
             ]);
     }
 
