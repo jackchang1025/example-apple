@@ -18,10 +18,9 @@ use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Enums\FiltersLayout;
-use Filament\Tables\Filters\QueryBuilder;
-use Filament\Tables\Filters\QueryBuilder\Constraints\SelectConstraint;
-use Filament\Tables\Filters\QueryBuilder\Constraints\TextConstraint;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class AccountResource extends Resource
@@ -62,10 +61,12 @@ class AccountResource extends Resource
             ->columns([
 
                 Tables\Columns\TextColumn::make('account')
-                    ->toggleable(),
+                    ->toggleable()
+                    ->searchable(),
 
                 Tables\Columns\TextColumn::make('password')
-                    ->toggleable(),
+                    ->toggleable()
+                    ->searchable(),
 
                 Tables\Columns\TextColumn::make('status')
                     ->formatStateUsing(fn (AccountStatus $state): string => $state->description())
@@ -78,10 +79,12 @@ class AccountResource extends Resource
                     ->toggleable(),
 
                 Tables\Columns\TextColumn::make('bind_phone')
-                    ->toggleable(),
+                    ->toggleable()
+                    ->searchable(),
 
                 Tables\Columns\TextColumn::make('bind_phone_address')
-                    ->toggleable(),
+                    ->toggleable()
+                    ->searchable(),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->toggleable()
@@ -97,33 +100,78 @@ class AccountResource extends Resource
             ->filters([
 
                 // 添加 QueryBuilder 用于模糊搜索
-                QueryBuilder::make()
-                    ->constraints([
-                        TextConstraint::make('account')
-                            ->label('账号')
-                            ->icon('heroicon-m-user'),
+                //                QueryBuilder::make()
+                //                    ->constraints([
+                //                        TextConstraint::make('account')
+                //                            ->label('账号')
+                //                            ->icon('heroicon-m-user'),
+                //
+                //                        TextConstraint::make('password')
+                //                            ->label('密码')
+                //                            ->icon('heroicon-m-key'),
+                //
+                //                        TextConstraint::make('bind_phone')
+                //                            ->label('绑定手机')
+                //                            ->icon('heroicon-m-device-phone-mobile'),
+                //
+                //                        SelectConstraint::make('status')
+                //                            ->options(AccountStatus::getDescriptionValuesArray())
+                //                            ->label('状态'),
+                //
+                //                        SelectConstraint::make('type')
+                //                            ->options(AccountType::getDescriptionValuesArray())
+                //                            ->label('类型'),
+                //                    ]),
 
-                        TextConstraint::make('password')
-                            ->label('密码')
-                            ->icon('heroicon-m-key'),
+                Tables\Filters\SelectFilter::make('status')
+                    ->options(AccountStatus::getDescriptionValuesArray())
+                    ->label('选择状态')
+                    ->placeholder('选择状态'),
 
-                        TextConstraint::make('bind_phone')
-                            ->label('绑定手机')
-                            ->icon('heroicon-m-device-phone-mobile'),
+                Tables\Filters\SelectFilter::make('type')
+                    ->options(AccountType::getDescriptionValuesArray())
+                    ->label('选择类型')
+                    ->placeholder('选择类型'),
 
-                        TextConstraint::make('bind_phone_address')
-                            ->label('绑定手机地址')
-                            ->icon('heroicon-m-link'),
 
-                        SelectConstraint::make('status')
-                            ->options(AccountStatus::getDescriptionValuesArray())
-                            ->label('状态'),
+                SelectFilter::make('payment_type')
+                    ->label('支付方式')
+                    ->placeholder('选择类型')
+                    ->options(function () {
+                        return \App\Models\Payment::query()
+                            ->selectRaw('COALESCE(NULLIF(TRIM(payment_method_name), ""), "无") as payment_method_name')
+                            ->distinct()
+                            ->pluck('payment_method_name', 'payment_method_name')
+                            ->toArray();
+                    })
+                    ->query(function (Builder $query, array $data) {
+                        if (empty($data['values'])) {
+                            return $query;
+                        }
 
-                        SelectConstraint::make('type')
-                            ->options(AccountType::getDescriptionValuesArray())
-                            ->label('类型'),
-                    ]),
-
+                        return $query->where(function (Builder $query) use ($data) {
+                            foreach ($data['values'] as $value) {
+                                if ($value === '无') {
+                                    $query->orWhere(function ($query) {
+                                        // 没有 payment 关联记录的情况
+                                        $query->doesntHave('payment');
+                                    })->orWhereHas('payment', function ($query) {
+                                        // 有 payment 关联记录但 payment_method_name 为空的情况
+                                        $query->whereNull('payment_method_name')
+                                            ->orWhere('payment_method_name', '')
+                                            ->orWhere('payment_method_name', '无');
+                                    });
+                                } else {
+                                    $query->orWhereHas('payment', function ($query) use ($value) {
+                                        $query->where('payment_method_name', $value);
+                                    });
+                                }
+                            }
+                        });
+                    })
+                    ->multiple()
+                    ->searchable()
+                    ->preload(),
 
             ], layout: FiltersLayout::AboveContent)
             ->actions([
@@ -162,6 +210,7 @@ class AccountResource extends Resource
 
                 Section::make('支付信息')
                     ->schema([
+
                         TextEntry::make('payment.payment_method_name')->label('支付方式名称'),
                         TextEntry::make('payment.payment_method_detail')->label('支付方式详情'),
                         TextEntry::make('payment.partner_login')->label('合作伙伴登录信息'),
