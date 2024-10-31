@@ -300,7 +300,7 @@ class ProcessAccountImportService
      */
     protected function fetchDevices(): DataCollection
     {
-        return $this->accountManager->fetchDevices();
+        return $this->accountManager->updateOrCreateDevices();
     }
 
     /**

@@ -69,7 +69,7 @@ trait HasBindPhone
     {
         try {
 
-            $this->fetchDevices();
+            $this->updateOrCreateDevices();
 
             $this->fetchPaymentConfig();
 

@@ -11,6 +11,8 @@ use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 #[MapOutputName(SnakeCaseMapper::class)]
 class Device extends Data
 {
+
+
     public function __construct(
         #[MapName('id')]
         public string $deviceId,
@@ -34,8 +36,11 @@ class Device extends Data
         public ?string $infoboxImageLocation3x,
         public ?string $deviceDetailUri,
         public ?string $deviceDetailHttpMethod,
+        public ?DeviceDetail $deviceDetail = null
     ) {
+
     }
+
 
     public function updateOrCreate(int $accountId): Devices
     {

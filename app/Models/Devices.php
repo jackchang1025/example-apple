@@ -64,6 +64,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder|Devices whereSupportsVerificationCodes($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Devices whereUnsupported($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Devices whereUpdatedAt($value)
+ * @property string $imei imei
+ * @property string $meid meid
+ * @property string $serial_number 序列号
+ * @method static \Illuminate\Database\Eloquent\Builder|Devices whereImei($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devices whereMeid($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devices whereSerialNumber($value)
  * @mixin \Eloquent
  */
 class Devices extends Model
@@ -98,6 +104,9 @@ class Devices extends Model
         'infobox_image_location_3x', // 3倍分辨率信息框图片地址
         'device_detail_uri',    // 设备详情URI
         'device_detail_http_method', // 获取设备详情的HTTP方法
+        'imei', //
+        'meid', //
+        'serial_number', //
     ];
 
     /**

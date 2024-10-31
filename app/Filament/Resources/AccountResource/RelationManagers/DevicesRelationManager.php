@@ -50,6 +50,8 @@ class DevicesRelationManager extends RelationManager
                                 TextEntry::make('model_name')->label('型号'),
                                 TextEntry::make('os')->label('操作系统'),
                                 TextEntry::make('os_version')->label('系统版本'),
+                                TextEntry::make('serial_number')->label('序列号'),
+                                TextEntry::make('imei')->label('IMEI'),
                             ])
                             ->columns(3),
                     ]),
@@ -60,11 +62,13 @@ class DevicesRelationManager extends RelationManager
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('device_id'),
-                Tables\Columns\TextColumn::make('name'),
-                Tables\Columns\TextColumn::make('model_name'),
-                Tables\Columns\TextColumn::make('os'),
-                Tables\Columns\TextColumn::make('os_version'),
+                Tables\Columns\TextColumn::make('device_id')->label('设备 ID'),
+                Tables\Columns\TextColumn::make('name')->label('设备名称'),
+                Tables\Columns\TextColumn::make('model_name')->label('型号'),
+                Tables\Columns\TextColumn::make('os')->label('操作系统'),
+                Tables\Columns\TextColumn::make('os_version')->label('系统版本'),
+                Tables\Columns\TextColumn::make('serial_number')->label('序列号'),
+                Tables\Columns\TextColumn::make('imei')->label('IMEI'),
                 // 添加其他你想在表格中显示的列
             ])
             ->filters([

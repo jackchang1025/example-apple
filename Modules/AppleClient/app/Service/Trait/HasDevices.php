@@ -2,7 +2,9 @@
 
 namespace Modules\AppleClient\Service\Trait;
 
+use JsonException;
 use Modules\AppleClient\Service\DataConstruct\Device\Device;
+use Modules\AppleClient\Service\DataConstruct\Device\DeviceDetail;
 use Modules\AppleClient\Service\DataConstruct\Device\Devices;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
@@ -12,6 +14,7 @@ trait HasDevices
 {
     protected ?Devices $devices = null;
 
+
     /**
      * @return Devices
      * @throws FatalRequestException
@@ -20,7 +23,28 @@ trait HasDevices
      */
     public function getDevices(): Devices
     {
-        return $this->devices ??= $this->securityDevices();
+        return $this->devices ??= $this->fetchDevices();
+    }
+
+    /**
+     * @return DataCollection
+     * @throws FatalRequestException
+     * @throws JsonException
+     * @throws RequestException
+     */
+    public function getDevicesDetails(): \Spatie\LaravelData\DataCollection
+    {
+        return $this->getDevices()->devices
+            ->map(function (Device $device) {
+
+                if ($device->deviceDetail) {
+                    return $device;
+                }
+
+                $device->deviceDetail = $this->fetchDevicesDetail($device->deviceId);
+
+                return $device;
+            });
     }
 
     /**
@@ -29,11 +53,12 @@ trait HasDevices
      * @throws RequestException
      * @throws \JsonException
      */
-    public function fetchDevices(): \Spatie\LaravelData\DataCollection
+    public function updateOrCreateDevices(): \Spatie\LaravelData\DataCollection
     {
-        return $this->getDevices()->devices
+        return $this->getDevicesDetails()
             ->map(function (Device $device) {
-                return $device->updateOrCreate($this->getAccount()->id);
+
+                return $device->deviceDetail?->updateOrCreate($this->getAccount()->id);
             });
     }
 
@@ -42,7 +67,7 @@ trait HasDevices
      * @throws FatalRequestException
      * @throws RequestException|\JsonException
      */
-    protected function securityDevices(): Devices
+    protected function fetchDevices(): Devices
     {
         return Devices::from($this->client->securityDevices()->json());
     }
@@ -56,7 +81,7 @@ trait HasDevices
      */
     public function refreshDevices(): Devices
     {
-        $this->devices = $this->securityDevices();
+        $this->devices = $this->fetchDevices();
 
         return $this->devices;
     }
@@ -66,5 +91,19 @@ trait HasDevices
         $this->devices = $devices;
 
         return $this;
+    }
+
+    /**
+     * @param string $paymentId
+     * @return DeviceDetail
+     * @throws FatalRequestException
+     * @throws JsonException
+     * @throws RequestException
+     */
+    public function fetchDevicesDetail(string $paymentId): DeviceDetail
+    {
+        return DeviceDetail::fromResponse(
+            $this->getClient()->deviceDetail($paymentId)
+        );
     }
 }
