@@ -3,6 +3,8 @@
 /public/build
 /public/hot
 /public/storage
+/public/.well-known/
+public/vendor/
 /storage/*.key
 /vendor
 .env
@@ -18,7 +20,10 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
-
+.well-known/
+.user.ini
 
 /storage/framework/views/
 /storage/browser/screenshots/
+
+
