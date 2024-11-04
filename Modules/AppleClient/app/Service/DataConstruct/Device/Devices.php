@@ -2,8 +2,8 @@
 
 namespace Modules\AppleClient\Service\DataConstruct\Device;
 
-use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Modules\AppleClient\Service\DataConstruct\Data;
+use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\DataCollection;
 
 class Devices extends Data

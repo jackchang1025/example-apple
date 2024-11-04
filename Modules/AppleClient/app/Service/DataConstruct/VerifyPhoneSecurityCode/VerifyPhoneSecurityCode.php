@@ -2,14 +2,11 @@
 
 namespace Modules\AppleClient\Service\DataConstruct\VerifyPhoneSecurityCode;
 
-use Modules\AppleClient\Service\DataConstruct\HasFromResponse;
+use Modules\AppleClient\Service\DataConstruct\Data;
 use Modules\AppleClient\Service\DataConstruct\PhoneNumber;
 use Modules\AppleClient\Service\DataConstruct\SecurityCode;
-use Modules\AppleClient\Service\Response\Response;
-use Modules\AppleClient\Service\DataConstruct\Data;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\DataCollection;
-use Spatie\LaravelData\Casts\DateTimeInterfaceCast;
 
 class VerifyPhoneSecurityCode extends Data
 {

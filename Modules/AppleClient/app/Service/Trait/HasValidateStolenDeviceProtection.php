@@ -9,7 +9,6 @@ use Modules\AppleClient\Service\Exception\AppleClientException;
 use Modules\AppleClient\Service\Exception\BindPhoneException;
 use Modules\AppleClient\Service\Exception\StolenDeviceProtectionException;
 use Modules\AppleClient\Service\Exception\VerificationCodeException;
-use Modules\AppleClient\Service\Response\Response;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
 

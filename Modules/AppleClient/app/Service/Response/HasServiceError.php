@@ -7,9 +7,9 @@
 
 namespace Modules\AppleClient\Service\Response;
 
-use Modules\AppleClient\Service\ServiceError\ServiceError;
 use Illuminate\Support\Collection;
 use Modules\AppleClient\Service\ServiceError\ErrorType;
+use Modules\AppleClient\Service\ServiceError\ServiceError;
 
 trait HasServiceError
 {

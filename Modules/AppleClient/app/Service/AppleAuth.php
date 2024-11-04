@@ -7,10 +7,10 @@
 
 namespace Modules\AppleClient\Service;
 
+use InvalidArgumentException;
 use Modules\AppleClient\Service\Integrations\AppleAuth\AppleAuthConnector;
 use Modules\AppleClient\Service\Integrations\AppleAuth\Request\Complete;
 use Modules\AppleClient\Service\Integrations\AppleAuth\Request\Init;
-use InvalidArgumentException;
 
 trait AppleAuth
 {

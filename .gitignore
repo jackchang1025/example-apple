@@ -18,8 +18,7 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
-nginx.conf
 
-tests/
+
 /storage/framework/views/
 /storage/browser/screenshots/

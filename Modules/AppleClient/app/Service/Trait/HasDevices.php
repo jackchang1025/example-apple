@@ -69,7 +69,7 @@ trait HasDevices
      */
     protected function fetchDevices(): Devices
     {
-        return Devices::from($this->client->securityDevices()->json());
+        return Devices::fromResponse($this->getClient()->securityDevices());
     }
 
     /**

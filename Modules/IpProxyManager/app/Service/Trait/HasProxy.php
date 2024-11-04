@@ -2,8 +2,6 @@
 
 namespace Modules\IpProxyManager\Service\Trait;
 
-use Modules\IpProxyManager\Service\ProxyResponse;
-
 trait HasProxy
 {
     protected bool $proxyEnabled = false;

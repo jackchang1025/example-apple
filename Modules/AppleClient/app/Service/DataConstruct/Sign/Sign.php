@@ -3,8 +3,8 @@
 namespace Modules\AppleClient\Service\DataConstruct\Sign;
 
 use Illuminate\Support\Carbon;
-use Modules\AppleClient\Service\Response\Response;
 use Modules\AppleClient\Service\DataConstruct\Data;
+use Modules\AppleClient\Service\Response\Response;
 
 class Sign extends Data
 {

@@ -2,8 +2,8 @@
 
 namespace Modules\AppleClient\Service\DataConstruct\Payment;
 
-use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Modules\AppleClient\Service\DataConstruct\Data;
+use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\DataCollection;
 
 class BillingAddress extends Data

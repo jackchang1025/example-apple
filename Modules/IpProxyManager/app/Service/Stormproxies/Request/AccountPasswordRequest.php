@@ -2,10 +2,10 @@
 
 namespace Modules\IpProxyManager\Service\Stormproxies\Request;
 
+use Illuminate\Support\Collection;
 use Modules\IpProxyManager\Service\ProxyResponse;
 use Modules\IpProxyManager\Service\Request;
 use Modules\IpProxyManager\Service\Stormproxies\DTO\AccountPasswordDto;
-use Illuminate\Support\Collection;
 use Saloon\Enums\Method;
 use Saloon\Http\Faking\MockClient;
 use Saloon\Http\Faking\MockResponse;

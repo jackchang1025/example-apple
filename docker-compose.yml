@@ -1,36 +1,29 @@
 services:
     laravel:
         build:
-            context: .
+            context: './vendor/laravel/sail/runtimes/8.3'
             dockerfile: Dockerfile
-        image: sail-8.3/app
-#        extra_hosts:
-#            - 'host.docker.internal:host-gateway'
+            args:
+                WWWGROUP: '${WWWGROUP}'
+        image: 'sail-8.3/app'
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'
+        ports:
+            - '${APP_PORT:-80}:80'
+            - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
         environment:
+            WWWUSER: '${WWWUSER}'
             LARAVEL_SAIL: 1
             XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
             XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
             IGNITION_LOCAL_SITES_PATH: '${PWD}'
         volumes:
             - '.:/var/www/html'
-            - './docker/php/www.conf:/etc/php/8.3/fpm/pool.d/www.conf'
-            - '/home/code/php/packagist:/home/code/php/packagist'
         networks:
             - sail
         depends_on:
             - mysql
             - redis
-    nginx:
-        image: nginx:alpine
-        ports:
-            - '${APP_PORT:-80}:80'
-        volumes:
-            - '.:/var/www/html'
-            - './nginx.conf:/etc/nginx/conf.d/default.conf:ro'
-        depends_on:
-            - laravel
-        networks:
-            - sail
     mysql:
         image: 'mysql/mysql-server:8.0'
         ports:
@@ -81,15 +74,6 @@ services:
             - "8088:8088"
         networks:
             - sail
-#    selenium-hub:
-#        image: selenium/standalone-chrome:dev
-#        depends_on:
-#            - laravel
-#        ports:
-#            - '4444:4444'
-#            - '7900:7900'
-#        networks:
-#            - sail
 networks:
     sail:
         driver: bridge
@@ -97,6 +81,4 @@ volumes:
     sail-mysql:
         driver: local
     sail-redis:
-        driver: local
-    sail-meilisearch:
         driver: local

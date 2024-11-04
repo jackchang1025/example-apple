@@ -4,7 +4,6 @@ namespace App\Filament\Resources\PageVisitsResource\Widgets;
 
 use App\Apple\WebAnalytics\OnlineUsersService;
 use Filament\Widgets\ChartWidget;
-use Illuminate\Support\Facades\Redis;
 
 class OnlineUsersChart extends ChartWidget
 {

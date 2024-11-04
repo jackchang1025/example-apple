@@ -2,7 +2,7 @@
 
 namespace Modules\AppleClient\Service\DataConstruct;
 
-use  \Spatie\LaravelData\Data as BaseData;
+use Spatie\LaravelData\Data as BaseData;
 
 class Data extends BaseData
 {

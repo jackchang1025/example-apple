@@ -3,11 +3,8 @@
 
 namespace Modules\AppleClient\Service\Trait;
 
-use App\Events\AccountBindPhoneFailEvent;
-use App\Events\AccountBindPhoneSuccessEvent;
 use App\Models\User;
 use Filament\Notifications\Notification;
-use Illuminate\Support\Facades\Event;
 use Psr\Log\LoggerInterface;
 
 trait HasNotification

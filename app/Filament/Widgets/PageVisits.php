@@ -7,7 +7,6 @@ use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Facades\Log;
-use App\Apple\WebAnalytics\Enums\Route;
 
 class PageVisits extends BaseWidget
 {

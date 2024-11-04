@@ -2,7 +2,6 @@
 
 namespace Modules\AppleClient\Service\Trait;
 
-use Modules\AppleClient\Service\DataConstruct\HasFromResponse;
 use Modules\AppleClient\Service\DataConstruct\Token\Token;
 
 trait HasToken

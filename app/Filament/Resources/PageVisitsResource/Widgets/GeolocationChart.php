@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\PageVisitsResource\Widgets;
 
 use App\Models\PageVisits;
-use Filament\Widgets\ChartWidget;
 use Filament\Widgets\Widget;
 
 class GeolocationChart extends Widget

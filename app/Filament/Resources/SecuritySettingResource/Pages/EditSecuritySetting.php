@@ -4,8 +4,6 @@ namespace App\Filament\Resources\SecuritySettingResource\Pages;
 
 use App\Filament\Resources\SecuritySettingResource;
 use App\Models\SecuritySetting;
-use Filament\Actions;
-use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\Auth;
 

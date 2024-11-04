@@ -2,7 +2,6 @@
 
 namespace App\Apple\WebAnalytics;
 
-use App\Apple\WebAnalytics\Enums\Route;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Redis\RedisManager;
 use Illuminate\Support\Collection;

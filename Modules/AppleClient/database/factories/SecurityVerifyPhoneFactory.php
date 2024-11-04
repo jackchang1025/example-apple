@@ -3,7 +3,6 @@
 namespace Modules\AppleClient\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-
 use Modules\AppleClient\Service\DataConstruct\SecurityCode;
 use Modules\AppleClient\Service\DataConstruct\SecurityVerifyPhone\PhoneNumber;
 use Modules\AppleClient\Service\DataConstruct\SecurityVerifyPhone\PhoneNumberVerification;

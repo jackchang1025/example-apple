@@ -69,12 +69,10 @@ class AccountJsonExporter extends Exporter
 
     public static function getCompletedNotificationBody(Export $export): string
     {
-        $body = 'Your account export has completed and '.number_format($export->successful_rows).' '.str('row')->plural(
-                $export->successful_rows
-            ).' exported.';
+        $body = '已成功导出 '.number_format($export->successful_rows).' 条数据';
 
         if ($failedRowsCount = $export->getFailedRowsCount()) {
-            $body .= ' '.number_format($failedRowsCount).' '.str('row')->plural($failedRowsCount).' failed to export.';
+            $body .= '，'.number_format($failedRowsCount).' 条数据导出失败';
         }
 
         return $body;

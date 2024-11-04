@@ -2,8 +2,8 @@
 
 namespace App\Apple\WebAnalytics;
 
-use Illuminate\Support\Collection;
 use App\Apple\WebAnalytics\Enums\Route;
+use Illuminate\Support\Collection;
 
 trait OnlineUsersTrait
 {

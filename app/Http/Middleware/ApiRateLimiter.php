@@ -6,7 +6,6 @@ use Closure;
 use Illuminate\Cache\RateLimiter;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Foundation\Application;
-use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class ApiRateLimiter

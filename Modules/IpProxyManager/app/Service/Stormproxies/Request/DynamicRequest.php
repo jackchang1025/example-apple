@@ -2,13 +2,13 @@
 
 namespace Modules\IpProxyManager\Service\Stormproxies\Request;
 
+use Illuminate\Support\Collection;
 use Modules\IpProxyManager\Service\BaseDto;
 use Modules\IpProxyManager\Service\Exception\ProxyException;
 use Modules\IpProxyManager\Service\ProxyResponse;
-use Modules\IpProxyManager\Service\Stormproxies\DTO\DynamicDto;
-use Illuminate\Support\Collection;
-use Saloon\Enums\Method;
 use Modules\IpProxyManager\Service\Request;
+use Modules\IpProxyManager\Service\Stormproxies\DTO\DynamicDto;
+use Saloon\Enums\Method;
 use Saloon\Http\Response;
 
 class DynamicRequest extends Request

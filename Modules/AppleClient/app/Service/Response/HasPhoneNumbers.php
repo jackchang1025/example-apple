@@ -7,8 +7,8 @@
 
 namespace Modules\AppleClient\Service\Response;
 
-use Modules\AppleClient\Service\DataConstruct\Phone;
 use Illuminate\Support\Collection;
+use Modules\AppleClient\Service\DataConstruct\Phone;
 
 trait HasPhoneNumbers
 {

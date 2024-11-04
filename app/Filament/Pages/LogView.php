@@ -3,7 +3,6 @@
 namespace App\Filament\Pages;
 
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
-use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Saade\FilamentLaravelLog\Pages\ViewLog;
 
 class LogView extends ViewLog

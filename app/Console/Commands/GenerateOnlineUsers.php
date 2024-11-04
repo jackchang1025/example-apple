@@ -4,10 +4,8 @@ namespace App\Console\Commands;
 
 use App\Apple\WebAnalytics\Enums\Route;
 use App\Apple\WebAnalytics\OnlineUsersService;
-use App\Models\PageVisits;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Str;
 
 class GenerateOnlineUsers extends Command

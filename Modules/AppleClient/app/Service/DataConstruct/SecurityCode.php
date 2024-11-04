@@ -2,11 +2,6 @@
 
 namespace Modules\AppleClient\Service\DataConstruct;
 
-use Modules\AppleClient\Service\DataConstruct\Device\Device;
-use Spatie\LaravelData\Attributes\DataCollectionOf;
-use Modules\AppleClient\Service\DataConstruct\Data;
-use Spatie\LaravelData\DataCollection;
-
 class SecurityCode extends Data
 {
     /**

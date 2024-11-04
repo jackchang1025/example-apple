@@ -2,10 +2,10 @@
 
 namespace Modules\AppleClient\Service\DataConstruct\Auth;
 
+use Modules\AppleClient\Service\DataConstruct\Data;
 use Modules\AppleClient\Service\DataConstruct\PhoneNumber;
 use Modules\AppleClient\Service\DataConstruct\SecurityCode;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
-use Modules\AppleClient\Service\DataConstruct\Data;
 use Spatie\LaravelData\DataCollection;
 
 class PhoneNumberVerification extends Data

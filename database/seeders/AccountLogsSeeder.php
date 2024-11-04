@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Account;
 use App\Models\AccountLogs;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Seeder;
 
