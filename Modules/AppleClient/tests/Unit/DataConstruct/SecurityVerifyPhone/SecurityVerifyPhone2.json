@@ -1,0 +1,51 @@
+{
+    "phoneNumberVerification": {
+        "phoneNumber": {
+            "numberWithDialCode": "+852 9637 3903",
+            "deviceType": false,
+            "iMessageType": false,
+            "pacType": false,
+            "complianceType": false,
+            "appleComplianceType": false,
+            "numberWithDialCodeAndExtension": "+852 9637 3903",
+            "nonFTEU": true,
+            "sameAsAppleID": false,
+            "verified": false,
+            "countryCode": "HK",
+            "countryDialCode": "852",
+            "number": "96373903",
+            "pushMode": "sms",
+            "vetted": false,
+            "createDate": "10/21/2024 08:48:12 AM",
+            "updateDate": "10/21/2024 08:48:12 AM",
+            "rawNumberWithDialCode": "+85296373903",
+            "pending": true,
+            "lastTwoDigits": "03",
+            "loginHandle": false,
+            "rawNumber": "96373903",
+            "fullNumberWithCountryPrefix": "+852 9637 3903",
+            "countryCodeAsString": "HK",
+            "obfuscatedNumber": "•••• ••03",
+            "name": "+852 9637 3903",
+            "id": 20101
+        },
+        "securityCode": {
+            "length": 6,
+            "tooManyCodesSent": false,
+            "tooManyCodesValidated": false,
+            "securityCodeLocked": false,
+            "securityCodeCooldown": false
+        },
+        "mode": "sms",
+        "type": "verification",
+        "authenticationType": "hsa2",
+        "showAutoVerificationUI": false,
+        "countryCode": "HK",
+        "countryDialCode": "852",
+        "number": "96373903",
+        "keepUsing": false,
+        "changePhoneNumber": false,
+        "simSwapPhoneNumber": false,
+        "addDifferent": false
+    }
+}

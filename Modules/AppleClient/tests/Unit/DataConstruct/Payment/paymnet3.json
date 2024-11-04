@@ -1,0 +1,1970 @@
+{
+    "primaryPaymentMethod": {
+        "absoluteImagePath": "https://appleid.cdn-apple.com/static/bin/cb1387824192/images/updc.png",
+        "absoluteImagePath2x": "https://appleid.cdn-apple.com/static/bin/cb3989024300/images/updc@2x.png",
+        "trailingDigits": "0575",
+        "nameOnCard": {
+            "firstName": "波",
+            "lastName": "马",
+            "lastNameFirstOrderingRequired": false,
+            "noSpaceRequiredInName": false,
+            "fullPronounceName": "",
+            "fullName": "波 马"
+        },
+        "number": "•••• •••• •••• 0575",
+        "expirationYear": 0,
+        "expirationMonth": 0,
+        "expired": false,
+        "numberObfuscated": false,
+        "paymentMethodName": "中国银联",
+        "paymentMethodDetail": "•••• 0575",
+        "shortObfuscatedNumber": "•••• 0575",
+        "obfuscatedNumber": "•••• •••• •••• 0575",
+        "type": "updc",
+        "phoneNumber": {
+            "number": "16609531778",
+            "numberWithoutAreaCode": "16609531778",
+            "sameAsAppleId": false,
+            "northAmericaDisplayFormat": false,
+            "rawNumber": "16609531778",
+            "fullNumberWithCountryPrefix": "+86 166 0953 1778",
+            "fullNumberWithoutCountryPrefix": "16609531778",
+            "countryCode": "86",
+            "vetted": false,
+            "countryDialCode": "86",
+            "northAmericaPhone": false,
+            "northAmericaDialCode": false,
+            "loginHandle": false,
+            "countryCodeAsString": "CN",
+            "trusted": false,
+            "type": "daytime"
+        },
+        "ownerName": {
+            "firstName": "波",
+            "lastName": "马",
+            "lastNameFirstOrderingRequired": false,
+            "noSpaceRequiredInName": false,
+            "fullPronounceName": "",
+            "fullName": "波 马"
+        },
+        "billingAddress": {
+            "defaultAddress": false,
+            "stateProvinceInvalid": true,
+            "japanese": false,
+            "korean": false,
+            "formattedAddress": [
+                "御泉新苑",
+                "团结村",
+                "红寺堡",
+                "宁夏回族自治区",
+                "751100 NX 中国大陆"
+            ],
+            "primary": false,
+            "shipping": false,
+            "countryCode": "CHN",
+            "line1": "御泉新苑",
+            "line2": "团结村",
+            "line3": "红寺堡",
+            "city": "宁夏回族自治区",
+            "stateProvinceCode": "NX",
+            "stateProvinceName": "宁夏",
+            "stateProvince": {
+                "code": "NX",
+                "name": "宁夏"
+            },
+            "postalCode": "751100",
+            "countryName": "中国大陆",
+            "stateProvinces": [
+                {
+                    "code": "AH",
+                    "name": "安徽"
+                },
+                {
+                    "code": "AH",
+                    "name": "安徽"
+                },
+                {
+                    "code": "BJ",
+                    "name": "北京"
+                },
+                {
+                    "code": "BJ",
+                    "name": "北京"
+                },
+                {
+                    "code": "CQ",
+                    "name": "重庆"
+                },
+                {
+                    "code": "CQ",
+                    "name": "重庆"
+                },
+                {
+                    "code": "FJ",
+                    "name": "福建"
+                },
+                {
+                    "code": "FJ",
+                    "name": "福建"
+                },
+                {
+                    "code": "GS",
+                    "name": "甘肃"
+                },
+                {
+                    "code": "GS",
+                    "name": "甘肃"
+                },
+                {
+                    "code": "GD",
+                    "name": "广东"
+                },
+                {
+                    "code": "GD",
+                    "name": "广东"
+                },
+                {
+                    "code": "GX",
+                    "name": "广西"
+                },
+                {
+                    "code": "GX",
+                    "name": "广西"
+                },
+                {
+                    "code": "GZ",
+                    "name": "贵州"
+                },
+                {
+                    "code": "GZ",
+                    "name": "贵州"
+                },
+                {
+                    "code": "HI",
+                    "name": "海南"
+                },
+                {
+                    "code": "HI",
+                    "name": "海南"
+                },
+                {
+                    "code": "HE",
+                    "name": "河北"
+                },
+                {
+                    "code": "HE",
+                    "name": "河北"
+                },
+                {
+                    "code": "HL",
+                    "name": "黑龙江"
+                },
+                {
+                    "code": "HL",
+                    "name": "黑龙江"
+                },
+                {
+                    "code": "HA",
+                    "name": "河南"
+                },
+                {
+                    "code": "HA",
+                    "name": "河南"
+                },
+                {
+                    "code": "HB",
+                    "name": "湖北"
+                },
+                {
+                    "code": "HB",
+                    "name": "湖北"
+                },
+                {
+                    "code": "HN",
+                    "name": "湖南"
+                },
+                {
+                    "code": "HN",
+                    "name": "湖南"
+                },
+                {
+                    "code": "JS",
+                    "name": "江苏"
+                },
+                {
+                    "code": "JS",
+                    "name": "江苏"
+                },
+                {
+                    "code": "JX",
+                    "name": "江西"
+                },
+                {
+                    "code": "JX",
+                    "name": "江西"
+                },
+                {
+                    "code": "JL",
+                    "name": "吉林"
+                },
+                {
+                    "code": "JL",
+                    "name": "吉林"
+                },
+                {
+                    "code": "LN",
+                    "name": "辽宁"
+                },
+                {
+                    "code": "LN",
+                    "name": "辽宁"
+                },
+                {
+                    "code": "NM",
+                    "name": "内蒙古"
+                },
+                {
+                    "code": "NM",
+                    "name": "内蒙古"
+                },
+                {
+                    "code": "NX",
+                    "name": "宁夏"
+                },
+                {
+                    "code": "NX",
+                    "name": "宁夏"
+                },
+                {
+                    "code": "QH",
+                    "name": "青海"
+                },
+                {
+                    "code": "QH",
+                    "name": "青海"
+                },
+                {
+                    "code": "SN",
+                    "name": "陕西"
+                },
+                {
+                    "code": "SN",
+                    "name": "陕西"
+                },
+                {
+                    "code": "SD",
+                    "name": "山东"
+                },
+                {
+                    "code": "SD",
+                    "name": "山东"
+                },
+                {
+                    "code": "SH",
+                    "name": "上海"
+                },
+                {
+                    "code": "SH",
+                    "name": "上海"
+                },
+                {
+                    "code": "SX",
+                    "name": "山西"
+                },
+                {
+                    "code": "SX",
+                    "name": "山西"
+                },
+                {
+                    "code": "SC",
+                    "name": "四川"
+                },
+                {
+                    "code": "SC",
+                    "name": "四川"
+                },
+                {
+                    "code": "TJ",
+                    "name": "天津"
+                },
+                {
+                    "code": "TJ",
+                    "name": "天津"
+                },
+                {
+                    "code": "XJ",
+                    "name": "新疆"
+                },
+                {
+                    "code": "XJ",
+                    "name": "新疆"
+                },
+                {
+                    "code": "XZ",
+                    "name": "西藏"
+                },
+                {
+                    "code": "XZ",
+                    "name": "西藏"
+                },
+                {
+                    "code": "YN",
+                    "name": "云南"
+                },
+                {
+                    "code": "YN",
+                    "name": "云南"
+                },
+                {
+                    "code": "ZJ",
+                    "name": "浙江"
+                },
+                {
+                    "code": "ZJ",
+                    "name": "浙江"
+                }
+            ],
+            "usa": false,
+            "canada": false,
+            "fullAddress": "御泉新苑,团结村,宁夏回族自治区,NX,751100",
+            "preferred": false,
+            "id": "1"
+        },
+        "paymentAccountCountryCode": "CHN",
+        "stackAware": true,
+        "applePayPayment": false,
+        "paymentSupported": true,
+        "familyCard": false,
+        "expirationSupported": false,
+        "paymentMethodOption": {
+            "name": "card"
+        },
+        "none": false,
+        "card": true,
+        "carrierBilling": false,
+        "alipay": false,
+        "payPal": false,
+        "weChatPay": false,
+        "ideal": false,
+        "kakaoPay": false,
+        "imageSupported": true,
+        "appleCard": false,
+        "appleCash": false,
+        "applePay": false,
+        "imagePath2x": "/images/updc@2x.png",
+        "obfuscatedPhoneNumber": "+86-•••••••••78",
+        "id": 1,
+        "deprecated": false,
+        "imagePath": "/images/updc.png"
+    },
+    "paymentMethodOptions": [
+        {
+            "option": {
+                "name": "card",
+                "displayName": "信用卡或借记卡"
+            }
+        },
+        {
+            "option": {
+                "name": "alipay",
+                "displayName": "支付宝"
+            }
+        },
+        {
+            "option": {
+                "name": "wechatpay",
+                "displayName": "微信支付"
+            }
+        },
+        {
+            "option": {
+                "name": "none",
+                "displayName": "无"
+            }
+        }
+    ],
+    "currentPaymentOption": {
+        "option": {
+            "name": "card",
+            "displayName": "信用卡或借记卡"
+        }
+    },
+    "addressFeatures": {
+        "countryCode": "CHN",
+        "zipCodeLabelRequired": false,
+        "stateProvinceOptions": [
+            {
+                "code": "AH",
+                "name": "安徽"
+            },
+            {
+                "code": "BJ",
+                "name": "北京"
+            },
+            {
+                "code": "CQ",
+                "name": "重庆"
+            },
+            {
+                "code": "FJ",
+                "name": "福建"
+            },
+            {
+                "code": "GS",
+                "name": "甘肃"
+            },
+            {
+                "code": "GD",
+                "name": "广东"
+            },
+            {
+                "code": "GX",
+                "name": "广西"
+            },
+            {
+                "code": "GZ",
+                "name": "贵州"
+            },
+            {
+                "code": "HI",
+                "name": "海南"
+            },
+            {
+                "code": "HE",
+                "name": "河北"
+            },
+            {
+                "code": "HL",
+                "name": "黑龙江"
+            },
+            {
+                "code": "HA",
+                "name": "河南"
+            },
+            {
+                "code": "HB",
+                "name": "湖北"
+            },
+            {
+                "code": "HN",
+                "name": "湖南"
+            },
+            {
+                "code": "JS",
+                "name": "江苏"
+            },
+            {
+                "code": "JX",
+                "name": "江西"
+            },
+            {
+                "code": "JL",
+                "name": "吉林"
+            },
+            {
+                "code": "LN",
+                "name": "辽宁"
+            },
+            {
+                "code": "NM",
+                "name": "内蒙古"
+            },
+            {
+                "code": "NX",
+                "name": "宁夏"
+            },
+            {
+                "code": "QH",
+                "name": "青海"
+            },
+            {
+                "code": "SN",
+                "name": "陕西"
+            },
+            {
+                "code": "SD",
+                "name": "山东"
+            },
+            {
+                "code": "SH",
+                "name": "上海"
+            },
+            {
+                "code": "SX",
+                "name": "山西"
+            },
+            {
+                "code": "SC",
+                "name": "四川"
+            },
+            {
+                "code": "TJ",
+                "name": "天津"
+            },
+            {
+                "code": "XJ",
+                "name": "新疆"
+            },
+            {
+                "code": "XZ",
+                "name": "西藏"
+            },
+            {
+                "code": "YN",
+                "name": "云南"
+            },
+            {
+                "code": "ZJ",
+                "name": "浙江"
+            }
+        ],
+        "allowChangeCountry": false,
+        "accountFeatures": {
+            "isADPEnabled": false
+        },
+        "unionPaySupported": true
+    },
+    "addressFormat": {
+        "fields": {
+            "firstName": {
+                "id": "firstName",
+                "type": "text",
+                "required": true,
+                "title": "名",
+                "placeholder": "必填"
+            },
+            "lastName": {
+                "id": "lastName",
+                "type": "text",
+                "required": true,
+                "title": "姓氏",
+                "placeholder": "必填"
+            },
+            "line1": {
+                "id": "line1",
+                "type": "text",
+                "required": true,
+                "title": "街名和门牌号",
+                "placeholder": "必填"
+            },
+            "line2": {
+                "id": "line2",
+                "type": "text",
+                "required": false,
+                "title": "楼号、单元号、房间号",
+                "placeholder": "选填"
+            },
+            "line3": {
+                "id": "line3",
+                "type": "text",
+                "required": false,
+                "title": "街",
+                "placeholder": "选填"
+            },
+            "city": {
+                "id": "city",
+                "type": "text",
+                "required": true,
+                "title": "市级行政区",
+                "placeholder": "城市"
+            },
+            "stateProvince": {
+                "id": "stateProvince",
+                "type": "dropdown",
+                "required": true,
+                "title": "选择省份",
+                "placeholder": "选择",
+                "values": [
+                    {
+                        "name": "AH",
+                        "title": "安徽"
+                    },
+                    {
+                        "name": "BJ",
+                        "title": "北京"
+                    },
+                    {
+                        "name": "CQ",
+                        "title": "重庆"
+                    },
+                    {
+                        "name": "FJ",
+                        "title": "福建"
+                    },
+                    {
+                        "name": "GS",
+                        "title": "甘肃"
+                    },
+                    {
+                        "name": "GD",
+                        "title": "广东"
+                    },
+                    {
+                        "name": "GX",
+                        "title": "广西"
+                    },
+                    {
+                        "name": "GZ",
+                        "title": "贵州"
+                    },
+                    {
+                        "name": "HI",
+                        "title": "海南"
+                    },
+                    {
+                        "name": "HE",
+                        "title": "河北"
+                    },
+                    {
+                        "name": "HL",
+                        "title": "黑龙江"
+                    },
+                    {
+                        "name": "HA",
+                        "title": "河南"
+                    },
+                    {
+                        "name": "HB",
+                        "title": "湖北"
+                    },
+                    {
+                        "name": "HN",
+                        "title": "湖南"
+                    },
+                    {
+                        "name": "JS",
+                        "title": "江苏"
+                    },
+                    {
+                        "name": "JX",
+                        "title": "江西"
+                    },
+                    {
+                        "name": "JL",
+                        "title": "吉林"
+                    },
+                    {
+                        "name": "LN",
+                        "title": "辽宁"
+                    },
+                    {
+                        "name": "NM",
+                        "title": "内蒙古"
+                    },
+                    {
+                        "name": "NX",
+                        "title": "宁夏"
+                    },
+                    {
+                        "name": "QH",
+                        "title": "青海"
+                    },
+                    {
+                        "name": "SN",
+                        "title": "陕西"
+                    },
+                    {
+                        "name": "SD",
+                        "title": "山东"
+                    },
+                    {
+                        "name": "SH",
+                        "title": "上海"
+                    },
+                    {
+                        "name": "SX",
+                        "title": "山西"
+                    },
+                    {
+                        "name": "SC",
+                        "title": "四川"
+                    },
+                    {
+                        "name": "TJ",
+                        "title": "天津"
+                    },
+                    {
+                        "name": "XJ",
+                        "title": "新疆"
+                    },
+                    {
+                        "name": "XZ",
+                        "title": "西藏"
+                    },
+                    {
+                        "name": "YN",
+                        "title": "云南"
+                    },
+                    {
+                        "name": "ZJ",
+                        "title": "浙江"
+                    }
+                ]
+            },
+            "postalCode": {
+                "id": "postalCode",
+                "type": "text",
+                "required": true,
+                "title": "邮编",
+                "placeholder": "邮政编码"
+            },
+            "country": {
+                "id": "country",
+                "type": "text",
+                "required": true,
+                "title": "国家/地区"
+            },
+            "phoneCountryDialCode": {
+                "id": "phoneCountryDialCode",
+                "type": "text",
+                "required": false,
+                "title": "电话",
+                "placeholder": "电话"
+            },
+            "phoneNumber": {
+                "id": "phoneNumber",
+                "type": "text",
+                "required": true,
+                "title": "电话",
+                "placeholder": "电话"
+            },
+            "paymentType": {
+                "id": "paymentType",
+                "type": "dropdown",
+                "required": true,
+                "title": "付款方式",
+                "values": [
+                    {
+                        "name": "UPCC",
+                        "title": "银联 UnionPay"
+                    },
+                    {
+                        "name": "WCPY",
+                        "title": "微信支付 WeChat Pay"
+                    },
+                    {
+                        "name": "APWC",
+                        "title": "支付宝 Alipay"
+                    },
+                    {
+                        "name": "UPDC",
+                        "title": "银联 UnionPay"
+                    }
+                ]
+            },
+            "creditCardNumber": {
+                "id": "creditCardNumber",
+                "type": "text",
+                "required": true,
+                "title": "卡号",
+                "placeholder": "必填"
+            },
+            "creditCardExpirationMonth": {
+                "id": "creditCardExpirationMonth",
+                "type": "dropdown",
+                "required": true,
+                "title": "月",
+                "placeholder": "MM",
+                "values": [
+                    {
+                        "name": "1",
+                        "title": "1月"
+                    },
+                    {
+                        "name": "2",
+                        "title": "2月"
+                    },
+                    {
+                        "name": "3",
+                        "title": "3月"
+                    },
+                    {
+                        "name": "4",
+                        "title": "4月"
+                    },
+                    {
+                        "name": "5",
+                        "title": "5月"
+                    },
+                    {
+                        "name": "6",
+                        "title": "6月"
+                    },
+                    {
+                        "name": "7",
+                        "title": "7月"
+                    },
+                    {
+                        "name": "8",
+                        "title": "8月"
+                    },
+                    {
+                        "name": "9",
+                        "title": "9月"
+                    },
+                    {
+                        "name": "10",
+                        "title": "10月"
+                    },
+                    {
+                        "name": "11",
+                        "title": "11月"
+                    },
+                    {
+                        "name": "12",
+                        "title": "12月"
+                    }
+                ]
+            },
+            "creditCardExpirationYear": {
+                "id": "creditCardExpirationYear",
+                "type": "dropdown",
+                "required": true,
+                "title": "年",
+                "placeholder": "YYYY",
+                "values": [
+                    {
+                        "name": "2024",
+                        "title": "2024"
+                    },
+                    {
+                        "name": "2025",
+                        "title": "2025"
+                    },
+                    {
+                        "name": "2026",
+                        "title": "2026"
+                    },
+                    {
+                        "name": "2027",
+                        "title": "2027"
+                    },
+                    {
+                        "name": "2028",
+                        "title": "2028"
+                    },
+                    {
+                        "name": "2029",
+                        "title": "2029"
+                    },
+                    {
+                        "name": "2030",
+                        "title": "2030"
+                    },
+                    {
+                        "name": "2031",
+                        "title": "2031"
+                    },
+                    {
+                        "name": "2032",
+                        "title": "2032"
+                    },
+                    {
+                        "name": "2033",
+                        "title": "2033"
+                    },
+                    {
+                        "name": "2034",
+                        "title": "2034"
+                    },
+                    {
+                        "name": "2035",
+                        "title": "2035"
+                    },
+                    {
+                        "name": "2036",
+                        "title": "2036"
+                    },
+                    {
+                        "name": "2037",
+                        "title": "2037"
+                    },
+                    {
+                        "name": "2038",
+                        "title": "2038"
+                    },
+                    {
+                        "name": "2039",
+                        "title": "2039"
+                    },
+                    {
+                        "name": "2040",
+                        "title": "2040"
+                    },
+                    {
+                        "name": "2041",
+                        "title": "2041"
+                    },
+                    {
+                        "name": "2042",
+                        "title": "2042"
+                    },
+                    {
+                        "name": "2043",
+                        "title": "2043"
+                    }
+                ]
+            },
+            "creditVerificationNumber": {
+                "id": "creditVerificationNumber",
+                "type": "text",
+                "required": true,
+                "title": "安全码",
+                "placeholder": "安全码"
+            },
+            "company": {
+                "id": "company",
+                "type": "text",
+                "required": false
+            }
+        },
+        "sections": {
+            "billingAddress": {
+                "id": "billingAddress",
+                "lines": [
+                    [
+                        "paymentType"
+                    ],
+                    [
+                        "creditCardNumber",
+                        "creditCardExpirationMonth",
+                        "creditCardExpirationYear",
+                        "creditVerificationNumber"
+                    ],
+                    [
+                        "lastName",
+                        "firstName"
+                    ],
+                    [
+                        "line1"
+                    ],
+                    [
+                        "line2"
+                    ],
+                    [
+                        "line3"
+                    ],
+                    [
+                        "city"
+                    ],
+                    [
+                        "postalCode",
+                        "stateProvince",
+                        "country"
+                    ],
+                    [
+                        "phoneNumber",
+                        "phoneCountryDialCode"
+                    ]
+                ]
+            },
+            "name": {
+                "id": "name",
+                "lines": [
+                    [
+                        "lastName",
+                        "firstName"
+                    ]
+                ]
+            },
+            "address": {
+                "id": "address",
+                "lines": [
+                    [
+                        "line1"
+                    ],
+                    [
+                        "line2"
+                    ],
+                    [
+                        "line3"
+                    ],
+                    [
+                        "city"
+                    ],
+                    [
+                        "postalCode",
+                        "stateProvince",
+                        "country"
+                    ]
+                ]
+            },
+            "phone": {
+                "id": "phone",
+                "lines": [
+                    [
+                        "phoneNumber",
+                        "phoneCountryDialCode"
+                    ]
+                ]
+            },
+            "payment": {
+                "id": "payment",
+                "lines": [
+                    [
+                        "paymentType"
+                    ],
+                    [
+                        "creditCardNumber",
+                        "creditCardExpirationMonth",
+                        "creditCardExpirationYear",
+                        "creditVerificationNumber"
+                    ]
+                ]
+            },
+            "shippingAddress": {
+                "id": "shippingAddress",
+                "lines": [
+                    [
+                        "lastName",
+                        "firstName"
+                    ],
+                    [
+                        "company"
+                    ],
+                    [
+                        "line1"
+                    ],
+                    [
+                        "line2"
+                    ],
+                    [
+                        "line3"
+                    ],
+                    [
+                        "city"
+                    ],
+                    [
+                        "postalCode",
+                        "stateProvince",
+                        "country"
+                    ]
+                ]
+            },
+            "primaryAddress": {
+                "id": "primaryAddress",
+                "lines": [
+                    [
+                        "lastName",
+                        "firstName"
+                    ],
+                    [
+                        "line1"
+                    ],
+                    [
+                        "line2"
+                    ],
+                    [
+                        "line3"
+                    ],
+                    [
+                        "city"
+                    ],
+                    [
+                        "postalCode",
+                        "stateProvince",
+                        "country"
+                    ]
+                ]
+            }
+        }
+    },
+    "countryDialCodes": [
+        {
+            "dialCode": "975",
+            "name": "Bhutan",
+            "displayName": "不丹"
+        },
+        {
+            "dialCode": "86",
+            "name": "China",
+            "displayName": "中国大陆"
+        },
+        {
+            "dialCode": "45",
+            "name": "Denmark",
+            "displayName": "丹麦"
+        },
+        {
+            "dialCode": "380",
+            "name": "Ukraine",
+            "displayName": "乌克兰"
+        },
+        {
+            "dialCode": "998",
+            "name": "Uzbekistan",
+            "displayName": "乌兹别克斯坦"
+        },
+        {
+            "dialCode": "256",
+            "name": "Uganda",
+            "displayName": "乌干达"
+        },
+        {
+            "dialCode": "598",
+            "name": "Uruguay",
+            "displayName": "乌拉圭"
+        },
+        {
+            "dialCode": "235",
+            "name": "Chad",
+            "displayName": "乍得"
+        },
+        {
+            "dialCode": "967",
+            "name": "Yemen",
+            "displayName": "也门"
+        },
+        {
+            "dialCode": "374",
+            "name": "Armenia",
+            "displayName": "亚美尼亚"
+        },
+        {
+            "dialCode": "972",
+            "name": "Israel",
+            "displayName": "以色列"
+        },
+        {
+            "dialCode": "964",
+            "name": "Iraq",
+            "displayName": "伊拉克"
+        },
+        {
+            "dialCode": "501",
+            "name": "Belize",
+            "displayName": "伯利兹"
+        },
+        {
+            "dialCode": "238",
+            "name": "Cape Verde",
+            "displayName": "佛得角"
+        },
+        {
+            "dialCode": "7",
+            "name": "Russia",
+            "displayName": "俄罗斯"
+        },
+        {
+            "dialCode": "359",
+            "name": "Bulgaria",
+            "displayName": "保加利亚"
+        },
+        {
+            "dialCode": "385",
+            "name": "Croatia",
+            "displayName": "克罗地亚"
+        },
+        {
+            "dialCode": "220",
+            "name": "Gambia",
+            "displayName": "冈比亚"
+        },
+        {
+            "dialCode": "354",
+            "name": "Iceland",
+            "displayName": "冰岛"
+        },
+        {
+            "dialCode": "245",
+            "name": "Guinea-Bissau",
+            "displayName": "几内亚比绍"
+        },
+        {
+            "dialCode": "242",
+            "name": "Congo, Republic of",
+            "displayName": "刚果共和国"
+        },
+        {
+            "dialCode": "243",
+            "name": "Congo, Democratic Republic of",
+            "displayName": "刚果民主共和国"
+        },
+        {
+            "dialCode": "218",
+            "name": "Libya",
+            "displayName": "利比亚"
+        },
+        {
+            "dialCode": "231",
+            "name": "Liberia",
+            "displayName": "利比里亚"
+        },
+        {
+            "dialCode": "1",
+            "name": "Canada",
+            "displayName": "加拿大"
+        },
+        {
+            "dialCode": "233",
+            "name": "Ghana",
+            "displayName": "加纳"
+        },
+        {
+            "dialCode": "241",
+            "name": "Gabon",
+            "displayName": "加蓬"
+        },
+        {
+            "dialCode": "36",
+            "name": "Hungary",
+            "displayName": "匈牙利"
+        },
+        {
+            "dialCode": "389",
+            "name": "North Macedonia",
+            "displayName": "北马其顿"
+        },
+        {
+            "dialCode": "27",
+            "name": "South Africa",
+            "displayName": "南非"
+        },
+        {
+            "dialCode": "267",
+            "name": "Botswana",
+            "displayName": "博茨瓦纳"
+        },
+        {
+            "dialCode": "974",
+            "name": "Qatar",
+            "displayName": "卡塔尔"
+        },
+        {
+            "dialCode": "250",
+            "name": "Rwanda",
+            "displayName": "卢旺达"
+        },
+        {
+            "dialCode": "352",
+            "name": "Luxembourg",
+            "displayName": "卢森堡"
+        },
+        {
+            "dialCode": "91",
+            "name": "India",
+            "displayName": "印度"
+        },
+        {
+            "dialCode": "62",
+            "name": "Indonesia",
+            "displayName": "印度尼西亚"
+        },
+        {
+            "dialCode": "502",
+            "name": "Guatemala",
+            "displayName": "危地马拉"
+        },
+        {
+            "dialCode": "593",
+            "name": "Ecuador",
+            "displayName": "厄瓜多尔"
+        },
+        {
+            "dialCode": "886",
+            "name": "Taiwan",
+            "displayName": "台湾"
+        },
+        {
+            "dialCode": "996",
+            "name": "Kyrgyzstan",
+            "displayName": "吉尔吉兹斯坦"
+        },
+        {
+            "dialCode": "7",
+            "name": "Kazakhstan",
+            "displayName": "哈萨克斯坦"
+        },
+        {
+            "dialCode": "57",
+            "name": "Colombia",
+            "displayName": "哥伦比亚"
+        },
+        {
+            "dialCode": "506",
+            "name": "Costa Rica",
+            "displayName": "哥斯达黎加"
+        },
+        {
+            "dialCode": "237",
+            "name": "Cameroon",
+            "displayName": "喀麦隆"
+        },
+        {
+            "dialCode": "993",
+            "name": "Turkmenistan",
+            "displayName": "土库曼斯坦"
+        },
+        {
+            "dialCode": "90",
+            "name": "Türkiye",
+            "displayName": "土耳其"
+        },
+        {
+            "dialCode": "1758",
+            "name": "Saint Lucia",
+            "displayName": "圣卢西亚"
+        },
+        {
+            "dialCode": "1869",
+            "name": "Saint Kitts and Nevis",
+            "displayName": "圣基茨和尼维斯"
+        },
+        {
+            "dialCode": "239",
+            "name": "São Tomé and Príncipe",
+            "displayName": "圣多美和普林西比"
+        },
+        {
+            "dialCode": "1784",
+            "name": "Saint Vincent and the Grenadines",
+            "displayName": "圣文森特和格林纳丁斯"
+        },
+        {
+            "dialCode": "592",
+            "name": "Guyana",
+            "displayName": "圭亚那"
+        },
+        {
+            "dialCode": "255",
+            "name": "Tanzania",
+            "displayName": "坦桑尼亚"
+        },
+        {
+            "dialCode": "20",
+            "name": "Egypt",
+            "displayName": "埃及"
+        },
+        {
+            "dialCode": "992",
+            "name": "Tajikistan",
+            "displayName": "塔吉克斯坦"
+        },
+        {
+            "dialCode": "221",
+            "name": "Senegal",
+            "displayName": "塞内加尔"
+        },
+        {
+            "dialCode": "381",
+            "name": "Serbia",
+            "displayName": "塞尔维亚"
+        },
+        {
+            "dialCode": "232",
+            "name": "Sierra Leone",
+            "displayName": "塞拉利昂"
+        },
+        {
+            "dialCode": "357",
+            "name": "Cyprus",
+            "displayName": "塞浦路斯"
+        },
+        {
+            "dialCode": "248",
+            "name": "Seychelles",
+            "displayName": "塞舌尔"
+        },
+        {
+            "dialCode": "52",
+            "name": "Mexico",
+            "displayName": "墨西哥"
+        },
+        {
+            "dialCode": "1767",
+            "name": "Dominica",
+            "displayName": "多米尼克"
+        },
+        {
+            "dialCode": "1",
+            "name": "Dominican Republic",
+            "displayName": "多米尼加共和国"
+        },
+        {
+            "dialCode": "43",
+            "name": "Austria",
+            "displayName": "奥地利"
+        },
+        {
+            "dialCode": "58",
+            "name": "Venezuela",
+            "displayName": "委内瑞拉"
+        },
+        {
+            "dialCode": "244",
+            "name": "Angola",
+            "displayName": "安哥拉"
+        },
+        {
+            "dialCode": "1264",
+            "name": "Anguilla",
+            "displayName": "安圭拉岛"
+        },
+        {
+            "dialCode": "1268",
+            "name": "Antigua and Barbuda",
+            "displayName": "安提瓜和巴布达"
+        },
+        {
+            "dialCode": "691",
+            "name": "Micronesia",
+            "displayName": "密克罗尼西亚"
+        },
+        {
+            "dialCode": "505",
+            "name": "Nicaragua",
+            "displayName": "尼加拉瓜"
+        },
+        {
+            "dialCode": "234",
+            "name": "Nigeria",
+            "displayName": "尼日利亚"
+        },
+        {
+            "dialCode": "227",
+            "name": "Niger",
+            "displayName": "尼日尔州"
+        },
+        {
+            "dialCode": "977",
+            "name": "Nepal",
+            "displayName": "尼泊尔"
+        },
+        {
+            "dialCode": "1242",
+            "name": "Bahamas",
+            "displayName": "巴哈马"
+        },
+        {
+            "dialCode": "92",
+            "name": "Pakistan",
+            "displayName": "巴基斯坦"
+        },
+        {
+            "dialCode": "1246",
+            "name": "Barbados",
+            "displayName": "巴巴多斯"
+        },
+        {
+            "dialCode": "675",
+            "name": "Papua New Guinea",
+            "displayName": "巴布亚新几内亚"
+        },
+        {
+            "dialCode": "595",
+            "name": "Paraguay",
+            "displayName": "巴拉圭"
+        },
+        {
+            "dialCode": "507",
+            "name": "Panama",
+            "displayName": "巴拿马"
+        },
+        {
+            "dialCode": "973",
+            "name": "Bahrain",
+            "displayName": "巴林"
+        },
+        {
+            "dialCode": "55",
+            "name": "Brazil",
+            "displayName": "巴西"
+        },
+        {
+            "dialCode": "226",
+            "name": "Burkina Faso",
+            "displayName": "布基纳法索"
+        },
+        {
+            "dialCode": "30",
+            "name": "Greece",
+            "displayName": "希腊"
+        },
+        {
+            "dialCode": "680",
+            "name": "Palau",
+            "displayName": "帕劳"
+        },
+        {
+            "dialCode": "1345",
+            "name": "Cayman Islands",
+            "displayName": "开曼群岛"
+        },
+        {
+            "dialCode": "49",
+            "name": "Germany",
+            "displayName": "德国"
+        },
+        {
+            "dialCode": "39",
+            "name": "Italy",
+            "displayName": "意大利"
+        },
+        {
+            "dialCode": "677",
+            "name": "Solomon Islands",
+            "displayName": "所罗门群岛"
+        },
+        {
+            "dialCode": "371",
+            "name": "Latvia",
+            "displayName": "拉脱维亚"
+        },
+        {
+            "dialCode": "47",
+            "name": "Norway",
+            "displayName": "挪威"
+        },
+        {
+            "dialCode": "420",
+            "name": "Czechia",
+            "displayName": "捷克"
+        },
+        {
+            "dialCode": "373",
+            "name": "Moldova",
+            "displayName": "摩尔多瓦"
+        },
+        {
+            "dialCode": "212",
+            "name": "Morocco",
+            "displayName": "摩洛哥"
+        },
+        {
+            "dialCode": "673",
+            "name": "Brunei",
+            "displayName": "文莱"
+        },
+        {
+            "dialCode": "679",
+            "name": "Fiji",
+            "displayName": "斐济"
+        },
+        {
+            "dialCode": "268",
+            "name": "Eswatini",
+            "displayName": "斯威士兰"
+        },
+        {
+            "dialCode": "421",
+            "name": "Slovakia",
+            "displayName": "斯洛伐克"
+        },
+        {
+            "dialCode": "386",
+            "name": "Slovenia",
+            "displayName": "斯洛文尼亚"
+        },
+        {
+            "dialCode": "94",
+            "name": "Sri Lanka",
+            "displayName": "斯里兰卡"
+        },
+        {
+            "dialCode": "65",
+            "name": "Singapore",
+            "displayName": "新加坡"
+        },
+        {
+            "dialCode": "64",
+            "name": "New Zealand",
+            "displayName": "新西兰"
+        },
+        {
+            "dialCode": "81",
+            "name": "Japan",
+            "displayName": "日本"
+        },
+        {
+            "dialCode": "56",
+            "name": "Chile",
+            "displayName": "智利"
+        },
+        {
+            "dialCode": "855",
+            "name": "Cambodia",
+            "displayName": "柬埔寨"
+        },
+        {
+            "dialCode": "1473",
+            "name": "Grenada",
+            "displayName": "格林纳达"
+        },
+        {
+            "dialCode": "995",
+            "name": "Georgia",
+            "displayName": "格鲁吉亚"
+        },
+        {
+            "dialCode": "32",
+            "name": "Belgium",
+            "displayName": "比利时"
+        },
+        {
+            "dialCode": "222",
+            "name": "Mauritania",
+            "displayName": "毛里塔尼亚"
+        },
+        {
+            "dialCode": "230",
+            "name": "Mauritius",
+            "displayName": "毛里求斯"
+        },
+        {
+            "dialCode": "676",
+            "name": "Tonga",
+            "displayName": "汤加"
+        },
+        {
+            "dialCode": "966",
+            "name": "Saudi Arabia",
+            "displayName": "沙特阿拉伯"
+        },
+        {
+            "dialCode": "33",
+            "name": "France",
+            "displayName": "法国"
+        },
+        {
+            "dialCode": "48",
+            "name": "Poland",
+            "displayName": "波兰"
+        },
+        {
+            "dialCode": "387",
+            "name": "Bosnia and Herzegovina",
+            "displayName": "波斯尼亚和黑塞哥维那"
+        },
+        {
+            "dialCode": "66",
+            "name": "Thailand",
+            "displayName": "泰国"
+        },
+        {
+            "dialCode": "263",
+            "name": "Zimbabwe",
+            "displayName": "津巴布韦"
+        },
+        {
+            "dialCode": "504",
+            "name": "Honduras",
+            "displayName": "洪都拉斯"
+        },
+        {
+            "dialCode": "61",
+            "name": "Australia",
+            "displayName": "澳大利亚"
+        },
+        {
+            "dialCode": "853",
+            "name": "Macau",
+            "displayName": "澳门"
+        },
+        {
+            "dialCode": "353",
+            "name": "Ireland",
+            "displayName": "爱尔兰"
+        },
+        {
+            "dialCode": "372",
+            "name": "Estonia",
+            "displayName": "爱沙尼亚"
+        },
+        {
+            "dialCode": "1876",
+            "name": "Jamaica",
+            "displayName": "牙买加"
+        },
+        {
+            "dialCode": "1649",
+            "name": "Turks and Caicos",
+            "displayName": "特克斯和凯科斯群岛"
+        },
+        {
+            "dialCode": "1868",
+            "name": "Trinidad and Tobago",
+            "displayName": "特立尼达和多巴哥"
+        },
+        {
+            "dialCode": "591",
+            "name": "Bolivia",
+            "displayName": "玻利维亚"
+        },
+        {
+            "dialCode": "674",
+            "name": "Nauru",
+            "displayName": "瑙鲁"
+        },
+        {
+            "dialCode": "46",
+            "name": "Sweden",
+            "displayName": "瑞典"
+        },
+        {
+            "dialCode": "41",
+            "name": "Switzerland",
+            "displayName": "瑞士"
+        },
+        {
+            "dialCode": "678",
+            "name": "Vanuatu",
+            "displayName": "瓦努阿图"
+        },
+        {
+            "dialCode": "375",
+            "name": "Belarus",
+            "displayName": "白俄罗斯"
+        },
+        {
+            "dialCode": "1441",
+            "name": "Bermuda",
+            "displayName": "百慕大"
+        },
+        {
+            "dialCode": "965",
+            "name": "Kuwait",
+            "displayName": "科威特"
+        },
+        {
+            "dialCode": "225",
+            "name": "Cote D'Ivoire",
+            "displayName": "科特迪瓦"
+        },
+        {
+            "dialCode": "383",
+            "name": "Kosovo",
+            "displayName": "科索沃"
+        },
+        {
+            "dialCode": "51",
+            "name": "Peru",
+            "displayName": "秘鲁"
+        },
+        {
+            "dialCode": "216",
+            "name": "Tunisia",
+            "displayName": "突尼斯"
+        },
+        {
+            "dialCode": "370",
+            "name": "Lithuania",
+            "displayName": "立陶宛"
+        },
+        {
+            "dialCode": "962",
+            "name": "Jordan",
+            "displayName": "约旦"
+        },
+        {
+            "dialCode": "264",
+            "name": "Namibia",
+            "displayName": "纳米比亚"
+        },
+        {
+            "dialCode": "95",
+            "name": "Myanmar",
+            "displayName": "缅甸"
+        },
+        {
+            "dialCode": "40",
+            "name": "Romania",
+            "displayName": "罗马尼亚"
+        },
+        {
+            "dialCode": "1",
+            "name": "United States",
+            "displayName": "美国"
+        },
+        {
+            "dialCode": "856",
+            "name": "Laos",
+            "displayName": "老挝"
+        },
+        {
+            "dialCode": "254",
+            "name": "Kenya",
+            "displayName": "肯尼亚"
+        },
+        {
+            "dialCode": "358",
+            "name": "Finland",
+            "displayName": "芬兰"
+        },
+        {
+            "dialCode": "597",
+            "name": "Suriname",
+            "displayName": "苏里南"
+        },
+        {
+            "dialCode": "44",
+            "name": "United Kingdom",
+            "displayName": "英国"
+        },
+        {
+            "dialCode": "1284",
+            "name": "British Virgin Islands",
+            "displayName": "英属维尔京群岛"
+        },
+        {
+            "dialCode": "31",
+            "name": "Netherlands",
+            "displayName": "荷兰"
+        },
+        {
+            "dialCode": "258",
+            "name": "Mozambique",
+            "displayName": "莫桑比克"
+        },
+        {
+            "dialCode": "63",
+            "name": "Philippines",
+            "displayName": "菲律宾"
+        },
+        {
+            "dialCode": "503",
+            "name": "El Salvador",
+            "displayName": "萨尔瓦多"
+        },
+        {
+            "dialCode": "351",
+            "name": "Portugal",
+            "displayName": "葡萄牙"
+        },
+        {
+            "dialCode": "976",
+            "name": "Mongolia",
+            "displayName": "蒙古"
+        },
+        {
+            "dialCode": "1664",
+            "name": "Montserrat",
+            "displayName": "蒙特塞拉特"
+        },
+        {
+            "dialCode": "34",
+            "name": "Spain",
+            "displayName": "西班牙"
+        },
+        {
+            "dialCode": "229",
+            "name": "Benin",
+            "displayName": "贝宁"
+        },
+        {
+            "dialCode": "260",
+            "name": "Zambia",
+            "displayName": "赞比亚"
+        },
+        {
+            "dialCode": "84",
+            "name": "Vietnam",
+            "displayName": "越南"
+        },
+        {
+            "dialCode": "994",
+            "name": "Azerbaijan",
+            "displayName": "阿塞拜疆"
+        },
+        {
+            "dialCode": "93",
+            "name": "Afghanistan",
+            "displayName": "阿富汗"
+        },
+        {
+            "dialCode": "213",
+            "name": "Algeria",
+            "displayName": "阿尔及利亚"
+        },
+        {
+            "dialCode": "355",
+            "name": "Albania",
+            "displayName": "阿尔巴尼亚"
+        },
+        {
+            "dialCode": "968",
+            "name": "Oman",
+            "displayName": "阿曼"
+        },
+        {
+            "dialCode": "54",
+            "name": "Argentina",
+            "displayName": "阿根廷"
+        },
+        {
+            "dialCode": "971",
+            "name": "United Arab Emirates",
+            "displayName": "阿联酋"
+        },
+        {
+            "dialCode": "82",
+            "name": "South Korea",
+            "displayName": "韩国"
+        },
+        {
+            "dialCode": "852",
+            "name": "Hong Kong",
+            "displayName": "香港"
+        },
+        {
+            "dialCode": "960",
+            "name": "Maldives",
+            "displayName": "马尔代夫"
+        },
+        {
+            "dialCode": "265",
+            "name": "Malawi",
+            "displayName": "马拉维"
+        },
+        {
+            "dialCode": "60",
+            "name": "Malaysia",
+            "displayName": "马来西亚"
+        },
+        {
+            "dialCode": "356",
+            "name": "Malta",
+            "displayName": "马耳他"
+        },
+        {
+            "dialCode": "261",
+            "name": "Madagascar",
+            "displayName": "马达加斯加"
+        },
+        {
+            "dialCode": "223",
+            "name": "Mali",
+            "displayName": "马里"
+        },
+        {
+            "dialCode": "961",
+            "name": "Lebanon",
+            "displayName": "黎巴嫩"
+        },
+        {
+            "dialCode": "382",
+            "name": "Montenegro",
+            "displayName": "黑山"
+        }
+    ],
+    "paymentMethodUpdateAllowed": true,
+    "familyPaymentUpdateAllowed": true,
+    "paymentRemovalAllowed": false,
+    "iTunesThickAppAccountSummaryUrl": "itms://buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/accountSummary",
+    "supportsPlatformAssets": false,
+    "paymentStatus": "LOADED",
+    "primaryPaymentFamilyPayment": false,
+    "paymentSupportedInWebButNotCurrentClient": false,
+    "enableAlipayV2OnPurple": false,
+    "displayUnsupportedPaymentMessage": false,
+    "primaryCardImagePath": "/images/updc.png",
+    "primaryCardImagePath2x": "/images/updc@2x.png",
+    "primaryCardImagePath3x": "/images/updc@3x.png",
+    "surfImagePath": "/images/platform/applecash.png",
+    "surfImagePath2x": "/images/platform/applecash@2x.png",
+    "surfImagePath3x": "/images/platform/applecash@3x.png",
+    "applePayBadgeImagePath": "/images/applepay.png",
+    "applePayBadgeImagePath2x": "/images/applepay@2x.png",
+    "broadwayImagePath": "/images/platform/applecard.png",
+    "broadwayImagePath2x": "/images/platform/applecard@2x.png",
+    "broadwayImagePath3x": "/images/platform/applecard@3x.png"
+}
