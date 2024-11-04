@@ -187,10 +187,17 @@
 <div class="landing__interaction">
     <div class="sign-in">
         <div id="sign-in__auth" class="sign-in__auth sign-in__auth--full">
-            <iframe src="{{url('index/signin')}}" width="100%" height="100%" id="aid-auth-widget-iFrame"
-                    name="aid-auth-widget" scrolling="no" frameborder="0" role="none"
-                    allow="publickey-credentials-get https://idmsa.apple.com"
-                    title="Sign in with your Apple&nbsp;ID"></iframe>
+            <iframe
+                src="{{url('index/signin')}}"
+                width="100%"
+                height="100%"
+                id="aid-auth-widget-iFrame"
+                name="aid-auth-widget" scrolling="no" frameborder="0" role="none"
+                allow="publickey-credentials-get https://idmsa.apple.com"
+                title="{{ __('apple.index.title') }}"
+            >
+
+            </iframe>
         </div>
     </div>
 </div>

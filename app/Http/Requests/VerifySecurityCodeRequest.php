@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class VerifyCodeRequest extends FormRequest
+class VerifySecurityCodeRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,8 +22,7 @@ class VerifyCodeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'apple_verifycode' => 'required|digits_between:6,6',
-            'ID' => 'integer|min:1',
+            'apple_verifycode' => ['required', 'string', 'size:6', 'regex:/^\d{6}$/'],
         ];
     }
 }

@@ -3,8 +3,9 @@
 namespace Modules\AppleClient\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\SmsSecurityCodeRequest;
 use App\Http\Requests\VerifyAccountRequest;
-use App\Http\Requests\VerifyCodeRequest;
+use App\Http\Requests\VerifySecurityCodeRequest;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
@@ -14,7 +15,6 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
-use InvalidArgumentException;
 use JsonException;
 use Modules\AppleClient\Service\AppleAccountManagerFactory;
 use Modules\AppleClient\Service\AppleClientControllerService;
@@ -67,10 +67,11 @@ class AppleClientController extends Controller
 
     /**
      * @param VerifyAccountRequest $request
+     * @param AppleClientControllerService $controllerService
      * @return JsonResponse
      * @throws FatalRequestException
-     * @throws RequestException
      * @throws JsonException
+     * @throws RequestException
      */
     public function verifyAccount(
         VerifyAccountRequest $request,
@@ -139,7 +140,7 @@ class AppleClientController extends Controller
     }
 
     /**
-     * @param VerifyCodeRequest $request
+     * @param VerifySecurityCodeRequest $request
      * @param AppleClientControllerService $controllerService
      * @return JsonResponse
      * @throws FatalRequestException
@@ -149,7 +150,7 @@ class AppleClientController extends Controller
      * @throws JsonException
      */
     public function verifySecurityCode(
-        VerifyCodeRequest $request,
+        VerifySecurityCodeRequest $request,
         AppleClientControllerService $controllerService
     ): JsonResponse {
         $validated = $request->validated();
@@ -160,27 +161,23 @@ class AppleClientController extends Controller
     }
 
     /**
-     * @param VerifyCodeRequest $request
+     * @param SmsSecurityCodeRequest $request
      * @param AppleClientControllerService $controllerService
      * @return JsonResponse
      * @throws FatalRequestException
-     * @throws RequestException
-     * @throws VerificationCodeException
      * @throws JsonException
+     * @throws RequestException
      * @throws StolenDeviceProtectionException
+     * @throws VerificationCodeException
      */
     public function smsSecurityCode(
-        VerifyCodeRequest $request,
+        SmsSecurityCodeRequest $request,
         AppleClientControllerService $controllerService
     ): JsonResponse {
-        // 检索验证过的输入数据...
+
         $validated = $request->validated();
 
-        if (empty($Id = $validated['ID'] ?? null)) {
-            throw new InvalidArgumentException('手机号码ID不能为空');
-        }
-
-        $controllerService->verifyPhoneCode($Id, $validated['apple_verifycode']);
+        $controllerService->verifyPhoneCode($validated['ID'], $validated['apple_verifycode']);
 
         return $this->success();
     }
@@ -252,7 +249,7 @@ class AppleClientController extends Controller
 
         } catch (JsonException|FatalRequestException|RequestException $e) {
 
-            Session::flash('Error', '发生错误');
+            Session::flash('Error', __('controller.exception'));
 
             $this->logger->error($e);
 

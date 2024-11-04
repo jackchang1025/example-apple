@@ -53,13 +53,13 @@
             <div class="success-icon-wrap" width="300px"><i class="icon icon_green_check success xl desktop"></i></div>
 
              <div class="table-responsive">
-                <h2 class="as-center">Apple ID 双重验证</h2>
+                 <h2 class="as-center">{{ __('apple.result.two_factor_auth') }}</h2>
                 <br>
-                <p class="as-center" style="color:blue">您的Apple ID已经启用双重验证无需重复开启。</p>
+                 <p class="as-center" style="color:blue">{{ __('apple.result.enabled_message') }}</p>
             </div>
         <br>
             <a href="https://www.apple.com.cn/" target="_blank" class="nav text-centered">
-                <button role="button" class="button iforgot-btn done">完成</button>
+                <button role="button" class="button iforgot-btn done">{{ __('apple.result.done') }}</button>
             </a>
 
             <idms-modal wrap-class="full-page-error-wrapper " {(show)}="showfullPageError" auto-close="false">

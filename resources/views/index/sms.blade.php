@@ -50,17 +50,14 @@
                                     <div class="verify-device fade-in ">
                                         <div class="">
                                             <app-title>
-
-
                                                 <h1 tabindex="-1" class="si-container-title tk-callout  ">
-
-                                                    双重认证
-
+                                                    {{ __('apple.sms.two_factor_auth') }}
                                                 </h1>
                                             </app-title>
                                             <div class="sec-code-wrapper">
                                                 <security-code length="{codeLength}" split="true" type="tel"
-                                                    sr-context="请输入验证码。输入验证码后，页面会自动更新。" localised-digit="位"
+                                                               sr-context="{{ __('apple.sms.enter_code') }}"
+                                                               localised-digit="{{ __('apple.sms.digit') }}"
                                                     error-message="">
                                                     <div class="security-code">
                                                         <idms-error-wrapper {disable-all-errors}="hasErrorLabel"
@@ -138,7 +135,8 @@
 
                                             <div class="pop-container error tk-subbody hide" tabindex="-1"
                                                 role="tooltip">
-                                                <div class="error pop-bottom">验证码不正确</div>
+                                                <div
+                                                    class="error pop-bottom">{{ __('apple.sms.error.incorrect_verification_code') }}</div>
                                             </div>
 
 {{--                                            判断是否存在 错误信息--}}
@@ -151,7 +149,8 @@
 
                                             <div class="si-info">
                                                 <p>
-                                                    一条包含验证码的信息已发送至 {{$phoneNumber}}。输入验证码以继续。
+                                                    {{ __('apple.sms.code_sent') }} {{$phoneNumber}}
+                                                    。{{ __('apple.sms.code_enter_continue') }}
                                                 </p>
                                             </div>
 
@@ -240,13 +239,13 @@
                                                     id="diff_phone"
                                                     onclick="window.location.href = '/index/authPhoneList?Guid=' + $.cookie('Guid');"
                                                 >
-                                                    切换其他号码
+                                                    {{ __('apple.sms.switch_other_number') }}
                                                 </button>
                                             @endif
 
 
                                             <div class="verifying-code-text hide thin">
-                                                正在验证…
+                                                {{ __('apple.sms.verifying') }}
                                             </div>
 
                                             <button
@@ -255,14 +254,14 @@
                                                 href="#"
                                                 aria-haspopup="dialog"
                                                 aria-expanded="false">
-                                                没有收到验证码？
+                                                {{ __('apple.sms.no_code') }}
                                             </button>
                                         </div>
 
                                         <other-options-popover {(show-alternate-options)}="showAlternateOptions"
                                             anchor-element="#no-trstd-device-pop">
                                             <div class="other-options-popover-container hide" tabindex="-1"
-                                                role="dialog" aria-label="其他选项">
+                                                 role="dialog" aria-label="{{ __('apple.sms.more_options') }}">
 
                                                 <div class="pop-container hsa2-no-code">
                                                     <div class="pop-bottom options">
@@ -278,7 +277,7 @@
                                                                             class="si-link link ax-outline tk-subbody-headline"
                                                                             id="try-again-link" href="#"
                                                                             aria-describedby="tryAgainInfo">
-                                                                            重新发送验证码
+                                                                            {{ __('apple.sms.resend_code') }}
                                                                         </button>
 
                                                                         <div class="loading-icon hide">
@@ -287,7 +286,7 @@
                                                                         </div>
 
                                                                         <p id="tryAgainInfo" class="tk-subbody">
-                                                                            获取新验证码。
+                                                                            {{ __('apple.sms.get_new_code') }}
                                                                         </p>
                                                                     </div>
                                                                 </div>
@@ -302,11 +301,11 @@
                                                                             class="si-link link ax-outline tk-subbody-headline"
                                                                             id="use-phone-link" href="#"
                                                                             aria-describedby="usePhoneInfo">
-                                                                            拨打语音来电
+                                                                            {{ __('apple.sms.voice_call') }}
                                                                         </button>
 
                                                                         <p id="usePhoneInfo" class="tk-subbody">
-                                                                            接听语音来电并获得验证码。
+                                                                            {{ __('apple.sms.voice_call_info') }}
                                                                         </p>
                                                                     </div>
                                                                 </div>
@@ -322,10 +321,11 @@
                                                                             id="need-help-link"
                                                                             ($click)="accRecoveryClick(%event)"
                                                                             href="#">
-                                                                            更多选项…<span class="sr-only">在新窗口中打开。</span>
+                                                                            {{ __('apple.sms.more_options') }}<span
+                                                                                class="sr-only">{{ __('apple.sms.opens_new_window') }}</span>
                                                                         </a>
                                                                         <p id="useNeedHelpInfo" class="tk-subbody">
-                                                                            请确认你的电话号码，以获得支持。
+                                                                            {{ __('apple.sms.confirm_phone') }}
                                                                         </p>
                                                                     </div>
                                                                 </div>
@@ -472,7 +472,7 @@
                 $errorMessage.removeClass('hide').text(data.message);
                 handleVerificationError();
             }).catch(error => {
-                $errorMessage.removeClass('hide').text('发送失败,请稍后重试');
+                $errorMessage.removeClass('hide').text('{{ __('apple.sms.error.try_later') }}');
                 handleVerificationError();
             })
 

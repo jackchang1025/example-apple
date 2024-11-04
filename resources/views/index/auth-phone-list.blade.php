@@ -39,7 +39,8 @@
                             <div class="sa-sk7__container">
                                 <div class="choose-phone">
                                     <div class="sa-sk7__app-title">
-                                        <h2 class="tk-callout" tabindex="-1">验证你的身份</h2>
+                                        <h2 class="tk-callout"
+                                            tabindex="-1">{{ __('apple.auth_phone_list.verify_identity') }}</h2>
                                     </div>
                                     <div class="sa-sk7__content">
                                         <div class="choose-phone__device-list">
@@ -65,7 +66,8 @@
                                                                             <div aria-hidden="true"
                                                                                  class="si-device-name force-ltr">{{ $phone->numberWithDialCode }}
                                                                             </div>
-                                                                            <div class="si-device-meta tk-subbody">短信
+                                                                            <div
+                                                                                class="si-device-meta tk-subbody">{{ __('apple.auth_phone_list.phone_type') }}
                                                                             </div>
                                                                         </div>
                                                                         <div class="large-1 small-1">
@@ -84,8 +86,8 @@
                                             </div>
                                         </div>
                                         <div class="signin-container-footer">
-                                            <div class="signin-container-footer__info">请选择一个电话号码接收验证码。
-                                            </div>
+                                            <div
+                                                class="signin-container-footer__info">{{ __('apple.auth_phone_list.select_phone') }}</div>
                                             <div class="fixed-h">
                                                 <div class="signin-container-footer__link">
                                                     <div class="text text-typography-body-reduced">
@@ -96,8 +98,8 @@
                                                                     type="button"
                                                                     onclick="window.open('https://iforgot.apple.com', '_blank');"
                                                                 ><span
-                                                                        class="text text-typography-body-reduced">无法使用这些电话号码 ?</span><span
-                                                                        class="sr-only">Opens in a new window.</span>
+                                                                        class="text text-typography-body-reduced">{{ __('apple.auth_phone_list.cannot_use') }}</span><span
+                                                                        class="sr-only">{{ __('apple.auth_phone_list.opens_new_window') }}</span>
                                                                 </button>
                                                             </div>
                                                         </div>
