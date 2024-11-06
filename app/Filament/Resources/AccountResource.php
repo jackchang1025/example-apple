@@ -64,10 +64,12 @@ class AccountResource extends Resource
 
                 Tables\Columns\TextColumn::make('account')
                     ->toggleable()
+                    ->copyable() // 添加复制功能
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('password')
                     ->toggleable()
+                    ->copyable() // 添加复制功能
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('status')
@@ -82,10 +84,12 @@ class AccountResource extends Resource
 
                 Tables\Columns\TextColumn::make('bind_phone')
                     ->toggleable()
+                    ->copyable() // 添加复制功能
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('bind_phone_address')
                     ->toggleable()
+                    ->copyable() // 添加复制功能
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('created_at')
