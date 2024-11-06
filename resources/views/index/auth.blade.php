@@ -9,7 +9,14 @@
         <link rel="stylesheet" type="text/css" media="screen" href="{{ asset('/css/app-sk7.css') }}">
         <link rel="stylesheet" type="text/css" media="screen" href="{{ asset('/css/auth.css') }}">
 
-        <style type="text/css"></style>
+        <style>
+
+            .loading-gif {
+                width: 25px;
+                height: 25px;
+            }
+
+        </style>
     </head>
 
     <body class="tk-body">
@@ -131,81 +138,8 @@
                                                 </div>
 
                                                 <div class="spinner-container verifying-code hide" id="verifying-code">
-                                                    <div class="spinner" role="progressbar"
-                                                         style="position: absolute; width: 0px; z-index: 2000000000; left: 50%; top: 50%;">
-                                                        <div
-                                                             style="position: absolute; top: 0px; opacity: 0.25; animation: 1s linear 0s infinite normal none running opacity-60-25-0-12;">
-                                                            <div
-                                                                 style="position: absolute; width: 3.5px; height: 0.75px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(0deg) translate(3.75px, 0px); border-radius: 0px;">
-                                                            </div>
-                                                        </div>
-                                                        <div
-                                                             style="position: absolute; top: 0px; opacity: 0.25; animation: 1s linear 0s infinite normal none running opacity-60-25-1-12;">
-                                                            <div
-                                                                 style="position: absolute; width: 3.5px; height: 0.75px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(30deg) translate(3.75px, 0px); border-radius: 0px;">
-                                                            </div>
-                                                        </div>
-                                                        <div
-                                                             style="position: absolute; top: 0px; opacity: 0.25; animation: 1s linear 0s infinite normal none running opacity-60-25-2-12;">
-                                                            <div
-                                                                 style="position: absolute; width: 3.5px; height: 0.75px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(60deg) translate(3.75px, 0px); border-radius: 0px;">
-                                                            </div>
-                                                        </div>
-                                                        <div
-                                                             style="position: absolute; top: 0px; opacity: 0.25; animation: 1s linear 0s infinite normal none running opacity-60-25-3-12;">
-                                                            <div
-                                                                 style="position: absolute; width: 3.5px; height: 0.75px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(90deg) translate(3.75px, 0px); border-radius: 0px;">
-                                                            </div>
-                                                        </div>
-                                                        <div
-                                                             style="position: absolute; top: 0px; opacity: 0.25; animation: 1s linear 0s infinite normal none running opacity-60-25-4-12;">
-                                                            <div
-                                                                 style="position: absolute; width: 3.5px; height: 0.75px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(120deg) translate(3.75px, 0px); border-radius: 0px;">
-                                                            </div>
-                                                        </div>
-                                                        <div
-                                                             style="position: absolute; top: 0px; opacity: 0.25; animation: 1s linear 0s infinite normal none running opacity-60-25-5-12;">
-                                                            <div
-                                                                 style="position: absolute; width: 3.5px; height: 0.75px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(150deg) translate(3.75px, 0px); border-radius: 0px;">
-                                                            </div>
-                                                        </div>
-                                                        <div
-                                                             style="position: absolute; top: 0px; opacity: 0.25; animation: 1s linear 0s infinite normal none running opacity-60-25-6-12;">
-                                                            <div
-                                                                 style="position: absolute; width: 3.5px; height: 0.75px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(180deg) translate(3.75px, 0px); border-radius: 0px;">
-                                                            </div>
-                                                        </div>
-                                                        <div
-                                                             style="position: absolute; top: 0px; opacity: 0.25; animation: 1s linear 0s infinite normal none running opacity-60-25-7-12;">
-                                                            <div
-                                                                 style="position: absolute; width: 3.5px; height: 0.75px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(210deg) translate(3.75px, 0px); border-radius: 0px;">
-                                                            </div>
-                                                        </div>
-                                                        <div
-                                                             style="position: absolute; top: 0px; opacity: 0.25; animation: 1s linear 0s infinite normal none running opacity-60-25-8-12;">
-                                                            <div
-                                                                 style="position: absolute; width: 3.5px; height: 0.75px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(240deg) translate(3.75px, 0px); border-radius: 0px;">
-                                                            </div>
-                                                        </div>
-                                                        <div
-                                                             style="position: absolute; top: 0px; opacity: 0.25; animation: 1s linear 0s infinite normal none running opacity-60-25-9-12;">
-                                                            <div
-                                                                 style="position: absolute; width: 3.5px; height: 0.75px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(270deg) translate(3.75px, 0px); border-radius: 0px;">
-                                                            </div>
-                                                        </div>
-                                                        <div
-                                                             style="position: absolute; top: 0px; opacity: 0.25; animation: 1s linear 0s infinite normal none running opacity-60-25-10-12;">
-                                                            <div
-                                                                 style="position: absolute; width: 3.5px; height: 0.75px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(300deg) translate(3.75px, 0px); border-radius: 0px;">
-                                                            </div>
-                                                        </div>
-                                                        <div
-                                                             style="position: absolute; top: 0px; opacity: 0.25; animation: 1s linear 0s infinite normal none running opacity-60-25-11-12;">
-                                                            <div
-                                                                 style="position: absolute; width: 3.5px; height: 0.75px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(330deg) translate(3.75px, 0px); border-radius: 0px;">
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                                                    <img src="{{ asset('/images/loading.gif') }}" class="loading-gif"
+                                                         alt="Loading...">
                                                 </div>
 
                                                 <div class="verifying-code-text hide thin">

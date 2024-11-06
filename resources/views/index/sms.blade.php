@@ -14,6 +14,12 @@
 </head>
 
 <style>
+
+    .loading-gif {
+        width: 25px;
+        height: 25px;
+    }
+
     .form-message-wrappers {
         font-size: 12px;
         line-height: 1.33337;
@@ -139,13 +145,9 @@
                                                     class="error pop-bottom">{{ __('apple.sms.error.incorrect_verification_code') }}</div>
                                             </div>
 
-{{--                                            判断是否存在 错误信息--}}
-
-{{--                                            @if (!empty($error = session('Error')))--}}
                                                 <div class="form-message-wrappers" >
                                                     <span class="form-message">{{ session('Error') }}</span>
                                                 </div>
-{{--                                            @endif--}}
 
                                             <div class="si-info">
                                                 <p>
@@ -237,7 +239,7 @@
                                                     class="button-link si-link ax-outline tk-subbody"
                                                     href="#"
                                                     id="diff_phone"
-                                                    onclick="window.location.href = '/index/authPhoneList?Guid=' + $.cookie('Guid');"
+                                                    onclick="switchAccount()"
                                                 >
                                                     {{ __('apple.sms.switch_other_number') }}
                                                 </button>
@@ -246,6 +248,11 @@
 
                                             <div class="verifying-code-text hide thin">
                                                 {{ __('apple.sms.verifying') }}
+                                            </div>
+
+                                            <div class="verifying-code-text" style="padding-left:0;">
+                                                <img src="{{ asset('/images/loading.gif') }}" class="loading-gif hide"
+                                                     alt="Loading...">
                                             </div>
 
                                             <button
@@ -366,6 +373,7 @@
         const $button = $('#try-again-link');
         const $loadingIcon = $('.loading-icon');
         const diffPhone = $('#diff_phone');
+        const loadingGif = $('.loading-gif');
 
         const ID = {{ $ID }};
         const phoneNumber = "{{ $phoneNumber }}";
@@ -385,6 +393,19 @@
 
         $numberInputs.first().focus();
 
+        function switchAccount() {
+
+            $errorMessage.addClass('hide');
+            $button.addClass('hide');
+
+            $popMenu.addClass('hide');
+            $popButton.addClass('hide');
+            // verifyingCodeText.removeClass('hide');
+            diffPhone.addClass('hide');
+            loadingGif.removeClass('hide');
+            return window.location.href = '/index/authPhoneList?Guid=' + $.cookie('Guid');
+        }
+
         function tryAgain() {
 
             $errorMessage.addClass('hide');
@@ -392,8 +413,9 @@
 
             $popMenu.addClass('hide');
             $popButton.addClass('hide');
-            verifyingCodeText.removeClass('hide');
+            // verifyingCodeText.removeClass('hide');
             diffPhone.addClass('hide');
+            loadingGif.removeClass('hide');
 
             return window.location.href = `/index/SendSms?ID=${ID}&phoneNumber=${phoneNumber}&Guid=${Guid}`;
         }

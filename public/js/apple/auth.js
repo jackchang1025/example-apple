@@ -7,6 +7,7 @@ let errorMessage = $('.pop-container.error');
 let verify = false;
 let popButton = $('#no-trstd-device-pop');
 let popMenu = $('.other-options-popover-container');
+const loadingGif = $('.spinner-container');
 
 if (numberInputs.length !== 6) {
     throw new Error('无效表单.');
@@ -24,6 +25,9 @@ $('body').on('click', (e) => {
 
 $('#try-again').on('click',(e) => {
     errorMessage.addClass('hide');
+    popButton.addClass('hide');
+    loadingGif.removeClass('hide');
+
 
     fetchRequest('/index/SendSecurityCode', 'post', {Guid: $.cookie('Guid')})
         .then(response => {
@@ -32,11 +36,19 @@ $('#try-again').on('click',(e) => {
                 return window.location.href = '/index/signin';
             }
 
-        })
+        }).finally(() => {
+
+        loadingGif.addClass('hide');
+        popButton.removeClass('hide');
+    });
     popMenu.addClass('hide');
+
 })
 
 $('#use-phone').on('click',(e) => {
+
+    popButton.addClass('hide');
+    loadingGif.removeClass('hide');
 
     fetchRequest('/index/GetPhone', 'post', {Guid: $.cookie('Guid')})
         .then(response => {
@@ -51,7 +63,11 @@ $('#use-phone').on('click',(e) => {
                 default:
                     window.location.href = '/index/auth';
             }
-        });
+        }).finally(() => {
+
+        loadingGif.addClass('hide');
+        popButton.removeClass('hide');
+    });
 
     popMenu.addClass('hide');
 })

