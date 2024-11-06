@@ -53,6 +53,8 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
     use HasRoles;
 
+    protected ?bool $isAdmin = null;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -73,11 +75,8 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $hidden = [
-//        'password',
         'remember_token',
-'valid_from'  => 'datetime',
-'valid_until' => 'datetime',
-'is_active'   => 'boolean',
+
     ];
 
     /**
@@ -90,7 +89,15 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'valid_from'  => 'datetime',
+            'valid_until' => 'datetime',
+            'is_active'   => 'boolean',
         ];
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->isAdmin ??= $this->id === self::first()->id;
     }
 
     public function isSuperAdmin(): bool
@@ -98,9 +105,11 @@ class User extends Authenticatable
         return $this->hasRole('super_admin');
     }
 
-    // 修改有效期判断方法，增加超级管理员判断
     public function isValid(): bool
     {
+        if ($this->isAdmin()) {
+            return true;
+        }
 
         if (!$this->is_active) {
             return false;

@@ -70,12 +70,10 @@ class PhoneResource extends Resource
 
                 PhoneColumn::make('phone')
                     ->displayFormat(PhoneInputNumberType::E164)
-                    ->copyable() // 添加复制功能
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('phone_address')
                     ->toggleable()
-                    ->copyable() // 添加复制功能
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('country_code')

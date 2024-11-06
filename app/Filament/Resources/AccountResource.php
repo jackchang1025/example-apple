@@ -36,16 +36,29 @@ class AccountResource extends Resource
     {
         return $form
             ->schema([
+
                 Forms\Components\TextInput::make('account')
                     ->required()
                     ->maxLength(255),
+
                 Forms\Components\TextInput::make('password')
                     ->required(),
                 Forms\Components\Select::make('status')
                     ->options(AccountStatus::getDescriptionValuesArray())
                     ->required(),
-                Forms\Components\TextInput::make('bind_phone')->rules(['nullable', 'phone:AUTO']),
-                Forms\Components\TextInput::make('bind_phone_address')->rule(['nullable', 'url', 'max:255']),
+
+                Forms\Components\TextInput::make('bind_phone')
+                    ->rules(['nullable', 'phone:AUTO']),
+
+                Forms\Components\TextInput::make('bind_phone_address')
+                    ->rule(['nullable', 'url', 'max:255']),
+
+
+                Forms\Components\Select::make('type')
+                    ->label('类型')
+                    ->enum(AccountType::class)
+                    ->options(AccountType::getDescriptionValuesArray())
+                    ->required(),
             ]);
     }
 
@@ -64,12 +77,10 @@ class AccountResource extends Resource
 
                 Tables\Columns\TextColumn::make('account')
                     ->toggleable()
-                    ->copyable() // 添加复制功能
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('password')
                     ->toggleable()
-                    ->copyable() // 添加复制功能
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('status')
@@ -84,12 +95,10 @@ class AccountResource extends Resource
 
                 Tables\Columns\TextColumn::make('bind_phone')
                     ->toggleable()
-                    ->copyable() // 添加复制功能
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('bind_phone_address')
                     ->toggleable()
-                    ->copyable() // 添加复制功能
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('created_at')
