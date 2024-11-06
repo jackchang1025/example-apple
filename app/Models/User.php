@@ -2,14 +2,13 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $name
@@ -41,6 +40,12 @@ use Spatie\Permission\Traits\HasRoles;
  * @method static \Illuminate\Database\Eloquent\Builder|User role($roles, $guard = null, $without = false)
  * @method static \Illuminate\Database\Eloquent\Builder|User withoutPermission($permissions)
  * @method static \Illuminate\Database\Eloquent\Builder|User withoutRole($roles, $guard = null)
+ * @property string|null $valid_from 有效期开始时间
+ * @property string|null $valid_until 有效期结束时间
+ * @property int $is_active 是否激活
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereIsActive($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereValidFrom($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereValidUntil($value)
  * @mixin \Eloquent
  */
 class User extends Authenticatable
@@ -57,6 +62,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'valid_from',
+        'valid_until',
+        'is_active',
     ];
 
     /**
@@ -65,8 +73,11 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $hidden = [
-        'password',
+//        'password',
         'remember_token',
+'valid_from'  => 'datetime',
+'valid_until' => 'datetime',
+'is_active'   => 'boolean',
     ];
 
     /**
@@ -80,5 +91,37 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->hasRole('super_admin');
+    }
+
+    // 修改有效期判断方法，增加超级管理员判断
+    public function isValid(): bool
+    {
+
+        if (!$this->is_active) {
+            return false;
+        }
+
+        // 超级管理员始终有效
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
+        $now = now();
+
+        // 如果没有设置有效期，则视为永久有效
+        if (is_null($this->valid_from) && is_null($this->valid_until)) {
+            return true;
+        }
+
+        // 判断是否在有效期内
+        $isAfterStart = is_null($this->valid_from) || $now->greaterThanOrEqualTo($this->valid_from);
+        $isBeforeEnd  = is_null($this->valid_until) || $now->lessThanOrEqualTo($this->valid_until);
+
+        return $isAfterStart && $isBeforeEnd;
     }
 }

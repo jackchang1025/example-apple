@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
+use BezhanSalleh\FilamentShield\FilamentShield;
 use Filament\Forms;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -18,7 +19,6 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Hash;
-use STS\FilamentImpersonate\Tables\Actions\Impersonate;
 
 class UserResource extends Resource
 {
@@ -63,25 +63,62 @@ class UserResource extends Resource
                 ->email()
                 ->required()
                 ->label(trans('filament-users::user.resource.email')),
+
             TextInput::make('password')
                 ->label(trans('filament-users::user.resource.password'))
                 ->password()
                 ->maxLength(255)
-                ->dehydrateStateUsing(static function ($state) use ($form) {
-                    return !empty($state)
-                            ? Hash::make($state)
-                            : User::find($form->getColumns())?->password;
+                ->required(fn(string $operation): bool => $operation === 'create')
+                ->autocomplete('new-password')
+                ->dehydrateStateUsing(static function ($state, User $user) {
+
+                    // 如果是编辑状态且密码没有改变
+                    if ($state === $user->password) {
+                        return $state; // 返回原密码
+                    }
+
+                    // 如果密码为空且是编辑状态
+                    if (empty($state)) {
+                        return $user->password; // 返回原密码
+                    }
+
+                    // 否则加密新密码
+                    return Hash::make($state);
+                })
+                ->helperText(function ($context) {
+                    if ($context === 'edit') {
+                        return '留空表示保持原密码不变。填写新密码将会覆盖原密码。';
+                    }
+
+                    return '请输入至少8位的密码。';
                 }),
+
+            Forms\Components\DateTimePicker::make('valid_from')
+                ->label('有效期开始')
+                ->nullable(),
+
+            Forms\Components\DateTimePicker::make('valid_until')
+                ->label('有效期结束')
+                ->nullable()
+                ->afterOrEqual('valid_from'),
+
         ];
 
 
-        if (config('filament-users.shield') && class_exists(\BezhanSalleh\FilamentShield\FilamentShield::class)) {
+        if (config('filament-users.shield') && class_exists(FilamentShield::class)) {
             $rows[] = Forms\Components\Select::make('roles')
                 ->multiple()
                 ->preload()
                 ->relationship('roles', 'name')
                 ->label(trans('filament-users::user.resource.roles'));
         }
+
+
+        $rows[] = Forms\Components\Toggle::make('is_active')
+            ->label('是否激活')
+            ->onIcon('heroicon-m-bolt')
+            ->offIcon('heroicon-m-user')
+            ->default(true);
 
         $form->schema($rows);
 
@@ -90,8 +127,10 @@ class UserResource extends Resource
 
     public static function table(Table $table): Table
     {
-        if(class_exists( STS\FilamentImpersonate\Tables\Actions\Impersonate::class) && config('filament-users.impersonate')){
-            $table->actions([Impersonate::make('impersonate')]);
+        if (class_exists(\STS\FilamentImpersonate\Tables\Actions\Impersonate::class) && config(
+                'filament-users.impersonate'
+            )) {
+            $table->actions([\STS\FilamentImpersonate\Tables\Actions\Impersonate::make('impersonate')]);
         }
         $table
             ->columns([
@@ -113,11 +152,9 @@ class UserResource extends Resource
                     ->label(trans('filament-users::user.resource.email_verified_at')),
                 TextColumn::make('created_at')
                     ->label(trans('filament-users::user.resource.created_at'))
-                    ->dateTime('M j, Y')
                     ->sortable(),
                 TextColumn::make('updated_at')
                     ->label(trans('filament-users::user.resource.updated_at'))
-                    ->dateTime('M j, Y')
                     ->sortable(),
             ])
             ->filters([

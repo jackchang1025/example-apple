@@ -5,6 +5,7 @@ namespace App\Providers\Filament;
 use App\Filament\Pages\LogView;
 use App\Filament\Widgets\PageVisits;
 use App\Filament\Widgets\PageVisitsTable;
+use App\Http\Middleware\CheckUserValidityMiddleware;
 use App\Http\Middleware\EnforceSecuritySettingsMiddleware;
 use App\Models\SecuritySetting;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
@@ -93,6 +94,7 @@ class AdminPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
                 EnforceSecuritySettingsMiddleware::class,
+                CheckUserValidityMiddleware::class,
             ])
             ->authMiddleware([
                 Authenticate::class,
