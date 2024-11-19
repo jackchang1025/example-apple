@@ -7,9 +7,11 @@ use App\Apple\Enums\AccountType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -39,6 +41,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read int|null $devices_count
  * @property-read \App\Models\Payment|null $payment
  * @method static \Illuminate\Database\Eloquent\Builder|Account whereType($value)
+ * @property-read \App\Models\FamilyMember|null $familyMember
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\FamilyMember> $familyMembers
+ * @property-read int|null $family_members_count
+ * @property-read \App\Models\Family|null $family
+ * @property string|null $dsid dsid
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereDsid($value)
  * @mixin \Eloquent
  */
 class Account extends Model
@@ -57,7 +65,7 @@ class Account extends Model
         return $this->status->description();
     }
 
-    protected $fillable = ['account', 'password', 'bind_phone', 'bind_phone_address', 'id', 'status', 'type'];
+    protected $fillable = ['account', 'password', 'bind_phone', 'bind_phone_address', 'id', 'status', 'type', 'dsid'];
 
     public function logs(): HasMany
     {
@@ -74,7 +82,7 @@ class Account extends Model
 //        return $this->hasMany(Payment::class);
 //    }
 
-    public function payment(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function payment(): HasOne
     {
         return $this->hasOne(Payment::class);
     }
@@ -82,6 +90,37 @@ class Account extends Model
     public function getSessionId(): string
     {
         return md5(sprintf('%s_%s', $this->account, $this->password));
+    }
+
+    /**
+     * Get the family that the account organizes
+     */
+    public function family(): HasOne
+    {
+        return $this->hasOne(Family::class, 'organizer', 'dsid');
+    }
+
+    /**
+     * Get the family member record for this account
+     */
+    public function familyMember(): HasOne
+    {
+        return $this->hasOne(FamilyMember::class, 'apple_id', 'account');
+    }
+
+    /**
+     * Get all family members where this account is the organizer
+     */
+    public function familyMembers(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            FamilyMember::class,
+            Family::class,
+            'organizer', // Family 表中关联 Account 的外键
+            'family_id', // FamilyMember 表中关联 Family 的外键
+            'dsid',   // Account 表中的本地键
+            'id'        // Family 表中的本地键
+        );
     }
 
 }
