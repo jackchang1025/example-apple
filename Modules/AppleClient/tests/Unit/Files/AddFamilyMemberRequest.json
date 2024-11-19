@@ -1,0 +1,63 @@
+{
+    "status-message": "Member of a family.",
+    "familyInvitations": [
+    ],
+    "outgoingTransferRequests": [
+    ],
+    "isMemberOfFamily": true,
+    "family": {
+        "familyId": "3038411018722656",
+        "transferRequests": [
+        ],
+        "invitations": [
+        ],
+        "organizer": "20186096743",
+        "members": [
+            "20186096743",
+            "21905965912"
+        ],
+        "outgoingTransferRequests": [
+        ],
+        "etag": "3"
+    },
+    "familyMembers": [
+        {
+            "lastName": "jack",
+            "dsid": "20186096743",
+            "originalInvitationEmail": "jackchang2021@163.com",
+            "fullName": "chang jack",
+            "ageClassification": "ADULT",
+            "appleIdForPurchases": "jackchang2021@163.com",
+            "appleId": "jackchang2021@163.com",
+            "familyId": "3038411018722656",
+            "firstName": "chang",
+            "hasParentalPrivileges": true,
+            "hasScreenTimeEnabled": false,
+            "hasAskToBuyEnabled": false,
+            "hasSharePurchasesEnabled": true,
+            "shareMyLocationEnabledFamilyMembers": [
+            ],
+            "hasShareMyLocationEnabled": true,
+            "dsidForPurchases": "20186096743"
+        },
+        {
+            "lastName": "jack",
+            "dsid": "21905965912",
+            "originalInvitationEmail": "licade_2015@163.com",
+            "fullName": "chang jack",
+            "ageClassification": "ADULT",
+            "appleIdForPurchases": "licade_2015@163.com",
+            "appleId": "licade_2015@163.com",
+            "familyId": "3038411018722656",
+            "firstName": "chang",
+            "hasParentalPrivileges": false,
+            "hasScreenTimeEnabled": false,
+            "hasAskToBuyEnabled": false,
+            "hasSharePurchasesEnabled": true,
+            "hasShareMyLocationEnabled": true,
+            "dsidForPurchases": "21905965912"
+        }
+    ],
+    "status": 0,
+    "showAddMemberButton": true
+}

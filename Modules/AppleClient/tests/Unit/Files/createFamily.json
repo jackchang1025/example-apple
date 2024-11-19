@@ -1,0 +1,39 @@
+{
+    "status-message": "Member of a family.",
+    "familyInvitations": [],
+    "outgoingTransferRequests": [],
+    "isMemberOfFamily": true,
+    "family": {
+        "familyId": "3038411018803674",
+        "transferRequests": [],
+        "invitations": [],
+        "organizer": "20186096743",
+        "members": [
+            "20186096743"
+        ],
+        "outgoingTransferRequests": [],
+        "etag": "2"
+    },
+    "familyMembers": [
+        {
+            "lastName": "jack",
+            "dsid": "20186096743",
+            "originalInvitationEmail": "jackchang2021@163.com",
+            "fullName": "chang jack",
+            "ageClassification": "ADULT",
+            "appleIdForPurchases": "jackchang2021@163.com",
+            "appleId": "jackchang2021@163.com",
+            "familyId": "3038411018803674",
+            "firstName": "chang",
+            "hasParentalPrivileges": true,
+            "hasScreenTimeEnabled": false,
+            "hasAskToBuyEnabled": false,
+            "hasSharePurchasesEnabled": true,
+            "shareMyLocationEnabledFamilyMembers": [],
+            "hasShareMyLocationEnabled": true,
+            "dsidForPurchases": "20186096743"
+        }
+    ],
+    "status": 0,
+    "showAddMemberButton": true
+}

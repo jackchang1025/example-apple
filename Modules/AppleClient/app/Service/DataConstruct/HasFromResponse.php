@@ -2,7 +2,8 @@
 
 namespace Modules\AppleClient\Service\DataConstruct;
 
-use Modules\AppleClient\Service\Response\Response;
+
+use Saloon\Http\Response;
 
 trait HasFromResponse
 {
@@ -14,5 +15,10 @@ trait HasFromResponse
     public static function fromResponse(Response $response): static
     {
         return self::from($response->json());
+    }
+
+    public static function fromXml(Response $response): static
+    {
+        return self::from($response->xmlToCollection()->toArray());
     }
 }

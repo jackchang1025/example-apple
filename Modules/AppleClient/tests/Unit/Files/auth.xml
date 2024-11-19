@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <dict>
+        <key>dsid</key>
+        <string>21905965912</string>
+        <key>delegates</key>
+        <dict>
+            <key>com.apple.mobileme</key>
+            <dict>
+                <key>status</key>
+                <integer>1</integer>
+                <key>status-message</key>
+                <string>此 Apple ID 通过两步验证进行保护。要登录，你必须验证你的身份。</string>
+                <key>status-error</key>
+                <string>ACCOUNT_INVALID_HSA_TOKEN</string>
+            </dict>
+            <key>com.apple.gamecenter</key>
+            <dict>
+                <key>status</key>
+                <integer>5012</integer>
+                <key>message</key>
+                <string>status = 5012, Authentication failed:5150:HSA2_MISSING_CODE</string>
+            </dict>
+            <key>com.apple.private.ids</key>
+            <dict>
+                <key>status</key>
+                <integer>5000</integer>
+                <key>service-data</key>
+                <dict>
+                    <key>apple-id</key>
+                    <string>licade_2015@163.com</string>
+                    <key>profile-id</key>
+                    <string>D:21905965912</string>
+                </dict>
+                <key>alert</key>
+                <dict>
+                    <key>title</key>
+                    <string>需要提供 Apple 账户验证码</string>
+                    <key>body</key>
+                    <string>键入你的密码，然后键入你其他设备上显示的验证码。</string>
+                    <key>button</key>
+                    <string>好</string>
+                </dict>
+                <key>message</key>
+                <string>
+                    SED:3:VEN-PROD:d381dae8-5a6a-4739-95a3-f6d51093ac2e:30f58d79-87b4-41fa-86e1-6aeeb9ed1a3f:1731734001:97001c2d-bcda-4ab5-9cfc-46fbb8ab5bb2:713f0c204e7855bdbdd8be0868bdbbdc427af301e325f319d08174f0baa42c78:EM
+                </string>
+            </dict>
+        </dict>
+        <key>status</key>
+        <integer>0</integer>
+    </dict>
+</plist>

@@ -9,13 +9,17 @@ namespace Modules\AppleClient\Service;
 
 use Modules\AppleClient\Service\Config\HasConfig;
 use Modules\AppleClient\Service\Cookies\HasCookie;
+use Modules\AppleClient\Service\DataConstruct\Account;
 use Modules\AppleClient\Service\Header\HasHeaderSynchronize;
 use Modules\AppleClient\Service\Helpers\Helpers;
 use Modules\AppleClient\Service\Integrations\AppleAuth\AppleAuthConnector;
 use Modules\AppleClient\Service\Integrations\AppleId\AppleIdConnector;
+use Modules\AppleClient\Service\Integrations\Icloud\IcloudConnector;
 use Modules\AppleClient\Service\Integrations\Idmsa\IdmsaConnector;
 use Modules\AppleClient\Service\Proxy\HasProxy;
+use Modules\AppleClient\Service\Trait\HasFamily;
 use Modules\AppleClient\Service\Trait\HasLogger;
+use Modules\AppleClient\Service\Trait\HasLoginDelegates;
 use Modules\AppleClient\Service\Trait\HasTries;
 use Saloon\Traits\Conditionable;
 use Saloon\Traits\Macroable;
@@ -40,12 +44,14 @@ class AppleClient
     protected AppleIdConnector $appleIdConnector;
     protected IdmsaConnector $idmsaConnector;
     protected AppleAuthConnector $appleAuthConnector;
+    protected IcloudConnector $icloudConnector;
 
     public function __construct()
     {
         $this->appleIdConnector = new AppleIdConnector($this);
         $this->idmsaConnector   = new IdmsaConnector($this);
         $this->appleAuthConnector = new AppleAuthConnector($this);
+        $this->icloudConnector = new IcloudConnector($this);
     }
 
     public function getAppleIdConnector(): AppleIdConnector
@@ -61,5 +67,10 @@ class AppleClient
     public function getAppleAuthConnector(): AppleAuthConnector
     {
         return $this->appleAuthConnector;
+    }
+
+    public function getIcloudConnector(): IcloudConnector
+    {
+        return $this->icloudConnector;
     }
 }

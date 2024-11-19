@@ -7,9 +7,11 @@
 
 namespace Modules\AppleClient\Service\Response;
 
+
 class Response extends \Saloon\Http\Response
 {
     use HasServiceError;
     use HasAuth;
     use HasPhoneNumbers;
+    use XmlResponseHandler;
 }

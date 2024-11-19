@@ -6,6 +6,8 @@ use App\Models\Account;
 use Modules\AppleClient\Service\Trait\HasAuth;
 use Modules\AppleClient\Service\Trait\HasBindPhone;
 use Modules\AppleClient\Service\Trait\HasDevices;
+use Modules\AppleClient\Service\Trait\HasFamily;
+use Modules\AppleClient\Service\Trait\HasLoginDelegates;
 use Modules\AppleClient\Service\Trait\HasNotification;
 use Modules\AppleClient\Service\Trait\HasPayment;
 use Modules\AppleClient\Service\Trait\HasSign;
@@ -34,6 +36,8 @@ class AppleAccountManager
     use HasToken;
     use HasValidatePassword;
     use HasPhoneNumber;
+    use HasLoginDelegates;
+    use HasFamily;
 
     public function __construct(
         protected Account $account,

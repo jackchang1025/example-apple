@@ -1,0 +1,132 @@
+<?php
+
+namespace Modules\AppleClient\Service\Trait;
+
+use Modules\AppleClient\Service\DataConstruct\Icloud\FamilyDetails\FamilyDetails;
+use Modules\AppleClient\Service\DataConstruct\Icloud\FamilyDetails\FamilyMember;
+use Modules\AppleClient\Service\DataConstruct\Icloud\FamilyInfo\FamilyInfo;
+use Modules\AppleClient\Service\DataConstruct\Icloud\ITunesAccountPaymentInfo\ITunesAccountPaymentInfo;
+use Modules\AppleClient\Service\DataConstruct\Icloud\VerifyCVV\VerifyCVV;
+use RuntimeException;
+use Saloon\Exceptions\Request\FatalRequestException;
+use Saloon\Exceptions\Request\RequestException;
+
+trait HasFamily
+{
+    /**
+     * @return FamilyDetails
+     * @throws FatalRequestException
+     * @throws RequestException
+     */
+    public function getFamilyDetails(): FamilyDetails
+    {
+        return $this->getIcloudConnector()
+            ->getFamilyResources()
+            ->getFamilyDetailsRequest()
+            ->dto();
+    }
+
+    public function createFamily(
+        string $organizerAppleId,
+        string $organizerAppleIdForPurchases,
+        string $organizerAppleIdForPurchasesPassword,
+    ): FamilyInfo {
+        $familyInfo = $this->getIcloudConnector()
+            ->getFamilyResources()
+            ->createFamilyRequest(
+                $organizerAppleId,
+                $organizerAppleIdForPurchases,
+                $organizerAppleIdForPurchasesPassword
+            )
+            ->dto();
+
+        if (!$familyInfo->isSuccess()) {
+            throw new RuntimeException($familyInfo->statusMessage);
+        }
+
+        return $familyInfo;
+    }
+
+    public function getFamilyInfo(): FamilyInfo
+    {
+        $familyInfo = $this->getIcloudConnector()
+            ->getFamilyResources()
+            ->getMaxFamilyDetailsRequest()->dto();
+
+        if (!$familyInfo->isSuccess()) {
+            throw new RuntimeException($familyInfo->statusMessage);
+        }
+
+        return $familyInfo;
+    }
+
+    public function addFamilyMember(string $securityCode, string $appleId, string $password): FamilyInfo
+    {
+        $response = $this->getIcloudConnector()
+            ->getFamilyResources()
+            ->getITunesAccountPaymentInfoRequest($this->getLoginDelegates()->dsid);
+
+        /**
+         * @var ITunesAccountPaymentInfo $paymentInfo
+         */
+        $paymentInfo = $response->dto();
+
+        if (!$paymentInfo->isSuccess()) {
+            throw new RuntimeException($paymentInfo->statusMessage);
+        }
+
+        /**
+         * @var VerifyCVV $verifyCvv
+         */
+        $verifyCvv = $this->getIcloudConnector()
+            ->getFamilyResources()
+            ->verifyCVVRequest(
+                creditCardLastFourDigits: $paymentInfo->creditCardLastFourDigits,
+                securityCode: $securityCode
+            )
+            ->dto();
+
+        if (!$verifyCvv->isSuccess()) {
+            throw new RuntimeException($verifyCvv->statusMessage);
+        }
+
+        $addFamilyMember = $this->getIcloudConnector()
+            ->getFamilyResources()
+            ->addFamilyMemberRequest($appleId, $password, $verifyCvv->verificationToken)
+            ->dto();
+
+        if (!$addFamilyMember->isSuccess()) {
+            throw new RuntimeException($addFamilyMember->statusMessage);
+        }
+
+        return $addFamilyMember;
+    }
+
+    public function removeFamilyMember(string $appleId): FamilyInfo
+    {
+        $familyDetails = $this->getFamilyDetails();
+
+        $member = $familyDetails->familyMembers->filter(
+            fn(FamilyMember $member
+            ) => (string)$member->memberDsid === $appleId || $member->linkedItunesAccountAppleid === $appleId
+        );
+
+        if ($member->count() === 0) {
+            throw new RuntimeException('Member not found');
+        }
+
+        /**
+         * @var FamilyInfo $response
+         */
+        $response = $this->getIcloudConnector()
+            ->getFamilyResources()
+            ->removeFamilyMemberRequest($member->dsid)
+            ->dto();
+
+        if (!$response->isSuccess()) {
+            throw new RuntimeException($response->statusMessage);
+        }
+
+        return $response;
+    }
+}
