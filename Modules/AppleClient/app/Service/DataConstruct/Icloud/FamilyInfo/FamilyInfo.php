@@ -26,8 +26,12 @@ class FamilyInfo extends Data
     ) {
     }
 
-    public function updateOrCreate(): \App\Models\Family
+    public function updateOrCreate(): ?\App\Models\Family
     {
+        if (!$this->family) {
+            return null;
+        }
+
         return \App\Models\Family::updateOrCreate(
             ['family_id' => $this->family->familyId],
             [
@@ -40,7 +44,7 @@ class FamilyInfo extends Data
         );
     }
 
-    public function updateOrCreateFamilyMembers(int $familyId): void
+    public function updateOrCreateFamilyMembers(string|int $familyId): void
     {
         if ($this->familyMembers) {
             foreach ($this->familyMembers as $memberData) {
@@ -68,5 +72,10 @@ class FamilyInfo extends Data
                 );
             }
         }
+    }
+
+    public function isFamilyOrganizer(string $dsid): bool
+    {
+        return $dsid === $this->family?->organizer;
     }
 }

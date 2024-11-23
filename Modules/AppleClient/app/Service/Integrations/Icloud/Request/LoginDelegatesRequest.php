@@ -66,32 +66,6 @@ class LoginDelegatesRequest extends Request implements HasBody
         return loginDelegates::fromXml($response);
     }
 
-    public function hasRequestFailed(Response $response): ?bool
-    {
-        return !$response->ok() || $response->dto()->status !== 0;
-    }
-
-    public function getRequestException(Response $response, ?Throwable $senderException): ?Throwable
-    {
-        if (!$response->ok()) {
-            return null;
-        }
-
-        if ($this->authCode) {
-            return new VerificationCodeException(
-                response: $response,
-                message: $response->dto()->statusMessage,
-                previous: $senderException
-            );
-        }
-
-        return new LoginRequestException(
-            response: $response,
-            message: $response->dto()->statusMessage,
-            previous: $senderException
-        );
-    }
-
     protected function defaultBody(): string
     {
         return <<<XML

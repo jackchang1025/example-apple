@@ -2,6 +2,7 @@
 
 namespace Modules\AppleClient\Service\Trait;
 
+use Illuminate\Support\Facades\Cache;
 use Modules\AppleClient\Service\DataConstruct\Icloud\FamilyDetails\FamilyDetails;
 use Modules\AppleClient\Service\DataConstruct\Icloud\FamilyDetails\FamilyMember;
 use Modules\AppleClient\Service\DataConstruct\Icloud\FamilyInfo\FamilyInfo;
@@ -26,6 +27,7 @@ trait HasFamily
             ->dto();
     }
 
+
     public function createFamily(
         string $organizerAppleId,
         string $organizerAppleIdForPurchases,
@@ -47,41 +49,44 @@ trait HasFamily
         return $familyInfo;
     }
 
-    public function getFamilyInfo(): FamilyInfo
+    public function getMaxFamilyDetailsRequest(): FamilyInfo
     {
-        $familyInfo = $this->getIcloudConnector()
+        return Cache::remember("{$this->getAccount()->getSessionId()}:maxFamilyDetailsRequest", 60, function () {
+            $familyInfo = $this->getIcloudConnector()
             ->getFamilyResources()
-            ->getMaxFamilyDetailsRequest()->dto();
+                ->getMaxFamilyDetailsRequest()
+                ->dto();
 
         if (!$familyInfo->isSuccess()) {
             throw new RuntimeException($familyInfo->statusMessage);
         }
 
         return $familyInfo;
+
+        });
     }
 
-    public function addFamilyMember(string $securityCode, string $appleId, string $password): FamilyInfo
+    public function getITunesAccountPaymentInfo(): ITunesAccountPaymentInfo
     {
-        $response = $this->getIcloudConnector()
+        return $this->getIcloudConnector()
             ->getFamilyResources()
-            ->getITunesAccountPaymentInfoRequest($this->getLoginDelegates()->dsid);
+            ->getITunesAccountPaymentInfoRequest($this->getLoginDelegates()->dsid)
+            ->dto();
+    }
 
-        /**
-         * @var ITunesAccountPaymentInfo $paymentInfo
-         */
-        $paymentInfo = $response->dto();
-
-        if (!$paymentInfo->isSuccess()) {
-            throw new RuntimeException($paymentInfo->statusMessage);
-        }
-
+    public function addFamilyMember(
+        string $creditCardLastFourDigits,
+        string $securityCode,
+        string $appleId,
+        string $password
+    ): FamilyInfo {
         /**
          * @var VerifyCVV $verifyCvv
          */
         $verifyCvv = $this->getIcloudConnector()
             ->getFamilyResources()
             ->verifyCVVRequest(
-                creditCardLastFourDigits: $paymentInfo->creditCardLastFourDigits,
+                creditCardLastFourDigits: $creditCardLastFourDigits,
                 securityCode: $securityCode
             )
             ->dto();
@@ -104,23 +109,12 @@ trait HasFamily
 
     public function removeFamilyMember(string $appleId): FamilyInfo
     {
-        $familyDetails = $this->getFamilyDetails();
-
-        $member = $familyDetails->familyMembers->filter(
-            fn(FamilyMember $member
-            ) => (string)$member->memberDsid === $appleId || $member->linkedItunesAccountAppleid === $appleId
-        );
-
-        if ($member->count() === 0) {
-            throw new RuntimeException('Member not found');
-        }
-
         /**
          * @var FamilyInfo $response
          */
         $response = $this->getIcloudConnector()
             ->getFamilyResources()
-            ->removeFamilyMemberRequest($member->dsid)
+            ->removeFamilyMemberRequest($appleId)
             ->dto();
 
         if (!$response->isSuccess()) {
@@ -128,5 +122,18 @@ trait HasFamily
         }
 
         return $response;
+    }
+
+    public function leaveFamily(): FamilyInfo
+    {
+        $familyInfo = $this->getIcloudConnector()
+            ->getFamilyResources()
+            ->leaveFamilyRequest()
+            ->dto();
+        if (!$familyInfo->isSuccess()) {
+            throw new RuntimeException($familyInfo->statusMessage);
+        }
+
+        return $familyInfo;
     }
 }

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "27bbabb01f1e57910e1d85e74fcde5b4",
+    "content-hash": "afda8a0fb28ec88e76d8c2e76eae9037",
     "packages": [
         {
             "name": "amphp/amp",
@@ -930,6 +930,81 @@
                 "source": "https://github.com/AnourValar/eloquent-serialize/tree/1.2.25"
             },
             "time": "2024-09-16T12:59:37+00:00"
+        },
+        {
+            "name": "azjezz/psl",
+            "version": "3.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/azjezz/psl.git",
+                "reference": "6683d60ba4d3abf8b4a4a9d94c39d0d08caa0214"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/azjezz/psl/zipball/6683d60ba4d3abf8b4a4a9d94c39d0d08caa0214",
+                "reference": "6683d60ba4d3abf8b4a4a9d94c39d0d08caa0214",
+                "shasum": ""
+            },
+            "require": {
+                "ext-bcmath": "*",
+                "ext-intl": "*",
+                "ext-json": "*",
+                "ext-mbstring": "*",
+                "ext-sodium": "*",
+                "php": "~8.2.0 || ~8.3.0",
+                "revolt/event-loop": "^1.0.6"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.52.1",
+                "php-coveralls/php-coveralls": "^2.7.0",
+                "php-standard-library/psalm-plugin": "^2.3.0",
+                "phpbench/phpbench": "^1.2.15",
+                "phpunit/phpunit": "^9.6.18",
+                "roave/infection-static-analysis-plugin": "^1.35.0",
+                "squizlabs/php_codesniffer": "^3.9.0",
+                "vimeo/psalm": "^5.23.1"
+            },
+            "suggest": {
+                "php-standard-library/phpstan-extension": "PHPStan integration",
+                "php-standard-library/psalm-plugin": "Psalm integration"
+            },
+            "type": "library",
+            "extra": {
+                "thanks": {
+                    "name": "hhvm/hsl",
+                    "url": "https://github.com/hhvm/hsl"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/bootstrap.php"
+                ],
+                "psr-4": {
+                    "Psl\\": "src/Psl"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "azjezz",
+                    "email": "azjezz@protonmail.com"
+                }
+            ],
+            "description": "PHP Standard Library",
+            "support": {
+                "issues": "https://github.com/azjezz/psl/issues",
+                "source": "https://github.com/azjezz/psl/tree/3.0.2"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/azjezz",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-09-13T10:34:56+00:00"
         },
         {
             "name": "bezhansalleh/filament-shield",
@@ -7647,6 +7722,138 @@
             "time": "2024-08-03T14:11:59+00:00"
         },
         {
+            "name": "saloonphp/xml-wrangler",
+            "version": "v1.3.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/saloonphp/xml-wrangler.git",
+                "reference": "83dbbe660ec6daf9481187572de19e39b3ff3cf4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/saloonphp/xml-wrangler/zipball/83dbbe660ec6daf9481187572de19e39b3ff3cf4",
+                "reference": "83dbbe660ec6daf9481187572de19e39b3ff3cf4",
+                "shasum": ""
+            },
+            "require": {
+                "ext-dom": "*",
+                "php": "^8.1",
+                "spatie/array-to-xml": "^3.2",
+                "veewee/xml": "^3.1.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.5",
+                "guzzlehttp/guzzle": "^7.8",
+                "illuminate/collections": "^10.30",
+                "pestphp/pest": "^2.24",
+                "phpstan/phpstan": "^1.9",
+                "psr/http-message": "^2.0",
+                "saloonphp/saloon": "^3.0",
+                "spatie/ray": "^1.33"
+            },
+            "suggest": {
+                "illuminate/collections": "Used for the collect and lazyCollect methods when reading XML."
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Saloon\\XmlWrangler\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Sam Carré",
+                    "email": "29132017+Sammyjo20@users.noreply.github.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Easily Read & Write XML in PHP",
+            "homepage": "https://github.com/saloonphp/xml-wrangler",
+            "support": {
+                "issues": "https://github.com/saloonphp/xml-wrangler/issues",
+                "source": "https://github.com/saloonphp/xml-wrangler/tree/v1.3.1"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/sammyjo20",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-08-03T13:50:05+00:00"
+        },
+        {
+            "name": "spatie/array-to-xml",
+            "version": "3.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/spatie/array-to-xml.git",
+                "reference": "f56b220fe2db1ade4c88098d83413ebdfc3bf876"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/spatie/array-to-xml/zipball/f56b220fe2db1ade4c88098d83413ebdfc3bf876",
+                "reference": "f56b220fe2db1ade4c88098d83413ebdfc3bf876",
+                "shasum": ""
+            },
+            "require": {
+                "ext-dom": "*",
+                "php": "^8.0"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.2",
+                "pestphp/pest": "^1.21",
+                "spatie/pest-plugin-snapshots": "^1.1"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "3.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Spatie\\ArrayToXml\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Freek Van der Herten",
+                    "email": "freek@spatie.be",
+                    "homepage": "https://freek.dev",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Convert an array to xml",
+            "homepage": "https://github.com/spatie/array-to-xml",
+            "keywords": [
+                "array",
+                "convert",
+                "xml"
+            ],
+            "support": {
+                "source": "https://github.com/spatie/array-to-xml/tree/3.3.0"
+            },
+            "funding": [
+                {
+                    "url": "https://spatie.be/open-source/support-us",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/spatie",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-05-01T10:20:27+00:00"
+        },
+        {
             "name": "spatie/color",
             "version": "1.6.0",
             "source": {
@@ -10852,6 +11059,83 @@
             "time": "2024-10-09T12:07:50+00:00"
         },
         {
+            "name": "veewee/xml",
+            "version": "3.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/veewee/xml.git",
+                "reference": "6ae6b154d64d427bf1b2840b40c23131eb1feba5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/veewee/xml/zipball/6ae6b154d64d427bf1b2840b40c23131eb1feba5",
+                "reference": "6ae6b154d64d427bf1b2840b40c23131eb1feba5",
+                "shasum": ""
+            },
+            "require": {
+                "azjezz/psl": "^3.0",
+                "ext-dom": "*",
+                "ext-libxml": "*",
+                "ext-xml": "*",
+                "ext-xmlreader": "*",
+                "ext-xmlwriter": "*",
+                "ext-xsl": "*",
+                "php": "~8.2.0 || ~8.3.0 || ~8.4.0",
+                "webmozart/assert": "^1.10"
+            },
+            "require-dev": {
+                "php-standard-library/psalm-plugin": "^2.2",
+                "symfony/finder": "^6.1",
+                "veewee/composer-run-parallel": "^1.0.0",
+                "vimeo/psalm": "^5.4"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/bootstrap.php"
+                ],
+                "psr-4": {
+                    "VeeWee\\Xml\\": "src/Xml"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Toon Verwerft",
+                    "email": "toonverwerft@gmail.com"
+                }
+            ],
+            "description": "XML without worries",
+            "keywords": [
+                "Xpath",
+                "array-to-xml",
+                "dom",
+                "dom-manipulation",
+                "reader",
+                "writer",
+                "xml",
+                "xml-to-array",
+                "xml_decode",
+                "xml_encode",
+                "xsd",
+                "xslt"
+            ],
+            "support": {
+                "issues": "https://github.com/veewee/xml/issues",
+                "source": "https://github.com/veewee/xml/tree/3.3.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/veewee",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-10-25T06:12:30+00:00"
+        },
+        {
             "name": "vlucas/phpdotenv",
             "version": "v5.6.1",
             "source": {
@@ -11885,6 +12169,63 @@
                 "source": "https://github.com/Jean85/pretty-package-versions/tree/2.0.6"
             },
             "time": "2024-03-08T09:58:59+00:00"
+        },
+        {
+            "name": "jonpurvis/lawman",
+            "version": "v3.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/JonPurvis/lawman.git",
+                "reference": "fef0b37bcd3dd353815112966201abffb2f630cc"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/JonPurvis/lawman/zipball/fef0b37bcd3dd353815112966201abffb2f630cc",
+                "reference": "fef0b37bcd3dd353815112966201abffb2f630cc",
+                "shasum": ""
+            },
+            "require": {
+                "pestphp/pest": "^3.0",
+                "pestphp/pest-plugin": "^3.0",
+                "php": "^8.2"
+            },
+            "require-dev": {
+                "pestphp/pest-dev-tools": "^2.9",
+                "saloonphp/cache-plugin": "^3.0",
+                "saloonphp/pagination-plugin": "^2.0",
+                "saloonphp/rate-limit-plugin": "^2.0",
+                "saloonphp/saloon": "^3.6"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/Autoload.php"
+                ],
+                "psr-4": {
+                    "JonPurvis\\Lawman\\": "src/",
+                    "Tests\\Fixtures\\Arch\\": "tests/Fixtures/Arch"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "A PestPHP Plugin to help with architecture testing SaloonPHP integrations",
+            "keywords": [
+                "framework",
+                "pest",
+                "php",
+                "plugin",
+                "saloon",
+                "test",
+                "testing",
+                "unit"
+            ],
+            "support": {
+                "issues": "https://github.com/JonPurvis/lawman/issues",
+                "source": "https://github.com/JonPurvis/lawman/tree/v3.1.0"
+            },
+            "time": "2024-09-16T02:13:16+00:00"
         },
         {
             "name": "laravel/pint",
@@ -14231,8 +14572,9 @@
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
-        "php": "^8.2"
+        "php": "^8.2",
+        "ext-simplexml": "*"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "plugin-api-version": "2.6.0"
 }

@@ -3,7 +3,7 @@
 namespace Modules\AppleClient\Service\DataConstruct;
 
 
-use Saloon\Http\Response;
+use Modules\AppleClient\Service\Response\Response;
 
 trait HasFromResponse
 {

@@ -129,6 +129,8 @@ abstract class AppleConnector extends Connector
 
     public function handleRetry(FatalRequestException|RequestException $exception, Request $request): bool
     {
+        logger('handleRetry', ['exception' => $exception]);
+
         $handleRetry = $this->apple->getHandleRetry() ?? static fn(): bool => true;
 
        return $handleRetry($exception,$request);
@@ -151,9 +153,9 @@ abstract class AppleConnector extends Connector
     {
         $body = trim($response->body());
 
-        if (Str::length($body) > 2000) {
-            $body = Str::substr($body, 0, 2000);
-        }
+//        if (Str::length($body) > 5000) {
+//            $body = Str::substr($body, 0, 2000);
+//        }
 
         $this->getLogger()?->debug('response', [
             'status'  => $response->status(),

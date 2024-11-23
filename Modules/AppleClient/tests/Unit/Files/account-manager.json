@@ -1,0 +1,1240 @@
+{
+    "countryFeatures": {
+        "showGender": true,
+        "disablePaymentManagement": false
+    },
+    "apiKey": "cbf64fd6843ee630b463f358ea0b707b",
+    "isHsaEligible": true,
+    "enableRightToLeftDisplay": false,
+    "loginHandleAvailable": true,
+    "isAppleIdAndPrimaryEmailSame": true,
+    "shouldShowBeneficiaryUI": true,
+    "showNpa": true,
+    "pageFeatures": {
+        "shouldEnableAppleIDRebrand": true,
+        "hideCountrySelector": false,
+        "showPrivacySection": true,
+        "showTrustedPhoneNumber": true,
+        "isIForgotResetCREnabled": false,
+        "featureSwitches": {
+            "showDeviceSection": true,
+            "showAddPaymentDOBU13": false,
+            "showPrimaryAddress": true,
+            "showPrivacyManageSettings": true,
+            "allowSwapAlias": true,
+            "demoteHsa1": true,
+            "showContactPhoneNumbers": true,
+            "useNewAddressAPI": true,
+            "useNewGraphiteContactTab": true,
+            "useNewGraphiteSecurityTab": true,
+            "useNewGraphitePaymentTab": true,
+            "useEnhancedSecurityChallengeForHSA1Enroll": true,
+            "defaultShippingAddressOnDelete": false,
+            "iForgotCRReset": true,
+            "contactEmailRepair": true,
+            "allowCanonicalAccountNames": false,
+            "allowHSA2CreateOnWeb": true,
+            "showPrivacySection": true,
+            "allowOverrideAuthType": false,
+            "showNewCreateFieldOrder": true,
+            "showAccountMessages": true,
+            "enableSurf": true,
+            "enableStandardsTypeError": true,
+            "enableAlipayV2": true,
+            "enableAlipayV2OnPurple": true,
+            "enableU13UpdateAppleID": true,
+            "privacyGatewayEnabled": true,
+            "showComplianceNumber": true,
+            "collectSAPhoneNumberOnWeb": true,
+            "enableGdprParentalConsent": true,
+            "enableGdprParentalConsentCBXX": true,
+            "enableGdprParentalConsentPayPal": true,
+            "showFamilySharingInfo": true,
+            "showMemberProfilePhoto": true,
+            "showGender": true,
+            "showEyebrowForms": true,
+            "enableBroadway": true,
+            "ENABLE_FIRST_PARTY_TIBURON": true,
+            "ENABLE_OIDC_GRANT_CODE": false,
+            "SHOW_CONNECTED_APPLICATIONS": true,
+            "enableFamilySharingForSiWA": false,
+            "teenDOBParentalApproval": true,
+            "hsa2EnrollmentOnWebEnabled": true,
+            "useExperimentalGraphiteBundles": false,
+            "enableCWAManage": true,
+            "disableCustodianFeatures": false,
+            "disableHSA1Enrollment": true,
+            "offer2FAEnrollmentForHSA1Enrollment": false,
+            "enableAMK": true,
+            "enableAMKUI": true,
+            "shouldShowRichAnimations": true,
+            "userNotifications": true,
+            "continueOnDevice": true,
+            "disableWebAccessFeatures": false,
+            "enableNonPhishable": true,
+            "enablePushToken": true,
+            "enableHmeSearch": true,
+            "showOrgDataSharing": true,
+            "enableMAIDPrivacyOBK": true,
+            "enableMakoInboxUI": false,
+            "enableCautionImages": true,
+            "hideAppleNewsPreferenceOnCreate": true,
+            "hideAppleNewsPreferenceOnManage": false,
+            "showCaptchaForProvisionalOrgs": true,
+            "enableSpyglassRedesign": true,
+            "enableMakoUpgrade": true,
+            "enableNewAppleIDCreateExperience": true,
+            "showTelemetryUIDisclosure": true,
+            "enableInlineParentAuthDuringChildChangeAppleID": true,
+            "enableFrameAncestorsFromNestedDomains": true,
+            "findAppleIDEnabled": false,
+            "removeAccountNameFromRecoveryUrl": false,
+            "enableSecureTokenRecovery": false,
+            "enableAuthenticIdentityRedesign": true,
+            "enableSiwaRedesign": true,
+            "enableAppleIDRebrand": true,
+            "enableAddNewiCloudEmail": false,
+            "enableAuthenticIdentityRedesignForMacOs": false,
+            "enableAuthenticIdentityRedesignWithExperimentMode": false,
+            "deviceAttestation": false,
+            "defaultPreferencesUncheckedForTeenDuringCreate": true,
+            "shouldShowNewCreate": true,
+            "logRequestHeaderNames": true,
+            "edpRecoveryTokenRow": true,
+            "enableAccountRecoveryRedesignForiOS": false,
+            "enableAccountRecoveryRedesignForMacOS": false,
+            "enableIntermission": false,
+            "enableIntermissionForInternalUsers": true,
+            "reclaimAccountConversionToMaidEnabled": true
+        },
+        "showPrivacyManageSettings": true,
+        "showBirthday": true,
+        "editName": true,
+        "defaultLanguage": "en_US",
+        "showExtraDOBText": false,
+        "hidePreferredLanguage": false,
+        "showPrimaryAddress": true,
+        "showComplianceNumber": true,
+        "hideRescueEmail": false,
+        "hideNewsletter": false,
+        "showPrimaryEmail": true,
+        "editContactEmail": false,
+        "defaultCountry": "USA"
+    },
+    "localizedBirthday": "October 25, 1996",
+    "showHSA2RecoveryKeySection": false,
+    "nameOrder": "firstName/lastName",
+    "modules": {
+        "amp-subscriptions-selection": {
+            "url": "https://apps.apple.com/includes/commerce/subscriptions/selection"
+        },
+        "ase-commerce": {
+            "url": "https://apps.apple.com/includes/commerce"
+        },
+        "family-section": {
+            "url": "https://familyws.icloud.apple.com/members"
+        },
+        "amp-buy": {
+            "url": "https://apps.apple.com/includes/commerce/buy"
+        },
+        "amp-subscriptions-price-increase": {
+            "url": "https://apps.apple.com/includes/commerce/subscriptions/price-increase"
+        },
+        "devices": {
+            "url": "https://appleid.apple.com/widget/module/devices"
+        },
+        "amp-subscriptions": {
+            "url": "https://apps.apple.com/includes/commerce/subscriptions"
+        },
+        "amp-subscriptions-privacy": {
+            "url": "https://apps.apple.com/includes/commerce/subscriptions/privacy"
+        },
+        "amp-subscriptions-impact-messaging": {
+            "url": "https://apps.apple.com/includes/commerce/subscriptions/impact-messaging"
+        },
+        "family-memberDetails": {
+            "url": "https://familyws.icloud.apple.com/member-details"
+        },
+        "family-unlink": {
+            "url": "https://familyws.icloud.apple.com/confirm-unlink"
+        }
+    },
+    "alternateEmailAddresses": [],
+    "countriesWithPhoneNumberRemovalRestriction": [
+        {
+            "code": "CHN",
+            "code2": "CN",
+            "name": "China mainland",
+            "dialCode": "86",
+            "embargoed": false,
+            "underAgeLimit": 14,
+            "minorAgeLimit": 18,
+            "supportHSA2": true,
+            "phoneNumberFormat": {
+                "format": "xxx xxxx xxxx",
+                "formatDigitRegions": [
+                    0,
+                    3,
+                    4,
+                    8,
+                    9,
+                    13
+                ],
+                "minDigitLength": 1,
+                "maxDigitLength": 11,
+                "countryCode": "CHN",
+                "countryDialCode": "86",
+                "countryCode2": "CN"
+            },
+            "supportPaidAccount": true,
+            "stateProvinces": [
+            ],
+            "japan": false,
+            "korea": false,
+            "usa": false,
+            "canada": false,
+            "uk": false,
+            "dialCodeDisplay": "+86 (China mainland)"
+        }
+    ],
+    "addAlternateEmail": {
+        "showResendLink": true,
+        "notVetted": false,
+        "pending": false,
+        "isEmailSameAsAccountName": false,
+        "vetted": false
+    },
+    "pronounceNamesRequired": false,
+    "localizedResources": {
+        "smsSupportedCountriesReachableAt": [],
+        "dateLayout": "monthdayyear",
+        "dateFormat": "mm/dd/yyyy",
+        "showAppleMusicOption": false,
+        "passwordRules": [
+            {
+                "type": "min_eight_characters",
+                "regex": ".{8,}",
+                "languageCode": "US-EN",
+                "description": "Be at least 8 characters"
+            },
+            {
+                "type": "one_lower",
+                "regex": "[a-z]",
+                "availableCharacters": 26,
+                "languageCode": "US-EN",
+                "description": "Have at least one lower case character"
+            },
+            {
+                "type": "one_upper",
+                "regex": "[A-Z]",
+                "availableCharacters": 26,
+                "languageCode": "US-EN",
+                "description": "Have at least one capital letter"
+            },
+            {
+                "type": "one_number",
+                "regex": "[0-9]",
+                "availableCharacters": 10,
+                "languageCode": "US-EN",
+                "description": "Have at least one number"
+            },
+            {
+                "type": "three_indentical",
+                "regex": "^(?!.*(.)\\1\\1)",
+                "languageCode": "US-EN",
+                "description": "Your password must not contain more than 3 consecutive identical characters."
+            },
+            {
+                "type": "passwords_must_match",
+                "languageCode": "US-EN",
+                "description": "This password is too simple and can be easily guessed."
+            },
+            {
+                "type": "common_password",
+                "languageCode": "US-EN",
+                "description": "This password is not secure. Try a different password."
+            },
+            {
+                "type": "used_in_past_year",
+                "languageCode": "US-EN",
+                "description": "Not be used in past year"
+            }
+        ],
+        "locale": "en_US",
+        "availableSecurityQuestions": [
+            [
+                {
+                    "id": 130,
+                    "question": "What is the first name of your best friend in high school?",
+                    "number": 1,
+                    "userDefined": false
+                },
+                {
+                    "id": 131,
+                    "question": "What was the name of your first pet?",
+                    "number": 2,
+                    "userDefined": false
+                },
+                {
+                    "id": 132,
+                    "question": "What was the first thing you learned to cook?",
+                    "number": 3,
+                    "userDefined": false
+                },
+                {
+                    "id": 133,
+                    "question": "What was the first film you saw in the theater?",
+                    "number": 4,
+                    "userDefined": false
+                },
+                {
+                    "id": 134,
+                    "question": "Where did you go the first time you flew on a plane?",
+                    "number": 5,
+                    "userDefined": false
+                },
+                {
+                    "id": 135,
+                    "question": "What is the last name of your favorite elementary school teacher?",
+                    "number": 6,
+                    "userDefined": false
+                }
+            ],
+            [
+                {
+                    "id": 136,
+                    "question": "What is your dream job?",
+                    "number": 7,
+                    "userDefined": false
+                },
+                {
+                    "id": 137,
+                    "question": "What is your favorite children’s book?",
+                    "number": 8,
+                    "userDefined": false
+                },
+                {
+                    "id": 138,
+                    "question": "What was the model of your first car?",
+                    "number": 9,
+                    "userDefined": false
+                },
+                {
+                    "id": 139,
+                    "question": "What was your childhood nickname?",
+                    "number": 10,
+                    "userDefined": false
+                },
+                {
+                    "id": 140,
+                    "question": "Who was your favorite film star or character in school?",
+                    "number": 11,
+                    "userDefined": false
+                },
+                {
+                    "id": 141,
+                    "question": "Who was your favorite singer or band in high school?",
+                    "number": 12,
+                    "userDefined": false
+                }
+            ],
+            [
+                {
+                    "id": 142,
+                    "question": "In what city did your parents meet?",
+                    "number": 13,
+                    "userDefined": false
+                },
+                {
+                    "id": 143,
+                    "question": "What was the first name of your first boss?",
+                    "number": 14,
+                    "userDefined": false
+                },
+                {
+                    "id": 144,
+                    "question": "What is the name of the street where you grew up?",
+                    "number": 15,
+                    "userDefined": false
+                },
+                {
+                    "id": 145,
+                    "question": "What is the name of the first beach you visited?",
+                    "number": 16,
+                    "userDefined": false
+                },
+                {
+                    "id": 146,
+                    "question": "What was the first album that you purchased?",
+                    "number": 17,
+                    "userDefined": false
+                },
+                {
+                    "id": 147,
+                    "question": "What is the name of your favorite sports team?",
+                    "number": 18,
+                    "userDefined": false
+                }
+            ]
+        ],
+        "showAppleNewsOption": false,
+        "countryOptions": {},
+        "showAppleCardInfo": false,
+        "dateInputPlaceholder": "mm/dd/yyyy",
+        "dateInputFormat": "mm/dd/yyyy",
+        "showApplePayInfo": true,
+        "smsSupportedCountries": [],
+        "securityQuestionsGroupedByOne": [
+            [
+                {
+                    "id": 32,
+                    "question": "Name of your first employer?",
+                    "number": 12,
+                    "userDefined": false
+                },
+                {
+                    "id": 33,
+                    "question": "Name of the street you grew up on?",
+                    "number": 13,
+                    "userDefined": false
+                },
+                {
+                    "id": 34,
+                    "question": "Name of your best friend?",
+                    "number": 14,
+                    "userDefined": false
+                },
+                {
+                    "id": 35,
+                    "question": "Name of your all-time favorite teacher?",
+                    "number": 15,
+                    "userDefined": false
+                },
+                {
+                    "id": 14,
+                    "question": "What is your secret word?",
+                    "number": 11,
+                    "userDefined": false
+                },
+                {
+                    "id": 22,
+                    "question": "Name of your hometown?",
+                    "number": 1,
+                    "userDefined": false
+                },
+                {
+                    "id": 23,
+                    "question": "What did you study in college?",
+                    "number": 2,
+                    "userDefined": false
+                },
+                {
+                    "id": 24,
+                    "question": "What was your first job?",
+                    "number": 3,
+                    "userDefined": false
+                },
+                {
+                    "id": 25,
+                    "question": "Name of your favorite pet?",
+                    "number": 4,
+                    "userDefined": false
+                },
+                {
+                    "id": 26,
+                    "question": "Name of your oldest sibling?",
+                    "number": 5,
+                    "userDefined": false
+                },
+                {
+                    "id": 27,
+                    "question": "What was your first bike or car?",
+                    "number": 6,
+                    "userDefined": false
+                },
+                {
+                    "id": 28,
+                    "question": "Name of your childhood hero?",
+                    "number": 7,
+                    "userDefined": false
+                },
+                {
+                    "id": 29,
+                    "question": "Name of your first school?",
+                    "number": 8,
+                    "userDefined": false
+                },
+                {
+                    "id": 30,
+                    "question": "Name of your firstborn child?",
+                    "number": 9,
+                    "userDefined": false
+                },
+                {
+                    "id": 31,
+                    "question": "What is your lucky number?",
+                    "number": 10,
+                    "userDefined": false
+                }
+            ]
+        ],
+        "languageOptions": []
+    },
+    "appleIDDisplay": "licade_2015@163.com",
+    "name": {
+        "middleNameRequired": true,
+        "supportsNamePronunciation": false,
+        "lastNameFirstOrderingRequired": false,
+        "fullName": "chang jacks",
+        "firstName": "chang",
+        "lastName": "jacks"
+    },
+    "isAccountNameEditable": true,
+    "shouldShowDataRecoveryServiceUI": true,
+    "showDataRecoveryServiceUI": false,
+    "pushEligibility": {
+        "manageSubscriptions": false,
+        "personalInfo": false,
+        "familySharing": false,
+        "coverageCentral": false,
+        "passwordAndSecurity": false,
+        "accountRecovery": false,
+        "addSecurityKeys": false,
+        "legacyContact": false,
+        "paymentShipping": false
+    },
+    "displayName": {
+        "firstName": "chang",
+        "nickName": "chang",
+        "lastName": "jacks",
+        "lastNameFirstOrderingRequired": false,
+        "noSpaceRequiredInName": false,
+        "fullPronounceName": "",
+        "fullName": "chang jacks"
+    },
+    "supportLinks": {
+        "contactUnitedStates": "https://getsupport.apple.com/GetproductgroupList.do?caller=aid&PRKEYS=131629&category_id=SC0060&symptom_id=20509&target=solutions",
+        "contactInternational": "https://www.apple.com/support/appleid/contact/",
+        "creditCardPaymentInfoChange": "https://support.apple.com/kb/ht1918",
+        "setupFMipInfo": "https://support.apple.com/kb/PH2697",
+        "troubleshootFMIP": "https://support.apple.com/kb/TS4006",
+        "secondaryPwdLearnMore": "https://support.apple.com/kb/HT6186",
+        "smsLearnMore": "https://support.apple.com/kb/HT5593",
+        "hsaLearnMore": "https://support.apple.com/kb/HT5570",
+        "cantSignInWith2SVHelpLink": "https://support.apple.com/kb/HT5577",
+        "hsaLearnMoreRecovery": "https://support.apple.com/kb/HT5570#store_recovery_key",
+        "hsaLearnMoreWaitingPeriod": "https://support.apple.com/kb/HT5570#waiting_period",
+        "optOutTeslaNotificationLink": "https://support.apple.com",
+        "resetSecurityQuestionsSupportLink": "https://support.apple.com/kb/HT6170",
+        "familySharingLearnLink": "https://support.apple.com/HT201084",
+        "hsa2AboutAppleSecurityLink": "https://support.apple.com/HT204915",
+        "hsa2SignedInDevicesLink": "https://support.apple.com/HT205064",
+        "hsa2DataRecoveryServiceLearnMoreLink": "https://support.apple.com/kb/HT212516",
+        "iMessageDeregisterLearnMoreLink": "https://selfsolve.apple.com/deregister-imessage",
+        "iMessageLoginHandleOwnershipLearnMoreLink": "https://support.apple.com/ht207944?cid=mc-ols-appleid-article_ht207944-settings_ui-06292023#appleid-ownership",
+        "hsa2DataRecoveryKeyLearnMoreLink": "https://support.apple.com/kb/HT204915",
+        "changeCountryLearnMoreLink": "https://support.apple.com/HT201389",
+        "privacyLearnMoreLink": "https://www.apple.com/legal/privacy/data/en/icloud-analytics",
+        "twoStepEnrolEmbargoMoreInformationLink": "https://support.apple.com/HT204152",
+        "storeRecoveryKeyLink": "https://support.apple.com/HT204152#store_recovery_key",
+        "accountReclaimLearnMoreLink": "https://support.apple.com/HT209349",
+        "purchaseHistoryLearnMoreLink": "https://support.apple.com/118212",
+        "protectMyEmailLearnMoreLink": "https://support.apple.com/HT210425",
+        "signInWithApplePrivacyLink": "https://support.apple.com/HT210318",
+        "shareWithFamilyLearnMoreLink": "https://support.apple.com/HT210426",
+        "addPaymentOtherOptionsKBArticleLink": "https://support.apple.com/en-us/HT201266",
+        "iCloudAliasesKBArticleLink": "https://support.apple.com/kb/ph2622",
+        "accountRecoveryLearnMoreLink": "https://support.apple.com/en-us/HT204921",
+        "accountBeneficiaryLearnMoreLink": "https://support.apple.com/kb/HT212361",
+        "icloudWebAccessLearnMoreLink": "https://support.apple.com/HT212516",
+        "privateEmailFeatureLearnMoreLink": "https://support.apple.com/kb/HT212519",
+        "incompatibleDevicesLearnMoreLink": "https://support.apple.com/kb/HT205064",
+        "nonPhishableLearnMoreLink": "https://support.apple.com/en-us/HT213154",
+        "goldilocksIncompatibleDevicesLearnMoreLink": "https://support.apple.com/en-us/HT213248",
+        "privateAttestationLearnMoreLink": "https://support.apple.com/ht213449?cid=mc-ols-icloud-article_ht213449-settings_ui-09302022",
+        "trustedPhoneNumberLoginHandleLearnMoreLink": "https://support.apple.com/ht201349?cid=mc-ols-messages-article_ht201349-settings_ui-06292023#add",
+        "idsNotReachableLearnMoreLink": "https://support.apple.com/ht201349?cid=mc-ols-messages-article_ht201349-settings_ui-06292023#add",
+        "makoConversionIntroLearnMoreLink": "https://support.apple.com/",
+        "appleCrossBorderPrivacyConsentLearnMoreLink": "https://support.apple.com/zh-cn/HT213840",
+        "gcbdCrossBorderPrivacyConsentLearnMoreLink": "https://support.apple.com/zh-cn/HT213840",
+        "adiToAspPrivacyConsentLearnMoreLink": "https://support.apple.com/120182",
+        "edpLearnMoreLink": "https://support.apple.com",
+        "serviceErrorSupportLinks": {
+            "-22953": "https://support.apple.com/HT210743"
+        },
+        "privateEmailLearnMoreLinks": {
+            "safari": "https://support.apple.com/kb/HT212519",
+            "mail": "https://support.apple.com/kb/HT212519",
+            "news": "https://support.apple.com/kb/HT212519",
+            "settings": "https://support.apple.com/kb/HT212519",
+            "siwa": "https://support.apple.com/kb/HT212519",
+            "unknown": "https://support.apple.com/kb/HT212519"
+        }
+    },
+    "middleNameRequired": true,
+    "appleID": {
+        "name": "licade_2015@163.com",
+        "formattedAccountName": "licade_2015@163.com",
+        "nonFTEUEnabled": false,
+        "obfuscatedAppleId": "l•••••@163.com",
+        "editable": true,
+        "accountName": "licade_2015@163.com",
+        "appleOwnedDomain": false,
+        "domain": "163.com"
+    },
+    "primaryEmailAddress": {
+        "id": 1,
+        "type": "official",
+        "address": "licade_2015@163.com",
+        "addressPrefix": "licade_2015",
+        "addressSuffix": "@163.com",
+        "vettingStatus": {
+            "type": "vetted",
+            "vetted": true,
+            "notVetted": false,
+            "pending": false
+        },
+        "showResendLink": true,
+        "emailAddress": "licade_2015@163.com",
+        "notVetted": false,
+        "pending": false,
+        "isEmailSameAsAccountName": false,
+        "vetted": true
+    },
+    "isHsa": false,
+    "personNameOrder": "firstName/lastName",
+    "shouldAllowAddAlternateEmail": true,
+    "rescueEmailExists": false,
+    "genderOptions": [
+        {
+            "code": "U",
+            "description": "Not Selected"
+        },
+        {
+            "code": "M",
+            "description": "Male"
+        },
+        {
+            "code": "F",
+            "description": "Female"
+        },
+        {
+            "code": "S",
+            "description": "Self Identify"
+        },
+        {
+            "code": "D",
+            "description": "Decline To State"
+        }
+    ],
+    "addressFeatures": {
+        "zipCodeLabelRequired": false,
+        "supportedCountries": [],
+        "allowChangeCountry": true,
+        "accountFeatures": {
+            "isADPEnabled": false
+        }
+    },
+    "isPAIDAccount": false,
+    "obfuscateBirthday": false,
+    "exceededVerificationAttempts": false,
+    "nonFTEUEnabled": true,
+    "noSpaceRequiredInName": false,
+    "isRedesignSignInEnabled": true,
+    "primaryEmailAddressDisplay": {
+        "id": 1,
+        "type": "official",
+        "address": "licade_2015@163.com",
+        "addressPrefix": "licade_2015",
+        "addressSuffix": "@163.com",
+        "vettingStatus": {
+            "type": "vetted",
+            "vetted": true,
+            "notVetted": false,
+            "pending": false
+        },
+        "showResendLink": true,
+        "emailAddress": "licade_2015@163.com",
+        "notVetted": false,
+        "pending": false,
+        "isEmailSameAsAccountName": false,
+        "vetted": true
+    },
+    "appleIDEmailMerge": {},
+    "scntRequired": true,
+    "staticResources": {
+        "timeOutInterval": 15,
+        "recycledDomains": [
+            "docomo.ne.jp",
+            "mopera.net",
+            "softbank.ne.jp",
+            "vodafone.ne.jp",
+            "disney.ne.jp",
+            "i.softbank.jp",
+            "ezweb.ne.jp",
+            "biz.ezweb.ne.jp",
+            "ido.ne.jp",
+            "emnet.ne.jp",
+            "emobile.ne.jp",
+            "pdx.ne.jp",
+            "willcom.com",
+            "wcm.ne.jp",
+            "139.com",
+            "wo.com.cn",
+            "189.cn"
+        ],
+        "yearOptions": [],
+        "manageDataPrivacyLink": "https://privacy.apple.com",
+        "timeOutIntervalHSAEnroll": 15,
+        "timeOutIntervalCreatePage": 15,
+        "dayOptions": [],
+        "privacyLink": "https://www.apple.com/privacy/",
+        "smsSupportedCountries": {}
+    },
+    "shouldShowRecoveryKeyUI": true,
+    "environment": "production",
+    "shouldShowCustodianUI": true,
+    "hideMyEmailCount": 0,
+    "usePersonNameInMessagingMaxLength": 15,
+    "account": {
+        "name": "licade_2015@163.com",
+        "formattedAccountName": "licade_2015@163.com",
+        "namePrefix": "licade_2015",
+        "nameSuffix": "@163.com",
+        "person": {
+            "primaryAddress": {
+                "defaultAddress": false,
+                "stateProvinceInvalid": true,
+                "japanese": false,
+                "korean": false,
+                "formattedAddress": [
+                    "China mainland"
+                ],
+                "primary": true,
+                "shipping": false,
+                "countryCode": "CHN",
+                "countryName": "China mainland",
+                "stateProvinces": [],
+                "usa": false,
+                "canada": false,
+                "fullAddress": "",
+                "preferred": false,
+                "id": "1",
+                "type": "primary"
+            },
+            "reachableAtOptions": {
+                "allowiCloudSharingNumbersFeature": true,
+                "allowiCloudNumbersAddition": true,
+                "allowAlternateEmailAddition": true,
+                "contactInformationOptions": {
+                    "options": [
+                        {
+                            "type": "email_address"
+                        },
+                        {
+                            "type": "phone_number"
+                        }
+                    ]
+                },
+                "phoneNumbers": [
+                    {
+                        "northAmericaDisplayFormat": false,
+                        "rawNumber": "13067772321",
+                        "fullNumberWithCountryPrefix": "+86 130 6777 2321",
+                        "fullNumberWithoutCountryPrefix": "+86 130 6777 2321",
+                        "sameAsAppleId": false,
+                        "countryCode": "86",
+                        "number": "13067772321",
+                        "vetted": true,
+                        "countryDialCode": "86",
+                        "northAmericaPhone": false,
+                        "northAmericaDialCode": false,
+                        "loginHandle": true,
+                        "countryCodeAsString": "CN",
+                        "trusted": false,
+                        "id": 1,
+                        "type": "icloud_sharing"
+                    }
+                ],
+                "accountNameEditable": true,
+                "iMessageDeregisterLearnMoreLink": "https://selfsolve.apple.com/deregister-imessage",
+                "appleID": {
+                    "name": "licade_2015@163.com",
+                    "formattedAccountName": "licade_2015@163.com",
+                    "nonFTEUEnabled": false,
+                    "obfuscatedAppleId": "l•••••@163.com",
+                    "editable": true,
+                    "accountName": "licade_2015@163.com",
+                    "appleOwnedDomain": false,
+                    "domain": "163.com"
+                },
+                "iMessagePhoneNumbers": [],
+                "iCloudSharingPhoneNumbers": [
+                    {
+                        "northAmericaDisplayFormat": false,
+                        "rawNumber": "13067772321",
+                        "fullNumberWithCountryPrefix": "+86 130 6777 2321",
+                        "fullNumberWithoutCountryPrefix": "+86 130 6777 2321",
+                        "sameAsAppleId": false,
+                        "countryCode": "86",
+                        "number": "13067772321",
+                        "vetted": true,
+                        "countryDialCode": "86",
+                        "northAmericaPhone": false,
+                        "northAmericaDialCode": false,
+                        "loginHandle": true,
+                        "countryCodeAsString": "CN",
+                        "trusted": false,
+                        "id": 1,
+                        "type": "icloud_sharing"
+                    }
+                ],
+                "trustedPhoneNumberLoginHandleLearnMoreLink": "https://support.apple.com/ht201349?cid=mc-ols-messages-article_ht201349-settings_ui-06292023#add",
+                "idsNotReachableLearnMoreLink": "https://support.apple.com/ht201349?cid=mc-ols-messages-article_ht201349-settings_ui-06292023#add",
+                "iMessageLoginHandleOwnershipLearnMoreLink": "https://support.apple.com/ht207944?cid=mc-ols-appleid-article_ht207944-settings_ui-06292023#appleid-ownership",
+                "primaryEmailAddress": {
+                    "address": "licade_2015@163.com",
+                    "id": 1,
+                    "type": "official",
+                    "vettingStatus": {
+                        "type": "vetted",
+                        "vetted": true,
+                        "notVetted": false,
+                        "pending": false
+                    },
+                    "active": false,
+                    "createdDate": 1723000442.484,
+                    "updateDate": 1731654180.442,
+                    "obfuscatedDomain": "1•••••.com",
+                    "rescue": false,
+                    "editable": true,
+                    "obfuscatedAddress": "l•••••@163.com",
+                    "primary": true,
+                    "vetted": true,
+                    "reaccreditationRequired": false,
+                    "notVetted": false,
+                    "pending": false,
+                    "reachableName": "licade_2015@163.com",
+                    "trusted": false,
+                    "domain": "163.com"
+                },
+                "alternateEmailAddresses": [],
+                "paidAccount": false,
+                "makoUpgradeEligible": false,
+                "eligibleForNewiCloudEmailAddressAsReachableAt": true,
+                "eligibleForNewiCloudEmailAddressAsPrimary": true,
+                "nonFTEUEnabled": true,
+                "accountNameSameAsPrimaryEmail": true,
+                "accountName": "licade_2015@163.com"
+            },
+            "shippingAddresses": [
+                {
+                    "defaultAddress": false,
+                    "stateProvinceInvalid": true,
+                    "japanese": false,
+                    "korean": false,
+                    "formattedAddress": [
+                        "Jack Chang",
+                        "1354 Roosevelt Wilson Lane",
+                        "Los Angeles CA 90017 United States"
+                    ],
+                    "primary": false,
+                    "shipping": true,
+                    "countryCode": "USA",
+                    "label": "SHIPPING ADDRESS",
+                    "company": "",
+                    "line1": "1354 Roosevelt Wilson Lane",
+                    "line2": "",
+                    "line3": "",
+                    "city": "Los Angeles",
+                    "stateProvinceCode": "CA",
+                    "stateProvinceName": "California",
+                    "stateProvince": {
+                        "code": "CA",
+                        "name": "California"
+                    },
+                    "postalCode": "90017",
+                    "countryName": "United States",
+                    "county": "",
+                    "suburb": "",
+                    "recipientFirstName": "Jack",
+                    "recipientLastName": "Chang",
+                    "stateProvinces": [],
+                    "usa": true,
+                    "canada": false,
+                    "fullAddress": "1354 Roosevelt Wilson Lane,Los Angeles,CA,90017",
+                    "preferred": true,
+                    "id": "3",
+                    "type": "shipping"
+                }
+            ],
+            "primaryEmailAddress": {
+                "id": 1,
+                "type": "official",
+                "address": "licade_2015@163.com",
+                "addressPrefix": "licade_2015",
+                "addressSuffix": "@163.com",
+                "vettingStatus": {
+                    "type": "vetted",
+                    "vetted": true,
+                    "notVetted": false,
+                    "pending": false
+                },
+                "isEmailSameAsAccountName": false,
+                "vetted": true
+            },
+            "hasPendingAccountName": false,
+            "loginHandles": {
+                "phoneLoginHandles": [
+                    {
+                        "northAmericaDisplayFormat": false,
+                        "rawNumber": "13067772321",
+                        "fullNumberWithCountryPrefix": "+86 130 6777 2321",
+                        "fullNumberWithoutCountryPrefix": "13067772321",
+                        "sameAsAppleId": false,
+                        "countryCode": "86",
+                        "number": "13067772321",
+                        "vetted": true,
+                        "countryDialCode": "86",
+                        "northAmericaPhone": false,
+                        "northAmericaDialCode": false,
+                        "loginHandle": true,
+                        "trusted": false,
+                        "id": 1,
+                        "type": "daytime"
+                    }
+                ],
+                "emailLoginHandles": [
+                    {
+                        "id": 1,
+                        "type": "official",
+                        "address": "licade_2015@163.com",
+                        "addressPrefix": "licade_2015",
+                        "addressSuffix": "@163.com",
+                        "vettingStatus": {
+                            "type": "vetted",
+                            "vetted": true,
+                            "notVetted": false,
+                            "pending": false
+                        },
+                        "isEmailSameAsAccountName": false,
+                        "vetted": true
+                    }
+                ]
+            },
+            "allowAdditionalAlternateEmail": true,
+            "maxAllowedSharedNumbers": 5,
+            "isUnderAge": false,
+            "hasFamily": false,
+            "isFamilyOrganizer": false,
+            "isDateOfBirthEditable": true,
+            "isHSA2Eligible": false,
+            "requiresGdprChildConsent": false,
+            "minBirthday": "1874-11-21",
+            "maxBirthday": "2024-12-30",
+            "accountName": "licade_2015@163.com",
+            "phoneNumbers": [],
+            "managedAdministrator": false,
+            "birthday": "1996-10-25",
+            "defaultShippingAddress": {
+                "defaultAddress": false,
+                "stateProvinceInvalid": true,
+                "japanese": false,
+                "korean": false,
+                "formattedAddress": [
+                    "Jack Chang",
+                    "1354 Roosevelt Wilson Lane",
+                    "Los Angeles CA 90017 United States"
+                ],
+                "primary": false,
+                "shipping": true,
+                "countryCode": "USA",
+                "label": "SHIPPING ADDRESS",
+                "company": "",
+                "line1": "1354 Roosevelt Wilson Lane",
+                "line2": "",
+                "line3": "",
+                "city": "Los Angeles",
+                "stateProvinceCode": "CA",
+                "stateProvinceName": "California",
+                "stateProvince": {
+                    "code": "CA",
+                    "name": "California"
+                },
+                "postalCode": "90017",
+                "countryName": "United States",
+                "county": "",
+                "suburb": "",
+                "recipientFirstName": "Jack",
+                "recipientLastName": "Chang",
+                "stateProvinces": [],
+                "usa": true,
+                "canada": false,
+                "fullAddress": "1354 Roosevelt Wilson Lane,Los Angeles,CA,90017",
+                "preferred": true,
+                "id": "3",
+                "type": "shipping"
+            },
+            "maxAllowedAlternateEmails": 10,
+            "hasPaymentMethod": false,
+            "formattedAccountName": "licade_2015@163.com",
+            "name": {
+                "middleNameRequired": false,
+                "firstName": "chang",
+                "lastName": "jacks"
+            }
+        },
+        "security": {
+            "devices": [
+                {
+                    "sameAsAppleId": false,
+                    "vetted": true,
+                    "liveStatus": "online",
+                    "name": "+86 130 6777 2321",
+                    "typeName": "SMS",
+                    "id": 1,
+                    "type": "sms"
+                },
+                {
+                    "sameAsAppleId": false,
+                    "vetted": true,
+                    "liveStatus": "online",
+                    "name": "+852 9578 6935",
+                    "typeName": "SMS",
+                    "id": 2,
+                    "type": "sms"
+                },
+                {
+                    "sameAsAppleId": false,
+                    "vetted": true,
+                    "liveStatus": "online",
+                    "name": "+852 6317 9454",
+                    "typeName": "SMS",
+                    "id": 5,
+                    "type": "sms"
+                },
+                {
+                    "sameAsAppleId": false,
+                    "vetted": true,
+                    "liveStatus": "online",
+                    "name": "+852 6798 4217",
+                    "typeName": "SMS",
+                    "id": 6,
+                    "type": "sms"
+                },
+                {
+                    "sameAsAppleId": false,
+                    "vetted": true,
+                    "liveStatus": "online",
+                    "name": "+852 6476 1151",
+                    "typeName": "SMS",
+                    "id": 3,
+                    "type": "sms"
+                },
+                {
+                    "sameAsAppleId": false,
+                    "vetted": true,
+                    "liveStatus": "online",
+                    "name": "+852 9740 3063",
+                    "typeName": "SMS",
+                    "id": 4,
+                    "type": "sms"
+                },
+                {
+                    "sameAsAppleId": false,
+                    "vetted": true,
+                    "liveStatus": "online",
+                    "name": "+852 6310 3760",
+                    "typeName": "SMS",
+                    "id": 7,
+                    "type": "sms"
+                }
+            ],
+            "supportsDeviceSignout": true,
+            "maxAllowedTrustedPhones": 10,
+            "passwordPolicy": {},
+            "hsa2Eligible": false,
+            "questionsPresent": false,
+            "allowHSAOptOut": false,
+            "hasSecondaryPassword": false,
+            "isHSAEnrollmentEmbargoed": false,
+            "isContactEmailVerified": false,
+            "phoneNumbers": [
+                {
+                    "northAmericaDisplayFormat": false,
+                    "rawNumber": "95786935",
+                    "fullNumberWithCountryPrefix": "+852 9578 6935",
+                    "fullNumberWithoutCountryPrefix": "9578 6935",
+                    "sameAsAppleId": false,
+                    "countryCode": "852",
+                    "number": "95786935",
+                    "vetted": true,
+                    "countryDialCode": "852",
+                    "northAmericaPhone": false,
+                    "northAmericaDialCode": false,
+                    "loginHandle": false,
+                    "countryCodeAsString": "HK",
+                    "trusted": false,
+                    "id": 2,
+                    "type": "daytime"
+                },
+                {
+                    "northAmericaDisplayFormat": false,
+                    "rawNumber": "64761151",
+                    "fullNumberWithCountryPrefix": "+852 6476 1151",
+                    "fullNumberWithoutCountryPrefix": "6476 1151",
+                    "sameAsAppleId": false,
+                    "countryCode": "852",
+                    "number": "64761151",
+                    "vetted": true,
+                    "countryDialCode": "852",
+                    "northAmericaPhone": false,
+                    "northAmericaDialCode": false,
+                    "loginHandle": false,
+                    "countryCodeAsString": "HK",
+                    "trusted": false,
+                    "id": 3,
+                    "type": "daytime"
+                },
+                {
+                    "northAmericaDisplayFormat": false,
+                    "rawNumber": "97403063",
+                    "fullNumberWithCountryPrefix": "+852 9740 3063",
+                    "fullNumberWithoutCountryPrefix": "9740 3063",
+                    "sameAsAppleId": false,
+                    "countryCode": "852",
+                    "number": "97403063",
+                    "vetted": true,
+                    "countryDialCode": "852",
+                    "northAmericaPhone": false,
+                    "northAmericaDialCode": false,
+                    "loginHandle": false,
+                    "countryCodeAsString": "HK",
+                    "trusted": false,
+                    "id": 4,
+                    "type": "daytime"
+                },
+                {
+                    "northAmericaDisplayFormat": false,
+                    "rawNumber": "63179454",
+                    "fullNumberWithCountryPrefix": "+852 6317 9454",
+                    "fullNumberWithoutCountryPrefix": "6317 9454",
+                    "sameAsAppleId": false,
+                    "countryCode": "852",
+                    "number": "63179454",
+                    "vetted": true,
+                    "countryDialCode": "852",
+                    "northAmericaPhone": false,
+                    "northAmericaDialCode": false,
+                    "loginHandle": false,
+                    "countryCodeAsString": "HK",
+                    "trusted": false,
+                    "id": 5,
+                    "type": "daytime"
+                },
+                {
+                    "northAmericaDisplayFormat": false,
+                    "rawNumber": "67984217",
+                    "fullNumberWithCountryPrefix": "+852 6798 4217",
+                    "fullNumberWithoutCountryPrefix": "6798 4217",
+                    "sameAsAppleId": false,
+                    "countryCode": "852",
+                    "number": "67984217",
+                    "vetted": true,
+                    "countryDialCode": "852",
+                    "northAmericaPhone": false,
+                    "northAmericaDialCode": false,
+                    "loginHandle": false,
+                    "countryCodeAsString": "HK",
+                    "trusted": false,
+                    "id": 6,
+                    "type": "daytime"
+                },
+                {
+                    "northAmericaDisplayFormat": false,
+                    "rawNumber": "63103760",
+                    "fullNumberWithCountryPrefix": "+852 6310 3760",
+                    "fullNumberWithoutCountryPrefix": "6310 3760",
+                    "sameAsAppleId": false,
+                    "countryCode": "852",
+                    "number": "63103760",
+                    "vetted": true,
+                    "countryDialCode": "852",
+                    "northAmericaPhone": false,
+                    "northAmericaDialCode": false,
+                    "loginHandle": false,
+                    "countryCodeAsString": "HK",
+                    "trusted": false,
+                    "id": 7,
+                    "type": "daytime"
+                },
+                {
+                    "northAmericaDisplayFormat": false,
+                    "rawNumber": "13067772321",
+                    "fullNumberWithCountryPrefix": "+86 130 6777 2321",
+                    "fullNumberWithoutCountryPrefix": "130 6777 2321",
+                    "sameAsAppleId": false,
+                    "countryCode": "86",
+                    "number": "13067772321",
+                    "vetted": true,
+                    "countryDialCode": "86",
+                    "northAmericaPhone": false,
+                    "northAmericaDialCode": false,
+                    "loginHandle": false,
+                    "countryCodeAsString": "CN",
+                    "trusted": false,
+                    "id": 1,
+                    "type": "daytime"
+                }
+            ],
+            "birthday": "1996-10-25"
+        },
+        "makoNumberRetainable": false,
+        "localizedLastPasswordChangedDate": "August 26, 2024",
+        "preferences": {
+            "preferredLanguage": "zh_CN",
+            "marketingPreferences": {
+                "appleUpdates": true,
+                "iTunesUpdates": true,
+                "appleNews": false,
+                "appleMusic": false
+            },
+            "privacyPreferences": {
+                "allowDeviceDiagnosticsAndUsage": false,
+                "allowICloudDataAnalytics": false,
+                "allowShareThirdPartyDevelopers": false
+            }
+        },
+        "recycled": false,
+        "beneficiaryCount": 0,
+        "custodianCount": 0,
+        "recoveryKeyEnabled": false,
+        "dataRecoveryServiceStatusReadableOnUI": true,
+        "custodianCountReadableOnUI": true,
+        "lastPasswordChangedDate": "2024-08-26",
+        "obfuscatedName": "li******************************",
+        "appleIDEditable": true,
+        "lastPasswordChangedDatetime": "2024-08-26 05:32:00",
+        "paymentMethodStatus": "NOT_LOADED",
+        "ownsFamilyPaymentMethod": false,
+        "hasFamilyPaymentMethod": false,
+        "hasPrimaryPaymentMethod": false,
+        "hasCustodians": false,
+        "reclaimed": false,
+        "federated": false,
+        "paidaccount": false,
+        "internalAccount": false,
+        "eligibleForLegacyRk": false,
+        "legacyRkExists": false,
+        "modernRkExists": false,
+        "paidMessagesApplicable": false,
+        "type": "hsa2"
+    },
+    "editAlternateEmail": {
+        "showResendLink": true,
+        "notVetted": false,
+        "pending": false,
+        "isEmailSameAsAccountName": false,
+        "vetted": false
+    }
+}

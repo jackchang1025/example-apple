@@ -6,6 +6,7 @@ use App\Apple\Enums\AccountStatus;
 use App\Apple\Enums\AccountType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -47,6 +48,11 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property-read \App\Models\Family|null $family
  * @property string|null $dsid dsid
  * @method static \Illuminate\Database\Eloquent\Builder|Account whereDsid($value)
+ * @property-read \App\Models\AccountManager|null $accountManager
+ * @property-read \App\Models\FamilyMember|null $asFamilyMember
+ * @property-read \App\Models\Family|null $belongToFamily
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PhoneNumber> $phoneNumbers
+ * @property-read int|null $phone_numbers_count
  * @mixin \Eloquent
  */
 class Account extends Model
@@ -93,34 +99,94 @@ class Account extends Model
     }
 
     /**
-     * Get the family that the account organizes
+     * 获取账号所属的家庭组（无论是否为组织者）
      */
-    public function family(): HasOne
+    public function belongToFamily(): BelongsTo
     {
-        return $this->hasOne(Family::class, 'organizer', 'dsid');
+        return $this->belongsTo(Family::class, 'dsid', 'organizer')
+            ->orWhereHas('members', function ($query) {
+                $query->where('dsid', $this->dsid)
+                    ->orWhere('apple_id', $this->account);
+            });
     }
 
     /**
-     * Get the family member record for this account
+     * 获取同一家庭组的所有成员（无论是否为组织者）
      */
-    public function familyMember(): HasOne
+    public function familyMembers(): HasMany
     {
-        return $this->hasOne(FamilyMember::class, 'apple_id', 'account');
+        return $this->hasMany(FamilyMember::class, 'family_id', 'id')
+            ->whereHas('family', function ($query) {
+                $query->where('organizer', $this->dsid);
+            })
+            ->orWhereExists(function ($query) {
+                $query->from('family_members as fm')
+                    ->whereColumn('fm.family_id', 'family_members.family_id')
+                    ->where(function ($q) {
+                        $q->where('fm.dsid', $this->dsid)
+                            ->orWhere('fm.apple_id', $this->account);
+                    });
+            });
     }
 
     /**
-     * Get all family members where this account is the organizer
+     * 获取当前账号的家庭成员记录
      */
-    public function familyMembers(): HasManyThrough
+    public function asFamilyMember(): HasOne
     {
-        return $this->hasManyThrough(
-            FamilyMember::class,
-            Family::class,
-            'organizer', // Family 表中关联 Account 的外键
-            'family_id', // FamilyMember 表中关联 Family 的外键
-            'dsid',   // Account 表中的本地键
-            'id'        // Family 表中的本地键
-        );
+        return $this->hasOne(FamilyMember::class, 'dsid', 'dsid')
+            ->orWhere('apple_id', $this->account);
+    }
+
+    /**
+     * 判断是否为家庭组织者
+     */
+    public function isFamilyOrganizer(): bool
+    {
+        return $this->family()->exists();
+    }
+
+    /**
+     * 获取账号关联的所有电话号码
+     */
+    public function phoneNumbers(): HasMany
+    {
+        return $this->hasMany(PhoneNumber::class);
+    }
+
+    public function accountManager(): HasOne
+    {
+        return $this->hasOne(AccountManager::class);
+    }
+
+    /**
+     * 获取所有相关的家庭成员ID（用于调试）
+     */
+    public function getAllFamilyMemberIds(): array
+    {
+        // 作为组织者的家庭成员
+        $asOrganizerMembers = FamilyMember::query()
+            ->whereHas('family', function ($query) {
+                $query->where('organizer', $this->dsid);
+            })
+            ->pluck('id')
+            ->toArray();
+
+        // 作为成员的同组成员
+        $asMemberFamilyIds = FamilyMember::query()
+            ->where(function ($query) {
+                $query->where('dsid', $this->dsid)
+                    ->orWhere('apple_id', $this->account);
+            })
+            ->pluck('family_id')
+            ->toArray();
+
+        $asMemberMembers = FamilyMember::query()
+            ->whereIn('family_id', $asMemberFamilyIds)
+            ->pluck('id')
+            ->toArray();
+
+        return array_unique(array_merge($asOrganizerMembers, $asMemberMembers));
     }
 
 }

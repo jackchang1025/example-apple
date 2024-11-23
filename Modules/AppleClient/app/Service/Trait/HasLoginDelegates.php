@@ -15,8 +15,7 @@ trait HasLoginDelegates
 {
     private const string DEFAULT_CLIENT_ID = '67BDADCA-6E66-7ED7-A01A-5EB3C5D95CE3';
     private const string DEFAULT_PROTOCOL_VERSION = '4';
-    private const int CACHE_TTL = 60 * 60; // 60 minutes in seconds
-
+    private const ?int CACHE_TTL = null; // 60 minutes in seconds
 
     protected static ?loginDelegates $loginDelegates = null;
 
@@ -30,8 +29,10 @@ trait HasLoginDelegates
     public function initializeLogin(
         string $clientId = self::DEFAULT_CLIENT_ID,
         string $protocolVersion = self::DEFAULT_PROTOCOL_VERSION
-    ): Response {
-        return $this->getIcloudConnector()
+    ): LoginDelegates
+    {
+
+        $response = $this->getIcloudConnector()
             ->getResources()
             ->loginDelegatesRequest(
                 appleId: $this->getAccount()->account,
@@ -40,7 +41,22 @@ trait HasLoginDelegates
                 clientId: $clientId,
                 protocolVersion: $protocolVersion
             );
+
+        /**
+         * @var LoginDelegates $loginDelegates
+         */
+        $loginDelegates = $response->dto();
+
+        if (!$loginDelegates->isSuccess()) {
+            throw new LoginRequestException(
+                response: $response,
+                message: $loginDelegates->statusMessage,
+            );
+        }
+
+        return $loginDelegates;
     }
+
 
     /**
      * 使用验证码完成认证
@@ -77,7 +93,7 @@ trait HasLoginDelegates
         string $clientId,
         string $protocolVersion
     ): LoginDelegates {
-        return $this->getIcloudConnector()
+        $response = $this->getIcloudConnector()
             ->getResources()
             ->loginDelegatesRequest(
                 $this->getAccount()->account,
@@ -85,7 +101,21 @@ trait HasLoginDelegates
                 $authCode,
                 $clientId,
                 $protocolVersion
-            )->dto();
+            );
+
+        /**
+         * @var LoginDelegates $loginDelegates
+         */
+        $loginDelegates = $response->dto();
+
+        if (!$loginDelegates->isSuccess()) {
+            throw new VerificationCodeException(
+                response: $response,
+                message: $loginDelegates->statusMessage,
+            );
+        }
+
+        return $loginDelegates;
     }
 
     /**
@@ -107,7 +137,9 @@ trait HasLoginDelegates
     private function cacheLoginDelegates(LoginDelegates $loginDelegates): void
     {
         $cacheKey = $this->getLoginDelegatesCacheKey();
-        Cache::put($cacheKey, $loginDelegates, self::CACHE_TTL);
+
+        Cache::set($cacheKey, $loginDelegates, self::CACHE_TTL);
+
         self::$loginDelegates = $loginDelegates;
 
         $this->setupAuthentication($loginDelegates);

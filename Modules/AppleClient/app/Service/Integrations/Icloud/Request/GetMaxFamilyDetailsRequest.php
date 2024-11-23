@@ -22,6 +22,6 @@ class GetMaxFamilyDetailsRequest extends Request implements HasBody
 
     public function createDtoFromResponse(Response $response): FamilyInfo
     {
-        return FamilyInfo::fromResponse($response);
+        return FamilyInfo::from($response->json());
     }
 }

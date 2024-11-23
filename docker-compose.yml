@@ -68,8 +68,8 @@ services:
                 - ping
             retries: 3
             timeout: 5s
-    nodejs:
-        image: nodejs-apple:latest
+    apple-auth:
+        image: apple-auth:latest
         ports:
             - "8088:8088"
         networks:

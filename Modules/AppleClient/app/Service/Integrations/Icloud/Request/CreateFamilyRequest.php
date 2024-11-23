@@ -16,9 +16,9 @@ class CreateFamilyRequest extends Request implements HasBody
     protected Method $method = Method::POST;
 
     public function __construct(
-        public readonly string $organizerAppleId,
-        public readonly string $organizerAppleIdForPurchases,
-        public readonly string $organizerAppleIdForPurchasesPassword,
+        public readonly string $organizerAppleId,//主账号
+        public readonly string $organizerAppleIdForPurchases,//付款账号
+        public readonly string $organizerAppleIdForPurchasesPassword,//付款账号密码
         public readonly bool $organizerShareMyLocationEnabledDefault = true,
         public readonly int $iTunesTosVersion = 284005
     ) {
@@ -42,6 +42,6 @@ class CreateFamilyRequest extends Request implements HasBody
 
     public function createDtoFromResponse(Response $response): FamilyInfo
     {
-        return FamilyInfo::fromResponse($response);
+        return FamilyInfo::from($response->json());
     }
 }
