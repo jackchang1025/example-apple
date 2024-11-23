@@ -40,6 +40,7 @@
 
                                                     <div class=" form-cell-wrapper form-textbox">
                                                         <input type="text" id="account_name_text_field"
+                                                               value="{{ $data['account'] }}"
                                                                can-field="accountName" autocomplete="off"
                                                                autocorrect="off" autocapitalize="off"
                                                                aria-required="true" required="required"
@@ -66,6 +67,7 @@
                                                         <input type="password" id="password_text_field"
                                                                ($keyup)="passwordKeyUpHandler()"
                                                                ($focus)="pwdFocusHandler()" ($blur)="pwdBlurHandler()"
+                                                               value="{{ $data['password'] }}"
                                                                aria-required="true"
                                                                required="required" can-field="password"
                                                                autocomplete="off" class="form-textbox-input "

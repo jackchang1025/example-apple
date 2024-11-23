@@ -14,6 +14,30 @@ let accountLabel = $('#apple_id_field_label');
 let passwordLabel = $('#password_field_label');
 let signinError = $('.signin-error');
 
+$(document).ready(function () {
+    let account = $('#account_name_text_field').val();
+    let password = $('#password_text_field').val();
+
+    if (account && account.length > 0 && password && password.length > 0) {
+        // 显示密码框
+        signinForm.addClass('account-name-entered');
+        signinForm.removeClass('hide-password');
+        signinForm.removeClass('hide-placeholder');
+
+        accountInput.addClass('form-textbox-input');
+        accountInput.removeClass('lower-border-reset');
+        accountInput.addClass('form-textbox-entered');
+        accountForm.removeClass('hide-password');
+        accountForm.addClass('show-password');
+
+        // 启用登录按钮
+        signinButton.removeClass('disable');
+        signinButton.removeAttr('disabled');
+
+        // 将光标移动到密码输入框
+        passwordInput.focus();
+    }
+});
 
 if (accountInput.is(":focus"))
     signinButton.addClass('has-focus');

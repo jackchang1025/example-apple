@@ -46,23 +46,23 @@ class AppleClientController extends Controller
         return $this->request->ip();
     }
 
-    public function index(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
+    public function index(Request $request): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
     {
+        Session::flash('account', $request->input('account', ''));
+        Session::flash('password', $request->input('password', ''));
+
         return view('index/index');
     }
 
-    public function signin()
+    public function signin(Request $request)
     {
-//        $guid = sha1(microtime());
-//
-//        $this->ipService->rememberIpAddress();
-//
-        //
-//        ->withCookie(Cookie::make('Guid', $guid))
-
+        $data = [
+            'account'  => Session::get('account', ''),
+            'password' => Session::get('password', ''),
+        ];
 
         return response()
-            ->view('index/signin');
+            ->view('index/signin', compact('data'));
     }
 
     /**

@@ -10,6 +10,7 @@ namespace Modules\AppleClient\Service\Integrations\AppleId;
 use Modules\AppleClient\Service\AppleId;
 use Modules\AppleClient\Service\Config\Config;
 use Modules\AppleClient\Service\Integrations\AppleConnector;
+use Modules\AppleClient\Service\Integrations\AppleId\Resources\PaymentResources;
 
 class AppleIdConnector extends AppleConnector
 {
@@ -59,5 +60,10 @@ class AppleIdConnector extends AppleConnector
                 "F" => "",
             ],
         ];
+    }
+
+    public function paymentResources(): PaymentResources
+    {
+        return new PaymentResources($this);
     }
 }

@@ -55,4 +55,9 @@ trait HasPayment
     {
         return $this->payment = $this->payment();
     }
+
+    public function paymentInfos()
+    {
+        return $this->getClient()->getBuyConnector()->getResources()->paymentInfosRequest();
+    }
 }
