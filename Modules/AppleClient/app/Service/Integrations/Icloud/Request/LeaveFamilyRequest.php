@@ -18,6 +18,6 @@ class LeaveFamilyRequest extends Request
 
     public function createDtoFromResponse(Response $response): leaveFamily
     {
-        return leaveFamily::fromResponse($response);
+        return leaveFamily::from($response->json());
     }
 }

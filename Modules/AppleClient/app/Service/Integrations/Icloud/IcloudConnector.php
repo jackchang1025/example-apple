@@ -29,7 +29,6 @@ class IcloudConnector extends AppleConnector
             'User-Agent'             => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10) AppleWebKit/600.1.3 (KHTML, like Gecko)',
             'Proxy-Connection'       => 'keep-alive',
             'Origin'                 => 'https://setup.icloud.com',
-            'X-MMe-LoggedIn-AppleID' => 'licade_2015@163.com',
             'X-MMe-Client-Info'      => '<MacBook Pro> <Mac OS X;10.10.0;14A314h> <webclient/731eb0905570 (com.apple.systempreferences/14.0)>',
             'Connection'             => 'keep-alive',
             'X-SproutCore-Version'   => '1.6.0',

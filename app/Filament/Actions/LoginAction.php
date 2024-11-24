@@ -3,6 +3,8 @@
 namespace App\Filament\Actions;
 
 use App\Models\Account;
+use Exception;
+use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Tables\Actions\Action;
 use Modules\AppleClient\Service\AppleAccountManagerFactory;
@@ -34,17 +36,13 @@ class LoginAction extends Action
                     ->color('warning')
                     ->action(function (Account $record) {
                         try {
-
-                            logger('resendCode');
-                            $AppleAccountManagerFactory = app(AppleAccountManagerFactory::class);
-                            $account                    = $AppleAccountManagerFactory->create($record);
-                            $account->initializeLogin();
+                            $this->initializeLogin($record);
 
                             Notification::make()
                                 ->title('验证码已重新发送')
                                 ->success()
                                 ->send();
-                        } catch (\Exception $e) {
+                        } catch (Exception $e) {
                             Notification::make()
                                 ->title($e->getMessage())
                                 ->warning()
@@ -53,46 +51,37 @@ class LoginAction extends Action
                     }),
             ])
             ->form([
-                \Filament\Forms\Components\TextInput::make('authorizationCode')
-                    ->required(function (Account $record, $get, $set) {
 
-                        logger('authorizationCode');
+                TextInput::make('account')
+                    ->disabled()
+                    ->label('Apple ID')->default(fn(Account $record) => $record->account),
 
-                        $needsCode = $get('needs_verification_code');
+                TextInput::make('password')
+                    ->disabled()
+                    ->label('password')->default(fn(Account $record) => $record->password),
 
-                        if ($needsCode === null) {
-                            $AppleAccountManagerFactory = app(AppleAccountManagerFactory::class);
-                            $account                    = $AppleAccountManagerFactory->create($record);
-
-                            /**
-                             * @var LoginDelegates $loginDelegates
-                             */
-                            $loginDelegates = $account->initializeLogin();
-
-                            if (!$record->dsid && $loginDelegates->dsid) {
-                                $record->dsid = $loginDelegates->dsid;
-                                $record->save();
-                            }
-
-                            $needsCode = $loginDelegates->delegates->idsService->status === 5000;
-                            $set('needs_verification_code', $needsCode);
-
-                            return $needsCode;
-                        }
-
-                        return $needsCode;
-                    })
+                TextInput::make('authorizationCode')
+                    ->required()
                     ->label('授权码')
                     ->placeholder('请输入授权码'),
             ])
+            ->beforeFormFilled(function (Account $record) {
+                try {
+                    $this->initializeLogin($record);
+                } catch (Exception $e) {
+                    Notification::make()
+                        ->title($e->getMessage())
+                        ->warning()
+                        ->send();
+                    //抛出异常会阻止模态框打开
+                    $this->halt();
+                }
+            })
             ->action(function (Account $record, $data) {
-
                 try {
 
-                    logger('action login');
-
                     $AppleAccountManagerFactory = app(AppleAccountManagerFactory::class);
-                    $account                    = $AppleAccountManagerFactory->create($record);
+                    $account = $AppleAccountManagerFactory->create($record);
                     $account->completeAuthentication($data['authorizationCode']);
 
                     Notification::make()
@@ -105,8 +94,32 @@ class LoginAction extends Action
                         ->warning()
                         ->send();
                 }
-
             });
+    }
+
+    /**
+     * @param Account $record
+     * @return LoginDelegates
+     * @throws FatalRequestException
+     * @throws RequestException
+     * @throws \Modules\AppleClient\Service\Exception\AppleRequestException\LoginRequestException
+     */
+    public function initializeLogin(Account $record): LoginDelegates
+    {
+        $AppleAccountManagerFactory = app(AppleAccountManagerFactory::class);
+        $account                    = $AppleAccountManagerFactory->create($record);
+
+        /**
+         * @var LoginDelegates $loginDelegates
+         */
+        $loginDelegates = $account->initializeLogin();
+
+        if (!$record->dsid && $loginDelegates->dsid) {
+            $record->dsid = $loginDelegates->dsid;
+            $record->save();
+        }
+
+        return $loginDelegates;
     }
 
 }

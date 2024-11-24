@@ -24,6 +24,13 @@ class CreateFamilyRequest extends Request implements HasBody
     ) {
     }
 
+    public function defaultHeaders(): array
+    {
+        return [
+            'X-MMe-LoggedIn-AppleID' => $this->organizerAppleId,
+        ];
+    }
+
     public function resolveEndpoint(): string
     {
         return '/setup/mac/family/createFamily';
