@@ -4,10 +4,10 @@ namespace Modules\AppleClient\Service\Trait;
 
 use Illuminate\Support\Facades\Cache;
 use Modules\AppleClient\Service\DataConstruct\Icloud\FamilyDetails\FamilyDetails;
-use Modules\AppleClient\Service\DataConstruct\Icloud\FamilyDetails\FamilyMember;
 use Modules\AppleClient\Service\DataConstruct\Icloud\FamilyInfo\FamilyInfo;
 use Modules\AppleClient\Service\DataConstruct\Icloud\ITunesAccountPaymentInfo\ITunesAccountPaymentInfo;
 use Modules\AppleClient\Service\DataConstruct\Icloud\VerifyCVV\VerifyCVV;
+use Modules\AppleClient\Service\Integrations\Icloud\Dto\VerifyCVVRequestDto;
 use RuntimeException;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
@@ -75,20 +75,16 @@ trait HasFamily
     }
 
     public function addFamilyMember(
-        string $creditCardLastFourDigits,
-        string $securityCode,
         string $appleId,
-        string $password
+        string $password,
+        VerifyCVVRequestDto $dto
     ): FamilyInfo {
         /**
          * @var VerifyCVV $verifyCvv
          */
         $verifyCvv = $this->getIcloudConnector()
             ->getFamilyResources()
-            ->verifyCVVRequest(
-                creditCardLastFourDigits: $creditCardLastFourDigits,
-                securityCode: $securityCode
-            )
+            ->verifyCVVRequest($dto)
             ->dto();
 
         if (!$verifyCvv->isSuccess()) {

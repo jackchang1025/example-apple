@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Modules\AppleClient\Service\AppleAccountManagerFactory;
 use Modules\AppleClient\Service\DataConstruct\Icloud\FamilyInfo\FamilyInfo;
 use Modules\AppleClient\Service\DataConstruct\Icloud\ITunesAccountPaymentInfo\ITunesAccountPaymentInfo;
+use Modules\AppleClient\Service\Integrations\Icloud\Dto\VerifyCVVRequestDto;
 
 
 class FamilyService
@@ -63,18 +64,16 @@ class FamilyService
     public function addFamilyMember(
         string $addAccount,
         string $addPassword,
-        string $card,
-        string|int $cvv
+        VerifyCVVRequestDto $dto
     ): Family {
 
         $this->validateIsMemberOfFamilyAndIsOrganizer();
 
-        return DB::transaction(function () use ($addAccount, $addPassword, $card, $cvv) {
+        return DB::transaction(function () use ($addAccount, $addPassword, $dto) {
             $familyInfo = $this->accountManager->addFamilyMember(
-                $card,
-                $cvv,
                 $addAccount,
                 $addPassword,
+                $dto
             );
 
             return $this->updateFamilyData($familyInfo);
@@ -127,10 +126,6 @@ class FamilyService
         $paymentInfo = $this->accountManager->getITunesAccountPaymentInfo();
         if (!$paymentInfo->isSuccess()) {
             throw new FamilyException($paymentInfo->statusMessage);
-        }
-
-        if (!$paymentInfo->creditCardLastFourDigits) {
-            throw new FamilyException('请先绑定支付方式');
         }
 
         return $paymentInfo;

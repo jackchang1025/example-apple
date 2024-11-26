@@ -2,16 +2,13 @@
 
 namespace Modules\AppleClient\Service\Integrations\Icloud\Resources;
 
-use Modules\AppleClient\Service\Exception\AppleRequestException\LoginRequestException;
-use Modules\AppleClient\Service\Exception\VerificationCodeException;
-use Modules\AppleClient\Service\Integrations\Icloud\IcloudConnector;
+use Modules\AppleClient\Service\Integrations\Icloud\Dto\VerifyCVVRequestDto;
 use Modules\AppleClient\Service\Integrations\Icloud\Request\AddFamilyMemberRequest;
 use Modules\AppleClient\Service\Integrations\Icloud\Request\CreateFamilyRequest;
 use Modules\AppleClient\Service\Integrations\Icloud\Request\GetFamilyDetailsRequest;
 use Modules\AppleClient\Service\Integrations\Icloud\Request\GetITunesAccountPaymentInfoRequest;
 use Modules\AppleClient\Service\Integrations\Icloud\Request\GetMaxFamilyDetailsRequest;
 use Modules\AppleClient\Service\Integrations\Icloud\Request\LeaveFamilyRequest;
-use Modules\AppleClient\Service\Integrations\Icloud\Request\LoginDelegatesRequest;
 use Modules\AppleClient\Service\Integrations\Icloud\Request\RemoveFamilyMemberRequest;
 use Modules\AppleClient\Service\Integrations\Icloud\Request\VerifyCVVRequest;
 use Modules\AppleClient\Service\Response\Response;
@@ -89,21 +86,11 @@ class FamilyResources extends Resources
     }
 
     public function verifyCVVRequest(
-        string $creditCardLastFourDigits,
-        string $securityCode,
-        string $creditCardId = 'MAST',
-        string $verificationType = 'CVV',
-        string $billingType = 'Card'
+        VerifyCVVRequestDto $dto
     ): Response {
         return $this->getConnector()
             ->send(
-                new VerifyCVVRequest(
-                    $creditCardLastFourDigits,
-                    $securityCode,
-                    $creditCardId,
-                    $verificationType,
-                    $billingType
-                )
+                new VerifyCVVRequest($dto)
             );
     }
 

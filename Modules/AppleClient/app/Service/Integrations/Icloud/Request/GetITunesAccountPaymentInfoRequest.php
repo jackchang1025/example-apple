@@ -38,6 +38,15 @@ class GetITunesAccountPaymentInfoRequest extends Request implements HasBody
 
     public function createDtoFromResponse(Response $response): ITunesAccountPaymentInfo
     {
-        return ITunesAccountPaymentInfo::fromResponse($response);
+        return ITunesAccountPaymentInfo::from($response->json());
     }
+
+    /**
+     * "{\"userAction\":\"ADDING_FAMILY_MEMBER\",\"status-message\":\"Success\",\"billingType\":\"Card\",\"creditCardImageUrl\":\"https://setup.icloud.com/resource/9b13a43759e5/imgs/family/MasterCard@2x.png\",
+ * \"creditCardLastFourDigits\":\"3030\",\"verificationType\":\"CVV\",\"creditCardId\":\"MAST\",\"creditCardType\":\"MasterCard\",\"status\":0}"
+     *
+     * {"userAction":"ADDING_FAMILY_MEMBER","status-message":"Success","challengeReceipt":"+86130******21","billingType":"Card","creditCardImageUrl":"https://setup.icloud.com/resource/9b13a43759e5/imgs/family/WeChatPay@2x.png",
+     * "PaymentCardDescription":"............",
+     * "partnerLogin":"B*******34","verificationType":"SMS","creditCardId":"WCPY","creditCardType":"............","smsSessionID":"17325465902919352003gY2S0WXiGW","status":0}
+     */
 }

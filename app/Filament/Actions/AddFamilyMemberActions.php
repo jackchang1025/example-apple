@@ -11,7 +11,10 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Wizard\Step;
 use Filament\Notifications\Notification;
 use Filament\Tables\Actions\Action;
+use Filament\Tables\Table;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\HtmlString;
+use Modules\AppleClient\Service\Integrations\Icloud\Dto\VerifyCVVRequestDto;
 
 class AddFamilyMemberActions extends Action
 {
@@ -25,13 +28,63 @@ class AddFamilyMemberActions extends Action
     {
         parent::setUp();
 
+        $this->fillForm(function (Table $table): array {
+
+            /**
+             * @var FamilyMembersRelationManager $FamilyMembersRelationManager
+             */
+            $FamilyMembersRelationManager = $table->getLivewire();
+
+            /**
+             * @var Account $account
+             */
+            $account = $FamilyMembersRelationManager->ownerRecord;
+
+            try {
+
+                //{\"userAction\":\"ADDING_FAMILY_MEMBER\",\"status-message\":\"Success\",\"challengeReceipt\":\"+86130******21\",\"billingType\":\"Card\",\"creditCardImageUrl\":\"https://setup.icloud.com/resource/9b13a43759e5/imgs/family/WeChatPay@2x.png\",\"PaymentCardDescription\":\"微信支付\",\"partnerLogin\":\"B*******34\",\"verificationType\":\"SMS\",\"creditCardId\":\"WCPY\",\"creditCardType\":\"微信支付\",\"smsSessionID\":\"17325533052919352003mwvspSVa2K\",\"status\":0}
+                return [
+                    'userAction'             => 'ADDING_FAMILY_MEMBER',
+                    'status-message'         => 'Success',
+                    'challengeReceipt'       => '+86130******21',
+                    'billingType'            => 'Card',
+                    'creditCardImageUrl'     => 'https://setup.icloud.com/resource/9b13a43759e5/imgs/family/WeChatPay@2x.png',
+                    'PaymentCardDescription' => '微信支付',
+                    'partnerLogin'           => 'B*******34',
+                    'verificationType'       => 'SMS',
+                    'creditCardId'           => 'WCPY',
+                    'creditCardType'         => '微信支付',
+                    'smsSessionID'           => '17325533052919352003mwvspSVa2K',
+                    'status'                 => 0,
+                ];
+                $ITunesAccountPaymentInfo = FamilyService::make($account)->getITunesAccountPaymentInfo();
+
+                return array_merge(
+                    $account->makeHidden(['account', 'password'])->toArray(),
+                    $ITunesAccountPaymentInfo->toArray()
+                );
+
+            } catch (Exception $e) {
+
+                Notification::make()
+                    ->title($e->getMessage())
+                    ->warning()
+                    ->persistent()
+                    ->send();
+
+                $this->halt(); // 停止执行动作
+
+            }
+
+        });
+
         $this->label('添加家庭共享成员')
             ->icon('heroicon-o-user-group')
             ->modalDescription('创建家庭共享需要绑定支付方式')
             ->modalSubmitActionLabel('确认')
             ->modalCancelActionLabel('取消')
             ->steps([
-                Step::make('Name')
+                Step::make('select account')
                     ->description('Give the category a unique name')
                     ->schema([
                         Select::make('account_id')
@@ -103,45 +156,55 @@ class AddFamilyMemberActions extends Action
                     ->description('验证卡号')
                     ->schema([
 
-                        TextInput::make('card')
+                        TextInput::make('smsSessionID')
                             ->readonly()
-                            ->label('支付卡号')
-                            ->default(function (TextInput $component) {
+                            ->hidden(function ($get) {
+                                return !$get('smsSessionID');
+                            })
+                            ->label('smsSessionID'),
 
-                                /**
-                                 * @var FamilyMembersRelationManager $FamilyMembersRelationManager
-                                 */
-                                $FamilyMembersRelationManager = $component->getLivewire();
+                        TextInput::make('creditCardLastFourDigits')
+                            ->readonly()
+                            ->hidden(function ($get) {
+                                return !$get('creditCardLastFourDigits');
+                            })
+                            ->label('creditCardLastFourDigits'),
 
-                                /**
-                                 * @var Account $record
-                                 */
-                                $record = $FamilyMembersRelationManager->ownerRecord;
+                        TextInput::make('partnerLogin')
+                            ->readonly()
+                            ->hidden(function ($get) {
+                                return !$get('partnerLogin');
+                            })
+                            ->label('partnerLogin'),
 
-                                try {
+                        TextInput::make('verificationType')
+                            ->readonly()
+                            ->label('验证类型'),
 
-                                    return FamilyService::make($record)->getITunesAccountPaymentInfo(
-                                    )->creditCardLastFourDigits;
+                        TextInput::make('creditCardId')
+                            ->readonly()
+                            ->label('信用卡ID'),
 
-                                } catch (Exception $e) {
-                                    Notification::make()
-                                        ->title($e->getMessage())
-                                        ->warning()
-                                        ->persistent()
-                                        ->send();
+                        TextInput::make('challengeReceipt')
+                            ->disabled()
+                            ->hidden(function ($get) {
+                                return !$get('challengeReceipt');
+                            })
+                            ->label('challengeReceipt'),
 
-                                    $this->halt(); // 停止执行动作
-
-                                    return null;
-                                }
-                            }),
-
-                        TextInput::make('cvv')
+                        TextInput::make('securityCode')
                             ->required()
-                            ->maxLength(3)
-                            ->rules('size:3')
-                            ->label('cvv')
-                            ->placeholder('请输入 cvv 密码'),
+                            ->suffix(function ($get) {
+                                return $get('PaymentCardDescription');
+                            })
+                            ->prefix(function ($get) {
+
+                                $imageUrl = $get('creditCardImageUrl') ?? '';
+
+                                return new HtmlString("<img src=\"{$imageUrl}\" alt=\"card-icon\" class=\"w-5 h-5\">");
+                            })
+                            ->label('securityCode')
+                            ->placeholder('请输入 cvv 密码或者验证码'),
                     ]),
             ])
             ->action(function (array $data) {
@@ -189,18 +252,17 @@ class AddFamilyMemberActions extends Action
         }
 
         Validator::make($data, [
-            'card'     => 'required',
-            'cvv'      => 'required',
-            'account'  => 'required',
-            'password' => 'required',
+            'securityCode'     => 'required',
+            'creditCardId'     => 'required',
+            'verificationType' => 'required',
+            'account'          => 'required',
+            'password'         => 'required',
         ])->validated();
 
-
         FamilyService::make($record)->addFamilyMember(
-            $data['card'],
-            $data['cvv'],
-            $data['account'],
-            $data['password']
+            addAccount: $data['account'],
+            addPassword: $data['password'],
+            dto: VerifyCVVRequestDto::from($data)
         );
 
     }
