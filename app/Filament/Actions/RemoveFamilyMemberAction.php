@@ -44,8 +44,7 @@ class RemoveFamilyMemberAction extends Action
                 try {
                     $this->handle($record, $familyMember);
 
-                    $this->successRedirectUrl(fn() => url("/admin/accounts/{$record->id}?activeRelationManager=2"))
-                        ->success();
+                    $this->success();
 
                 } catch (Exception $e) {
                     Log::error($e);
