@@ -7,6 +7,7 @@
 
 namespace Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth;
 
+use Modules\AppleClient\Service\Integrations\Idmsa\Dto\SendVerificationCode\SendDeviceSecurityCodeData;
 use Modules\AppleClient\Service\Integrations\Request;
 use Saloon\Enums\Method;
 use Saloon\Http\Response;
@@ -18,6 +19,11 @@ class SendTrustedDeviceSecurityCode extends Request
     public function resolveEndpoint(): string
     {
         return '/appleauth/auth/verify/trusteddevice/securitycode';
+    }
+
+    public function createDtoFromResponse(Response $response): SendDeviceSecurityCodeData
+    {
+        return SendDeviceSecurityCodeData::from($response->json());
     }
 
     public function hasRequestFailed(Response $response): ?bool

@@ -14,12 +14,12 @@ use Modules\AppleClient\Service\Exception\VerificationCodeException;
 use Modules\AppleClient\Service\Exception\VerificationCodeSentTooManyTimesException;
 use Modules\AppleClient\Service\Integrations\Idmsa\IdmsaConnector;
 use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\Auth;
-use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\AuthorizeComplete;
+use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\AuthorizeSignIn;
 use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\AuthorizeSing;
 use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\AuthRepairComplete;
 use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\SendPhoneSecurityCode;
 use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\SendTrustedDeviceSecurityCode;
-use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\Signin;
+use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\SignInComplete;
 use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\SigninInit;
 use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\VerifyPhoneSecurityCode;
 use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\VerifyTrustedDeviceSecurityCode;
@@ -84,7 +84,7 @@ trait Idmsa
     public function complete(string $account, string $m1, string $m2, string $c, bool $rememberMe = false): Response
     {
         return $this->getIdmsaConnector()->send(
-            new AuthorizeComplete(
+            new SignInComplete(
                 account: $account,
                 m1: $m1,
                 m2: $m2,
@@ -108,7 +108,7 @@ trait Idmsa
         $config = $this->config();
 
         return $this->getIdmsaConnector()->send(
-            new Signin(
+            new AuthorizeSignIn(
                 frameId: $this->buildUUid(),
                 clientId: $config->getServiceKey(),
                 redirectUri: $config->getApiUrl(),

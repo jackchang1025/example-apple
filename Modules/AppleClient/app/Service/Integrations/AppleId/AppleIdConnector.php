@@ -7,16 +7,16 @@
 
 namespace Modules\AppleClient\Service\Integrations\AppleId;
 
-use Modules\AppleClient\Service\AppleId;
 use Modules\AppleClient\Service\Config\Config;
 use Modules\AppleClient\Service\Integrations\AppleConnector;
+use Modules\AppleClient\Service\Integrations\AppleId\Resources\AuthenticateResources;
+use Modules\AppleClient\Service\Integrations\AppleId\Resources\BootstrapResources;
 use Modules\AppleClient\Service\Integrations\AppleId\Resources\PaymentResources;
+use Modules\AppleClient\Service\Integrations\AppleId\Resources\SecurityDevicesResources;
+use Modules\AppleClient\Service\Integrations\AppleId\Resources\SecurityPhoneResources;
 
 class AppleIdConnector extends AppleConnector
 {
-    use AppleId;
-
-
     public function resolveBaseUrl(): string
     {
         return 'https://appleid.apple.com';
@@ -25,11 +25,6 @@ class AppleIdConnector extends AppleConnector
     public function defaultPersistentHeaders(): array
     {
         return ['scnt'];
-    }
-
-    public function getAppleIdConnector(): AppleIdConnector
-    {
-        return $this;
     }
 
     protected function defaultHeaders(): array
@@ -65,5 +60,25 @@ class AppleIdConnector extends AppleConnector
     public function paymentResources(): PaymentResources
     {
         return new PaymentResources($this);
+    }
+
+    public function getAuthenticateResources(): AuthenticateResources
+    {
+        return new AuthenticateResources($this);
+    }
+
+    public function getBootstrapResources(): BootstrapResources
+    {
+        return new BootstrapResources($this);
+    }
+
+    public function getSecurityDevicesResources(): SecurityDevicesResources
+    {
+        return new SecurityDevicesResources($this);
+    }
+
+    public function getSecurityPhoneResources(): SecurityPhoneResources
+    {
+        return new SecurityPhoneResources($this);
     }
 }

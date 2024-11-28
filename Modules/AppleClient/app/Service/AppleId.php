@@ -14,13 +14,13 @@ use Modules\AppleClient\Service\Exception\PhoneNumberAlreadyExistsException;
 use Modules\AppleClient\Service\Exception\StolenDeviceProtectionException;
 use Modules\AppleClient\Service\Exception\VerificationCodeSentTooManyTimesException;
 use Modules\AppleClient\Service\Integrations\AppleId\AppleIdConnector;
-use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\DeviceDetail;
-use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\Payment;
-use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\SecurityDevices;
-use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\SecurityVerifyPhone;
-use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\SecurityVerifyPhoneSecurityCode;
-use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\Token;
-use Modules\AppleClient\Service\Integrations\AppleId\Request\AuthenticatePassword;
+use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\DeviceDetailRequest;
+use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\DevicesRequest;
+use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\PaymentRequest;
+use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\SecurityVerifyPhoneRequest;
+use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\SecurityVerifyPhoneSecurityCodeRequest;
+use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\TokenRequest;
+use Modules\AppleClient\Service\Integrations\AppleId\Request\AuthenticatePasswordRequest;
 use Modules\AppleClient\Service\Integrations\AppleId\Request\Bootstrap;
 use Modules\AppleClient\Service\Response\Response;
 use Saloon\Exceptions\Request\FatalRequestException;
@@ -52,7 +52,7 @@ trait AppleId
     public function authenticatePassword(string $password): Response
     {
         return $this->getAppleIdConnector()
-            ->send(new AuthenticatePassword($password));
+            ->send(new AuthenticatePasswordRequest($password));
     }
 
     /**
@@ -63,7 +63,7 @@ trait AppleId
      */
     public function token(): Response
     {
-        return $this->getAppleIdConnector()->send(new Token());
+        return $this->getAppleIdConnector()->send(new TokenRequest());
     }
 
     /**
@@ -90,7 +90,7 @@ trait AppleId
     ): Response {
         try {
             return $this->getAppleIdConnector()
-                ->send(new SecurityVerifyPhone($countryCode, $phoneNumber, $countryDialCode, $nonFTEU));
+                ->send(new SecurityVerifyPhoneRequest($countryCode, $phoneNumber, $countryDialCode, $nonFTEU));
         } catch (RequestException $e) {
             /**
              * @var Response $response
@@ -158,7 +158,9 @@ trait AppleId
         string $code
     ): Response {
         return $this->getAppleIdConnector()
-            ->send(new SecurityVerifyPhoneSecurityCode($id, $phoneNumber, $countryCode, $countryDialCode, $code));
+            ->send(
+                new SecurityVerifyPhoneSecurityCodeRequest($id, $phoneNumber, $countryCode, $countryDialCode, $code)
+            );
     }
 
     /**
@@ -169,7 +171,7 @@ trait AppleId
     public function securityDevices(): Response
     {
         return $this->getAppleIdConnector()
-            ->send(new SecurityDevices());
+            ->send(new DevicesRequest());
     }
 
     /**
@@ -180,7 +182,7 @@ trait AppleId
     public function payment(): Response
     {
         return $this->getAppleIdConnector()
-            ->send(new Payment());
+            ->send(new PaymentRequest());
     }
 
     /**
@@ -192,6 +194,6 @@ trait AppleId
     public function deviceDetail(string $paymentId): Response
     {
         return $this->getAppleIdConnector()
-            ->send(new DeviceDetail($paymentId));
+            ->send(new DeviceDetailRequest($paymentId));
     }
 }

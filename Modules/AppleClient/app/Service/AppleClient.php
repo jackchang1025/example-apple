@@ -9,7 +9,6 @@ namespace Modules\AppleClient\Service;
 
 use Modules\AppleClient\Service\Config\HasConfig;
 use Modules\AppleClient\Service\Cookies\HasCookie;
-use Modules\AppleClient\Service\DataConstruct\Account;
 use Modules\AppleClient\Service\Header\HasHeaderSynchronize;
 use Modules\AppleClient\Service\Helpers\Helpers;
 use Modules\AppleClient\Service\Integrations\AppleAuth\AppleAuthConnector;
@@ -18,9 +17,7 @@ use Modules\AppleClient\Service\Integrations\Buy\BuyConnector;
 use Modules\AppleClient\Service\Integrations\Icloud\IcloudConnector;
 use Modules\AppleClient\Service\Integrations\Idmsa\IdmsaConnector;
 use Modules\AppleClient\Service\Proxy\HasProxy;
-use Modules\AppleClient\Service\Trait\HasFamily;
 use Modules\AppleClient\Service\Trait\HasLogger;
-use Modules\AppleClient\Service\Trait\HasLoginDelegates;
 use Modules\AppleClient\Service\Trait\HasTries;
 use Saloon\Traits\Conditionable;
 use Saloon\Traits\Macroable;
@@ -29,9 +26,10 @@ use Saloon\Traits\RequestProperties\HasMiddleware;
 class AppleClient
 {
     use Macroable;
-    use AppleId;
-    use Idmsa;
-    use AppleAuth;
+
+//    use AppleId;
+//    use Idmsa;
+//    use AppleAuth;
     use HasConfig;
     use HasProxy;
     use HasCookie;
@@ -81,6 +79,4 @@ class AppleClient
     {
         return $this->buyConnector;
     }
-
-
 }

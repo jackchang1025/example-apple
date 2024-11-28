@@ -8,18 +8,11 @@
 namespace Modules\AppleClient\Service\Integrations\Idmsa;
 
 use Modules\AppleClient\Service\Config\Config;
-use Modules\AppleClient\Service\Idmsa;
 use Modules\AppleClient\Service\Integrations\AppleConnector;
+use Modules\AppleClient\Service\Integrations\Idmsa\Resources\AuthenticateResources;
 
 class IdmsaConnector extends AppleConnector
 {
-    use Idmsa;
-
-    public function getIdmsaConnector(): IdmsaConnector
-    {
-        return $this;
-    }
-
     public function defaultPersistentHeaders(): array
     {
         return ['X-Apple-ID-Session-Id', 'X-Apple-Auth-Attributes', 'scnt'];
@@ -62,5 +55,10 @@ class IdmsaConnector extends AppleConnector
             'Sec-Fetch-Mode'              => 'cors',
             'Sec-Fetch-Dest'              => 'empty',
         ];
+    }
+
+    public function getAuthenticateResources(): AuthenticateResources
+    {
+        return new AuthenticateResources($this);
     }
 }

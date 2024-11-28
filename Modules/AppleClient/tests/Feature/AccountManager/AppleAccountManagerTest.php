@@ -19,13 +19,13 @@ use Modules\AppleClient\Service\Exception\StolenDeviceProtectionException;
 use Modules\AppleClient\Service\Exception\VerificationCodeException;
 use Modules\AppleClient\Service\Integrations\AppleAuth\Request\Complete;
 use Modules\AppleClient\Service\Integrations\AppleAuth\Request\Init;
-use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\SecurityVerifyPhone;
-use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\SecurityVerifyPhoneSecurityCode;
-use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\Token;
-use Modules\AppleClient\Service\Integrations\AppleId\Request\AuthenticatePassword;
-use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\AuthorizeComplete;
+use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\SecurityVerifyPhoneRequest;
+use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\SecurityVerifyPhoneSecurityCodeRequest;
+use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\TokenRequest;
+use Modules\AppleClient\Service\Integrations\AppleId\Request\AuthenticatePasswordRequest;
 use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\SendPhoneSecurityCode;
 use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\SendTrustedDeviceSecurityCode;
+use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\SignInComplete;
 use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\SigninInit;
 use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\VerifyPhoneSecurityCode;
 use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\VerifyTrustedDeviceSecurityCode;
@@ -94,7 +94,7 @@ beforeEach(function () {
             status: 200
         ),
 
-        AuthorizeComplete::class => MockResponse::make(
+        SignInComplete::class => MockResponse::make(
             body: [
                 'authType' => fake()->title(),
             ],
@@ -123,19 +123,19 @@ beforeEach(function () {
             body: (new SendDeviceSecurityCodeFactory())->makeOne()->toArray(),
         ),
 
-        Token::class => MockResponse::make(
+        TokenRequest::class => MockResponse::make(
             body: [],
         ),
 
-        AuthenticatePassword::class => MockResponse::make(
+        AuthenticatePasswordRequest::class => MockResponse::make(
             body: [],
         ),//AuthenticatePassword
 
-        SecurityVerifyPhone::class => MockResponse::make(
+        SecurityVerifyPhoneRequest::class => MockResponse::make(
             body: (new \Modules\AppleClient\Database\Factories\SecurityVerifyPhoneFactory())->makeOne()->toArray(),
         ),
 
-        SecurityVerifyPhoneSecurityCode::class => MockResponse::make(
+        SecurityVerifyPhoneSecurityCodeRequest::class => MockResponse::make(
             body: (new \Modules\AppleClient\Database\Factories\SecurityVerifyPhoneFactory())->makePhoneNumber(
             )->toArray(),
         ),
@@ -305,7 +305,7 @@ it('can verify securityVerifyPhoneSecurityCode VerificationCodeException', funct
         MockResponse::make(
             status: 400
         ),
-        SecurityVerifyPhoneSecurityCode::class
+        SecurityVerifyPhoneSecurityCodeRequest::class
     );
 
     // 首次调用auth()方法
@@ -368,7 +368,7 @@ it('can send verifyPhoneCodeAndValidateStolenDeviceProtection', function () {
             body: (new \Modules\AppleClient\Database\Factories\SecurityVerifyPhoneFactory())->makeOne()->toArray(),
             status: 467
         ),
-        SecurityVerifyPhone::class
+        SecurityVerifyPhoneRequest::class
     );
 
     $phone = \App\Models\Phone::factory()->create([

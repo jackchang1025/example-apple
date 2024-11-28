@@ -4,7 +4,7 @@ use Modules\AppleClient\Service\AppleClient;
 use Modules\AppleClient\Service\Integrations\AppleAuth\AppleAuthConnector;
 use Modules\AppleClient\Service\Integrations\AppleId\AppleIdConnector;
 use Modules\AppleClient\Service\Integrations\Idmsa\IdmsaConnector;
-use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\Signin;
+use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\AuthorizeSignIn;
 use Modules\IpProxyManager\Service\ProxyResponse;
 use Modules\IpProxyManager\Service\ProxyService;
 use Psr\Log\LoggerInterface;
@@ -197,7 +197,7 @@ it('can get a list of all the proxy failed', function () {
         MockResponse::make(
             status: 200
         ),
-        Signin::class
+        AuthorizeSignIn::class
     );
 
     $this->appleClient->sign();
@@ -230,7 +230,7 @@ it('can get a list of all the proxy', function () {
         MockResponse::make(
             status: 200
         ),
-        Signin::class
+        AuthorizeSignIn::class
     );
 
     $this->appleClient->sign();
@@ -256,7 +256,7 @@ it('can get a list of all the proxy2', function () {
         MockResponse::make(
             status: 200
         ),
-        Signin::class
+        AuthorizeSignIn::class
     );
 
 

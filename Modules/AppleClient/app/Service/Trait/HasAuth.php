@@ -2,16 +2,15 @@
 
 namespace Modules\AppleClient\Service\Trait;
 
-use Illuminate\Support\Facades\Cache;
-use Modules\AppleClient\Service\DataConstruct\Auth\Auth;
+use Modules\AppleClient\Service\Integrations\Idmsa\Dto\Auth\AuthData;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
 
 trait HasAuth
 {
-    protected ?Auth $auth = null;
+    protected ?AuthData $auth = null;
 
-    public function withAuth(?Auth $authData): static
+    public function withAuth(?AuthData $authData): static
     {
         $this->auth = $authData;
 
@@ -19,28 +18,22 @@ trait HasAuth
     }
 
     /**
-     * @return Auth
+     * @return AuthData
      * @throws FatalRequestException
      * @throws RequestException
-     * @throws \JsonException
      */
-    public function auth(): Auth
+    public function auth(): AuthData
     {
-        return $this->auth ??= Cache::remember(
-            "{$this->getAccount()->getSessionId()}:auth",
-            60 * 5,
-            fn() => Auth::fromResponse($this->getClient()->auth())
-        );
+        return $this->auth ??= $this->refreshAuth();
     }
 
     /**
-     * @return Auth
+     * @return AuthData
      * @throws FatalRequestException
      * @throws RequestException
-     * @throws \JsonException
      */
-    public function refreshAuth(): Auth
+    public function refreshAuth(): AuthData
     {
-        return $this->auth = Auth::fromResponse($this->getClient()->auth());
+        return $this->getClient()->getIdmsaConnector()->getAuthenticateResources()->auth();
     }
 }

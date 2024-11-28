@@ -15,6 +15,8 @@ use Modules\AppleClient\Service\Exception\MaxRetryAttemptsException;
 use Modules\AppleClient\Service\Exception\PhoneAddressException;
 use Modules\AppleClient\Service\Exception\PhoneNotFoundException;
 use Modules\AppleClient\Service\Exception\VerificationCodeException;
+use Modules\AppleClient\Service\Integrations\Idmsa\Dto\Auth\AuthData;
+use Modules\AppleClient\Service\Integrations\Idmsa\Dto\SignInCompleteData;
 use Modules\AppleClient\Service\Trait\HasTries;
 use Modules\PhoneCode\Service\Exception\AttemptBindPhoneCodeException;
 use Modules\PhoneCode\Service\Helpers\PhoneCodeParser;
@@ -24,7 +26,7 @@ class WebAuthenticate
 {
     use HasTries;
 
-    protected static ?DataConstruct\Auth\Auth $auth = null;
+    protected static ?AuthData $auth = null;
 
     public function __construct(
         protected readonly AppleAccountManager $accountManager,
@@ -40,7 +42,48 @@ class WebAuthenticate
             ->withUseExponentialBackoff(true);
     }
 
+    /**
+     * @return SignInCompleteData
+     * @throws \JsonException
+     * @throws \Saloon\Exceptions\Request\FatalRequestException
+     * @throws \Saloon\Exceptions\Request\RequestException
+     */
+    public function signIn(): SignInCompleteData
+    {
+        $account = $this->getAccountManager()->getAccount();
+
+        $initData = $this->getAccountManager()->getClient()->getAppleAuthConnector()->getSignInResources()->signInInit(
+            $account->account
+        );
+
+        $signInInitData = $this->getAccountManager()->getClient()->getIdmsaConnector()->getAuthenticateResources(
+        )->signInInit(a: $initData->value, account: $account->account);
+
+        $completeResponse = $this->getAccountManager()->getClient()->getAppleAuthConnector()->getSignInResources(
+        )->signInComplete(
+            key: $initData->key,
+            salt: $signInInitData->salt,
+            b: $signInInitData->b,
+            c: $signInInitData->c,
+            password: $account->password,
+            iteration: $signInInitData->iteration,
+            protocol: $signInInitData->protocol
+        );
+
+        return $this->getAccountManager()->getClient()->getIdmsaConnector()->getAuthenticateResources()->signInComplete(
+            account: $account,
+            m1: $completeResponse->M1,
+            m2: $completeResponse->M2,
+            c: $completeResponse->c,
+        );
+    }
+
     // 执行登录流程
+
+    public function getAccountManager(): AppleAccountManager
+    {
+        return $this->accountManager;
+    }
 
     public function loginAndVerify(): VerifyPhoneSecurityCode
     {
@@ -48,29 +91,6 @@ class WebAuthenticate
         $trustedPhones = $this->getTrustedPhones();
 
         return $this->verifyPhone($trustedPhones);
-    }
-
-    public function login(): Response\Response
-    {
-        return $this->performAccountLogin();
-    }
-
-    // 获取可信手机列表
-
-    protected function performAccountLogin(): Response\Response
-    {
-        return $this->getAccountManager()
-            ->authLogin(
-                $this->getAccountManager()->getAccount()->account,
-                $this->getAccountManager()->getAccount()->password
-            );
-    }
-
-    // 执行手机验证流程
-
-    public function getAccountManager(): AppleAccountManager
-    {
-        return $this->accountManager;
     }
 
     // 执行完整的登录和验证流程
@@ -82,11 +102,11 @@ class WebAuthenticate
         return $this->filterTrustedPhone($phoneList);
     }
 
-    // 执行账号登录
 
-    public function getAuth(): DataConstruct\Auth\Auth
+    public function getAuth(): AuthData
     {
-        return self::$auth ??= $this->getAccountManager()->auth();
+        return self::$auth ??= $this->getAccountManager()->getClient()->getIdmsaConnector()->getAuthenticateResources(
+        )->auth();
     }
 
     // 为单个手机号发送验证码

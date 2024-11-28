@@ -7,9 +7,11 @@
 
 namespace Modules\AppleClient\Service\Integrations\AppleAuth\Request;
 
+use Modules\AppleClient\Service\Integrations\AppleAuth\Dto\InitData;
 use Modules\AppleClient\Service\Integrations\Request;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
+use Saloon\Http\Response;
 use Saloon\Traits\Body\HasJsonBody;
 
 class Init extends Request implements HasBody
@@ -24,6 +26,10 @@ class Init extends Request implements HasBody
     {
     }
 
+    public function createDtoFromResponse(Response $response): InitData
+    {
+        return InitData::from($response->json());
+    }
     public function defaultBody(): array
     {
         return[

@@ -12,7 +12,7 @@ use Modules\AppleClient\Service\Exception\AccountException;
 use Modules\AppleClient\Service\Exception\MaxRetryAttemptsException;
 use Modules\AppleClient\Service\Exception\PhoneException;
 use Modules\AppleClient\Service\Exception\StolenDeviceProtectionException;
-use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\SecurityVerifyPhone;
+use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\SecurityVerifyPhoneRequest;
 use Modules\AppleClient\Service\Trait\HasBindPhone;
 use Psr\Log\LoggerInterface;
 use Saloon\Http\Faking\MockClient;
@@ -92,7 +92,7 @@ test('sendBindRequest returns PhoneNumberVerification object', function () {
             body: (new SecurityVerifyPhoneFactory())->makeOne()->toArray(),
             status: 200
         ),
-        SecurityVerifyPhone::class
+        SecurityVerifyPhoneRequest::class
     );
 
     $this->manager->withClient(new \Modules\AppleClient\Service\AppleClient());

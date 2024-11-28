@@ -7,7 +7,7 @@
 
 namespace Modules\AppleClient\Service\Integrations\AppleAuth;
 
-use Modules\AppleClient\Service\AppleAuth;
+use Modules\AppleClient\Service\Integrations\AppleAuth\Resources\SignInResources;
 use Modules\AppleClient\Service\Integrations\AppleConnector;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
@@ -16,7 +16,6 @@ use Saloon\Http\Request;
 
 class AppleAuthConnector extends AppleConnector
 {
-    use AppleAuth;
     protected bool $proxyEnabled = false;
 
     public function boot(PendingRequest $pendingRequest): void
@@ -24,11 +23,6 @@ class AppleAuthConnector extends AppleConnector
         if (empty($this->apple->config()->get('apple_auth')['url'])) {
             throw new \InvalidArgumentException('apple_auth config is empty');
         }
-    }
-
-    public function getAppleAuthConnector(): AppleAuthConnector
-    {
-        return $this;
     }
 
     public function resolveBaseUrl(): string
@@ -48,5 +42,10 @@ class AppleAuthConnector extends AppleConnector
     public function handleRetry(FatalRequestException|RequestException $exception, Request $request): bool
     {
         return true;
+    }
+
+    public function getSignInResources(): SignInResources
+    {
+        return new SignInResources($this);
     }
 }
