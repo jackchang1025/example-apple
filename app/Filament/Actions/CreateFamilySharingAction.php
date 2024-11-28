@@ -3,13 +3,13 @@
 namespace App\Filament\Actions;
 
 use App\Models\Account;
-use App\Services\FamilyService;
 use Exception;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Actions\Action;
-use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Log;
+use Modules\AppleClient\Service\AppleAccountManagerFactory;
 
 class CreateFamilySharingAction extends Action
 {
@@ -81,17 +81,12 @@ class CreateFamilySharingAction extends Action
 
                     $this->handleFamilySharing($record, $data);
 
-                    Notification::make()
-                        ->title('创建家庭共享组成功')
-                        ->success()
-                        ->send();
+                    $this->success();
 
                 } catch (Exception $e) {
 
-                    Notification::make()
-                        ->title($e->getMessage())
-                        ->warning()
-                        ->send();
+                    Log::error($e);
+                    $this->failureNotificationTitle($e->getMessage())->sendFailureNotification();
                 }
 
             });
@@ -110,7 +105,11 @@ class CreateFamilySharingAction extends Action
         }
 
         //{"organizerAppleId":"licade_2015@163.com","organizerAppleIdForPurchases":"jackchang2021@163.com","organizerAppleIdForPurchasesPassword":"AtA3FH2sBfrtSv6","organizerShareMyLocationEnabledDefault":true,"iTunesTosVersion":284005}
-        FamilyService::make($account)->createFamily($account, $pay_account, $pay_password);
+
+        app(AppleAccountManagerFactory::class)
+            ->create($account)
+            ->getFamilyService()
+            ->createFamily($account, $pay_account, $pay_password);
 
     }
 

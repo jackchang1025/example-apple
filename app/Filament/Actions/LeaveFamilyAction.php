@@ -3,16 +3,10 @@
 namespace App\Filament\Actions;
 
 use App\Models\Account;
-use App\Models\Family;
-use App\Models\FamilyMember;
-use App\Services\FamilyService;
 use Exception;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Wizard\Step;
-use Filament\Notifications\Notification;
 use Filament\Tables\Actions\Action;
+use Illuminate\Support\Facades\Log;
 use Modules\AppleClient\Service\AppleAccountManagerFactory;
-use RuntimeException;
 
 class LeaveFamilyAction extends Action
 {
@@ -35,6 +29,7 @@ class LeaveFamilyAction extends Action
             ->modalCancelActionLabel('取消')
             // 需要确认
             ->requiresConfirmation('确定退出家庭共享吗？')
+            ->successNotificationTitle('成功退出家庭共享组')
             ->action(function () {
                 $relationManager = $this->getLivewire();
                 $record          = $relationManager->ownerRecord;
@@ -42,22 +37,21 @@ class LeaveFamilyAction extends Action
                 try {
                     $this->handle($record);
 
-                    Notification::make()
-                        ->title('成功退出家庭共享组')
-                        ->success()
-                        ->send();
+                    $this->successRedirectUrl(fn() => url("/admin/accounts/{$record->id}?activeRelationManager=2"))
+                        ->success();
 
                 } catch (Exception $e) {
-                    Notification::make()
-                        ->title($e->getMessage())
-                        ->warning()
-                        ->send();
+                    Log::error($e);
+                    $this->failureNotificationTitle($e->getMessage())->sendFailureNotification();
                 }
             });
     }
 
     protected function handle(Account $account): void
     {
-        FamilyService::make($account)->leaveFamily();
+        app(AppleAccountManagerFactory::class)
+            ->create($account)
+            ->getFamilyService()
+            ->leaveFamily();
     }
 }

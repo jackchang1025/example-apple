@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <dict>
+        <key>protocolVersion</key>
+        <string>1.0</string>
+        <key>appleAccountInfo</key>
+        <dict>
+            <key>dsid</key>
+            <string>402842075</string>
+            <key>dsPrsID</key>
+            <integer>402842075</integer>
+        </dict>
+        <key>tokens</key>
+        <dict>
+            <key>mmeAuthToken</key>
+            <string>
+                IAAAAAAABLwIAAAAAGdFVZ0RDmdzLmljbG91ZC5hdXRovQDs81lmfl6N6H0Gxk89T1d7YMpnWrj4J0IS3HAEelfFgERix+RIC0C+mhC2ts2dTBUYLRo5OnieOi1CphR5XIzgsbCuKZgoXyxDwsRWJUT12SMplZWJ9xSIAgT0sCGvT2hLeoEJ7KrakoSEdpdju4YWti5WcQ==
+            </string>
+        </dict>
+    </dict>
+</plist>

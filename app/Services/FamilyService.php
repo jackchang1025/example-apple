@@ -8,7 +8,7 @@ use App\Models\Family;
 use App\Models\FamilyMember;
 use App\Services\Traits\HasFamilyMemberValidation;
 use Illuminate\Support\Facades\DB;
-use Modules\AppleClient\Service\AppleAccountManagerFactory;
+use Modules\AppleClient\Service\AppleAccountManager;
 use Modules\AppleClient\Service\DataConstruct\Icloud\FamilyInfo\FamilyInfo;
 use Modules\AppleClient\Service\DataConstruct\Icloud\ITunesAccountPaymentInfo\ITunesAccountPaymentInfo;
 use Modules\AppleClient\Service\Integrations\Icloud\Dto\VerifyCVVRequestDto;
@@ -20,24 +20,31 @@ class FamilyService
 
     /**
      *
-     * @param AppleAccountManagerFactory $accountManagerFactory
-     * @param Account $account
+     * @param AppleAccountManager $accountManager
      * @throws FamilyException
      */
     public function __construct(
-        protected readonly AppleAccountManagerFactory $accountManagerFactory,
-        protected readonly Account $account,
+        protected readonly AppleAccountManager $accountManager,
     ) {
-        $this->accountManager = $this->accountManagerFactory->create($this->account);
         $this->initAppleAccountManager();
     }
 
-    public static function make(Account $account): self
+    protected function initAppleAccountManager(): void
     {
-        return new self(
-            app(AppleAccountManagerFactory::class),
-            $account,
-        );
+        if (!$authenticate = $this->accountManager->getAuthenticate()) {
+            throw FamilyException::loginInvalid();
+        }
+        $this->accountManager->setupAuthentication($authenticate);
+    }
+
+    /**
+     * @param AppleAccountManager $accountManager
+     * @return self
+     * @throws FamilyException
+     */
+    public static function make(AppleAccountManager $accountManager): self
+    {
+        return new self($accountManager);
     }
 
     /**

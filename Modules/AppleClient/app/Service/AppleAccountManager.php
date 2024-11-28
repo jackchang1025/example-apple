@@ -3,11 +3,12 @@
 namespace Modules\AppleClient\Service;
 
 use App\Models\Account;
+use App\Services\FamilyService;
 use Modules\AppleClient\Service\Trait\HasAuth;
+use Modules\AppleClient\Service\Trait\HasAuthenticate;
 use Modules\AppleClient\Service\Trait\HasBindPhone;
 use Modules\AppleClient\Service\Trait\HasDevices;
 use Modules\AppleClient\Service\Trait\HasFamily;
-use Modules\AppleClient\Service\Trait\HasLoginDelegates;
 use Modules\AppleClient\Service\Trait\HasNotification;
 use Modules\AppleClient\Service\Trait\HasPayment;
 use Modules\AppleClient\Service\Trait\HasSign;
@@ -36,8 +37,10 @@ class AppleAccountManager
     use HasToken;
     use HasValidatePassword;
     use HasPhoneNumber;
-    use HasLoginDelegates;
+
+//    use HasLoginDelegates;
     use HasFamily;
+    use HasAuthenticate;
 
     public function __construct(
         protected Account $account,
@@ -98,5 +101,19 @@ class AppleAccountManager
     public function __call(string $name, array $parameters)
     {
         return $this->getClient()->$name(...$parameters);
+    }
+
+    /**
+     * @return FamilyService
+     * @throws \App\Exceptions\Family\FamilyException
+     */
+    public function getFamilyService(): FamilyService
+    {
+        return new FamilyService($this);
+    }
+
+    public function getWebAuthenticate(): WebAuthenticate
+    {
+        return new WebAuthenticate($this);
     }
 }

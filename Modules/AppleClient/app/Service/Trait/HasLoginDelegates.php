@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Cache;
 use Modules\AppleClient\Service\DataConstruct\Icloud\LoginDelegates\LoginDelegates;
 use Modules\AppleClient\Service\Exception\AppleRequestException\LoginRequestException;
 use Modules\AppleClient\Service\Exception\VerificationCodeException;
-use Modules\AppleClient\Service\Response\Response;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
 use Saloon\Http\Auth\BasicAuthenticator;
@@ -76,6 +75,12 @@ trait HasLoginDelegates
     ): LoginDelegates {
 
         $loginDelegates = $this->performAuthDelegatesRequest($authCode, $clientId, $protocolVersion);
+
+        if ($loginDelegates->delegates->mobileMeService->status === 1) {
+            throw new \RuntimeException(
+                message: $loginDelegates->delegates->mobileMeService->statusMessage,
+            );
+        }
 
 
         $this->setupAuthentication($loginDelegates);

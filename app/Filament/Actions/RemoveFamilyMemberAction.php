@@ -4,15 +4,11 @@ namespace App\Filament\Actions;
 
 use App\Filament\Resources\AccountResource\RelationManagers\FamilyMembersRelationManager;
 use App\Models\Account;
-use App\Models\Family;
 use App\Models\FamilyMember;
-use App\Services\FamilyService;
 use Exception;
-use Filament\Forms\Components\TextInput;
-use Filament\Notifications\Notification;
 use Filament\Tables\Actions\Action;
+use Illuminate\Support\Facades\Log;
 use Modules\AppleClient\Service\AppleAccountManagerFactory;
-use RuntimeException;
 
 class RemoveFamilyMemberAction extends Action
 {
@@ -30,6 +26,7 @@ class RemoveFamilyMemberAction extends Action
             ->modalHeading('确认要移除该家庭成员吗？如果该成员为家庭组织者将移除整个家庭共享成员。')
             ->modalSubmitActionLabel('确认移除')
             ->modalCancelActionLabel('取消')
+            ->successNotificationTitle('成功移除家庭成员')
             ->requiresConfirmation()
             ->action(function (FamilyMember $familyMember) {
 
@@ -39,31 +36,30 @@ class RemoveFamilyMemberAction extends Action
                 $relationManager = $this->getLivewire();
 
                 /**
-                 * @var Account $account
+                 * @var Account $record
                  */
-                $account = $relationManager->ownerRecord;
+                $record = $relationManager->ownerRecord;
 
 
                 try {
-                    $this->handle($account, $familyMember);
+                    $this->handle($record, $familyMember);
 
-                    Notification::make()
-                        ->title('成功移除家庭成员')
-                        ->success()
-                        ->send();
+                    $this->successRedirectUrl(fn() => url("/admin/accounts/{$record->id}?activeRelationManager=2"))
+                        ->success();
 
                 } catch (Exception $e) {
-                    Notification::make()
-                        ->title($e->getMessage())
-                        ->warning()
-                        ->send();
+                    Log::error($e);
+                    $this->failureNotificationTitle($e->getMessage())->sendFailureNotification();
                 }
             });
     }
 
     protected function handle(Account $account, FamilyMember $familyMember): void
     {
-        FamilyService::make($account)->removeFamilyMember(
+        app(AppleAccountManagerFactory::class)
+            ->create($account)
+            ->getFamilyService()
+            ->removeFamilyMember(
             $familyMember,
         );
     }

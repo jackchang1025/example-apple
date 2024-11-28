@@ -2,7 +2,6 @@
 
 namespace Modules\AppleClient\Service\Trait;
 
-use Illuminate\Support\Facades\Cache;
 use Modules\AppleClient\Service\DataConstruct\Icloud\FamilyDetails\FamilyDetails;
 use Modules\AppleClient\Service\DataConstruct\Icloud\FamilyInfo\FamilyInfo;
 use Modules\AppleClient\Service\DataConstruct\Icloud\ITunesAccountPaymentInfo\ITunesAccountPaymentInfo;
@@ -51,8 +50,7 @@ trait HasFamily
 
     public function getMaxFamilyDetailsRequest(): FamilyInfo
     {
-        return Cache::remember("{$this->getAccount()->getSessionId()}:maxFamilyDetailsRequest", 60, function () {
-            $familyInfo = $this->getIcloudConnector()
+        $familyInfo = $this->getIcloudConnector()
             ->getFamilyResources()
                 ->getMaxFamilyDetailsRequest()
                 ->dto();
@@ -62,15 +60,13 @@ trait HasFamily
         }
 
         return $familyInfo;
-
-        });
     }
 
     public function getITunesAccountPaymentInfo(): ITunesAccountPaymentInfo
     {
         return $this->getIcloudConnector()
             ->getFamilyResources()
-            ->getITunesAccountPaymentInfoRequest($this->getLoginDelegates()->dsid)
+            ->getITunesAccountPaymentInfoRequest($this->getAuthenticate()->appleAccountInfo->dsid)
             ->dto();
     }
 

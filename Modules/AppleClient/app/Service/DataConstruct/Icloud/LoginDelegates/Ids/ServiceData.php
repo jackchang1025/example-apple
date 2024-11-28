@@ -13,7 +13,7 @@ class ServiceData extends Data
 {
 
     public function __construct(
-        public string $appleId,
+
         public string $profileId,
         #[DataCollectionOf(Handles::class)]
         public ?DataCollection $handles = null,
@@ -22,6 +22,7 @@ class ServiceData extends Data
         public ?array $selfHandle = null,
         public ?InvitationContext $invitationContext = null,
         public ?string $realmUserId = null,
+        public ?string $appleId = null,
     ) {
     }
 }

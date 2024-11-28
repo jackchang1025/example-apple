@@ -3,24 +3,16 @@
 namespace App\Services\Traits;
 
 use App\Exceptions\Family\FamilyException;
-use Modules\AppleClient\Service\AppleAccountManager;
 use Modules\AppleClient\Service\DataConstruct\Icloud\FamilyInfo\FamilyInfo;
 
 trait HasFamilyMemberValidation
 {
-    protected AppleAccountManager $accountManager;
     protected ?FamilyInfo $familyDetails = null;
 
     /**
      * 初始化账号管理器
      */
-    protected function initAppleAccountManager(): void
-    {
-        if (!$this->accountManager->isLoginValid()) {
-            throw FamilyException::loginInvalid();
-        }
-        $this->accountManager->refreshLoginState();
-    }
+
 
     /**
      * 获取家庭详情

@@ -4,16 +4,16 @@ namespace App\Filament\Actions;
 
 use App\Filament\Resources\AccountResource\RelationManagers\FamilyMembersRelationManager;
 use App\Models\Account;
-use App\Services\FamilyService;
 use Exception;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Wizard\Step;
-use Filament\Notifications\Notification;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\HtmlString;
+use Modules\AppleClient\Service\AppleAccountManagerFactory;
 use Modules\AppleClient\Service\Integrations\Icloud\Dto\VerifyCVVRequestDto;
 
 class AddFamilyMemberActions extends Action
@@ -42,22 +42,9 @@ class AddFamilyMemberActions extends Action
 
             try {
 
-                //{\"userAction\":\"ADDING_FAMILY_MEMBER\",\"status-message\":\"Success\",\"challengeReceipt\":\"+86130******21\",\"billingType\":\"Card\",\"creditCardImageUrl\":\"https://setup.icloud.com/resource/9b13a43759e5/imgs/family/WeChatPay@2x.png\",\"PaymentCardDescription\":\"微信支付\",\"partnerLogin\":\"B*******34\",\"verificationType\":\"SMS\",\"creditCardId\":\"WCPY\",\"creditCardType\":\"微信支付\",\"smsSessionID\":\"17325533052919352003mwvspSVa2K\",\"status\":0}
-                return [
-                    'userAction'             => 'ADDING_FAMILY_MEMBER',
-                    'status-message'         => 'Success',
-                    'challengeReceipt'       => '+86130******21',
-                    'billingType'            => 'Card',
-                    'creditCardImageUrl'     => 'https://setup.icloud.com/resource/9b13a43759e5/imgs/family/WeChatPay@2x.png',
-                    'PaymentCardDescription' => '微信支付',
-                    'partnerLogin'           => 'B*******34',
-                    'verificationType'       => 'SMS',
-                    'creditCardId'           => 'WCPY',
-                    'creditCardType'         => '微信支付',
-                    'smsSessionID'           => '17325533052919352003mwvspSVa2K',
-                    'status'                 => 0,
-                ];
-                $ITunesAccountPaymentInfo = FamilyService::make($account)->getITunesAccountPaymentInfo();
+                $familyService            = app(AppleAccountManagerFactory::class)->create($account)->getFamilyService(
+                );
+                $ITunesAccountPaymentInfo = $familyService->getITunesAccountPaymentInfo();
 
                 return array_merge(
                     $account->makeHidden(['account', 'password'])->toArray(),
@@ -66,11 +53,8 @@ class AddFamilyMemberActions extends Action
 
             } catch (Exception $e) {
 
-                Notification::make()
-                    ->title($e->getMessage())
-                    ->warning()
-                    ->persistent()
-                    ->send();
+                Log::error($e);
+                $this->failureNotificationTitle($e->getMessage())->sendFailureNotification();
 
                 $this->halt(); // 停止执行动作
 
@@ -81,6 +65,7 @@ class AddFamilyMemberActions extends Action
         $this->label('添加家庭共享成员')
             ->icon('heroicon-o-user-group')
             ->modalDescription('创建家庭共享需要绑定支付方式')
+            ->successNotificationTitle('添加家庭共享组成功！')
             ->modalSubmitActionLabel('确认')
             ->modalCancelActionLabel('取消')
             ->steps([
@@ -222,16 +207,12 @@ class AddFamilyMemberActions extends Action
                 try {
                     $this->handle($record, $data);
 
-                    Notification::make()
-                        ->title('添加家庭共享组成功')
-                        ->success()
-                        ->send();
+                    $this->successRedirectUrl(fn() => url("/admin/accounts/{$record->id}?activeRelationManager=2"))
+                        ->success();
 
                 } catch (Exception $e) {
-                    Notification::make()
-                        ->title($e->getMessage())
-                        ->warning()
-                        ->send();
+                    Log::error($e);
+                    $this->failureNotificationTitle($e->getMessage())->sendFailureNotification();
                 }
             });
     }
@@ -240,7 +221,7 @@ class AddFamilyMemberActions extends Action
      * @param Account $record
      * @param array $data
      * @return void
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws \Illuminate\Validation\ValidationException|\App\Exceptions\Family\FamilyException
      */
     protected function handle(Account $record, array $data): void
     {
@@ -259,11 +240,12 @@ class AddFamilyMemberActions extends Action
             'password'         => 'required',
         ])->validated();
 
-        FamilyService::make($record)->addFamilyMember(
-            addAccount: $data['account'],
-            addPassword: $data['password'],
-            dto: VerifyCVVRequestDto::from($data)
-        );
+        app(AppleAccountManagerFactory::class)->create($record)->getFamilyService()
+            ->addFamilyMember(
+                addAccount: $data['account'],
+                addPassword: $data['password'],
+                dto: VerifyCVVRequestDto::from($data)
+            );
 
     }
 }
