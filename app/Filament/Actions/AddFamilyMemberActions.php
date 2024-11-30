@@ -220,7 +220,7 @@ class AddFamilyMemberActions extends Action
      * @param Account $record
      * @param array $data
      * @return void
-     * @throws \Illuminate\Validation\ValidationException|\App\Exceptions\Family\FamilyException
+     * @throws \Illuminate\Validation\ValidationException|\App\Exceptions\Family\FamilyException|\Throwable
      */
     protected function handle(Account $record, array $data): void
     {
