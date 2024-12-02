@@ -106,4 +106,42 @@ trait HasSign
             c: $completeResponse->json('c'),
         );
     }
+
+    /**
+     * @param string $account
+     * @param string $password
+     * @return Response
+     * @throws FatalRequestException
+     * @throws RequestException
+     * @throws \JsonException
+     */
+    public function webIcloudSignInAuthLogin(string $account, string $password): Response
+    {
+        $initResponse = $this->getClient()->appleAuthInit($account);
+
+        $signinInitResponse = $this->getClient()
+            ->getWebIcloudConnector()
+            ->getWebIcloudSignInResource()
+            ->signInInit(a: $initResponse->json('value'), account: $account);
+
+        $completeResponse = $this->getClient()->appleAuthComplete(
+            key: $initResponse->json('key'),
+            salt: $signinInitResponse->json('salt'),
+            b: $signinInitResponse->json('b'),
+            c: $signinInitResponse->json('c'),
+            password: $password,
+            iteration: $signinInitResponse->json('iteration'),
+            protocol: $signinInitResponse->json('protocol')
+        );
+
+        return $this->getClient()
+            ->getWebIcloudConnector()
+            ->getWebIcloudSignInResource()
+            ->signInComplete(
+                account: $account,
+            m1: $completeResponse->json('M1'),
+            m2: $completeResponse->json('M2'),
+            c: $completeResponse->json('c'),
+        );
+    }
 }
