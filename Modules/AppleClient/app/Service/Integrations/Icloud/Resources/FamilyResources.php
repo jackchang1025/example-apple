@@ -2,6 +2,7 @@
 
 namespace Modules\AppleClient\Service\Integrations\Icloud\Resources;
 
+use Modules\AppleClient\Service\Integrations\Icloud\Dto\AddFamilyMemberData;
 use Modules\AppleClient\Service\Integrations\Icloud\Dto\VerifyCVVRequestDto;
 use Modules\AppleClient\Service\Integrations\Icloud\Request\AddFamilyMemberRequest;
 use Modules\AppleClient\Service\Integrations\Icloud\Request\CreateFamilyRequest;
@@ -56,24 +57,22 @@ class FamilyResources extends Resources
             ->send(new LeaveFamilyRequest());
     }
 
-    public function addFamilyMemberRequest(
-        string $appleId,
-        string $password,
-        string $verificationToken,
-        bool $shareMyLocationEnabledDefault = true,
-        bool $shareMyPurchasesEnabledDefault = true
-    ): Response {
+    /**
+     * 发起添加家庭成员的请求
+     *
+     * 此方法用于向Apple账户服务发送一个添加新家庭成员的请求它需要家庭成员的Apple ID、密码和验证令牌，
+     * 以及两个可选的布尔参数，用于控制新成员是否默认启用位置共享和购买内容共享
+     *
+     * @param AddFamilyMemberData $data 包含家庭成员Apple ID、密码和验证令牌的AddFamilyMemberData对象
+     * @return Response 返回发送请求后的响应对象
+     * @throws FatalRequestException
+     * @throws RequestException
+     */
+    public function addFamilyMemberRequest(AddFamilyMemberData $data): Response
+    {
         return $this->getConnector()
             ->send(
-                new AddFamilyMemberRequest(
-                    appleId: $appleId,
-                    password: $password,
-                    appleIdForPurchases: $appleId,
-                    verificationToken: $verificationToken,
-                    preferredAppleId: $appleId,
-                    shareMyLocationEnabledDefault: $shareMyLocationEnabledDefault,
-                    shareMyPurchasesEnabledDefault: $shareMyPurchasesEnabledDefault
-                )
+                new AddFamilyMemberRequest($data)
             );
     }
 

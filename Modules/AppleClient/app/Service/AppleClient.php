@@ -16,6 +16,7 @@ use Modules\AppleClient\Service\Integrations\AppleId\AppleIdConnector;
 use Modules\AppleClient\Service\Integrations\Buy\BuyConnector;
 use Modules\AppleClient\Service\Integrations\Icloud\IcloudConnector;
 use Modules\AppleClient\Service\Integrations\Idmsa\IdmsaConnector;
+use Modules\AppleClient\Service\Integrations\Idmsa\WebIcloudConnector;
 use Modules\AppleClient\Service\Proxy\HasProxy;
 use Modules\AppleClient\Service\Trait\HasLogger;
 use Modules\AppleClient\Service\Trait\HasTries;
@@ -45,6 +46,7 @@ class AppleClient
     protected AppleAuthConnector $appleAuthConnector;
     protected IcloudConnector $icloudConnector;
     protected BuyConnector $buyConnector;
+    protected WebIcloudConnector $webIcloudConnector;
 
     public function __construct()
     {
@@ -53,6 +55,12 @@ class AppleClient
         $this->appleAuthConnector = new AppleAuthConnector($this);
         $this->icloudConnector = new IcloudConnector($this);
         $this->buyConnector = new BuyConnector($this);
+        $this->webIcloudConnector = new WebIcloudConnector($this);
+    }
+
+    public function getWebIcloudConnector(): WebIcloudConnector
+    {
+        return $this->webIcloudConnector;
     }
 
     public function getAppleIdConnector(): AppleIdConnector

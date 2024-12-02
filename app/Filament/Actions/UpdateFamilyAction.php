@@ -41,8 +41,7 @@ class UpdateFamilyAction extends Action
 
                     $this->handle($record);
 
-                    $this->successRedirectUrl(fn() => url("/admin/accounts/{$record->id}?activeRelationManager=2"))
-                        ->success();
+                    $this->success();
 
                 } catch (\Exception $e) {
 

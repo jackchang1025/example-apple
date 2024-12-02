@@ -31,8 +31,6 @@ class LoginAction extends Action
             ->modalSubmitActionLabel('确认')
             ->modalCancelActionLabel('取消')
             ->successNotificationTitle('登陆成功')
-            ->successRedirectUrl(fn() => url('/admin/accounts'))
-            ->failureRedirectUrl(fn() => url('/admin/accounts'))
             ->extraModalFooterActions([
                 $this->resendDeviceCode(),
                 //                $this->sendPhoneCode(),

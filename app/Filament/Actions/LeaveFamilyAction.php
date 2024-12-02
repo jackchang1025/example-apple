@@ -37,8 +37,7 @@ class LeaveFamilyAction extends Action
                 try {
                     $this->handle($record);
 
-                    $this->successRedirectUrl(fn() => url("/admin/accounts/{$record->id}?activeRelationManager=2"))
-                        ->success();
+                    $this->success();
 
                 } catch (Exception $e) {
                     Log::error($e);

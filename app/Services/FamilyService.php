@@ -67,6 +67,12 @@ class FamilyService
 
     /**
      * 添加家庭成员
+     * @param string $addAccount
+     * @param string $addPassword
+     * @param VerifyCVVRequestDto $dto
+     * @return Family
+     * @throws FamilyException
+     * @throws \Throwable
      */
     public function addFamilyMember(
         string $addAccount,
@@ -76,15 +82,9 @@ class FamilyService
 
         $this->validateIsMemberOfFamilyAndIsOrganizer();
 
-        return DB::transaction(function () use ($addAccount, $addPassword, $dto) {
-            $familyInfo = $this->accountManager->addFamilyMember(
-                $addAccount,
-                $addPassword,
-                $dto
-            );
+        $familyInfo = $this->accountManager->addFamilyMember($addAccount, $addPassword, $dto);
 
-            return $this->updateFamilyData($familyInfo);
-        });
+        return DB::transaction(fn() => $this->updateFamilyData($familyInfo));
     }
 
     /**

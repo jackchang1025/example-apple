@@ -7,7 +7,6 @@
 
 namespace Modules\AppleClient\Service\Integrations;
 
-use Illuminate\Support\Str;
 use Modules\AppleClient\Service\AppleClient;
 use Modules\AppleClient\Service\Config\HasConfig;
 use Modules\AppleClient\Service\Cookies\CookieJarInterface;
@@ -88,7 +87,7 @@ abstract class AppleConnector extends Connector
 
     public function getHeaderRepositories(): ?ArrayStore
     {
-        return $this->getHeaderRepositories ?? $this->apple->getHeaderRepositories();
+        return $this->headerRepositories ?? $this->apple->getHeaderRepositories();
     }
 
     public function getCookieJar(): ?CookieJarInterface
