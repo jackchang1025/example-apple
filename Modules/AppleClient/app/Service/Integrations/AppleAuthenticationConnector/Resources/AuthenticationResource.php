@@ -1,27 +1,27 @@
 <?php
 
-namespace Modules\AppleClient\Service\Integrations\AppleAuth\Resources;
+namespace Modules\AppleClient\Service\Integrations\AppleAuthenticationConnector\Resources;
 
-use Modules\AppleClient\Service\Integrations\AppleAuth\Dto\CompleteData;
-use Modules\AppleClient\Service\Integrations\AppleAuth\Dto\InitData;
-use Modules\AppleClient\Service\Integrations\AppleAuth\Request\Complete;
-use Modules\AppleClient\Service\Integrations\AppleAuth\Request\Init;
+use Modules\AppleClient\Service\Integrations\AppleAuthenticationConnector\Dto\SignInCompleteData;
+use Modules\AppleClient\Service\Integrations\AppleAuthenticationConnector\Dto\SignInInitData;
+use Modules\AppleClient\Service\Integrations\AppleAuthenticationConnector\Request\SignInCompleteRequest;
+use Modules\AppleClient\Service\Integrations\AppleAuthenticationConnector\Request\SignInInitRequest;
 use Modules\AppleClient\Service\Integrations\BaseResource;
 
-class SignInResources extends BaseResource
+class AuthenticationResource extends BaseResource
 {
     /**
      * @param string $account
      *
-     * @return InitData
+     * @return SignInInitData
      * @throws \Saloon\Exceptions\Request\RequestException|\JsonException
      *
      * @throws \Saloon\Exceptions\Request\FatalRequestException
      */
-    public function signInInit(string $account): InitData
+    public function signInInit(string $account): SignInInitData
     {
         return $this->getConnector()
-            ->send(new Init($account))
+            ->send(new SignInInitRequest($account))
             ->dto();
     }
 
@@ -34,7 +34,7 @@ class SignInResources extends BaseResource
      * @param string $iteration
      * @param string $protocol
      *
-     * @return CompleteData
+     * @return SignInCompleteData
      * @throws \Saloon\Exceptions\Request\FatalRequestException
      * @throws \Saloon\Exceptions\Request\RequestException|\JsonException
      *
@@ -47,9 +47,10 @@ class SignInResources extends BaseResource
         string $password,
         string $iteration,
         string $protocol
-    ): CompleteData {
+    ): SignInCompleteData
+    {
         return $this->getConnector()->send(
-            new Complete(
+            new SignInCompleteRequest(
                 key: $key,
                 b: $b,
                 salt: $salt,

@@ -1,10 +1,10 @@
 <?php
 
-namespace Modules\AppleClient\Service\Integrations\AppleAuth\Dto;
+namespace Modules\AppleClient\Service\Integrations\AppleAuthenticationConnector\Dto;
 
 use Spatie\LaravelData\Data;
 
-class CompleteData extends Data
+class SignInCompleteData extends Data
 {
 
     public function __construct(

@@ -5,16 +5,16 @@
  * file that was distributed with this source code.
  */
 
-namespace Modules\AppleClient\Service\Integrations\AppleAuth;
+namespace Modules\AppleClient\Service\Integrations\AppleAuthenticationConnector;
 
-use Modules\AppleClient\Service\Integrations\AppleAuth\Resources\SignInResources;
+use Modules\AppleClient\Service\Integrations\AppleAuthenticationConnector\Resources\AuthenticationResource;
 use Modules\AppleClient\Service\Integrations\AppleConnector;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
 use Saloon\Http\PendingRequest;
 use Saloon\Http\Request;
 
-class AppleAuthConnector extends AppleConnector
+class AppleAuthenticationConnector extends AppleConnector
 {
     protected bool $proxyEnabled = false;
 
@@ -44,8 +44,8 @@ class AppleAuthConnector extends AppleConnector
         return true;
     }
 
-    public function getSignInResources(): SignInResources
+    public function getAuthenticationResource(): AuthenticationResource
     {
-        return new SignInResources($this);
+        return new AuthenticationResource($this);
     }
 }

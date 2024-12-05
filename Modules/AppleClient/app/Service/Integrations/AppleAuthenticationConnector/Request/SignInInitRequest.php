@@ -5,16 +5,16 @@
  * file that was distributed with this source code.
  */
 
-namespace Modules\AppleClient\Service\Integrations\AppleAuth\Request;
+namespace Modules\AppleClient\Service\Integrations\AppleAuthenticationConnector\Request;
 
-use Modules\AppleClient\Service\Integrations\AppleAuth\Dto\InitData;
+use Modules\AppleClient\Service\Integrations\AppleAuthenticationConnector\Dto\SignInInitData;
 use Modules\AppleClient\Service\Integrations\Request;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
 use Saloon\Http\Response;
 use Saloon\Traits\Body\HasJsonBody;
 
-class Init extends Request implements HasBody
+class SignInInitRequest extends Request implements HasBody
 {
     use HasJsonBody;
 
@@ -26,9 +26,9 @@ class Init extends Request implements HasBody
     {
     }
 
-    public function createDtoFromResponse(Response $response): InitData
+    public function createDtoFromResponse(Response $response): SignInInitData
     {
-        return InitData::from($response->json());
+        return SignInInitData::from($response->json());
     }
     public function defaultBody(): array
     {
