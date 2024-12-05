@@ -2,8 +2,8 @@
 
 namespace Modules\AppleClient\Service\Integrations\Icloud\Request;
 
-use Modules\AppleClient\Service\DataConstruct\Icloud\VerifyCVV\VerifyCVV;
-use Modules\AppleClient\Service\Integrations\Icloud\Dto\VerifyCVVRequestDto;
+use Modules\AppleClient\Service\Integrations\Icloud\Dto\Request\VerifyCVV\VerifyCVV;
+use Modules\AppleClient\Service\Integrations\Icloud\Dto\Response\VerifyCVV\VerifyCVV as VerifyCVVResponse;
 use Modules\AppleClient\Service\Integrations\Request;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
@@ -17,7 +17,7 @@ class VerifyCVVRequest extends Request implements HasBody
     protected Method $method = Method::POST;
 
     public function __construct(
-        public readonly VerifyCVVRequestDto $dto
+        public readonly VerifyCVV $dto
     ) {
     }
 
@@ -31,8 +31,8 @@ class VerifyCVVRequest extends Request implements HasBody
         return $this->dto->toArray();
     }
 
-    public function createDtoFromResponse(Response $response): VerifyCVV
+    public function createDtoFromResponse(Response $response): VerifyCVVResponse
     {
-        return VerifyCVV::from($response->json());
+        return VerifyCVVResponse::from($response->json());
     }
 }

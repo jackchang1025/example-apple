@@ -6,7 +6,6 @@ use Modules\AppleClient\Service\AppleClient;
 use Modules\AppleClient\Service\Integrations\AppleConnector;
 use Modules\AppleClient\Service\Integrations\Icloud\Resources\AuthenticateResources;
 use Modules\AppleClient\Service\Integrations\Icloud\Resources\FamilyResources;
-use Modules\AppleClient\Service\Integrations\Icloud\Resources\Resources;
 use Saloon\Http\Auth\BasicAuthenticator;
 
 class IcloudConnector extends AppleConnector
@@ -18,7 +17,6 @@ class IcloudConnector extends AppleConnector
     ) {
         parent::__construct($apple);
     }
-
 
     public function defaultHeaders(): array
     {
@@ -45,11 +43,6 @@ class IcloudConnector extends AppleConnector
     public function resolveBaseUrl(): string
     {
         return 'https://setup.icloud.com';
-    }
-
-    public function getResources(): Resources
-    {
-        return new Resources($this);
     }
 
     public function getFamilyResources(): FamilyResources

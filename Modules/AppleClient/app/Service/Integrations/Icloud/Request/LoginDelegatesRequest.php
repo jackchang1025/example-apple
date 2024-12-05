@@ -2,16 +2,13 @@
 
 namespace Modules\AppleClient\Service\Integrations\Icloud\Request;
 
-use Modules\AppleClient\Service\DataConstruct\Icloud\LoginDelegates\LoginDelegates;
-use Modules\AppleClient\Service\Exception\AppleRequestException\LoginRequestException;
-use Modules\AppleClient\Service\Exception\VerificationCodeException;
+use Modules\AppleClient\Service\Integrations\Icloud\Dto\Response\LoginDelegates\LoginDelegates;
 use Modules\AppleClient\Service\Integrations\Request;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
 use Saloon\Http\Auth\BasicAuthenticator;
 use Saloon\Http\Response;
 use Saloon\Traits\Body\HasXmlBody;
-use Throwable;
 
 class LoginDelegatesRequest extends Request implements HasBody
 {

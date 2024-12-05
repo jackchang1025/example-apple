@@ -2,7 +2,7 @@
 
 namespace Modules\AppleClient\Service\Integrations\Icloud\Request;
 
-use Modules\AppleClient\Service\DataConstruct\Icloud\FamilyDetails\FamilyDetails;
+use Modules\AppleClient\Service\Integrations\Icloud\Dto\Response\FamilyDetails\FamilyDetails;
 use Modules\AppleClient\Service\Integrations\Request;
 use Saloon\Enums\Method;
 use Saloon\Http\Response;

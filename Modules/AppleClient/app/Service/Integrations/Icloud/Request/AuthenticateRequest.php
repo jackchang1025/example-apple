@@ -2,9 +2,9 @@
 
 namespace Modules\AppleClient\Service\Integrations\Icloud\Request;
 
-use Modules\AppleClient\Service\DataConstruct\Icloud\Authenticate\Authenticate;
 use Modules\AppleClient\Service\Exception\AccountException;
 use Modules\AppleClient\Service\Exception\UnauthorizedException;
+use Modules\AppleClient\Service\Integrations\Icloud\Dto\Response\Authenticate\Authenticate;
 use Modules\AppleClient\Service\Integrations\Request;
 use Saloon\Enums\Method;
 use Saloon\Http\Auth\BasicAuthenticator;

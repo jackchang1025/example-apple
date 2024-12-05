@@ -2,8 +2,8 @@
 
 namespace Modules\AppleClient\Service\Integrations\Icloud\Request;
 
-use Modules\AppleClient\Service\DataConstruct\Icloud\FamilyInfo\FamilyInfo;
-use Modules\AppleClient\Service\Integrations\Icloud\Dto\AddFamilyMemberData;
+use Modules\AppleClient\Service\Integrations\Icloud\Dto\Request\AddFamilyMember\AddFamilyMember;
+use Modules\AppleClient\Service\Integrations\Icloud\Dto\Response\FamilyInfo\FamilyInfo;
 use Modules\AppleClient\Service\Integrations\Request;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
@@ -17,7 +17,7 @@ class AddFamilyMemberRequest extends Request implements HasBody
     protected Method $method = Method::POST;
 
     public function __construct(
-        public readonly AddFamilyMemberData $data
+        public readonly AddFamilyMember $data
     ) {
 
     }

@@ -2,7 +2,8 @@
 
 namespace Modules\AppleClient\Service\Integrations\Icloud\Request;
 
-use Modules\AppleClient\Service\DataConstruct\Icloud\FamilyInfo\FamilyInfo;
+use Modules\AppleClient\Service\Integrations\Icloud\Dto\Request\CreateFamily\CreateFamily;
+use Modules\AppleClient\Service\Integrations\Icloud\Dto\Response\FamilyInfo\FamilyInfo;
 use Modules\AppleClient\Service\Integrations\Request;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
@@ -16,18 +17,14 @@ class CreateFamilyRequest extends Request implements HasBody
     protected Method $method = Method::POST;
 
     public function __construct(
-        public readonly string $organizerAppleId,//主账号
-        public readonly string $organizerAppleIdForPurchases,//付款账号
-        public readonly string $organizerAppleIdForPurchasesPassword,//付款账号密码
-        public readonly bool $organizerShareMyLocationEnabledDefault = true,
-        public readonly int $iTunesTosVersion = 284005
+        public readonly CreateFamily $data
     ) {
     }
 
     public function defaultHeaders(): array
     {
         return [
-            'X-MMe-LoggedIn-AppleID' => $this->organizerAppleId,
+            'X-MMe-LoggedIn-AppleID' => $this->data->organizerAppleId,
         ];
     }
 
@@ -38,13 +35,7 @@ class CreateFamilyRequest extends Request implements HasBody
 
     public function defaultBody(): array
     {
-        return [
-            "organizerAppleId"                       => $this->organizerAppleId,
-            "organizerAppleIdForPurchases"           => $this->organizerAppleIdForPurchases,
-            "organizerAppleIdForPurchasesPassword"   => $this->organizerAppleIdForPurchasesPassword,
-            "organizerShareMyLocationEnabledDefault" => $this->organizerShareMyLocationEnabledDefault,
-            "iTunesTosVersion"                       => $this->iTunesTosVersion,
-        ];
+        return $this->data->toArray();
     }
 
     public function createDtoFromResponse(Response $response): FamilyInfo
