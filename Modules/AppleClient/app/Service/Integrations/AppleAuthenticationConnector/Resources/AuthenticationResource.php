@@ -2,23 +2,26 @@
 
 namespace Modules\AppleClient\Service\Integrations\AppleAuthenticationConnector\Resources;
 
-use Modules\AppleClient\Service\Integrations\AppleAuthenticationConnector\Dto\SignInCompleteData;
-use Modules\AppleClient\Service\Integrations\AppleAuthenticationConnector\Dto\SignInInitData;
+use Modules\AppleClient\Service\Integrations\AppleAuthenticationConnector\Dto\Request\SignInComplete as SignInCompleteRequestData;
+use Modules\AppleClient\Service\Integrations\AppleAuthenticationConnector\Dto\Response\SignInComplete;
+use Modules\AppleClient\Service\Integrations\AppleAuthenticationConnector\Dto\Response\SignInInit;
 use Modules\AppleClient\Service\Integrations\AppleAuthenticationConnector\Request\SignInCompleteRequest;
 use Modules\AppleClient\Service\Integrations\AppleAuthenticationConnector\Request\SignInInitRequest;
 use Modules\AppleClient\Service\Integrations\BaseResource;
+use Saloon\Exceptions\Request\FatalRequestException;
+use Saloon\Exceptions\Request\RequestException;
 
 class AuthenticationResource extends BaseResource
 {
     /**
      * @param string $account
      *
-     * @return SignInInitData
+     * @return SignInInit
      * @throws \Saloon\Exceptions\Request\RequestException|\JsonException
      *
      * @throws \Saloon\Exceptions\Request\FatalRequestException
      */
-    public function signInInit(string $account): SignInInitData
+    public function signInInit(string $account): SignInInit
     {
         return $this->getConnector()
             ->send(new SignInInitRequest($account))
@@ -26,39 +29,15 @@ class AuthenticationResource extends BaseResource
     }
 
     /**
-     * @param string $key
-     * @param string $salt
-     * @param string $b
-     * @param string $c
-     * @param string $password
-     * @param string $iteration
-     * @param string $protocol
-     *
-     * @return SignInCompleteData
-     * @throws \Saloon\Exceptions\Request\FatalRequestException
-     * @throws \Saloon\Exceptions\Request\RequestException|\JsonException
-     *
+     * @param SignInCompleteRequestData $data
+     * @return SignInComplete
+     * @throws FatalRequestException
+     * @throws RequestException
      */
-    public function signInComplete(
-        string $key,
-        string $salt,
-        string $b,
-        string $c,
-        string $password,
-        string $iteration,
-        string $protocol
-    ): SignInCompleteData
+    public function signInComplete(SignInCompleteRequestData $data): SignInComplete
     {
         return $this->getConnector()->send(
-            new SignInCompleteRequest(
-                key: $key,
-                b: $b,
-                salt: $salt,
-                c: $c,
-                password: $password,
-                iteration: $iteration,
-                protocol: $protocol
-            )
+            new SignInCompleteRequest($data)
         )->dto();
     }
 }

@@ -7,7 +7,7 @@
 
 namespace Modules\AppleClient\Service\Integrations\AppleAuthenticationConnector\Request;
 
-use Modules\AppleClient\Service\Integrations\AppleAuthenticationConnector\Dto\SignInInitData;
+use Modules\AppleClient\Service\Integrations\AppleAuthenticationConnector\Dto\Response\SignInInit;
 use Modules\AppleClient\Service\Integrations\Request;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
@@ -26,9 +26,9 @@ class SignInInitRequest extends Request implements HasBody
     {
     }
 
-    public function createDtoFromResponse(Response $response): SignInInitData
+    public function createDtoFromResponse(Response $response): SignInInit
     {
-        return SignInInitData::from($response->json());
+        return SignInInit::from($response->json());
     }
     public function defaultBody(): array
     {

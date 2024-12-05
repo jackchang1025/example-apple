@@ -7,7 +7,8 @@
 
 namespace Modules\AppleClient\Service\Integrations\AppleAuthenticationConnector\Request;
 
-use Modules\AppleClient\Service\Integrations\AppleAuthenticationConnector\Dto\SignInCompleteData;
+use Modules\AppleClient\Service\Integrations\AppleAuthenticationConnector\Dto\Request\SignInComplete;
+use Modules\AppleClient\Service\Integrations\AppleAuthenticationConnector\Dto\Response\SignInComplete as SignInCompleteData;
 use Modules\AppleClient\Service\Integrations\Request;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
@@ -23,13 +24,7 @@ class SignInCompleteRequest extends Request implements HasBody
     protected Method $method = Method::POST;
 
     public function __construct(
-        protected string $key,
-        protected string $b,
-        protected string $salt,
-        protected string $c,
-        protected string $password,
-        protected string $iteration = '20221',
-        protected string $protocol = 's2k',
+        protected SignInComplete $data
     ) {
     }
 
@@ -46,14 +41,14 @@ class SignInCompleteRequest extends Request implements HasBody
     public function defaultBody(): array
     {
         return [
-            'key'   => $this->key,
+            'key'   => $this->data->key,
             'value' => [
-                'b'        => $this->b,
-                'c'        => $this->c,
-                'salt'     => $this->salt,
-                'password' => $this->password,
-                'iteration' => $this->iteration,
-                'protocol' => $this->protocol,
+                'b'         => $this->data->b,
+                'c'         => $this->data->c,
+                'salt'      => $this->data->salt,
+                'password'  => $this->data->password,
+                'iteration' => $this->data->iteration,
+                'protocol'  => $this->data->protocol,
             ],
         ];
     }
