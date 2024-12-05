@@ -2,7 +2,7 @@
 
 namespace Modules\AppleClient\Service\Integrations\Buy\Request;
 
-use Modules\AppleClient\Service\Integrations\Buy\DTO\AddPaymentInfosDto;
+use Modules\AppleClient\Service\Integrations\Buy\DTO\AddPaymentInfos;
 use Modules\AppleClient\Service\Integrations\Request;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
@@ -16,7 +16,7 @@ class AddPaymentInfosRequest extends Request implements HasBody
 
 
     public function __construct(
-        public AddPaymentInfosDto $addPaymentInfosDto
+        public AddPaymentInfos $addPaymentInfosDto
     ) {
     }
 

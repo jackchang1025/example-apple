@@ -1,10 +1,10 @@
 <?php
 
-namespace Modules\AppleClient\Service\Integrations\Buy\DTO;
+namespace Modules\AppleClient\Service\Integrations\Buy\Dto;
 
 use Spatie\LaravelData\Data;
 
-class AddPaymentInfosDto extends Data
+class AddPaymentInfos extends Data
 {
     /**
      * "paymentMethodType": "CreditCard",
