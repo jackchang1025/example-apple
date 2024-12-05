@@ -1,19 +1,19 @@
 <?php
 
-namespace Modules\AppleClient\Service\Integrations\Idmsa\Dto\Auth;
+namespace Modules\AppleClient\Service\Integrations\Idmsa\Dto\Response\Auth;
 
 use Modules\AppleClient\Service\DataConstruct\Data;
 use Modules\AppleClient\Service\Response\Response;
 
-class AuthData extends Data
+class Auth extends Data
 {
     /**
-     * @param DirectData $direct 直接相关的数据
-     * @param AdditionalData $additional 额外的数据
+     * @param Direct $direct 直接相关的数据
+     * @param Additional $additional 额外的数据
      */
     public function __construct(
-        public DirectData $direct,
-        public AdditionalData $additional
+        public Direct $direct,
+        public Additional $additional
     ) {
     }
 

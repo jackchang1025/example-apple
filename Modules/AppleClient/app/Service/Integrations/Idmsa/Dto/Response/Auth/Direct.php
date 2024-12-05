@@ -1,10 +1,10 @@
 <?php
 
-namespace Modules\AppleClient\Service\Integrations\Idmsa\Dto\Auth;
+namespace Modules\AppleClient\Service\Integrations\Idmsa\Dto\Response\Auth;
 
 use Modules\AppleClient\Service\DataConstruct\Data;
 
-class DirectData extends Data
+class Direct extends Data
 {
     /**
      * @param string $scriptSk7Url SK7脚本的URL
@@ -13,7 +13,7 @@ class DirectData extends Data
      * @param bool $isReact 是否为React组件
      * @param string $authUserType 认证用户类型
      * @param bool $hasTrustedDevices 是否有受信任的设备
-     * @param TwoSVData $twoSV 双重验证相关数据
+     * @param TwoSV $twoSV 双重验证相关数据
      * @param string $referrerQuery 引荐查询字符串
      * @param string $urlContext URL上下文
      * @param string $tag HTML标签
@@ -28,7 +28,7 @@ class DirectData extends Data
         public bool $isReact,
         public string $authUserType,
         public bool $hasTrustedDevices,
-        public TwoSVData $twoSV,
+        public TwoSV $twoSV,
         public string $referrerQuery,
         public string $urlContext,
         public string $tag,

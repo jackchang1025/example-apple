@@ -13,7 +13,7 @@ use Saloon\Enums\Method;
 use Saloon\Http\Response;
 use Saloon\Traits\Body\HasJsonBody;
 
-class AuthorizeSing extends Request implements HasBody
+class AuthorizeSingRequest extends Request implements HasBody
 {
     use HasJsonBody;
 

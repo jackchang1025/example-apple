@@ -12,7 +12,7 @@ use Modules\AppleClient\Service\Integrations\Request;
 use Saloon\Enums\Method;
 use Saloon\Http\Response;
 
-class AuthRepairComplete extends Request
+class AuthRepairCompleteRequest extends Request
 {
     protected Method $method = Method::POST;
 

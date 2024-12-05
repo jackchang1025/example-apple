@@ -10,7 +10,7 @@ namespace Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth;
 use Modules\AppleClient\Service\Integrations\Request;
 use Saloon\Enums\Method;
 
-class AuthorizeSignIn extends Request
+class AuthorizeSignInRequest extends Request
 {
     protected Method $method = Method::GET;
 

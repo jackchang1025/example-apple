@@ -7,25 +7,22 @@
 
 namespace Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth;
 
-use Modules\AppleClient\Service\Integrations\Idmsa\Dto\SignInCompleteData;
+use Modules\AppleClient\Service\Integrations\Idmsa\Dto\Request\SignIn\SignInComplete;
+use Modules\AppleClient\Service\Integrations\Idmsa\Dto\Response\SignIn\SignInComplete as SignInCompleteResponse;
 use Modules\AppleClient\Service\Integrations\Request;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
 use Saloon\Http\Response;
 use Saloon\Traits\Body\HasJsonBody;
 
-class SignInComplete extends Request implements HasBody
+class SignInCompleteRequest extends Request implements HasBody
 {
     use HasJsonBody;
 
     protected Method $method = Method::POST;
 
     public function __construct(
-        protected string $account,
-        protected string $m1,
-        protected string $m2,
-        protected string $c,
-        protected bool $rememberMe = false,
+        public SignInComplete $data
     ) {
     }
 
@@ -34,19 +31,19 @@ class SignInComplete extends Request implements HasBody
         return '/appleauth/auth/signin/complete?isRememberMeEnabled=true';
     }
 
-    public function createDtoFromResponse(Response $response): SignInCompleteData
+    public function createDtoFromResponse(Response $response): SignInCompleteResponse
     {
-        return SignInCompleteData::from($response->json());
+        return SignInCompleteResponse::from($response->json());
     }
 
     public function defaultBody(): array
     {
         return [
-            'accountName' => $this->account,
-            'm1' => $this->m1,
-            'm2' => $this->m2,
-            'c' => $this->c,
-            'rememberMe' => $this->rememberMe,
+            'accountName' => $this->data->account,
+            'm1'          => $this->data->m1,
+            'm2'          => $this->data->m2,
+            'c'           => $this->data->c,
+            'rememberMe'  => $this->data->rememberMe,
         ];
     }
 

@@ -7,14 +7,14 @@
 
 namespace Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth;
 
-use Modules\AppleClient\Service\Integrations\Idmsa\Dto\VerifyPhoneSecurityCode\VerifyPhoneSecurityCodeData;
+use Modules\AppleClient\Service\Integrations\Idmsa\Dto\Response\VerifyPhoneSecurityCode\VerifyPhoneSecurityCode;
 use Modules\AppleClient\Service\Integrations\Request;
 use Modules\AppleClient\Service\Response\Response;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
 use Saloon\Traits\Body\HasJsonBody;
 
-class VerifyPhoneSecurityCode extends Request implements HasBody
+class VerifyPhoneSecurityCodeRequest extends Request implements HasBody
 {
     use HasJsonBody;
 
@@ -31,9 +31,9 @@ class VerifyPhoneSecurityCode extends Request implements HasBody
         return '/appleauth/auth/verify/phone/securitycode';
     }
 
-    public function createDtoFromResponse(Response $response): VerifyPhoneSecurityCodeData
+    public function createDtoFromResponse(Response $response): VerifyPhoneSecurityCode
     {
-        return VerifyPhoneSecurityCodeData::from($response->json());
+        return VerifyPhoneSecurityCode::from($response->json());
     }
 
     public function defaultBody(): array

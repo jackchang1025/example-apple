@@ -7,14 +7,14 @@
 
 namespace Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth;
 
-use Modules\AppleClient\Service\Integrations\Idmsa\Dto\SendVerificationCode\SendPhoneVerificationCodeData;
+use Modules\AppleClient\Service\Integrations\Idmsa\Dto\Response\SendVerificationCode\SendPhoneVerificationCode;
 use Modules\AppleClient\Service\Integrations\Request;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
 use Saloon\Http\Response;
 use Saloon\Traits\Body\HasJsonBody;
 
-class SendPhoneSecurityCode extends Request implements HasBody
+class SendPhoneSecurityCodeRequest extends Request implements HasBody
 {
     use HasJsonBody;
 
@@ -24,9 +24,9 @@ class SendPhoneSecurityCode extends Request implements HasBody
     {
     }
 
-    public function createDtoFromResponse(Response $response): SendPhoneVerificationCodeData
+    public function createDtoFromResponse(Response $response): SendPhoneVerificationCode
     {
-        return SendPhoneVerificationCodeData::from($response->json());
+        return SendPhoneVerificationCode::from($response->json());
     }
 
     public function resolveEndpoint(): string

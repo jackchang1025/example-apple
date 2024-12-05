@@ -12,7 +12,7 @@ use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
 use Saloon\Traits\Body\HasJsonBody;
 
-class VerifyTrustedDeviceSecurityCode extends Request implements HasBody
+class VerifyTrustedDeviceSecurityCodeRequest extends Request implements HasBody
 {
     use HasJsonBody;
 

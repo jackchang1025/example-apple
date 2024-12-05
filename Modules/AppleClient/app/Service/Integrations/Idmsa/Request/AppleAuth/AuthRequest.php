@@ -7,12 +7,12 @@
 
 namespace Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth;
 
-use Modules\AppleClient\Service\Integrations\Idmsa\Dto\Auth\AuthData;
+use Modules\AppleClient\Service\Integrations\Idmsa\Dto\Response\Auth\Auth as AuthResponse;
 use Modules\AppleClient\Service\Integrations\Request;
 use Modules\AppleClient\Service\Response\Response;
 use Saloon\Enums\Method;
 
-class Auth extends Request
+class AuthRequest extends Request
 {
     protected Method $method = Method::GET;
 
@@ -21,9 +21,9 @@ class Auth extends Request
         return '/appleauth/auth';
     }
 
-    public function createDtoFromResponse(Response $response): AuthData
+    public function createDtoFromResponse(Response $response): AuthResponse
     {
-        return AuthData::from($response->json());
+        return AuthResponse::from($response->json());
     }
 
     public function defaultHeaders(): array

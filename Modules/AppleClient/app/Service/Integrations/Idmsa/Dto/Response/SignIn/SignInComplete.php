@@ -1,12 +1,12 @@
 <?php
 
-namespace Modules\AppleClient\Service\Integrations\Idmsa\Dto;
+namespace Modules\AppleClient\Service\Integrations\Idmsa\Dto\Response\SignIn;
 
 use Illuminate\Support\Carbon;
 use Modules\AppleClient\Service\DataConstruct\Data;
 use Modules\AppleClient\Service\Response\Response;
 
-class SignInCompleteData extends Data
+class SignInComplete extends Data
 {
     public function __construct(
         public string $authType,

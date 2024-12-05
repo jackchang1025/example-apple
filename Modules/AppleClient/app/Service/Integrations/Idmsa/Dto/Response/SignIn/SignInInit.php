@@ -1,10 +1,10 @@
 <?php
 
-namespace Modules\AppleClient\Service\Integrations\Idmsa\Dto;
+namespace Modules\AppleClient\Service\Integrations\Idmsa\Dto\Response\SignIn;
 
 use Spatie\LaravelData\Data;
 
-class SignInInitData extends Data
+class SignInInit extends Data
 {
     public function __construct(
         public string $salt,

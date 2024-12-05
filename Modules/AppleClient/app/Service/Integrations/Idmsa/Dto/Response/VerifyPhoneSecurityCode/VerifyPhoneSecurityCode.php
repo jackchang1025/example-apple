@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\AppleClient\Service\Integrations\Idmsa\Dto\VerifyPhoneSecurityCode;
+namespace Modules\AppleClient\Service\Integrations\Idmsa\Dto\Response\VerifyPhoneSecurityCode;
 
 use Modules\AppleClient\Service\DataConstruct\Data;
 use Modules\AppleClient\Service\DataConstruct\PhoneNumber;
@@ -8,7 +8,7 @@ use Modules\AppleClient\Service\DataConstruct\SecurityCode;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\DataCollection;
 
-class VerifyPhoneSecurityCodeData extends Data
+class VerifyPhoneSecurityCode extends Data
 {
 
     /**

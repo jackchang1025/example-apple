@@ -7,22 +7,22 @@ use Modules\AppleClient\Service\DataConstruct\NullData;
 use Modules\AppleClient\Service\Exception\VerificationCodeException;
 use Modules\AppleClient\Service\Exception\VerificationCodeSentTooManyTimesException;
 use Modules\AppleClient\Service\Integrations\BaseResource;
-use Modules\AppleClient\Service\Integrations\Idmsa\Dto\Auth\AuthData;
-use Modules\AppleClient\Service\Integrations\Idmsa\Dto\SendVerificationCode\SendDeviceSecurityCodeData;
-use Modules\AppleClient\Service\Integrations\Idmsa\Dto\SendVerificationCode\SendPhoneVerificationCodeData;
-use Modules\AppleClient\Service\Integrations\Idmsa\Dto\SignInCompleteData;
-use Modules\AppleClient\Service\Integrations\Idmsa\Dto\SignInInitData;
-use Modules\AppleClient\Service\Integrations\Idmsa\Dto\VerifyPhoneSecurityCode\VerifyPhoneSecurityCodeData;
-use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\Auth;
-use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\AuthorizeSignIn;
-use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\AuthorizeSing;
-use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\AuthRepairComplete;
-use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\SendPhoneSecurityCode;
-use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\SendTrustedDeviceSecurityCode;
-use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\SignInComplete;
-use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\SigninInit;
-use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\VerifyPhoneSecurityCode;
-use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\VerifyTrustedDeviceSecurityCode;
+use Modules\AppleClient\Service\Integrations\Idmsa\Dto\Request\SignIn\SignInComplete;
+use Modules\AppleClient\Service\Integrations\Idmsa\Dto\Response\Auth\Auth;
+use Modules\AppleClient\Service\Integrations\Idmsa\Dto\Response\SendVerificationCode\SendDeviceSecurityCode;
+use Modules\AppleClient\Service\Integrations\Idmsa\Dto\Response\SignIn\SignInComplete as SignInCompleteResponse;
+use Modules\AppleClient\Service\Integrations\Idmsa\Dto\Response\SignIn\SignInInit;
+use Modules\AppleClient\Service\Integrations\Idmsa\Dto\Response\VerifyPhoneSecurityCode\VerifyPhoneSecurityCode;
+use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\AuthorizeSignInRequest;
+use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\AuthorizeSingRequest;
+use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\AuthRepairCompleteRequest;
+use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\AuthRequest;
+use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\SendPhoneSecurityCodeRequest;
+use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\SendTrustedDeviceSecurityCodeRequest;
+use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\SignInCompleteRequest;
+use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\SigninInitRequest;
+use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\VerifyPhoneSecurityCodeRequest;
+use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\VerifyTrustedDeviceSecurityCodeRequest;
 use Modules\AppleClient\Service\Response\Response;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
@@ -34,45 +34,28 @@ class AuthenticateResources extends BaseResource
      * @param string $a
      * @param string $account
      *
-     * @return SignInInitData
+     * @return SignInInit
      * @throws FatalRequestException
      * @throws RequestException
      */
-    public function signInInit(string $a, string $account): SignInInitData
+    public function signInInit(string $a, string $account): SignInInit
     {
         return $this->getConnector()
-            ->send(new SigninInit($a, $account))
+            ->send(new SigninInitRequest($a, $account))
             ->dto();
     }
 
 
     /**
-     * @param string $account
-     * @param string $m1
-     * @param string $m2
-     * @param string $c
-     * @param bool $rememberMe
-     *
-     * @return SignInCompleteData
+     * @param SignInComplete $data
+     * @return SignInCompleteResponse
      * @throws FatalRequestException
-     *
      * @throws RequestException
      */
-    public function signInComplete(
-        string $account,
-        string $m1,
-        string $m2,
-        string $c,
-        bool $rememberMe = false
-    ): SignInCompleteData {
+    public function signInComplete(SignInComplete $data): SignInCompleteResponse
+    {
         return $this->getConnector()->send(
-            new SignInComplete(
-                account: $account,
-                m1: $m1,
-                m2: $m2,
-                c: $c,
-                rememberMe: $rememberMe
-            )
+            new SignInCompleteRequest($data)
         )->dto();
     }
 
@@ -90,7 +73,7 @@ class AuthenticateResources extends BaseResource
         $config = $this->getConnector()->config();
 
         return $this->getConnector()->send(
-            new AuthorizeSignIn(
+            new AuthorizeSignInRequest(
                 frameId: $this->getConnector()->buildUUid(),
                 clientId: $config->getServiceKey(),
                 redirectUri: $config->getApiUrl(),
@@ -111,18 +94,18 @@ class AuthenticateResources extends BaseResource
      */
     public function authorizeSing(string $accountName, string $password, bool $rememberMe = true): Response
     {
-        return $this->getConnector()->send(new AuthorizeSing($accountName, $password, $rememberMe));
+        return $this->getConnector()->send(new AuthorizeSingRequest($accountName, $password, $rememberMe));
     }
 
     /**
-     * @return AuthData
+     * @return Auth
      * @throws RequestException
      *
      * @throws FatalRequestException
      */
-    public function auth(): AuthData
+    public function auth(): Auth
     {
-        return $this->getConnector()->send(new Auth())->dto();
+        return $this->getConnector()->send(new AuthRequest())->dto();
     }
 
     /**
@@ -139,7 +122,7 @@ class AuthenticateResources extends BaseResource
         try {
 
             return $this->getConnector()
-                ->send(new VerifyTrustedDeviceSecurityCode($code))
+                ->send(new VerifyTrustedDeviceSecurityCodeRequest($code))
                 ->dto();
 
         } catch (RequestException $e) {
@@ -171,25 +154,25 @@ class AuthenticateResources extends BaseResource
      */
     public function managePrivacyAccept(): Response
     {
-        return $this->getConnector()->send(new AuthRepairComplete());
+        return $this->getConnector()->send(new AuthRepairCompleteRequest());
     }
 
     /**
      * @param string $id
      * @param string $code
      *
-     * @return VerifyPhoneSecurityCodeData
+     * @return VerifyPhoneSecurityCode
      * @throws RequestException
      * @throws VerificationCodeException
      *
      * @throws FatalRequestException
      */
-    public function verifyPhoneCode(string $id, string $code): VerifyPhoneSecurityCodeData
+    public function verifyPhoneCode(string $id, string $code): VerifyPhoneSecurityCode
     {
         try {
 
             return $this->getConnector()
-                ->send(new VerifyPhoneSecurityCode($id, $code))
+                ->send(new VerifyPhoneSecurityCodeRequest($id, $code))
                 ->dto();
 
         } catch (RequestException $e) {
@@ -218,30 +201,30 @@ class AuthenticateResources extends BaseResource
     }
 
     /**
-     * @return SendDeviceSecurityCodeData
+     * @return SendDeviceSecurityCode
      * @throws RequestException
      *
      * @throws FatalRequestException
      */
-    public function sendSecurityCode(): SendDeviceSecurityCodeData
+    public function sendSecurityCode(): SendDeviceSecurityCode
     {
-        return $this->getConnector()->send(new SendTrustedDeviceSecurityCode())->dto();
+        return $this->getConnector()->send(new SendTrustedDeviceSecurityCodeRequest())->dto();
     }
 
     /**
      * @param int $id
      *
-     * @return SendPhoneVerificationCodeData
+     * @return SendDeviceSecurityCode
      * @throws RequestException
      * @throws VerificationCodeSentTooManyTimesException
      *
      * @throws FatalRequestException
      */
-    public function sendPhoneSecurityCode(int $id): SendPhoneVerificationCodeData
+    public function sendPhoneSecurityCode(int $id): SendDeviceSecurityCode
     {
         try {
 
-            return $this->getConnector()->send(new SendPhoneSecurityCode($id))->dto();
+            return $this->getConnector()->send(new SendPhoneSecurityCodeRequest($id))->dto();
 
         } catch (RequestException $e) {
 

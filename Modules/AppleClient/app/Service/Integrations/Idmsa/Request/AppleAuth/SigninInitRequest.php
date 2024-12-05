@@ -7,14 +7,14 @@
 
 namespace Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth;
 
-use Modules\AppleClient\Service\Integrations\Idmsa\Dto\SignInInitData;
+use Modules\AppleClient\Service\Integrations\Idmsa\Dto\Response\SignIn\SignInInit;
 use Modules\AppleClient\Service\Integrations\Request;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
 use Saloon\Http\Response;
 use Saloon\Traits\Body\HasJsonBody;
 
-class SigninInit extends Request implements HasBody
+class SigninInitRequest extends Request implements HasBody
 {
     use HasJsonBody;
 
@@ -24,9 +24,9 @@ class SigninInit extends Request implements HasBody
     {
     }
 
-    public function createDtoFromResponse(Response $response): SignInInitData
+    public function createDtoFromResponse(Response $response): SignInInit
     {
-        return SignInInitData::from($response->json());
+        return SignInInit::from($response->json());
     }
 
     public function defaultBody(): array

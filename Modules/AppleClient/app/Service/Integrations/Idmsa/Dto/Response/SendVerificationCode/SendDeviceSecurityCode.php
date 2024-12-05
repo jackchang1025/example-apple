@@ -1,15 +1,15 @@
 <?php
 
-namespace Modules\AppleClient\Service\Integrations\Idmsa\Dto\SendVerificationCode;
+namespace Modules\AppleClient\Service\Integrations\Idmsa\Dto\Response\SendVerificationCode;
 
 use Modules\AppleClient\Service\DataConstruct\Data;
 use Modules\AppleClient\Service\DataConstruct\SecurityCode;
 
-class SendDeviceSecurityCodeData extends Data
+class SendDeviceSecurityCode extends Data
 {
 
     public function __construct(
-        public PhoneNumberVerificationData $phoneNumberVerification,
+        public PhoneNumberVerification $phoneNumberVerification,
         public string $aboutTwoFactorAuthenticationUrl,
         public SecurityCode $securityCode,
         public int $trustedDeviceCount,

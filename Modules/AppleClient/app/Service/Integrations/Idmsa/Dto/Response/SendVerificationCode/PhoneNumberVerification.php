@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\AppleClient\Service\Integrations\Idmsa\Dto\SendVerificationCode;
+namespace Modules\AppleClient\Service\Integrations\Idmsa\Dto\Response\SendVerificationCode;
 
 use Modules\AppleClient\Service\DataConstruct\Data;
 use Modules\AppleClient\Service\DataConstruct\PhoneNumber;
@@ -8,7 +8,7 @@ use Modules\AppleClient\Service\DataConstruct\SecurityCode;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\DataCollection;
 
-class PhoneNumberVerificationData extends Data
+class PhoneNumberVerification extends Data
 {
 
     public function __construct(

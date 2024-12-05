@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\AppleClient\Service\Integrations\Idmsa\Dto\Auth;
+namespace Modules\AppleClient\Service\Integrations\Idmsa\Dto\Response\Auth;
 
 use Modules\AppleClient\Service\DataConstruct\Data;
 use Modules\AppleClient\Service\DataConstruct\PhoneNumber;
@@ -8,7 +8,7 @@ use Modules\AppleClient\Service\DataConstruct\SecurityCode;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\DataCollection;
 
-class PhoneNumberVerificationData extends Data
+class PhoneNumberVerification extends Data
 {
     /**
      * @param DataCollection<PhoneNumber> $trustedPhoneNumbers 受信任的电话号码列表
