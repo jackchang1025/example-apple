@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage;
+namespace Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\Account;
 
-use Modules\AppleClient\Service\DataConstruct\Payment\PaymentConfig;
+use Modules\AppleClient\Service\Integrations\AppleId\Dto\Response\Payment\PaymentConfig;
 use Modules\AppleClient\Service\Integrations\Request;
 use Saloon\Enums\Method;
 use Saloon\Http\Response;

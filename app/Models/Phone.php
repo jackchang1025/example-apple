@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Modules\AppleClient\Service\DataConstruct\AddSecurityVerifyPhone\AddSecurityVerifyPhoneInterface;
 use Modules\Phone\Services\PhoneNumberFactory;
 use Modules\Phone\Services\PhoneService;
 use Modules\PhoneCode\Service\PhoneCodeService;
@@ -40,7 +41,7 @@ use Saloon\Exceptions\Request\RequestException;
  * @method static \Database\Factories\PhoneFactory factory($count = null, $state = [])
  * @mixin \Eloquent
  */
-class Phone extends Model
+class Phone extends Model implements AddSecurityVerifyPhoneInterface
 {
     use HasFactory;
 
@@ -128,5 +129,25 @@ class Phone extends Model
     public function getPhoneCode(): Response
     {
         return app(PhoneCodeService::class)->getPhoneCode($this->phone_address);
+    }
+
+    public function getCountryCode(): string
+    {
+        return $this->country_code;
+    }
+
+    public function getPhoneNumber(): string
+    {
+        return $this->phone;
+    }
+
+    public function getCountryDialCode(): string
+    {
+        return $this->country_dial_code;
+    }
+
+    public function getPhoneAddress(): string
+    {
+        return $this->phone_address;
     }
 }

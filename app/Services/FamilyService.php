@@ -6,45 +6,50 @@ use App\Exceptions\Family\FamilyException;
 use App\Models\Account;
 use App\Models\Family;
 use App\Models\FamilyMember;
-use App\Services\Traits\HasFamilyMemberValidation;
+use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\Container\CircularDependencyException;
 use Illuminate\Support\Facades\DB;
-use Modules\AppleClient\Service\AppleAccountManager;
-use Modules\AppleClient\Service\DataConstruct\Icloud\FamilyInfo\FamilyInfo;
-use Modules\AppleClient\Service\DataConstruct\Icloud\ITunesAccountPaymentInfo\ITunesAccountPaymentInfo;
-use Modules\AppleClient\Service\Integrations\Icloud\Dto\VerifyCVVRequestDto;
+use Modules\AppleClient\Service\Apple;
+use Modules\AppleClient\Service\AppleBuilder;
+use Modules\AppleClient\Service\Integrations\Icloud\Dto\Request\CreateFamily\CreateFamily;
+use Modules\AppleClient\Service\Integrations\Icloud\Dto\Response\FamilyDetails\FamilyDetails;
+use Modules\AppleClient\Service\Integrations\Icloud\Dto\Response\FamilyInfo\FamilyInfo;
+use Modules\AppleClient\Service\Integrations\Icloud\Dto\Request\VerifyCVV\VerifyCVV;
+use Modules\AppleClient\Service\Integrations\Icloud\Dto\Response\ITunesAccountPaymentInfo\ITunesAccountPaymentInfo;
 
-
-class FamilyService
+readonly class FamilyService
 {
-    use HasFamilyMemberValidation;
+
 
     /**
      *
-     * @param AppleAccountManager $accountManager
-     * @throws FamilyException
+     * @param Apple $apple
      */
     public function __construct(
-        protected readonly AppleAccountManager $accountManager,
+        protected Apple $apple
     ) {
-        $this->initAppleAccountManager();
-    }
 
-    protected function initAppleAccountManager(): void
-    {
-        if (!$authenticate = $this->accountManager->getAuthenticate()) {
-            throw FamilyException::loginInvalid();
-        }
-        $this->accountManager->setupAuthentication($authenticate);
     }
 
     /**
-     * @param AppleAccountManager $accountManager
+     * @param Account $apple
      * @return self
-     * @throws FamilyException
+     * @throws BindingResolutionException
+     * @throws CircularDependencyException
      */
-    public static function make(AppleAccountManager $accountManager): self
+    public static function make(Account $apple): self
     {
-        return new self($accountManager);
+        return new self(app(AppleBuilder::class)->build($apple->toAccount()));
+    }
+
+    public function getFamilyDetails(): FamilyDetails
+    {
+        return $this->apple->getApiResources()->getIcloudResource()->getFamilyResources()->getFamilyDetails();
+    }
+
+    public function getFamilyInfo(): FamilyInfo
+    {
+        return $this->apple->getApiResources()->getIcloudResource()->getFamilyResources()->getFamilyInfo();
     }
 
     /**
@@ -52,37 +57,36 @@ class FamilyService
      */
     public function createFamily(Account $account, string $payAccount, string $payPassword): Family
     {
-        $this->validateNotMember();
 
-        return DB::transaction(function () use ($account, $payAccount, $payPassword) {
-            $familyInfo = $this->accountManager->createFamily(
-                $account->account,
-                $payAccount,
-                $payPassword
-            );
+        $familyInfo = $this->apple->getApiResources()->getIcloudResource()->getFamilyResources()->createFamily(
+            CreateFamily::from([
+                'organizerAppleId'                     => $account->account,
+                'organizerAppleIdForPurchases'         => $payAccount,
+                'organizerAppleIdForPurchasesPassword' => $payPassword,
+            ])
+        );
 
-            return $this->updateFamilyData($familyInfo);
-        });
+        return DB::transaction(fn() => $this->updateFamilyData($familyInfo));
     }
 
     /**
      * 添加家庭成员
      * @param string $addAccount
      * @param string $addPassword
-     * @param VerifyCVVRequestDto $dto
-     * @return Family
+     * @param VerifyCVV $data
+     * @return null|Family
      * @throws FamilyException
      * @throws \Throwable
+     * @throws FamilyException
      */
-    public function addFamilyMember(
-        string $addAccount,
-        string $addPassword,
-        VerifyCVVRequestDto $dto
-    ): Family {
+    public function addFamilyMember(string $addAccount, string $addPassword, VerifyCVV $data): ?Family
+    {
 
-        $this->validateIsMemberOfFamilyAndIsOrganizer();
-
-        $familyInfo = $this->accountManager->addFamilyMember($addAccount, $addPassword, $dto);
+        $familyInfo = $this->apple
+            ->getApiResources()
+            ->getIcloudResource()
+            ->getFamilyResources()
+            ->addFamilyMember($addAccount, $addPassword, $data);
 
         return DB::transaction(fn() => $this->updateFamilyData($familyInfo));
     }
@@ -92,11 +96,12 @@ class FamilyService
      */
     public function removeFamilyMember(FamilyMember $member): ?Family
     {
-        $this->validateIsMemberOfFamilyAndIsOrganizer();
 
-        return DB::transaction(function () use ($member) {
+        $familyInfo = $this->apple->getApiResources()->getIcloudResource()->getFamilyResources()->removeFamilyMember(
+            $member->dsid
+        );
 
-            $familyInfo = $this->accountManager->removeFamilyMember($member->dsid);
+        return DB::transaction(function () use ($familyInfo) {
 
             $this->deleteFamilyData();
 
@@ -109,18 +114,9 @@ class FamilyService
      */
     public function leaveFamily(): void
     {
-        $this->validateIsMember();
-        $familyDetails = $this->getFamilyDetails();
+        $this->apple->getApiResources()->getIcloudResource()->getFamilyResources()->leaveFamily();
 
-        DB::transaction(function () use ($familyDetails) {
-            if ($familyDetails->isFamilyOrganizer($this->accountManager->getAccount()->dsid)) {
-                $this->handleOrganizerLeave();
-
-                return;
-            }
-
-            FamilyMember::where('dsid', $this->accountManager->getAccount()->dsid)->delete();
-        });
+        DB::transaction(fn() => $this->deleteFamilyData());
     }
 
     /**
@@ -128,14 +124,8 @@ class FamilyService
      */
     public function getITunesAccountPaymentInfo(): ITunesAccountPaymentInfo
     {
-        $this->validateIsMemberOfFamilyAndIsOrganizer();
-
-        $paymentInfo = $this->accountManager->getITunesAccountPaymentInfo();
-        if (!$paymentInfo->isSuccess()) {
-            throw new FamilyException($paymentInfo->statusMessage);
-        }
-
-        return $paymentInfo;
+        return $this->apple->getApiResources()->getIcloudResource()->getFamilyResources()->getITunesAccountPaymentInfo(
+        );
     }
 
     public function updateFamilyData(FamilyInfo $familyInfo): ?Family
@@ -150,16 +140,6 @@ class FamilyService
 
     public function deleteFamilyData(): ?bool
     {
-        return $this->accountManager->getAccount()->belongToFamily?->delete();
-    }
-
-    private function handleOrganizerLeave(): void
-    {
-        if (!$this->canOrganizerLeave()) {
-            throw FamilyException::organizerCannotLeave();
-        }
-
-        $this->accountManager->leaveFamily();
-        $this->deleteFamilyData();
+        return $this->apple->getAccount()->model()?->belongToFamily?->delete();
     }
 }

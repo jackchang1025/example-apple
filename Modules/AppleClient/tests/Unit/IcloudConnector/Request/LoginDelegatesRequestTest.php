@@ -1,9 +1,8 @@
 <?php
 
 use Illuminate\Foundation\Testing\TestCase;
-use Modules\AppleClient\Service\AppleClient;
+use Modules\AppleClient\Service\Apple;
 use Modules\AppleClient\Service\DataConstruct\Account;
-use Modules\AppleClient\Service\DataConstruct\Icloud\LoginDelegates\LoginDelegates;
 use Modules\AppleClient\Service\Exception\AppleRequestException\LoginRequestException;
 use Modules\AppleClient\Service\Exception\VerificationCodeException;
 use Modules\AppleClient\Service\Integrations\Icloud\IcloudConnector;
@@ -11,7 +10,7 @@ use Modules\AppleClient\Service\Integrations\Icloud\Request\LoginDelegatesReques
 use Saloon\Exceptions\Request\Statuses\InternalServerErrorException;
 use Saloon\Http\Faking\MockClient;
 use Saloon\Http\Faking\MockResponse;
-
+use Modules\AppleClient\Service\Integrations\Icloud\Dto\Response\LoginDelegates\LoginDelegates;
 uses(TestCase::class);
 
 
@@ -22,8 +21,11 @@ beforeEach(function () {
     $this->authCode = null;
     $this->request = new LoginDelegatesRequest($this->appleId, $this->password, $this->authCode);
 
+    // 创建 IcloudConnector 实例
+    $this->account = new Account($this->appleId, $this->password);
+    // 创建 IcloudConnector 实例
     $this->icloudConnector = new IcloudConnector(
-        new AppleClient(new Account($this->appleId, $this->password))
+        new Apple(account: $this->account, config: new \Modules\AppleClient\Service\Config\Config())
     );
 
 });
@@ -45,9 +47,8 @@ it('test createDtoFromResponse CannotCreateData', function () {
     ]);
 
     $this->icloudConnector->withMockClient($mockClient);
-    $response = $this->icloudConnector->send($this->request);
+    $this->icloudConnector->send($this->request)->dto();
 
-    expect($response)->toBeInstanceOf(\Saloon\Http\Response::class);
 })->throws(
     ErrorException::class,
 );
@@ -78,9 +79,8 @@ it('test createDtoFromResponse service error', function () {
     ]);
 
     $this->icloudConnector->withMockClient($mockClient);
-    $response = $this->icloudConnector->send($this->request);
+    $this->icloudConnector->send($this->request);
 
-    expect($response)->toBeInstanceOf(\Saloon\Http\Response::class);
 })->throws(InternalServerErrorException::class);
 
 it('test createDtoFromResponse login error', function () {
@@ -100,11 +100,9 @@ it('test createDtoFromResponse login error', function () {
         ),
     ]);
 
-    $this->request = new LoginDelegatesRequest($this->appleId, $this->password);
     $this->icloudConnector->withMockClient($mockClient);
-    $response = $this->icloudConnector->send($this->request);
+    $this->icloudConnector->send($this->request);
 
-    expect($response)->toBeInstanceOf(\Saloon\Http\Response::class);
 })->throws(LoginRequestException::class, 'Your Apple ID or password was entered incorrectly.');
 
 it('test createDtoFromResponse login success', function () {
@@ -140,7 +138,8 @@ it('test createDtoFromResponse auth error', function () {
         <key>status</key>
         <integer>1</integer>
     </dict>
-</plist>'
+</plist>',
+            status: 200
         ),
     ]);
 

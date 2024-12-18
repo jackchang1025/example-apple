@@ -9,11 +9,11 @@ use Saloon\Http\Response;
 
 trait HasLogger
 {
-    use HasPipeline;
+    use HasPipelineExists;
 
     protected ?LoggerInterface $logger = null;
 
-    public function withLogger(LoggerInterface $logger): static
+    public function withLogger(?LoggerInterface $logger = null): static
     {
         $this->logger = $logger;
 

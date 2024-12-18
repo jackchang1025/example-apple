@@ -1,15 +1,16 @@
 <?php
 
 use Illuminate\Foundation\Testing\TestCase;
-use Modules\AppleClient\Service\AppleClient;
+use Modules\AppleClient\Service\Apple;
 use Modules\AppleClient\Service\DataConstruct\Account;
-use Modules\AppleClient\Service\DataConstruct\Icloud\FamilyInfo\FamilyInfo;
+use Modules\AppleClient\Service\DataConstruct\Icloud\FamilyInfo\FamilyInfoData;
 use Modules\AppleClient\Service\Integrations\Icloud\IcloudConnector;
 use Modules\AppleClient\Service\Integrations\Icloud\Request\CreateFamilyRequest;
 use Saloon\Exceptions\Request\Statuses\InternalServerErrorException;
 use Saloon\Http\Faking\MockClient;
 use Saloon\Http\Faking\MockResponse;
-
+use Modules\AppleClient\Service\Integrations\Icloud\Dto\Request\CreateFamily\CreateFamily;
+use Modules\AppleClient\Service\Integrations\Icloud\Dto\Response\FamilyInfo\FamilyInfo;
 uses(TestCase::class);
 
 
@@ -25,15 +26,21 @@ beforeEach(function () {
     $this->iTunesTosVersion                       = 284005;
 
     $this->request = new CreateFamilyRequest(
-        $this->organizerAppleId,
-        $this->organizerAppleIdForPurchasesPassword,
-        $this->organizerAppleIdForPurchases,
-        $this->organizerShareMyLocationEnabledDefault,
-        $this->iTunesTosVersion
+        CreateFamily::from([
+            'organizerAppleId'                       => $this->organizerAppleId,
+            'organizerAppleIdForPurchasesPassword'   => $this->organizerAppleIdForPurchasesPassword,
+            'organizerAppleIdForPurchases'           => $this->organizerAppleIdForPurchases,
+            'organizerShareMyLocationEnabledDefault' => $this->organizerShareMyLocationEnabledDefault,
+            'iTunesTosVersion'                       => $this->iTunesTosVersion,
+        ])
+
     );
 
+
+    $this->account = new Account($this->appleId, $this->password);
+    // 创建 IcloudConnector 实例
     $this->icloudConnector = new IcloudConnector(
-        new AppleClient(new Account($this->appleId, $this->password))
+        new Apple(account: $this->account, config: new \Modules\AppleClient\Service\Config\Config())
     );
 
 });

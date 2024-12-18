@@ -7,47 +7,25 @@
 
 namespace Modules\AppleClient\Service\Config;
 
-use Saloon\Contracts\ArrayStore as ArrayStoreContract;
-use Saloon\Traits\RequestProperties\HasConfig as HasBaseConfig;
 
 trait HasConfig
 {
-    use HasBaseConfig;
+    protected ?config $config = null;
 
-    public function config(): ArrayStoreContract
+    public function config(): config
     {
-        return $this->config ??= new Config($this->defaultConfig());
+        return $this->config ??= new Config();
     }
 
     /**
      * 设置配置.
      *
-     * 支持传入 Config 对象或数组来配置
-     *
-     * @param ArrayStoreContract|array<string, mixed>|string $config
-     * @param mixed|null                                     $value
-     *
+     * @param config $config
      * @return $this
      */
-    public function withConfig(ArrayStoreContract|array|string $config, mixed $value = null): static
+    public function withConfig(config $config): static
     {
-        if ($config instanceof Config) {
-            $this->config = $config;
-
-            return $this;
-        }
-
-        if (is_array($config)) {
-            $configObject = $this->config();
-            $configObject->merge($config);
-
-            return $this;
-        }
-
-        if ($value !== null) {
-            $this->config()->add($config, $value);
-        }
-
+        $this->config = $config;
         return $this;
     }
 }

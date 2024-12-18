@@ -3,10 +3,11 @@
 namespace App\Filament\Actions;
 
 use App\Models\Account;
+use App\Services\FamilyService;
 use Exception;
 use Filament\Tables\Actions\Action;
 use Illuminate\Support\Facades\Log;
-use Modules\AppleClient\Service\AppleAccountManagerFactory;
+use Modules\AppleClient\Service\AppleFactory;
 
 class LeaveFamilyAction extends Action
 {
@@ -48,9 +49,7 @@ class LeaveFamilyAction extends Action
 
     protected function handle(Account $account): void
     {
-        app(AppleAccountManagerFactory::class)
-            ->create($account)
-            ->getFamilyService()
+        FamilyService::make($account)
             ->leaveFamily();
     }
 }

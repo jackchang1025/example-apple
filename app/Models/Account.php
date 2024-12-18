@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
- *
+ * 
  *
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -53,6 +53,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property-read \App\Models\Family|null $belongToFamily
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PhoneNumber> $phoneNumbers
  * @property-read int|null $phone_numbers_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\IcloudDevice> $IcloudDevice
+ * @property-read int|null $icloud_device_count
  * @mixin \Eloquent
  */
 class Account extends Model
@@ -81,6 +83,11 @@ class Account extends Model
     public function devices(): HasMany
     {
         return $this->hasMany(Devices::class);
+    }
+
+    public function IcloudDevice(): HasMany
+    {
+        return $this->hasMany(IcloudDevice::class);
     }
 
 //    public function payment(): HasMany
@@ -187,6 +194,11 @@ class Account extends Model
             ->toArray();
 
         return array_unique(array_merge($asOrganizerMembers, $asMemberMembers));
+    }
+
+    public function toAccount(): \Modules\AppleClient\Service\DataConstruct\Account
+    {
+        return \Modules\AppleClient\Service\DataConstruct\Account::from($this->toArray());
     }
 
 }

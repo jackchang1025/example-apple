@@ -167,6 +167,11 @@ class Config extends ArrayStore
         return $this->get('serviceKey');
     }
 
+    public function setServiceKey(string $serviceKey): void
+    {
+        $this->add('serviceKey', $serviceKey);
+    }
+
     /**
      *
      */

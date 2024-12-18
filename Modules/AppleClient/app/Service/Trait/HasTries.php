@@ -45,10 +45,11 @@ trait HasTries
      */
     /**
      * @param callable $callback
+     * @param callable|null $retryWhenCallback
      * @return callable
      * @throws \Throwable
      */
-    public function handleRetry(callable $callback): mixed
+    public function handleRetry(callable $callback, ?callable $retryWhenCallback = null): mixed
     {
         return retry($this->getTries(), $callback, $this->getRetryInterval(), $this->getRetryWhenCallback());
     }
@@ -89,7 +90,7 @@ trait HasTries
         return $this->useExponentialBackoff;
     }
 
-    public function withUseExponentialBackoff(?bool $useExponentialBackoff): static
+    public function withUseExponentialBackoff(?bool $useExponentialBackoff = true): static
     {
         $this->useExponentialBackoff = $useExponentialBackoff;
 

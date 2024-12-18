@@ -3,7 +3,7 @@
 use App\Models\Account;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\TestCase;
-use Modules\AppleClient\Service\AppleAccountManagerFactory;
+use Modules\AppleClient\Service\AppleFactory;
 use Modules\AppleClient\Service\ProcessAccountImportService;
 
 uses(TestCase::class);
@@ -41,7 +41,7 @@ beforeEach(function () {
         'proxy_enabled'     => 0,
     ]);
 
-    $this->appleClientFactory = app(AppleAccountManagerFactory::class);
+    $this->appleClientFactory = app(AppleFactory::class);
     $this->accountManager     = $this->appleClientFactory->create($this->account);
 
     $this->processAccountImportService = new ProcessAccountImportService($this->accountManager);

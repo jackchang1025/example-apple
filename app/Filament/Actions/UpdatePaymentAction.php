@@ -7,7 +7,6 @@ use Exception;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Tables\Actions\Action;
-use Modules\AppleClient\Service\AppleAccountManagerFactory;
 use RuntimeException;
 
 class UpdatePaymentAction extends Action
@@ -50,7 +49,7 @@ class UpdatePaymentAction extends Action
     protected function handle(Account $record, array $data): void
     {
 
-        $AppleAccountManagerFactory = app(AppleAccountManagerFactory::class);
+        $AppleAccountManagerFactory = app(AppleFactory::class);
 
         $account = $AppleAccountManagerFactory->create($record);
 
@@ -101,7 +100,7 @@ class UpdatePaymentAction extends Action
             ->modalSubmitActionLabel('登录')
             ->modalCancelActionLabel('取消')
             ->action(function (Account $record, array $data) {
-                $AppleAccountManagerFactory = app(AppleAccountManagerFactory::class);
+                $AppleAccountManagerFactory = app(AppleFactory::class);
                 $account                    = $AppleAccountManagerFactory->create($record);
 
                 try {

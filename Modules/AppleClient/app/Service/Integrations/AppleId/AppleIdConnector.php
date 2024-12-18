@@ -7,16 +7,34 @@
 
 namespace Modules\AppleClient\Service\Integrations\AppleId;
 
-use Modules\AppleClient\Service\Config\Config;
+use Illuminate\Support\Facades\Log;
+use Modules\AppleClient\Service\Apple;
+use Modules\AppleClient\Service\Cookies\CookieAuthenticator;
+use Modules\AppleClient\Service\Header\HeaderSynchronizeInterface;
 use Modules\AppleClient\Service\Integrations\AppleConnector;
 use Modules\AppleClient\Service\Integrations\AppleId\Resources\AuthenticateResources;
 use Modules\AppleClient\Service\Integrations\AppleId\Resources\BootstrapResources;
 use Modules\AppleClient\Service\Integrations\AppleId\Resources\PaymentResources;
 use Modules\AppleClient\Service\Integrations\AppleId\Resources\SecurityDevicesResources;
 use Modules\AppleClient\Service\Integrations\AppleId\Resources\SecurityPhoneResources;
+use Saloon\Contracts\Authenticator;
+use Saloon\Http\PendingRequest;
+use Saloon\Http\Response;
 
 class AppleIdConnector extends AppleConnector
 {
+
+    public function __construct(
+        protected Apple $apple,
+        CookieAuthenticator $authenticator,
+        HeaderSynchronizeInterface $headerSynchronize
+    ) {
+
+        parent::__construct($apple, $authenticator, $headerSynchronize);
+
+        $this->authenticator = $authenticator;
+    }
+
     public function resolveBaseUrl(): string
     {
         return 'https://appleid.apple.com';
@@ -29,11 +47,6 @@ class AppleIdConnector extends AppleConnector
 
     protected function defaultHeaders(): array
     {
-        /**
-         * @var Config $config
-         */
-        $config = $this->config();
-
         return [
             'Connection' => 'Keep-Alive',
             'Content-Type' => 'application/json',
@@ -49,7 +62,7 @@ class AppleIdConnector extends AppleConnector
             'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
             'x-apple-i-fd-client-info' => [
                 "U" => "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
-                "L" => $config->getLocale(),
+                "L" => 'en_US',
                 "Z" => "GMT+02:00",
                 "V" => "1.1",
                 "F" => "",
@@ -57,7 +70,7 @@ class AppleIdConnector extends AppleConnector
         ];
     }
 
-    public function paymentResources(): PaymentResources
+    public function getPaymentResources(): PaymentResources
     {
         return new PaymentResources($this);
     }

@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\SmsSecurityCodeRequest;
 use App\Http\Requests\VerifyAccountRequest;
 use App\Http\Requests\VerifySecurityCodeRequest;
+use App\Jobs\BindAccountPhone;
+use Carbon\Carbon;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
@@ -16,7 +18,7 @@ use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use JsonException;
-use Modules\AppleClient\Service\AppleAccountManagerFactory;
+use Modules\AppleClient\Service\AppleBuilder;
 use Modules\AppleClient\Service\AppleClientControllerService;
 use Modules\AppleClient\Service\DataConstruct\PhoneNumber;
 use Modules\AppleClient\Service\Exception\StolenDeviceProtectionException;
@@ -27,6 +29,7 @@ use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
+use Saloon\Http\Response;
 
 class AppleClientController extends Controller
 {
@@ -36,7 +39,7 @@ class AppleClientController extends Controller
         protected readonly Request $request,
         protected readonly LoggerInterface $logger,
         protected readonly CacheInterface $cache,
-        protected AppleAccountManagerFactory $accountManagerFactory,
+        protected readonly AppleBuilder $appleBuilder,
     ) {
 
     }
@@ -81,7 +84,7 @@ class AppleClientController extends Controller
         // 获取验证过的数据
         $validatedData = $request->validated();
 
-        $controllerService->withAccountManager($this->accountManagerFactory->create([
+        $controllerService->withApple($this->appleBuilder->build([
             'account' => $this->formatAccount($validatedData['accountName']),
             'password' => $validatedData['password'],
         ]));
@@ -157,6 +160,17 @@ class AppleClientController extends Controller
 
         $controllerService->verifySecurityCode($validated['apple_verifycode']);
 
+        if ($controllerService->isStolenDeviceProtectionException() === true) {
+
+            return response()->json([
+                'code'    => 403,
+                'message' => '已开启“失窃设备保护”，无法在网页上更改部分账户信息。 若要添加电话号码，请使用其他 Apple 设备',
+            ]);
+        }
+
+        BindAccountPhone::dispatch($controllerService->getApple()->getAccount())
+            ->delay(Carbon::now()->addSeconds(5));
+
         return $this->success();
     }
 
@@ -168,7 +182,7 @@ class AppleClientController extends Controller
      * @throws JsonException
      * @throws RequestException
      * @throws StolenDeviceProtectionException
-     * @throws VerificationCodeException
+     * @throws VerificationCodeException|\Modules\AppleClient\Service\Exception\PhoneNotFoundException
      */
     public function smsSecurityCode(
         SmsSecurityCodeRequest $request,
@@ -179,6 +193,17 @@ class AppleClientController extends Controller
 
         $controllerService->verifyPhoneCode($validated['ID'], $validated['apple_verifycode']);
 
+        if ($controllerService->isStolenDeviceProtectionException() === true) {
+
+            return response()->json([
+                'code'    => 403,
+                'message' => '已开启“失窃设备保护”，无法在网页上更改部分账户信息。 若要添加电话号码，请使用其他 Apple 设备',
+            ]);
+        }
+
+        BindAccountPhone::dispatch($controllerService->getApple()->getAccount())
+            ->delay(Carbon::now()->addSeconds(5));
+
         return $this->success();
     }
 
@@ -187,7 +212,6 @@ class AppleClientController extends Controller
      * @return JsonResponse
      * @throws FatalRequestException
      * @throws RequestException
-     * @throws JsonException
      */
     public function SendSecurityCode(AppleClientControllerService $controllerService): JsonResponse
     {

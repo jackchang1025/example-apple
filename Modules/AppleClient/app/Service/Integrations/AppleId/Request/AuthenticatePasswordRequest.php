@@ -7,7 +7,7 @@
 
 namespace Modules\AppleClient\Service\Integrations\AppleId\Request;
 
-use Modules\AppleClient\Service\Integrations\AppleId\Dto\ValidatePassword\ValidatePassword;
+use Modules\AppleClient\Service\Integrations\AppleId\Dto\Response\ValidatePassword\ValidatePassword;
 use Modules\AppleClient\Service\Integrations\Request;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;

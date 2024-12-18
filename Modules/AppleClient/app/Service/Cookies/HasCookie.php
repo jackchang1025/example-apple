@@ -7,31 +7,35 @@
 
 namespace Modules\AppleClient\Service\Cookies;
 
-use Modules\AppleClient\Service\Trait\HasPipeline;
+use Modules\AppleClient\Service\Trait\HasPipelineExists;
 use Saloon\Http\PendingRequest;
 use Saloon\Http\Response;
 
 trait HasCookie
 {
-    use HasPipeline;
+    use HasPipelineExists;
 
     protected ?CookieJarInterface $cookieJar = null;
 
     public function bootHasCookie(PendingRequest $pendingRequest): void
     {
-        if(!$this->requestPipelineExists($pendingRequest,'withCookieHeader')){
+//        if(!$this->requestPipelineExists($pendingRequest,'withCookieHeader') && $this->getAuthenticator() instanceof CookieAuthenticator){
+//            $pendingRequest->getConnector()
+//                ->middleware()
+//                ->onRequest(function (PendingRequest $pendingRequest){
+//                    $this->getAuthenticator()?->set($pendingRequest);
+//
+//                },'withCookieHeader');
+//        }
+
+        if (!$this->responsePipelineExists($pendingRequest, 'extractCookies') && $this->getAuthenticator(
+            ) instanceof CookieAuthenticator) {
             $pendingRequest->getConnector()
                 ->middleware()
-                ->onRequest(function (PendingRequest $pendingRequest){
-                    return $this->getCookieJar()?->withCookieHeader($pendingRequest);
-
-                },'withCookieHeader');
-        }
-
-        if(!$this->responsePipelineExists($pendingRequest,'extractCookies')){
-            $pendingRequest->getConnector()
-                ->middleware()
-                ->onResponse(fn (Response $response) => $this->getCookieJar()?->extractCookies($pendingRequest, $response),'extractCookies');
+                ->onResponse(
+                    fn(Response $response) => $this->getAuthenticator()?->extractCookies($pendingRequest, $response),
+                    'extractCookies'
+                );
         }
     }
 

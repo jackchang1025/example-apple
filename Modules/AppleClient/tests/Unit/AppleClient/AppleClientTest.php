@@ -1,10 +1,10 @@
 <?php
 
 use Modules\AppleClient\Service\AppleClient;
-use Modules\AppleClient\Service\Integrations\AppleAuth\AppleAuthConnector;
+use Modules\AppleClient\Service\Integrations\AppleAuth\AppleAuthenticationConnector;
 use Modules\AppleClient\Service\Integrations\AppleId\AppleIdConnector;
 use Modules\AppleClient\Service\Integrations\Idmsa\IdmsaConnector;
-use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\AuthorizeSignIn;
+use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\AuthorizeSignInRequest;
 use Modules\IpProxyManager\Service\ProxyResponse;
 use Modules\IpProxyManager\Service\ProxyService;
 use Psr\Log\LoggerInterface;
@@ -35,7 +35,7 @@ test('AppleClient can be instantiated', function () {
     expect($client)->toBeInstanceOf(AppleClient::class)
         ->and($client->getAppleIdConnector())->toBeInstanceOf(AppleIdConnector::class)
         ->and($client->getIdmsaConnector())->toBeInstanceOf(IdmsaConnector::class)
-        ->and($client->getAppleAuthConnector())->toBeInstanceOf(AppleAuthConnector::class);
+        ->and($client->getAppleAuthConnector())->toBeInstanceOf(AppleAuthenticationConnector::class);
 });
 
 // 测试序列化和反序列化
@@ -70,7 +70,7 @@ test('AppleClient getters return correct instances', function () {
 
     expect($client->getAppleIdConnector())->toBeInstanceOf(AppleIdConnector::class)
         ->and($client->getIdmsaConnector())->toBeInstanceOf(IdmsaConnector::class)
-        ->and($client->getAppleAuthConnector())->toBeInstanceOf(AppleAuthConnector::class);
+        ->and($client->getAppleAuthConnector())->toBeInstanceOf(AppleAuthenticationConnector::class);
 });
 
 // 测试配置的设置和获取
@@ -197,7 +197,7 @@ it('can get a list of all the proxy failed', function () {
         MockResponse::make(
             status: 200
         ),
-        AuthorizeSignIn::class
+        AuthorizeSignInRequest::class
     );
 
     $this->appleClient->sign();
@@ -230,7 +230,7 @@ it('can get a list of all the proxy', function () {
         MockResponse::make(
             status: 200
         ),
-        AuthorizeSignIn::class
+        AuthorizeSignInRequest::class
     );
 
     $this->appleClient->sign();
@@ -256,7 +256,7 @@ it('can get a list of all the proxy2', function () {
         MockResponse::make(
             status: 200
         ),
-        AuthorizeSignIn::class
+        AuthorizeSignInRequest::class
     );
 
 
@@ -264,7 +264,7 @@ it('can get a list of all the proxy2', function () {
         MockResponse::make(
             status: 200
         ),
-        \Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\Auth::class
+        \Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\AuthRequest::class
     );
 
     $config = [];

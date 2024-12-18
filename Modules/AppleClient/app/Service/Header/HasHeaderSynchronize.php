@@ -7,26 +7,26 @@
 
 namespace Modules\AppleClient\Service\Header;
 
-use Saloon\Contracts\ArrayStore;
 use Saloon\Enums\PipeOrder;
 use Saloon\Http\PendingRequest;
 use Saloon\Http\Response;
+use Saloon\Repositories\ArrayStore;
 
 trait HasHeaderSynchronize
 {
-    protected ?ArrayStore $headerRepositories = null;
+    protected ?HeaderSynchronizeInterface $headerRepositories = null;
 
-    public function withHeaderRepositories(ArrayStore|array|null $headerRepositories): static
+    public function withHeaderRepositories(HeaderSynchronizeInterface|array|null $headerRepositories): static
     {
         if (is_array($headerRepositories)) {
-            $headerRepositories = new \Saloon\Repositories\ArrayStore($headerRepositories);
+            $headerRepositories = new HeaderSynchronize(new ArrayStore($headerRepositories));
         }
         $this->headerRepositories = $headerRepositories;
 
         return $this;
     }
 
-    public function getHeaderRepositories(): ?ArrayStore
+    public function getHeaderRepositories(): ?HeaderSynchronizeInterface
     {
         return $this->headerRepositories;
     }
@@ -38,53 +38,15 @@ trait HasHeaderSynchronize
         }
 
         $pendingRequest->middleware()
-            ->onRequest(function (PendingRequest $pendingRequest) {
-                $persistentHeaders = [];
-                $connector = $pendingRequest->getConnector();
-                $request = $pendingRequest->getRequest();
-
-                if (method_exists($connector, 'getPersistentHeaders')) {
-                    $persistentHeaders = array_merge($persistentHeaders, $connector->getPersistentHeaders()?->all());
-                }
-
-                if (method_exists($request, 'getPersistentHeaders')) {
-                    $persistentHeaders = array_merge($persistentHeaders, $request->getPersistentHeaders()?->all());
-                }
-
-                if (empty($persistentHeaders)) {
-                    return $pendingRequest;
-                }
-
-                $storedHeaders = $this->getHeaderRepositories()?->all();
-
-                foreach ($persistentHeaders as $key => $value) {
-                    if (is_int($key)) {
-                        $header = $value;
-                        $defaultValue = null;
-                    } else {
-                        $header = $key;
-                        $defaultValue = $value;
-                    }
-
-                    $headerValue = $storedHeaders[$header] ?? null;
-
-                    if ($headerValue === null && $defaultValue !== null) {
-                        $headerValue = is_callable($defaultValue) ? $defaultValue() : $defaultValue;
-                    }
-
-                    if ($headerValue !== null) {
-                        $pendingRequest->headers()->add($header, $headerValue);
-                    }
-                }
-
-                return $pendingRequest;
-            }, 'header_store_request', PipeOrder::LAST);
+            ->onRequest(
+                fn(PendingRequest $pendingRequest) => $this->getHeaderRepositories()?->withHeader($pendingRequest),
+                'header_store_request',
+                PipeOrder::LAST
+            );
 
         $pendingRequest->middleware()
-            ->onResponse(function (Response $response) {
-                $this->getHeaderRepositories()?->merge($response->headers()->all());
-
-                return $response;
-            }, 'header_store_response', PipeOrder::LAST);
+            ->onResponse(fn(Response $response) => $this->getHeaderRepositories()?->extractHeader($response),
+                'header_store_response',
+                PipeOrder::LAST);
     }
 }

@@ -10,6 +10,7 @@ use Modules\AppleClient\Service\Integrations\BaseResource;
 use Modules\AppleClient\Service\Integrations\Idmsa\Dto\Request\SignIn\SignInComplete;
 use Modules\AppleClient\Service\Integrations\Idmsa\Dto\Response\Auth\Auth;
 use Modules\AppleClient\Service\Integrations\Idmsa\Dto\Response\SendVerificationCode\SendDeviceSecurityCode;
+use Modules\AppleClient\Service\Integrations\Idmsa\Dto\Response\SendVerificationCode\SendPhoneVerificationCode;
 use Modules\AppleClient\Service\Integrations\Idmsa\Dto\Response\SignIn\SignInComplete as SignInCompleteResponse;
 use Modules\AppleClient\Service\Integrations\Idmsa\Dto\Response\SignIn\SignInInit;
 use Modules\AppleClient\Service\Integrations\Idmsa\Dto\Response\VerifyPhoneSecurityCode\VerifyPhoneSecurityCode;
@@ -20,7 +21,7 @@ use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\AuthRequest
 use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\SendPhoneSecurityCodeRequest;
 use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\SendTrustedDeviceSecurityCodeRequest;
 use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\SignInCompleteRequest;
-use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\SigninInitRequest;
+use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\SignInInitRequest;
 use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\VerifyPhoneSecurityCodeRequest;
 use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\VerifyTrustedDeviceSecurityCodeRequest;
 use Modules\AppleClient\Service\Response\Response;
@@ -41,7 +42,7 @@ class AuthenticateResources extends BaseResource
     public function signInInit(string $a, string $account): SignInInit
     {
         return $this->getConnector()
-            ->send(new SigninInitRequest($a, $account))
+            ->send(new SignInInitRequest($a, $account))
             ->dto();
     }
 
@@ -60,24 +61,22 @@ class AuthenticateResources extends BaseResource
     }
 
     /**
+     * @param string $frameId
+     * @param string $clientId
+     * @param string $redirectUri
+     * @param string $state
      * @return Response
      * @throws FatalRequestException
-     *
      * @throws RequestException
      */
-    public function sign(): Response
+    public function sign(string $frameId, string $clientId, string $redirectUri, string $state): Response
     {
-        /**
-         * @var Config $config
-         */
-        $config = $this->getConnector()->config();
-
         return $this->getConnector()->send(
             new AuthorizeSignInRequest(
-                frameId: $this->getConnector()->buildUUid(),
-                clientId: $config->getServiceKey(),
-                redirectUri: $config->getApiUrl(),
-                state: $this->getConnector()->buildUUid(),
+                frameId: $frameId,
+                clientId: $clientId,
+                redirectUri: $redirectUri,
+                state: $state,
             )
         );
     }
@@ -196,8 +195,6 @@ class AuthenticateResources extends BaseResource
 
             throw $e;
         }
-
-
     }
 
     /**
@@ -214,13 +211,12 @@ class AuthenticateResources extends BaseResource
     /**
      * @param int $id
      *
-     * @return SendDeviceSecurityCode
+     * @return SendPhoneVerificationCode
+     * @throws FatalRequestException
      * @throws RequestException
      * @throws VerificationCodeSentTooManyTimesException
-     *
-     * @throws FatalRequestException
      */
-    public function sendPhoneSecurityCode(int $id): SendDeviceSecurityCode
+    public function sendPhoneSecurityCode(int $id): SendPhoneVerificationCode
     {
         try {
 

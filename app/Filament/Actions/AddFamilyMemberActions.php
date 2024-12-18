@@ -4,6 +4,7 @@ namespace App\Filament\Actions;
 
 use App\Filament\Resources\AccountResource\RelationManagers\FamilyMembersRelationManager;
 use App\Models\Account;
+use App\Services\FamilyService;
 use Exception;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -13,8 +14,7 @@ use Filament\Tables\Table;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\HtmlString;
-use Modules\AppleClient\Service\AppleAccountManagerFactory;
-use Modules\AppleClient\Service\Integrations\Icloud\Dto\VerifyCVVRequestDto;
+use Modules\AppleClient\Service\Integrations\Icloud\Dto\Request\VerifyCVV\VerifyCVV;
 
 class AddFamilyMemberActions extends Action
 {
@@ -42,8 +42,7 @@ class AddFamilyMemberActions extends Action
 
             try {
 
-                $familyService            = app(AppleAccountManagerFactory::class)->create($account)->getFamilyService(
-                );
+                $familyService = FamilyService::make($account);
                 $ITunesAccountPaymentInfo = $familyService->getITunesAccountPaymentInfo();
 
                 return array_merge(
@@ -239,11 +238,11 @@ class AddFamilyMemberActions extends Action
             'password'         => 'required',
         ])->validated();
 
-        app(AppleAccountManagerFactory::class)->create($record)->getFamilyService()
+        FamilyService::make($record)
             ->addFamilyMember(
                 addAccount: $data['account'],
                 addPassword: $data['password'],
-                dto: VerifyCVVRequestDto::from($data)
+                data: VerifyCVV::from($data)
             );
 
     }

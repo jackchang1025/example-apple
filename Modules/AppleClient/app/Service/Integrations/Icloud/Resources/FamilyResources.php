@@ -36,6 +36,12 @@ class FamilyResources extends BaseResource
             ->dto();
     }
 
+    /**
+     * @param CreateFamily $createFamilyRequestData
+     * @return FamilyInfo
+     * @throws FatalRequestException
+     * @throws RequestException
+     */
     public function createFamilyRequest(CreateFamily $createFamilyRequestData): FamilyInfo
     {
         return $this->getConnector()
@@ -43,6 +49,11 @@ class FamilyResources extends BaseResource
             ->dto();
     }
 
+    /**
+     * @return leaveFamily
+     * @throws FatalRequestException
+     * @throws RequestException
+     */
     public function leaveFamilyRequest(): leaveFamily
     {
         return $this->getConnector()
@@ -77,6 +88,12 @@ class FamilyResources extends BaseResource
             )->dto();
     }
 
+    /**
+     * @param VerifyCVV $data
+     * @return VerifyCVVResponse
+     * @throws FatalRequestException
+     * @throws RequestException
+     */
     public function verifyCVVRequest(VerifyCVV $data): VerifyCVVResponse
     {
         return $this->getConnector()
@@ -85,6 +102,11 @@ class FamilyResources extends BaseResource
             )->dto();
     }
 
+    /**
+     * @return FamilyInfo
+     * @throws FatalRequestException
+     * @throws RequestException
+     */
     public function getMaxFamilyDetailsRequest(): FamilyInfo
     {
         return $this->getConnector()
@@ -93,6 +115,14 @@ class FamilyResources extends BaseResource
             )->dto();
     }
 
+    /**
+     * @param string $organizerDSID
+     * @param string $userAction
+     * @param bool $sendSMS
+     * @return ITunesAccountPaymentInfo
+     * @throws FatalRequestException
+     * @throws RequestException
+     */
     public function getITunesAccountPaymentInfoRequest(
         string $organizerDSID,
         string $userAction = "ADDING_FAMILY_MEMBER",

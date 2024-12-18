@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Foundation\Testing\TestCase;
-use Modules\AppleClient\Service\AppleClient;
+use Modules\AppleClient\Service\Apple;
 use Modules\AppleClient\Service\DataConstruct\Account;
 use Modules\AppleClient\Service\DataConstruct\Icloud\VerifyCVV\VerifyCVV;
 use Modules\AppleClient\Service\Integrations\Icloud\IcloudConnector;
@@ -9,7 +9,7 @@ use Modules\AppleClient\Service\Integrations\Icloud\Request\VerifyCVVRequest;
 use Saloon\Exceptions\Request\Statuses\InternalServerErrorException;
 use Saloon\Http\Faking\MockClient;
 use Saloon\Http\Faking\MockResponse;
-
+use Modules\AppleClient\Service\Integrations\Icloud\Dto\Response\VerifyCVV\VerifyCVV as VerifyCVVResponse;
 uses(TestCase::class);
 
 beforeEach(function () {
@@ -24,18 +24,23 @@ beforeEach(function () {
     $this->verificationType         = 'CVV';
     $this->billingType              = 'Card';
 
+    $this->dto = \Modules\AppleClient\Service\Integrations\Icloud\Dto\Request\VerifyCVV\VerifyCVV::from([
+        'creditCardLastFourDigits' => $this->creditCardLastFourDigits,
+        'securityCode'             => $this->securityCode,
+        'creditCardId'             => $this->creditCardId,
+        'verificationType'         => $this->verificationType,
+        'billingType'              => $this->billingType,
+    ]);
     // 创建请求实例
     $this->request = new VerifyCVVRequest(
-        $this->creditCardLastFourDigits,
-        $this->securityCode,
-        $this->creditCardId,
-        $this->verificationType,
-        $this->billingType
+        $this->dto
     );
 
     // 创建 IcloudConnector 实例
+    $this->account = new Account($this->appleId, $this->password);
+    // 创建 IcloudConnector 实例
     $this->icloudConnector = new IcloudConnector(
-        new AppleClient(new Account($this->appleId, $this->password))
+        new Apple(account: $this->account, config: new \Modules\AppleClient\Service\Config\Config())
     );
 });
 
@@ -55,35 +60,8 @@ it('测试请求端点正确', function () {
 
 // 测试默认请求体
 it('测试默认请求体内容', function () {
-    $expectedBody = [
-        'creditCardId'             => 'MAST',
-        'creditCardLastFourDigits' => '1234',
-        'securityCode'             => '123',
-        'verificationType'         => 'CVV',
-        'billingType'              => 'Card',
-    ];
 
-    expect($this->request->defaultBody())->toBe($expectedBody);
-});
-
-// 测试自定义参数创建请求
-it('测试使用自定义参数创建请求', function () {
-    $customRequest = new VerifyCVVRequest(
-        creditCardLastFourDigits: '5678',
-        securityCode: '321',
-        creditCardId: 'VISA',
-        verificationType: 'CSC',
-        billingType: 'CreditCard'
-    );
-
-    expect($customRequest->defaultBody())
-        ->toBe([
-            'creditCardId'             => 'VISA',
-            'creditCardLastFourDigits' => '5678',
-            'securityCode'             => '321',
-            'verificationType'         => 'CSC',
-            'billingType'              => 'CreditCard',
-        ]);
+    expect($this->request->defaultBody())->toBe($this->dto->toArray());
 });
 
 // 测试服务器错误响应
@@ -121,7 +99,7 @@ it('测试 CVV 验证成功场景', function () {
     expect($response)
         ->toBeInstanceOf(\Saloon\Http\Response::class)
         ->and($dto)
-        ->toBeInstanceOf(VerifyCVV::class)
+        ->toBeInstanceOf(VerifyCVVResponse::class)
         ->and($dto->statusMessage)
         ->toBe('CVV verification successful')
         ->and($dto->verificationToken)
@@ -173,9 +151,12 @@ it('测试卡号后四位错误场景', function () {
 // 测试无效的卡类型
 it('测试无效的卡类型场景', function () {
     $invalidRequest = new VerifyCVVRequest(
-        creditCardLastFourDigits: '1234',
-        securityCode: '123',
-        creditCardId: 'INVALID'
+        \Modules\AppleClient\Service\Integrations\Icloud\Dto\Request\VerifyCVV\VerifyCVV::from([
+            'creditCardLastFourDigits' => '1234',
+            'securityCode'             => '123',
+            'creditCardId'             => 'INVALID',
+            'verificationType'         => '',
+        ])
     );
 
     $mockClient = new MockClient([

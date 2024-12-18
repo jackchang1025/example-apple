@@ -22,5 +22,7 @@ interface CookieJarInterface extends \Countable, \IteratorAggregate
 
     public function clearSessionCookies(): void;
 
+    public function getCookieByName(string $name): ?SetCookie;
+
     public function toArray(): array;
 }

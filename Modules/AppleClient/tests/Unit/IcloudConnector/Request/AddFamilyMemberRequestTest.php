@@ -1,17 +1,20 @@
 <?php
 
 use Illuminate\Foundation\Testing\TestCase;
-use Modules\AppleClient\Service\AppleClient;
+use Mockery\Mock;
+use Modules\AppleClient\Service\Apple;
 use Modules\AppleClient\Service\DataConstruct\Account;
-use Modules\AppleClient\Service\DataConstruct\Icloud\FamilyInfo\Family;
-use Modules\AppleClient\Service\DataConstruct\Icloud\FamilyInfo\FamilyInfo;
+use Modules\AppleClient\Service\DataConstruct\Icloud\FamilyInfo\FamilyData;
+use Modules\AppleClient\Service\DataConstruct\Icloud\FamilyInfo\FamilyInfoData;
 use Modules\AppleClient\Service\Integrations\Icloud\IcloudConnector;
 use Modules\AppleClient\Service\Integrations\Icloud\Request\AddFamilyMemberRequest;
 use Saloon\Exceptions\Request\RequestException;
 use Saloon\Http\Faking\MockClient;
 use Saloon\Http\Faking\MockResponse;
 use Spatie\LaravelData\DataCollection;
-
+use Modules\AppleClient\Service\Integrations\Icloud\Dto\Request\AddFamilyMember\AddFamilyMember;
+use Modules\AppleClient\Service\Integrations\Icloud\Dto\Response\FamilyInfo\FamilyInfo;
+use Modules\AppleClient\Service\Integrations\Icloud\Dto\Response\FamilyInfo\Family;
 uses(TestCase::class);
 
 beforeEach(function () {
@@ -28,18 +31,19 @@ beforeEach(function () {
 
     // 创建请求实例
     $this->request = new AddFamilyMemberRequest(
-        $this->memberAppleId,
-        $this->memberPassword,
-        $this->appleIdForPurchases,
-        $this->verificationToken,
-        $this->preferredAppleId,
-        true,
-        true
+        AddFamilyMember::from([
+            'appleId'             => $this->memberAppleId,
+            'password'            => $this->memberPassword,
+            'appleIdForPurchases' => $this->appleIdForPurchases,
+            'verificationToken'   => $this->verificationToken,
+            'preferredAppleId'    => $this->preferredAppleId,
+        ])
     );
 
+    $this->account = new Account($this->appleId, $this->password);
     // 创建 IcloudConnector 实例
     $this->icloudConnector = new IcloudConnector(
-        new AppleClient(new Account($this->appleId, $this->password))
+        new Apple(account: $this->account, config: new \Modules\AppleClient\Service\Config\Config())
     );
 });
 
@@ -63,10 +67,11 @@ it('测试默认请求体内容', function () {
         'appleId'                        => $this->memberAppleId,
         'password'                       => $this->memberPassword,
         'appleIdForPurchases'            => $this->appleIdForPurchases,
+        'verificationToken' => $this->verificationToken,
+        'preferredAppleId'  => $this->preferredAppleId,
         'shareMyLocationEnabledDefault'  => true,
         'shareMyPurchasesEnabledDefault' => true,
-        'verificationToken'              => $this->verificationToken,
-        'preferredAppleId'               => $this->preferredAppleId,
+
     ];
 
     expect($this->request->defaultBody())->toBe($expectedBody);
@@ -82,6 +87,8 @@ it('测试成功添加家庭成员场景', function () {
 
     $this->icloudConnector->withMockClient($mockClient);
     $response = $this->icloudConnector->send($this->request);
+
+    /** @var FamilyInfo $dto */
     $dto      = $response->dto();
 
     expect($dto)
@@ -118,11 +125,13 @@ it('测试添加已存在的家庭成员场景', function () {
 // 测试无效的验证令牌
 it('测试无效的验证令牌场景', function () {
     $invalidRequest = new AddFamilyMemberRequest(
-        $this->memberAppleId,
-        $this->memberPassword,
-        $this->appleIdForPurchases,
-        'invalid-token',
-        $this->preferredAppleId
+        AddFamilyMember::from([
+            'appleId'             => $this->memberAppleId,
+            'password'            => $this->memberPassword,
+            'appleIdForPurchases' => $this->appleIdForPurchases,
+            'verificationToken'   => $this->verificationToken,
+            'preferredAppleId'    => $this->preferredAppleId,
+        ])
     );
 
     $mockClient = new MockClient([
@@ -167,11 +176,13 @@ it('测试家庭成员数量超限场景', function () {
 // 测试密码错误场景
 it('测试密码错误场景', function () {
     $requestWithWrongPassword = new AddFamilyMemberRequest(
-        $this->memberAppleId,
-        'wrongPassword',
-        $this->appleIdForPurchases,
-        $this->verificationToken,
-        $this->preferredAppleId
+        AddFamilyMember::from([
+            'appleId'             => $this->memberAppleId,
+            'password'            => $this->memberPassword,
+            'appleIdForPurchases' => $this->appleIdForPurchases,
+            'verificationToken'   => $this->verificationToken,
+            'preferredAppleId'    => $this->preferredAppleId,
+        ])
     );
 
     $mockClient = new MockClient([

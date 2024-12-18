@@ -2,6 +2,8 @@
 
 namespace Modules\AppleClient\Service\Integrations\Icloud\Request;
 
+use Modules\AppleClient\Service\Exception\AppleRequestException\LoginRequestException;
+use Modules\AppleClient\Service\Exception\VerificationCodeException;
 use Modules\AppleClient\Service\Integrations\Icloud\Dto\Response\LoginDelegates\LoginDelegates;
 use Modules\AppleClient\Service\Integrations\Request;
 use Saloon\Contracts\Body\HasBody;
@@ -9,6 +11,7 @@ use Saloon\Enums\Method;
 use Saloon\Http\Auth\BasicAuthenticator;
 use Saloon\Http\Response;
 use Saloon\Traits\Body\HasXmlBody;
+use Throwable;
 
 class LoginDelegatesRequest extends Request implements HasBody
 {
@@ -34,6 +37,44 @@ class LoginDelegatesRequest extends Request implements HasBody
     protected function defaultAuth(): BasicAuthenticator
     {
         return new BasicAuthenticator($this->appleId, $this->password);
+    }
+
+    public function hasRequestFailed(Response $response): ?bool
+    {
+        if ($response->ok() && !$response->dto()->isSuccess()) {
+            return true;
+        }
+
+        return null;
+    }
+
+    public function getRequestException(Response $response, ?Throwable $senderException): ?Throwable
+    {
+        if (!$response->ok()) {
+            return null;
+        }
+
+        /**
+         * @var LoginDelegates $data
+         */
+        $data = $response->dto();
+        if ($data->isSuccess()) {
+            return null;
+        }
+
+        if ($this->authCode) {
+            return new VerificationCodeException(
+                response: $response,
+                message: $data->statusMessage,
+                previous: $senderException
+            );
+        }
+
+        return new LoginRequestException(
+            response: $response,
+            message: $data->statusMessage,
+            previous: $senderException
+        );
     }
 
     public function defaultHeaders(): array

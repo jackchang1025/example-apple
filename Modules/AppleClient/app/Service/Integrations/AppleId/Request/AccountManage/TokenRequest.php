@@ -7,7 +7,7 @@
 
 namespace Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage;
 
-use Modules\AppleClient\Service\Integrations\AppleId\Dto\Token\TokenData;
+use Modules\AppleClient\Service\Integrations\AppleId\Dto\Response\Token\Token;
 use Modules\AppleClient\Service\Integrations\Request;
 use Saloon\Enums\Method;
 use Saloon\Http\Response;
@@ -17,9 +17,9 @@ class TokenRequest extends Request
     protected Method $method = Method::GET;
 
 
-    public function createDtoFromResponse(Response $response): TokenData
+    public function createDtoFromResponse(Response $response): Token
     {
-        return TokenData::from($response->json());
+        return Token::from($response->json());
     }
 
     public function resolveEndpoint(): string

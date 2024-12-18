@@ -7,19 +7,21 @@
 
 namespace Modules\AppleClient\Service\Integrations;
 
-use Modules\AppleClient\Service\AppleClient;
-use Modules\AppleClient\Service\Config\HasConfig;
+use Illuminate\Support\Str;
+use Modules\AppleClient\Service\Apple;
 use Modules\AppleClient\Service\Cookies\CookieJarInterface;
 use Modules\AppleClient\Service\Cookies\HasCookie;
 use Modules\AppleClient\Service\Header\HasHeaderSynchronize;
 use Modules\AppleClient\Service\Header\HasPersistentHeaders;
+use Modules\AppleClient\Service\Header\HeaderSynchronizeInterface;
 use Modules\AppleClient\Service\Helpers\Helpers;
 use Modules\AppleClient\Service\Proxy\HasProxy;
 use Modules\AppleClient\Service\Response\Response;
 use Modules\AppleClient\Service\Trait\HasLogger;
+use Modules\AppleClient\Service\Trait\HasPipelineExists;
 use Modules\IpProxyManager\Service\ProxyService;
 use Psr\Log\LoggerInterface;
-use Saloon\Contracts\ArrayStore;
+use Saloon\Contracts\Authenticator;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
 use Saloon\Http\Connector;
@@ -33,40 +35,34 @@ use Saloon\Traits\Plugins\HasTimeout;
 abstract class AppleConnector extends Connector
 {
     use HasTimeout;
-    use HasCookie;
     use HasHeaderSynchronize;
     use AlwaysThrowOnErrors;
     use HasPersistentHeaders;
     use HasLogger;
     use HasProxy;
-    use HasConfig;
     use Helpers;
-    use HasConfig {
-        HasConfig::config as baseConfig;
-    }
+    use HasPipelineExists;
+    use HasCookie;
 
-    public ?int $tries = 5;
+    public function __construct(
+        protected Apple $apple,
+        ?Authenticator $authenticator = null,
+        ?HeaderSynchronizeInterface $headerSynchronize = null
+    ) {
+        //设置重试次数
+        $this->tries = $this->apple->getTries();
 
-    /**
-     * The interval in milliseconds Saloon should wait between retries.
-     *
-     * For example 500ms = 0.5 seconds.
-     *
-     * Set to null to disable the retry interval.
-     */
-    public ?int $retryInterval = null;
+        //设置重试间隔
+        $this->retryInterval = $this->apple->getRetryInterval();
 
-    /**
-     * Should Saloon use exponential backoff during retries?
-     *
-     * When true, Saloon will double the retry interval after each attempt.
-     */
-    public ?bool $useExponentialBackoff = true;
+        //设置是否使用指数退避
+        $this->useExponentialBackoff = $this->apple->getUseExponentialBackoff();
 
+        $this->middleware()->merge($this->apple->middleware());
 
-    public function __construct(protected AppleClient $apple)
-    {
+        $this->authenticator = $authenticator;
 
+        $this->headerRepositories = $headerSynchronize;
     }
 
     public function getProxy(): ?ProxyService
@@ -74,35 +70,29 @@ abstract class AppleConnector extends Connector
         return $this->proxy ?? $this->apple->getProxy();
     }
 
-    public function getApple(): AppleClient
-    {
-        return $this->apple;
-    }
-
-    public function config(): ArrayStore
-    {
-        return $this->apple->config()
-            ->merge($this->baseConfig()->all());
-    }
-
-    public function getHeaderRepositories(): ?ArrayStore
-    {
-        return $this->headerRepositories ?? $this->apple->getHeaderRepositories();
-    }
-
-    public function getCookieJar(): ?CookieJarInterface
-    {
-        return $this->cookieJar ?? $this->apple->getCookieJar();
-    }
-
     public function getLogger(): ?LoggerInterface
     {
         return $this->logger ?? $this->apple->getLogger();
     }
 
+    protected function defaultConfig(): array
+    {
+        return $this->apple->config()?->all() ?? [];
+    }
+
     public function resolveResponseClass(): string
     {
         return Response::class;
+    }
+
+    public function connectTimeout(): int
+    {
+        return $this->apple->config()->get('connectTimeout', 60);
+    }
+
+    public function getMockClient(): ?MockClient
+    {
+        return $this->mockClient ?? $this->apple->getMockClient();
     }
 
     /**
@@ -117,7 +107,6 @@ abstract class AppleConnector extends Connector
      */
     public function send(Request $request, MockClient $mockClient = null, callable $handleRetry = null): Response
     {
-        $this->middleware()->merge($this->apple->middleware());
         /**
          * @var Response $response
          */
@@ -152,9 +141,9 @@ abstract class AppleConnector extends Connector
     {
         $body = trim($response->body());
 
-//        if (Str::length($body) > 5000) {
-//            $body = Str::substr($body, 0, 2000);
-//        }
+        if (Str::length($body) > 2000) {
+            $body = Str::substr($body, 0, 2000);
+        }
 
         $this->getLogger()?->debug('response', [
             'status'  => $response->status(),

@@ -1,0 +1,205 @@
+@startuml
+
+!theme plain
+top to bottom direction
+skinparam linetype ortho
+
+class AccountLoginRequest {
+   method: 
+   data: 
+   defaultQuery(): 
+   resolveEndpoint(): 
+   createDtoFromResponse(response): 
+   defaultBody(): 
+   __construct(data): 
+}
+class AddFamilyMemberRequest {
+   method: 
+   data: 
+   resolveEndpoint(): 
+   createDtoFromResponse(response): 
+   defaultBody(): 
+   __construct(data): 
+}
+class AppleConnector {
+   tries: 
+   apple: 
+   retryInterval: 
+   useExponentialBackoff: 
+   send(request, mockClient, handleRetry): 
+   formatResponseLog(response): 
+   getLogger(): 
+   getHeaderRepositories(): 
+   handleRetry(exception, request): 
+   resolveResponseClass(): 
+   config(): 
+   getApple(): 
+   getProxy(): 
+   getCookieJar(): 
+   formatRequestLog(request): 
+   __construct(apple): 
+}
+class AppleIdConnector {
+   getSecurityDevicesResources(): 
+   defaultPersistentHeaders(): 
+   defaultHeaders(): 
+   getBootstrapResources(): 
+   getSecurityPhoneResources(): 
+   getAuthenticateResources(): 
+   paymentResources(): 
+   resolveBaseUrl(): 
+}
+class AuthenticateRequest {
+   password: 
+   code: 
+   method: 
+   appleId: 
+   hasRequestFailed(response): 
+   getRequestException(response, senderException): 
+   defaultAuth(): 
+   resolveEndpoint(): 
+   createDtoFromResponse(response): 
+   __construct(appleId, password, code): 
+}
+class AuthenticateResources {
+   authenticate(appleId, password, authCode): 
+   loginDelegatesRequest(appleId, password, authCode, clientId, protocolVersion): 
+}
+class AuthenticateResources {
+   authenticatePassword(password): 
+   token(): 
+}
+class BaseResource {
+   connector: 
+   getConnector(): 
+   __construct(connector): 
+}
+class BootstrapResources {
+   bootstrap(): 
+}
+class CreateFamilyRequest {
+   method: 
+   data: 
+   defaultHeaders(): 
+   resolveEndpoint(): 
+   createDtoFromResponse(response): 
+   defaultBody(): 
+   __construct(data): 
+}
+class FamilyResources {
+   createFamilyRequest(createFamilyRequestData): 
+   leaveFamilyRequest(): 
+   addFamilyMemberRequest(data): 
+   getITunesAccountPaymentInfoRequest(organizerDSID, userAction, sendSMS): 
+   getMaxFamilyDetailsRequest(): 
+   getFamilyDetailsRequest(): 
+   removeFamilyMemberRequest(dsid): 
+   verifyCVVRequest(data): 
+}
+class GetDevicesRequest {
+   method: 
+   resolveEndpoint(): 
+   createDtoFromResponse(response): 
+}
+class GetFamilyDetailsRequest {
+   method: 
+   defaultHeaders(): 
+   resolveEndpoint(): 
+   createDtoFromResponse(response): 
+}
+class GetMaxFamilyDetailsRequest {
+   method: 
+   resolveEndpoint(): 
+   createDtoFromResponse(response): 
+}
+class IcloudConnector {
+   dsid: 
+   mmeAuthToken: 
+   defaultAuth(): 
+   defaultHeaders(): 
+   getAuthenticateResources(): 
+   getFamilyResources(): 
+   resolveBaseUrl(): 
+   __construct(apple, dsid, mmeAuthToken): 
+}
+class IdmsaConnector {
+   defaultPersistentHeaders(): 
+   defaultHeaders(): 
+   getAuthenticateResources(): 
+   resolveBaseUrl(): 
+}
+class LeaveFamilyRequest {
+   method: 
+   resolveEndpoint(): 
+   createDtoFromResponse(response): 
+}
+class PSetupIcloudConnector {
+   getPSetupIcloudResources(): 
+   defaultHeaders(): 
+   resolveBaseUrl(): 
+}
+class PSetupIcloudResources {
+   accountLogin(data): 
+   getDevices(): 
+}
+class PaymentResources {
+   payments(): 
+   addPayment(data): 
+}
+class RemoveFamilyMemberRequest {
+   method: 
+   dsid: 
+   resolveEndpoint(): 
+   createDtoFromResponse(response): 
+   defaultBody(): 
+   __construct(dsid): 
+}
+class Request
+class SecurityDevicesResources {
+   devices(): 
+   deviceDetail(deviceId): 
+}
+class SecurityPhoneResources {
+   securityVerifyPhoneSecurityCode(id, phoneNumber, countryCode, countryDialCode, code): 
+   securityVerifyPhone(countryCode, phoneNumber, countryDialCode, nonFTEU): 
+}
+class VerifyCVVRequest {
+   method: 
+   dto: 
+   resolveEndpoint(): 
+   createDtoFromResponse(response): 
+   defaultBody(): 
+   __construct(dto): 
+}
+class WebIcloudConnector {
+   defaultPersistentHeaders(): 
+   defaultHeaders(): 
+   getWebIcloudSignInResource(): 
+   resolveBaseUrl(): 
+   __construct(apple): 
+}
+
+AccountLoginRequest         -[#000082,plain]-^  Request                    
+AddFamilyMemberRequest      -[#000082,plain]-^  Request                    
+AppleIdConnector            -[#000082,plain]-^  AppleConnector             
+AuthenticateRequest         -[#000082,plain]-^  Request                    
+AuthenticateResources       -[#000082,plain]-^  BaseResource               
+AuthenticateResources       -[#000082,plain]-^  BaseResource               
+BootstrapResources          -[#000082,plain]-^  BaseResource               
+CreateFamilyRequest         -[#000082,plain]-^  Request                    
+FamilyResources             -[#000082,plain]-^  BaseResource               
+GetDevicesRequest           -[#000082,plain]-^  Request                    
+GetFamilyDetailsRequest     -[#000082,plain]-^  Request                    
+GetMaxFamilyDetailsRequest  -[#000082,plain]-^  Request                    
+IcloudConnector             -[#000082,plain]-^  AppleConnector             
+IdmsaConnector              -[#000082,plain]-^  AppleConnector             
+LeaveFamilyRequest          -[#000082,plain]-^  Request                    
+PSetupIcloudConnector       -[#000082,plain]-^  AppleConnector             
+PSetupIcloudResources       -[#000082,plain]-^  BaseResource               
+PaymentResources            -[#000082,plain]-^  BaseResource               
+RemoveFamilyMemberRequest   -[#000082,plain]-^  Request                    
+SecurityDevicesResources    -[#000082,plain]-^  BaseResource               
+SecurityPhoneResources      -[#000082,plain]-^  BaseResource               
+VerifyCVVRequest            -[#000082,plain]-^  Request                    
+WebIcloudConnector          -[#000082,plain]-^  AppleConnector             
+@enduml

@@ -1,0 +1,21 @@
+{
+    "statusCode": 200,
+    "headers": {
+        "Server": "AppleHttpServer\/f01b906b32ac",
+        "Date": "Tue, 17 Dec 2024 09:53:16 GMT",
+        "Content-Type": "application\/json; charset=UTF-8",
+        "Content-Length": "807",
+        "X-Responding-Instance": "setupservice:2:prod-p00-wu-setupservice--partial-54d899cf65-pvqpf:80:2429B445:0641ba86deb5",
+        "Cache-Control": "no-cache, no-store, private",
+        "Access-Control-Allow-Origin": "https:\/\/www.icloud.com.cn",
+        "Access-Control-Allow-Credentials": "true",
+        "Strict-Transport-Security": "max-age=31536000; includeSubDomains;",
+        "x-apple-xrail": "true",
+        "x-apple-user-partition": "208",
+        "via": "xrail:icloud-xrail-group232-ext-b97888ddf-gmnjk:8301:24R623:grp232,ef5f95d862fbe56114387549ef7ce198:290c7518fb03ed47f4c9c129f1e96a4f:xasha3",
+        "X-Apple-Request-UUID": "075bdd25-803f-4b97-a485-f33ad9ebeb9a",
+        "access-control-expose-headers": "X-Apple-Request-UUID,Via",
+        "X-Apple-Edge-Response-Time": "5208"
+    },
+    "data": "{\"devices\":[{\"serialNumber\":\"\u25cf\u25cf\u25cf\u25cf\u25cf\u25cf\u25cfJKXM6\",\"osVersion\":\"iOS;15.6.1\",\"modelLargePhotoURL2x\":\"https:\/\/statici.icloud.com.cn\/fmipmobile\/deviceImages-4.0\/iPhone\/iPhone11,8-1-2-0\/online-infobox__2x.png\",\"modelLargePhotoURL1x\":\"https:\/\/statici.icloud.com.cn\/fmipmobile\/deviceImages-4.0\/iPhone\/iPhone11,8-1-2-0\/online-infobox.png\",\"paymentMethods\":[],\"name\":\"\ud83d\udc31\",\"imei\":\"\u25cf\u25cf\u25cf\u25cf\u25cf\u25cf\u25cf\u25cf\u25cf\u25cf18373\",\"model\":\"iPhone11,8\",\"udid\":\"a85f254932c53b0dab6656a1cb2dbc12b2ff2860da7b61037dec2cacc0eae1fe\",\"modelSmallPhotoURL2x\":\"https:\/\/statici.icloud.com.cn\/fmipmobile\/deviceImages-4.0\/iPhone\/iPhone11,8-1-2-0\/online-sourcelist__2x.png\",\"modelSmallPhotoURL1x\":\"https:\/\/statici.icloud.com.cn\/fmipmobile\/deviceImages-4.0\/iPhone\/iPhone11,8-1-2-0\/online-sourcelist.png\",\"modelDisplayName\":\"iPhone XR\"}]}"
+}

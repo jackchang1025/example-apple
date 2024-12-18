@@ -1,0 +1,40 @@
+{
+    "statusCode": 409,
+    "headers": {
+        "Server": "Apple",
+        "Date": "Tue, 17 Dec 2024 09:52:53 GMT",
+        "Content-Type": "application\/json;charset=UTF-8",
+        "Transfer-Encoding": "chunked",
+        "Connection": "keep-alive",
+        "X-Apple-I-Request-ID": "af451d56-bc5c-11ef-88fb-e97164a6d48d",
+        "X-FRAME-OPTIONS": "DENY",
+        "X-Content-Type-Options": "nosniff",
+        "X-XSS-Protection": "1; mode=block",
+        "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+        "Content-Security-Policy": "default-src 'self' ; child-src blob: ; connect-src 'self' https:\/\/www.apple.com https:\/\/appleid.cdn-apple.com https:\/\/webcourier.sandbox.push.apple.com https:\/\/xp-qa.apple.com ; font-src 'self' https:\/\/www.apple.com https:\/\/appleid.cdn-apple.com https:\/\/idmsa.apple.com https:\/\/gsa.apple.com https:\/\/idmsa.apple.com.cn https:\/\/signin.apple.com ; frame-src 'self' https:\/\/appleid.apple.com https:\/\/gsa.apple.com https:\/\/account.apple.com ; img-src 'self' https:\/\/www.apple.com https:\/\/appleid.cdn-apple.com https:\/\/*.mzstatic.com data: https:\/\/*.apple.com ; media-src data: ; object-src 'none' ; script-src 'self' https:\/\/www.apple.com https:\/\/appleid.cdn-apple.com https:\/\/idmsa.apple.com https:\/\/gsa.apple.com https:\/\/idmsa.apple.com.cn https:\/\/signin.apple.com ; style-src 'unsafe-inline' 'self' https:\/\/www.apple.com https:\/\/appleid.cdn-apple.com https:\/\/idmsa.apple.com https:\/\/gsa.apple.com https:\/\/idmsa.apple.com.cn https:\/\/signin.apple.com ;",
+        "Referrer-Policy": "origin",
+        "X-BuildVersion": "R3",
+        "scnt": "AAAA-kJEMkRDRDUxRjZBMkVCMTM0NTJCMzI1MEYxQjQwMzk1RENFQkU4N0RDMzk3M0FFMUZGMTk5NDY2NzY4RjAzMUNBMDhBMjBDMjRDNTI2QzQ5MDNGNzAxMEFCODQ5RTJDNzJFQTJEMzc1OEJEQzdBQUE3QjY1REM3RUEwQUJEQUEzOTJDOUYwQjNGQkZDMURFRTZGODNCNURERjA4Q0FFMUE1NUFBNURBRjdBNTU5NDEwM0FBNjMwRjY5MkQ2OTkwQkIwODdBQTVFNDNENTQ3RDczMUNENDE1Q0E5MkJBMjEzNjg2M0JFMjU3Rjg0OTA0NHwyAAABk9QWosdPDfG-ZFC4uForcVeNKWs8VzePqthfuU4-G74lGF1y1_wDu86unWq1ABOAyaamwQW2cCFnA4LN1AyFJebdiWiA0P8pE6BHfPhRaUXaSxOCCw",
+        "Set-Cookie": [
+            "dslang=CN-ZH; Domain=apple.com; Path=\/; Secure; HttpOnly",
+            "site=CHN; Domain=apple.com; Path=\/; Secure; HttpOnly",
+            "acn01=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:10 GMT; Domain=apple.com; Path=\/; Secure; HttpOnly"
+        ],
+        "Pragma": "no-cache",
+        "Expires": "Thu, 01 Jan 1970 00:00:00 GMT",
+        "Cache-Control": [
+            "no-cache",
+            "no-store",
+            "no-store"
+        ],
+        "X-Apple-TwoSV-Trust-Eligible": "true",
+        "Location": "\/auth",
+        "X-Apple-ID-Session-Id": "BD2DCD51F6A2EB13452B3250F1B40395DCEBE87DC3973AE1FF199466768F031CA08A20C24C526C4903F7010AB849E2C72EA2D3758BDC7AAA7B65DC7EA0ABDAA392C9F0B3FBFC1DEE6F83B5DDF08CAE1A55AA5DAF7A5594103AA630F692D6990BB087AA5E43D547D731CD415CA92BA2136863BE257F849044",
+        "X-Apple-Auth-Attributes": "jO+k+T3Z7vIu3St\/AeUorK1apk39djWgQaphY+xdNDCjTit15sSkFxFSIjMVBZudB55WUW\/g\/\/Si5Vqo09ejH1v\/5GKdKOIA2sWYv8uTxoBwki0jTiI84BqfqV0nOMMI29966grV92T2WxA8yzpFAF3pDUx3P4dq6OAx7EI4yhbxREznW6eF1efqzHl\/iAR8eU44q9hDl0rTABOAybRKlOo=",
+        "X-Apple-Session-Token": "posbmxo+Wp2jYHML3Nx4086bEthfgpZISdmX7ey1dtpW3EyRH0jPW0hRYofoVSXqKuCaChyo55Hh8PuLv5sjeIY\/XlzfY\/owTlXfVz1WvgWdaQqz9qzoKLiXj2NWpnPH9K1onw3h9LvXlTz7nBt50stKNyBBS4Q5iPCwZBAIk3PqOw44Dz\/+yumqkhbGmFZ37zXP+Z1UPw2J9l6hApdJddnyysHZ6BwgCnFcOrDzkBUFp3QJ7Jt2OBo\/NLOTtrZl\/BWNzSR644UCBNWT+JOoigyC1jrxT6NWQJDRyMty9De987SIo3nlOdRc4WNowPam0Z\/EFqRrNybp80ZrLnFDSSH2aYN2r1RuOOTq\/1rpAIyjL6zgbUYwC7ZmfMQ0L3hQKdMLLzRzcpc2hmtZt\/zqOiOKCyLnvd1p7DFp4fbMhmYhJOrMLwlle4Y8h\/FpVLSgJyv6VZFvvN\/KRZV\/9CYy\/r25ya5XyQ9XM5b9vqDFQN9N6IH9uQ3J\/pNk+TxEuVnjjniJ24R31NcGEUkhBIBf3xmOpGOV2hRoPqGgIBwS7hcpxk3QAN2TYVYC\/9HpO2kSMXhfLCEdc0Os4ki5\/ySUzBbarKvVF9zHzuNE4f0Z2Nc97Cl94YGc8HKmoOA4po\/+rO+SVq6jjZhCcJ3ep3LV2\/E+enMexnuk0WG8dbrEpZiI7T780PPiNIfs4ynHl6dzGN5hvcVHsNSbR1USERhyddl53HNcCVeEOomCv2VpQQiZnMNV+JhBNTJnCvun0vmH+iuxGkzLDmunCAFBsPBPPSfIIXfxjpbqrGnql2n9ajBltzu+Wwc6g4UV+fDS2KYOyIiI9x8tHhFggu3auuUpqe3N9rW+AleOuD\/StCIw5DtDmStKz9p5dDJKyKkhKlv+cTMhMEgRYRTlbc2NMgPm4JlOus7C3zHiz0P+cpD6mxpWiWLwcDPZ6VgQ7ca9rCEbVmJPl9sKBiE6ZtZUYj5srbNw2dAExCLgri+5YXzCMwmtWRLpsjKu+15eoRnCY6pLhK9a0sYF1+cQ+KzVTRkyKBUKnIA9ABOAybRLnsM=",
+        "X-Apple-ID-Account-Country": "CHN",
+        "vary": "accept-encoding",
+        "Content-Language": "zh-CN-x-lvariant-CHN"
+    },
+    "data": "{\n  \"authType\" : \"hsa2\"\n}"
+}

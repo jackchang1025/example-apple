@@ -16,13 +16,13 @@ class AddFamilyMember extends Data
      * @param bool $shareMyPurchasesEnabledDefault 是否默认启用购买内容共享，默认为true
      */
     public function __construct(
-        public readonly string $appleId,
-        public readonly string $password,
-        public readonly string $appleIdForPurchases,
-        public readonly string $verificationToken,
-        public readonly string $preferredAppleId,
-        public readonly bool $shareMyLocationEnabledDefault = true,
-        public readonly bool $shareMyPurchasesEnabledDefault = true,
+        public string $appleId,
+        public string $password,
+        public string $appleIdForPurchases,
+        public string $verificationToken,
+        public string $preferredAppleId,
+        public bool $shareMyLocationEnabledDefault = true,
+        public bool $shareMyPurchasesEnabledDefault = true,
     ) {
 
     }

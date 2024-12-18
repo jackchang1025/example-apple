@@ -1,0 +1,38 @@
+{
+    "statusCode": 200,
+    "headers": {
+        "Server": "Apple",
+        "Date": "Tue, 17 Dec 2024 07:53:13 GMT",
+        "Content-Type": "application\/json;charset=UTF-8",
+        "Transfer-Encoding": "chunked",
+        "Connection": "keep-alive",
+        "X-Apple-I-Request-ID": "f77a2173-bc4b-11ef-8db4-a77b5e2da948",
+        "X-FRAME-OPTIONS": "DENY",
+        "X-Content-Type-Options": "nosniff",
+        "X-XSS-Protection": "1; mode=block",
+        "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+        "Content-Security-Policy": "default-src 'self' ; child-src blob: ; connect-src 'self' https:\/\/www.apple.com https:\/\/appleid.cdn-apple.com https:\/\/webcourier.sandbox.push.apple.com https:\/\/xp-qa.apple.com ; font-src 'self' https:\/\/www.apple.com https:\/\/appleid.cdn-apple.com https:\/\/idmsa.apple.com https:\/\/gsa.apple.com https:\/\/idmsa.apple.com.cn https:\/\/signin.apple.com ; frame-src 'self' https:\/\/appleid.apple.com https:\/\/gsa.apple.com https:\/\/account.apple.com ; img-src 'self' https:\/\/www.apple.com https:\/\/appleid.cdn-apple.com https:\/\/*.mzstatic.com data: https:\/\/*.apple.com ; media-src data: ; object-src 'none' ; script-src 'self' https:\/\/www.apple.com https:\/\/appleid.cdn-apple.com https:\/\/idmsa.apple.com https:\/\/gsa.apple.com https:\/\/idmsa.apple.com.cn https:\/\/signin.apple.com ; style-src 'unsafe-inline' 'self' https:\/\/www.apple.com https:\/\/appleid.cdn-apple.com https:\/\/idmsa.apple.com https:\/\/gsa.apple.com https:\/\/idmsa.apple.com.cn https:\/\/signin.apple.com ;",
+        "Referrer-Policy": "origin",
+        "X-BuildVersion": "R3",
+        "scnt": "AAAA-kFBNzc1QjM2RTZDQjY4NEFEQkFDMURENDVERjJCMTAyMEZDNjc5ODk4MDgyRDMzNjY3RkFENjVENTcwQUExMTIzRTNEMzA1MDU1ODQ5QjczMzVCQTBCRTNBMDYzMTEzNEQzMEM3RjVBMkQ5NTEzMkY3MTA1QzQ0OTIyNTNCRDczNzk4M0VFQjhGMUNBNzcwRkNDMDYwOEE3M0ZFREQyRDM5NTMxMjEyMThEMERDRjE1REExN0MyRDUzNEJEQTA0RUY4N0RGM0NFMjJERUU2MzQ5MzM4RkU1NEQyN0Q3QkQwMDlDMTBCMzE2NDE3NzU0RXw0AAABk9OpErsgerFaTHN3tIq-KvyXXRvRvmIktkRcPPrG3TWSZc6t7cLt-hSLTSYjABcsfl9FuQ7LQpGHxMrwN3hkmwE-qvE3Dp54k6ZAfJfh9SIzFeJmCA",
+        "Set-Cookie": [
+            "dslang=CN-ZH; Domain=apple.com; Path=\/; Secure; HttpOnly",
+            "site=CHN; Domain=apple.com; Path=\/; Secure; HttpOnly",
+            "crsc=4h1blNZr9GnRX8LthRCDcsbCqfnISx8dNqtCrYoLGtprR6DQ\/I92\/eEQfnDsyzRtKMcQzapHXQDZ59AAFyx+eP29rw==; Max-Age=900000; Expires=Fri, 27 Dec 2024 17:53:13 GMT; Domain=idmsa.apple.com; Path=\/; Secure; HttpOnly"
+        ],
+        "Pragma": "no-cache",
+        "Expires": "Thu, 01 Jan 1970 00:00:00 GMT",
+        "Cache-Control": [
+            "no-cache",
+            "no-store",
+            "no-store"
+        ],
+        "X-Apple-ID-Session-Id": "AA775B36E6CB684ADBAC1DD45DF2B1020FC679898082D33667FAD65D570AA1123E3D305055849B7335BA0BE3A0631134D30C7F5A2D95132F7105C4492253BD737983EEB8F1CA770FCC0608A73FEDD2D3953121218D0DCF15DA17C2D534BDA04EF87DF3CE22DEE6349338FE54D27D7BD009C10B316417754E",
+        "X-Apple-Auth-Attributes": "2ICEfgnH690I1C0on3W\/wbGCGy6N3V\/6myvoBW9\/fxFLFUXS5RqKSpeU0VBGb9CSr4rrixba\/wWqzIgR4p3wY7l7psUfpa4PakYHC6netnIWAJd7o1GRFv6W2CjlvRe3iGA+ocKec1VKr4sf6bjUh\/M0VGwMad\/CHCkqS9s+hO5If+CjusGDz\/roPd5k8rUThgeERW\/GxAy5ABcsfnkJ5oc=",
+        "X-Apple-Session-Token": "pdAIX8X8uG0MG+kUJQHw1KKrBnABj5\/QI1cdWIKSETF+lDrZ32+0453K6qfcbd8H7RxLEMHSpv9CMkL5f7a00p9nx0AnRKmokavRb5G6P2CwkPt3IdiEhMlCQzOen1\/m+VmRC\/lc9lWjfFJahmiZNdmZ3R\/4tdpptlDjolLPa2sty76GKYmP1f\/HlfJJgITx1tw0Ax\/u60k6p\/fLVezwNn4VL4iKf3fwNDn+wkYwzVXu8DG8o2kshLG4ObnlsLhzIxumFW2DrlnSmufIj9SJnzesAScmqVcF2lwLQzPdkJPbDdUfDnJPkqHa5WhfhSiYKqQmj3YDT3Bp01P\/5Eaa60zbjJbFDWqiK6dCzj+coXVTyf1jO+i9JMzEh7oQOLDKZZma65maTw+y0FGbApod5FjQ3jSqjXDZKMRFa2e4Z+plY\/Se06veXfv3SDT8NbpS7kpr2gx0heYETHmiGVx8ximPFjn3OcQ\/QvpUWEETZcvDFBVWlE6I70Bok1Ex1Cgc\/70q\/SOn74cOvbDSWeqHoIV9xEl9FBeMIbPZdv757p5+cCGJSpIWSkIb8CbANDnj1NSIXDh9OB4sukKMjpKKfNZfBc2hF9C9ZQ0utzNCvv1XXYoX1gVvisSB+H+n5Ey7VQmNkD2hPla9VJ2uDHsMom7n\/u8ULYTEwEsJjBsnc84gSZQw\/9Q\/ZXFigzrZ7bFg8JdK2FJ9mcAD06HNxSzhIL9uR9BRWpF3U\/gOzyUo25gnc8FFPX12moV5ZFg\/9cc41k+enNZifLPcMYEBm2O1c92ZMXM+jlgJC+cKGo+bCn4dB2vuipp6vvjLoCJqkcUzi9cDi6ycx7o4Nbi8xHqyrdMEVb2IcifKWy46bDlr68DRLSU9ltcuFVIRQ1bQvj60haauSX9swOy\/\/b7xznhs6yklzMMNqhqTNxMXo0IuaGfn\/bNtpN+4v4vwkTNCZ0KpYhxtkCZ12cQqpXZW\/jaoj2G5ddru7\/+nxqQuk+SdMeAySjfkrEaFf76cFdnxOZU\/MVUp6GEUHfLxbdgHlY2o6rjGSgAXLH55C4Ia",
+        "X-Apple-ID-Account-Country": "CHN",
+        "vary": "accept-encoding",
+        "Content-Language": "zh-CN-x-lvariant-CHN"
+    },
+    "data": "{\n  \"trustedPhoneNumbers\" : [ {\n    \"nonFTEU\" : true,\n    \"numberWithDialCode\" : \"+852 \u2022\u2022\u2022\u2022 \u2022\u202210\",\n    \"pushMode\" : \"sms\",\n    \"obfuscatedNumber\" : \"\u2022\u2022\u2022\u2022 \u2022\u202210\",\n    \"lastTwoDigits\" : \"10\",\n    \"id\" : 2\n  }, {\n    \"nonFTEU\" : true,\n    \"numberWithDialCode\" : \"+86 \u2022\u2022\u2022 \u2022\u2022\u2022\u2022 \u2022\u202270\",\n    \"pushMode\" : \"sms\",\n    \"obfuscatedNumber\" : \"\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 \u2022\u202270\",\n    \"lastTwoDigits\" : \"70\",\n    \"id\" : 1\n  } ],\n  \"phoneNumber\" : {\n    \"nonFTEU\" : false,\n    \"numberWithDialCode\" : \"\u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 \u2022\u202210\",\n    \"pushMode\" : \"sms\",\n    \"obfuscatedNumber\" : \"\u2022\u2022\u2022\u2022 \u2022\u202210\",\n    \"lastTwoDigits\" : \"10\",\n    \"id\" : 2\n  },\n  \"securityCode\" : {\n    \"length\" : 6,\n    \"tooManyCodesSent\" : false,\n    \"tooManyCodesValidated\" : false,\n    \"securityCodeLocked\" : false,\n    \"securityCodeCooldown\" : false\n  },\n  \"mode\" : \"sms\",\n  \"type\" : \"verification\",\n  \"authenticationType\" : \"hsa2\",\n  \"recoveryUrl\" : \"https:\/\/iforgot.apple.com\/phone\/add?prs_account_nm=sjx5weaver%40hotmail.com&autoSubmitAccount=true&appId=142\",\n  \"cantUsePhoneNumberUrl\" : \"https:\/\/iforgot.apple.com\/iforgot\/phone\/add?context=cantuse&prs_account_nm=sjx5weaver%40hotmail.com&autoSubmitAccount=true&appId=142\",\n  \"recoveryWebUrl\" : \"https:\/\/iforgot.apple.com\/password\/verify\/appleid?prs_account_nm=sjx5weaver%40hotmail.com&autoSubmitAccount=true&appId=142\",\n  \"repairPhoneNumberUrl\" : \"https:\/\/gsa.apple.com\/appleid\/account\/manage\/repair\/verify\/phone\",\n  \"repairPhoneNumberWebUrl\" : \"https:\/\/appleid.apple.com\/widget\/account\/repair?#!repair\",\n  \"aboutTwoFactorAuthenticationUrl\" : \"https:\/\/support.apple.com\/kb\/HT204921\",\n  \"autoVerified\" : false,\n  \"showAutoVerificationUI\" : false,\n  \"supportsCustodianRecovery\" : false,\n  \"hideSendSMSCodeOption\" : false,\n  \"supervisedChangePasswordFlow\" : false,\n  \"enableNonFTEU\" : false,\n  \"supportsRecovery\" : true,\n  \"trustedPhoneNumber\" : {\n    \"nonFTEU\" : true,\n    \"numberWithDialCode\" : \"+852 \u2022\u2022\u2022\u2022 \u2022\u202210\",\n    \"pushMode\" : \"sms\",\n    \"obfuscatedNumber\" : \"\u2022\u2022\u2022\u2022 \u2022\u202210\",\n    \"lastTwoDigits\" : \"10\",\n    \"id\" : 2\n  },\n  \"hsa2Account\" : true,\n  \"restrictedAccount\" : false,\n  \"managedAccount\" : false\n}"
+}

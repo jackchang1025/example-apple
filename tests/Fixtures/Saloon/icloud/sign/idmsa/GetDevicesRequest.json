@@ -1,0 +1,21 @@
+{
+    "statusCode": 200,
+    "headers": {
+        "Server": "AppleHttpServer\/f01b906b32ac",
+        "Date": "Tue, 17 Dec 2024 07:57:03 GMT",
+        "Content-Type": "application\/json; charset=UTF-8",
+        "Content-Length": "819",
+        "X-Responding-Instance": "setupservice:1:prod-p00-wu-setupservice--canary-5b4997fd78-zr2k7:80:2429B445:0641ba86deb5",
+        "Cache-Control": "no-cache, no-store, private",
+        "Access-Control-Allow-Origin": "https:\/\/www.icloud.com.cn",
+        "Access-Control-Allow-Credentials": "true",
+        "Strict-Transport-Security": "max-age=31536000; includeSubDomains;",
+        "x-apple-xrail": "true",
+        "x-apple-user-partition": "208",
+        "via": "xrail:icloud-xrail-group232-ext-574d77dcc5-c8bfj:8301:24R621:grp232,ef5f95d862fbe56114387549ef7ce198:9706539448e6fff134868b3566ecd43f:xasha3",
+        "X-Apple-Request-UUID": "4c2d81ef-bd34-47e6-a899-29bdf4d8f923",
+        "access-control-expose-headers": "X-Apple-Request-UUID,Via",
+        "X-Apple-Edge-Response-Time": "4608"
+    },
+    "data": "{\"devices\":[{\"serialNumber\":\"\u25cf\u25cf\u25cf\u25cf\u25cf\u25cf\u25cfYHG70\",\"osVersion\":\"iOS;14.7\",\"modelLargePhotoURL2x\":\"https:\/\/statici.icloud.com.cn\/fmipmobile\/deviceImages-4.0\/iPhone\/iPhone9,1-2-4-0\/online-infobox__2x.png\",\"modelLargePhotoURL1x\":\"https:\/\/statici.icloud.com.cn\/fmipmobile\/deviceImages-4.0\/iPhone\/iPhone9,1-2-4-0\/online-infobox.png\",\"latestBackup\":\"2024-12-16T04:09:27Z\",\"name\":\"iPhone\",\"imei\":\"\u25cf\u25cf\u25cf\u25cf\u25cf\u25cf\u25cf\u25cf\u25cf\u25cf18162\",\"model\":\"iPhone9,1\",\"udid\":\"8f61b415605ef81b88ef88fc9967e34808b4709e811f5cc78509d12b632ece2b\",\"modelSmallPhotoURL2x\":\"https:\/\/statici.icloud.com.cn\/fmipmobile\/deviceImages-4.0\/iPhone\/iPhone9,1-2-4-0\/online-sourcelist__2x.png\",\"modelSmallPhotoURL1x\":\"https:\/\/statici.icloud.com.cn\/fmipmobile\/deviceImages-4.0\/iPhone\/iPhone9,1-2-4-0\/online-sourcelist.png\",\"modelDisplayName\":\"iPhone 7\"}]}"
+}

@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage;
+namespace Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\Devices;
 
-use Modules\AppleClient\Service\Integrations\AppleId\Dto\Device\DevicesData;
+use Modules\AppleClient\Service\Integrations\AppleId\Dto\Response\Device\Devices;
 use Modules\AppleClient\Service\Integrations\Request;
 use Saloon\Enums\Method;
 use Saloon\Http\Response;
@@ -16,8 +16,8 @@ class DevicesRequest extends Request
         return '/account/manage/security/devices';
     }
 
-    public function createDtoFromResponse(Response $response): DevicesData
+    public function createDtoFromResponse(Response $response): Devices
     {
-        return DevicesData::from($response->json());
+        return Devices::from($response->json());
     }
 }

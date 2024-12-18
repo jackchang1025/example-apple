@@ -7,12 +7,30 @@
 
 namespace Modules\AppleClient\Service\Integrations\Idmsa;
 
-use Modules\AppleClient\Service\Config\Config;
+use Illuminate\Support\Facades\Log;
+use Modules\AppleClient\Service\Apple;
+use Modules\AppleClient\Service\Cookies\CookieAuthenticator;
+use Modules\AppleClient\Service\Header\HeaderSynchronizeInterface;
 use Modules\AppleClient\Service\Integrations\AppleConnector;
 use Modules\AppleClient\Service\Integrations\Idmsa\Resources\AuthenticateResources;
+use Saloon\Http\PendingRequest;
+use Saloon\Http\Response;
 
 class IdmsaConnector extends AppleConnector
 {
+    public function __construct(
+        protected Apple $apple,
+        CookieAuthenticator $authenticator,
+        HeaderSynchronizeInterface $headerSynchronize,
+        public string $serviceKey,
+        public string $redirectUri
+    ) {
+
+        parent::__construct(apple: $apple, authenticator: $authenticator, headerSynchronize: $headerSynchronize);
+
+        $this->authenticator = $authenticator;
+    }
+
     public function defaultPersistentHeaders(): array
     {
         return ['X-Apple-ID-Session-Id', 'X-Apple-Auth-Attributes', 'scnt'];
@@ -25,15 +43,10 @@ class IdmsaConnector extends AppleConnector
 
     protected function defaultHeaders(): array
     {
-        /**
-         * @var Config $config
-         */
-        $config = $this->config();
-
         return [
-            'X-Apple-Widget-Key'          => $config->getServiceKey(),
-            'X-Apple-OAuth-Redirect-URI'  => $config->getApiUrl(),
-            'X-Apple-OAuth-Client-Id'     => $config->getServiceKey(),
+            'X-Apple-Widget-Key' => $this->serviceKey,
+            'X-Apple-OAuth-Redirect-URI' => $this->redirectUri,
+            'X-Apple-OAuth-Client-Id' => $this->serviceKey,
             'X-Apple-OAuth-Client-Type'   => 'firstPartyAuth',
             'x-requested-with'            => 'XMLHttpRequest',
             'X-Apple-OAuth-Response-Mode' => 'web_message',

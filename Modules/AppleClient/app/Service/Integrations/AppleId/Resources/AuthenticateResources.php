@@ -2,8 +2,8 @@
 
 namespace Modules\AppleClient\Service\Integrations\AppleId\Resources;
 
-use Modules\AppleClient\Service\Integrations\AppleId\Dto\Token\TokenData;
-use Modules\AppleClient\Service\Integrations\AppleId\Dto\ValidatePassword\ValidatePassword;
+use Modules\AppleClient\Service\Integrations\AppleId\Dto\Response\Token\Token;
+use Modules\AppleClient\Service\Integrations\AppleId\Dto\Response\ValidatePassword\ValidatePassword;
 use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\TokenRequest;
 use Modules\AppleClient\Service\Integrations\AppleId\Request\AuthenticatePasswordRequest;
 use Modules\AppleClient\Service\Integrations\BaseResource;
@@ -27,12 +27,12 @@ class AuthenticateResources extends BaseResource
     }
 
     /**
-     * @return TokenData
+     * @return Token
      * @throws FatalRequestException
      *
      * @throws RequestException
      */
-    public function token(): TokenData
+    public function token(): Token
     {
         return $this->getConnector()->send(new TokenRequest())->dto();
     }

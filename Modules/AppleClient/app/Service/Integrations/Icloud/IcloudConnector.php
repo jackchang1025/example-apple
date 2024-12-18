@@ -2,7 +2,7 @@
 
 namespace Modules\AppleClient\Service\Integrations\Icloud;
 
-use Modules\AppleClient\Service\AppleClient;
+use Modules\AppleClient\Service\Apple;
 use Modules\AppleClient\Service\Integrations\AppleConnector;
 use Modules\AppleClient\Service\Integrations\Icloud\Resources\AuthenticateResources;
 use Modules\AppleClient\Service\Integrations\Icloud\Resources\FamilyResources;
@@ -10,12 +10,9 @@ use Saloon\Http\Auth\BasicAuthenticator;
 
 class IcloudConnector extends AppleConnector
 {
-    public function __construct(
-        AppleClient $apple,
-        public readonly string $dsid = '',
-        public readonly string $mmeAuthToken = '',
-    ) {
-        parent::__construct($apple);
+    public function __construct(Apple $apple, ?BasicAuthenticator $authenticator = null)
+    {
+        parent::__construct($apple, $authenticator);
     }
 
     public function defaultHeaders(): array
@@ -33,11 +30,6 @@ class IcloudConnector extends AppleConnector
             'X-SproutCore-Version'   => '1.6.0',
             'Accept-Language'        => 'zh-cn',
         ];
-    }
-
-    protected function defaultAuth(): BasicAuthenticator
-    {
-        return new BasicAuthenticator($this->dsid, $this->mmeAuthToken);
     }
 
     public function resolveBaseUrl(): string

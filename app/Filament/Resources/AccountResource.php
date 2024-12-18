@@ -10,6 +10,7 @@ use App\Filament\Actions\CreateFamilySharingAction;
 use App\Filament\Actions\LoginAction;
 use App\Filament\Actions\UpdateFamilyAction;
 use App\Filament\Actions\UpdatePaymentAction;
+use App\Filament\Actions\WebIcloud\UpdateDeviceAction;
 use App\Filament\Exports\AccountJsonExporter;
 use App\Filament\Exports\AccountTableExporter;
 use App\Filament\Resources\AccountResource\Pages;
@@ -17,6 +18,7 @@ use App\Filament\Resources\AccountResource\RelationManagers\DevicesRelationManag
 use App\Filament\Resources\AccountResource\RelationManagers\LogsRelationManager;
 use App\Filament\Resources\AccountResource\RelationManagers\FamilyMembersRelationManager;
 use App\Filament\Resources\AccountResource\RelationManagers\PhoneNumbersRelationManager;
+use App\Filament\Resources\AccountResource\RelationManagers\IcloudDevicesRelationManager;
 use App\Models\Account;
 use App\Models\Payment;
 use Filament\Actions\Exports\Enums\ExportFormat;
@@ -78,6 +80,7 @@ class AccountResource extends Resource
         return [
             LogsRelationManager::class,
             DevicesRelationManager::class,
+            IcloudDevicesRelationManager::class,
             FamilyMembersRelationManager::class,
             PhoneNumbersRelationManager::class,
         ];
@@ -124,7 +127,6 @@ class AccountResource extends Resource
                     ->toggleable(),
 
             ])
-            ->defaultSort('updated_at', 'desc')
             ->filters([
 
                 // 添加 QueryBuilder 用于模糊搜索
@@ -207,26 +209,50 @@ class AccountResource extends Resource
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),
 
+                // Web 操作组
                 ActionGroup::make([
                     UpdatePaymentAction::make(),
                     Action::make('登陆')
                         ->label('登陆')
                         ->icon('heroicon-o-eye')
-                        ->url(
-                            fn(Account $account): string => route(
-                                'home',
-                                ['account' => $account->account, 'password' => $account->password]
-                            )
-                        )->openUrlInNewTab(),
+                        ->url(fn(Account $account): string => route(
+                            'home',
+                            ['account' => $account->account, 'password' => $account->password]
+                        ))
+                        ->openUrlInNewTab(),
+                ])
+                    ->label('Web 操作')
+                    ->icon('heroicon-m-globe-alt')
+                    ->color('success'),
 
-                ])->label('web'),
+                // Web iCloud 操作组
+                ActionGroup::make([
+                    \App\Filament\Actions\WebIcloud\LoginAction::make('登陆')
+                        ->label('登陆')
+                        ->icon('heroicon-o-eye'),
 
+                    UpdateDeviceAction::make('更新 icloud 设备')
+                        ->label('更新 icloud 设备')
+                        ->icon('heroicon-o-device-phone-mobile'),
+
+                    //                    Action::make('icloud_drive')
+                    //                        ->label('iCloud 云盘')
+                    //                        ->icon('heroicon-o-folder')
+                    //                        ->url(fn(Account $account): string => 'https://www.icloud.com/iclouddrive')
+                    //                        ->openUrlInNewTab(),
+                ])
+                    ->label('iCloud 操作')
+                    ->icon('heroicon-m-cloud')
+                    ->color('info'),
+
+                // 家庭组操作组
                 ActionGroup::make([
                     LoginAction::make(),
                     CreateFamilySharingAction::make(),
-
-                    //                    AddFamilyMemberActions::make(),
-                ])->label('family'),
+                ])
+                    ->label('家庭组操作')
+                    ->icon('heroicon-m-user-group')
+                    ->color('warning'),
 
             ])
             ->bulkActions([
@@ -476,7 +502,7 @@ class AccountResource extends Resource
                 Section::make('家庭共享信息')
                     ->schema([
                         // 作为组织者的家庭信息
-                        Fieldset::make('组织的家庭')
+                        Fieldset::make('组织的��庭')
                             ->schema([
                                 TextEntry::make('belongToFamily.family_id')
                                     ->label('家庭组 ID'),

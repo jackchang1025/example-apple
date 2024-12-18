@@ -1,11 +1,10 @@
 <?php
 
 use Illuminate\Foundation\Testing\TestCase;
-use Modules\AppleClient\Service\AppleClient;
+use Modules\AppleClient\Service\Apple;
 use Modules\AppleClient\Service\DataConstruct\Account;
 use Modules\AppleClient\Service\Integrations\Icloud\IcloudConnector;
 use Modules\AppleClient\Service\Integrations\Icloud\Request\LoginDelegatesRequest;
-use Saloon\Http\Connector;
 
 uses(TestCase::class);
 
@@ -15,7 +14,10 @@ beforeEach(function () {
     $this->password = 'testPassword';
 
     $this->IcloudConnector = new IcloudConnector(
-        new AppleClient(new Account($this->appleId, $this->password))
+        new Apple(
+            new Account($this->appleId, $this->password),
+            Mockery::mock(\Modules\AppleClient\Service\Config\Config::class)
+        )
     );
 
     $this->request = new LoginDelegatesRequest($this->appleId, $this->password);

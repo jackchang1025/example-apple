@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage;
+namespace Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\Account;
 
-use Modules\AppleClient\Service\DataConstruct\AppleId\AccountManager\UpdateNameData;
+use Modules\AppleClient\Service\Integrations\AppleId\Dto\Response\UpdateName\UpdateName;
 use Modules\AppleClient\Service\Integrations\Request;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
@@ -16,7 +16,7 @@ class UpdateNameRequest extends Request implements HasBody
     protected Method $method = Method::PUT;
 
     public function __construct(
-        public UpdateNameData $dto,
+        public UpdateName $dto,
     ) {
     }
 
@@ -25,9 +25,9 @@ class UpdateNameRequest extends Request implements HasBody
         return "/account/manage/name";
     }
 
-    public function createDtoFromResponse(Response $response): UpdateNameData
+    public function createDtoFromResponse(Response $response): UpdateName
     {
-        return UpdateNameData::from($response->json());
+        return UpdateName::from($response->json());
     }
 
     protected function defaultBody(): array

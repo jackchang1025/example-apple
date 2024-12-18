@@ -1,9 +1,8 @@
 <?php
 
 use Illuminate\Foundation\Testing\TestCase;
-use Modules\AppleClient\Service\AppleClient;
+use Modules\AppleClient\Service\Apple;
 use Modules\AppleClient\Service\DataConstruct\Account;
-use Modules\AppleClient\Service\DataConstruct\Icloud\FamilyDetails\FamilyDetails;
 use Modules\AppleClient\Service\Integrations\Icloud\IcloudConnector;
 use Modules\AppleClient\Service\Integrations\Icloud\Request\GetFamilyDetailsRequest;
 use Saloon\Exceptions\Request\Statuses\InternalServerErrorException;
@@ -11,6 +10,7 @@ use Saloon\Exceptions\Request\Statuses\UnauthorizedException;
 use Saloon\Http\Faking\MockClient;
 use Saloon\Http\Faking\MockResponse;
 use Spatie\LaravelData\DataCollection;
+use Modules\AppleClient\Service\Integrations\Icloud\Dto\Response\FamilyDetails\FamilyDetails;
 
 uses(TestCase::class);
 
@@ -21,10 +21,11 @@ beforeEach(function () {
     $this->password = 'testPassword';
     $this->request = new GetFamilyDetailsRequest();
 
+    $this->account = new Account($this->appleId, $this->password);
+    // 创建 IcloudConnector 实例
     $this->icloudConnector = new IcloudConnector(
-        new AppleClient(new Account($this->appleId, $this->password))
+        new Apple(account: $this->account, config: new \Modules\AppleClient\Service\Config\Config())
     );
-
 });
 
 it('test request', function () {

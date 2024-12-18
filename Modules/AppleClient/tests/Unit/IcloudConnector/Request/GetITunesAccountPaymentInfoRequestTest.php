@@ -1,15 +1,14 @@
 <?php
 
 use Illuminate\Foundation\Testing\TestCase;
-use Modules\AppleClient\Service\AppleClient;
+use Modules\AppleClient\Service\Apple;
 use Modules\AppleClient\Service\DataConstruct\Account;
-use Modules\AppleClient\Service\DataConstruct\Icloud\ITunesAccountPaymentInfo\ITunesAccountPaymentInfo;
 use Modules\AppleClient\Service\Integrations\Icloud\IcloudConnector;
 use Modules\AppleClient\Service\Integrations\Icloud\Request\GetITunesAccountPaymentInfoRequest;
 use Saloon\Exceptions\Request\Statuses\InternalServerErrorException;
 use Saloon\Http\Faking\MockClient;
 use Saloon\Http\Faking\MockResponse;
-
+use Modules\AppleClient\Service\Integrations\Icloud\Dto\Response\ITunesAccountPaymentInfo\ITunesAccountPaymentInfo;
 uses(TestCase::class);
 
 beforeEach(function () {
@@ -29,9 +28,10 @@ beforeEach(function () {
         $this->sendSMS
     );
 
+    $this->account = new Account($this->appleId, $this->password);
     // 创建 IcloudConnector 实例
     $this->icloudConnector = new IcloudConnector(
-        new AppleClient(new Account($this->appleId, $this->password))
+        new Apple(account: $this->account, config: new \Modules\AppleClient\Service\Config\Config())
     );
 });
 

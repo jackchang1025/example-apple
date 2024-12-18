@@ -21,7 +21,6 @@ class CacheStore extends ArrayStore
      * @param CacheInterface $cache
      * @param string $key
      * @param int $ttl
-     * @param string $prx
      * @param array $defaultData
      *
      * @throws InvalidArgumentException
@@ -30,7 +29,6 @@ class CacheStore extends ArrayStore
         protected readonly CacheInterface $cache,
         protected readonly string $key = '',
         protected readonly int $ttl = 3600,
-        protected readonly string $prx = "stores",
         protected readonly array $defaultData = []
     ) {
         parent::__construct(array_merge($defaultData, $this->load()));
@@ -74,6 +72,6 @@ class CacheStore extends ArrayStore
 
     protected function getCacheKey(): string
     {
-        return sprintf("{$this->prx}:%s", $this->key);
+        return $this->key;
     }
 }

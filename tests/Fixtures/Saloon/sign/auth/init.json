@@ -1,0 +1,13 @@
+{
+    "statusCode": 200,
+    "headers": {
+        "X-Powered-By": "Express",
+        "Content-Type": "application\/json; charset=utf-8",
+        "Content-Length": "373",
+        "ETag": "W\/\"175-juYHyYM5MHszAsrVL0w79vOyua0\"",
+        "Date": "Mon, 16 Dec 2024 12:31:49 GMT",
+        "Connection": "keep-alive",
+        "Keep-Alive": "timeout=5"
+    },
+    "data": "{\"key\":\"78f131a8\",\"value\":\"oMi9jIh4g8B5Y7wWij\/FEuxrT+biz1HBpT+pp+K1ZFiKb3v2telTPoVbBl+JIgqFVAgbogit34xO1b7PhJ+SNPXz85DcPll2xgVuiG4g16dcd+LJIp\/avu5DCf8ytAKnDZAyNiI3tUQDLXr7lsR+5XD9J3ue4BgQ33KgjBnn1B\/HXPdWrfsviVL3o49yTenlM0sijl6dx\/eaCf5TbMQe\/tMm\/VZmn2rxRUCaDVlYbZQaiqBYrpLqeszMaUkipY5FrWAerXrfh6Ef7PXLTdcDrNEqg9AXlNwCw0XeIo8B0BXBqQFzzZFdN1KKCR01ucxwcutcGtAKVshH5EzrfA\/JBg==\"}"
+}

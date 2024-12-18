@@ -5,23 +5,13 @@ namespace Modules\AppleClient\Service\Trait;
 
 use App\Models\User;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Auth;
 use Psr\Log\LoggerInterface;
 
 trait HasNotification
 {
-    protected LoggerInterface $logger;
 
-    public function withLogger(LoggerInterface $logger): static
-    {
-        $this->logger = $logger;
-
-        return $this;
-    }
-
-    public function getLogger(): LoggerInterface
-    {
-        return $this->logger;
-    }
+    abstract public function getLogger(): LoggerInterface;
 
 
     /**
@@ -41,7 +31,7 @@ trait HasNotification
             ->title($title)
             ->body($message)
             ->success()
-            ->sendToDatabase(User::first());
+            ->sendToDatabase(Auth::user() ?? User::first());
     }
 
 
@@ -62,6 +52,6 @@ trait HasNotification
             ->title($title)
             ->body($message)
             ->warning()
-            ->sendToDatabase(User::first());
+            ->sendToDatabase(Auth::user() ?? User::first());
     }
 }

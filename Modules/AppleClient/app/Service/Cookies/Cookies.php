@@ -69,11 +69,11 @@ class Cookies extends CookieJar
      */
     public function getCacheKey(): string
     {
-        return sprintf("cookie:%s", $this->key);
+        return $this->key;
     }
 
     /**
-     * @throws InvalidArgumentException
+     * @throws InvalidArgumentException|\Psr\SimpleCache\InvalidArgumentException
      */
     public function __destruct()
     {

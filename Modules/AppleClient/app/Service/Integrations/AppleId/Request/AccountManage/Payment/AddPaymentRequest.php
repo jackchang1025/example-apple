@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage;
+namespace Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\Payment;
 
-use Modules\AppleClient\Service\Integrations\AppleId\Dto\AddPaymentDto;
+use Modules\AppleClient\Service\Integrations\AppleId\Dto\Request\AddPayment\AddPayment;
 use Modules\AppleClient\Service\Integrations\Request;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
@@ -16,7 +16,7 @@ class AddPaymentRequest extends Request implements HasBody
 
 
     public function __construct(
-        public AddPaymentDto $dto,
+        public AddPayment $dto,
     ) {
     }
 

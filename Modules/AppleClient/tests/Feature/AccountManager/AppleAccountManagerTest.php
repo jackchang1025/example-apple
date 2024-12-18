@@ -6,7 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\TestCase;
 use Modules\AppleClient\Database\Factories\SendDeviceSecurityCodeFactory;
 use Modules\AppleClient\Database\Factories\VerifyPhoneSecurityCodeFactoryFactory;
-use Modules\AppleClient\Service\AppleAccountManagerFactory;
+use Modules\AppleClient\Service\AppleFactory;
 use Modules\AppleClient\Service\DataConstruct\Auth\Auth;
 use Modules\AppleClient\Service\DataConstruct\NullData;
 use Modules\AppleClient\Service\DataConstruct\PhoneNumber;
@@ -23,12 +23,12 @@ use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\Secur
 use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\SecurityVerifyPhoneSecurityCodeRequest;
 use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\TokenRequest;
 use Modules\AppleClient\Service\Integrations\AppleId\Request\AuthenticatePasswordRequest;
-use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\SendPhoneSecurityCode;
-use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\SendTrustedDeviceSecurityCode;
-use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\SignInComplete;
-use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\SigninInit;
-use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\VerifyPhoneSecurityCode;
-use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\VerifyTrustedDeviceSecurityCode;
+use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\SendPhoneSecurityCodeRequest;
+use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\SendTrustedDeviceSecurityCodeRequest;
+use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\SignInCompleteRequest;
+use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\SigninInitRequest;
+use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\VerifyPhoneSecurityCodeRequest;
+use Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\VerifyTrustedDeviceSecurityCodeRequest;
 use Saloon\Http\Faking\MockClient;
 use Saloon\Http\Faking\MockResponse;
 use Spatie\LaravelData\DataCollection;
@@ -61,7 +61,7 @@ beforeEach(function () {
     ]);
 
 
-    $this->appleClientFactory = app(AppleAccountManagerFactory::class);
+    $this->appleClientFactory = app(AppleFactory::class);
     $this->accountManager     = $this->appleClientFactory->create($this->account);
 
     // 设置特定的模拟响应
@@ -74,7 +74,7 @@ beforeEach(function () {
             status: 200
         ),
 
-        SigninInit::class => MockResponse::make(
+        SigninInitRequest::class => MockResponse::make(
             body: [
                 'salt'      => fake()->title(),
                 'b'         => fake()->text(),
@@ -94,32 +94,32 @@ beforeEach(function () {
             status: 200
         ),
 
-        SignInComplete::class => MockResponse::make(
+        SignInCompleteRequest::class => MockResponse::make(
             body: [
                 'authType' => fake()->title(),
             ],
             status: 409
         ),
 
-        \Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\Auth::class => MockResponse::make(
+        \Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth\AuthRequest::class => MockResponse::make(
             body: '<script type="application/json" class="boot_args">
     {"direct":{"scriptSk7Url":"https://appleid.cdn-apple.com/appleauth/static/module-assets/home-3d9cc87dfa00944927b0.js","scriptUrl":"https://appleid.cdn-apple.com/appleauth/static/jsj/N1862500467/widget/auth/hsa2.js","module":"widget/auth/components/hsa2/hsa2","isReact":true,"authUserType":"hsa2","hasTrustedDevices":false,"twoSV":{"supportedPushModes":["voice","sms"],"phoneNumberVerification":{"trustedPhoneNumbers":[{"numberWithDialCode":"+852 •••• ••63","pushMode":"sms","obfuscatedNumber":"•••• ••63","lastTwoDigits":"63","id":4},{"numberWithDialCode":"+86 ••• •••• ••24","pushMode":"sms","obfuscatedNumber":"••• •••• ••24","lastTwoDigits":"24","id":2},{"numberWithDialCode":"+852 •••• ••08","pushMode":"sms","obfuscatedNumber":"•••• ••08","lastTwoDigits":"08","id":6},{"numberWithDialCode":"+852 •••• ••93","pushMode":"sms","obfuscatedNumber":"•••• ••93","lastTwoDigits":"93","id":5},{"numberWithDialCode":"+852 •••• ••35","pushMode":"sms","obfuscatedNumber":"•••• ••35","lastTwoDigits":"35","id":3}],"securityCode":{"length":6,"tooManyCodesSent":false,"tooManyCodesValidated":false,"securityCodeLocked":false,"securityCodeCooldown":false},"authenticationType":"hsa2","recoveryUrl":"https://iforgot.apple.com/phone/add?prs_account_nm=jackchang2021%40163.com\u0026autoSubmitAccount=true\u0026appId=142","cantUsePhoneNumberUrl":"https://iforgot.apple.com/iforgot/phone/add?context=cantuse\u0026prs_account_nm=jackchang2021%40163.com\u0026autoSubmitAccount=true\u0026appId=142","recoveryWebUrl":"https://iforgot.apple.com/password/verify/appleid?prs_account_nm=jackchang2021%40163.com\u0026autoSubmitAccount=true\u0026appId=142","repairPhoneNumberUrl":"https://gsa.apple.com/appleid/account/manage/repair/verify/phone","repairPhoneNumberWebUrl":"https://appleid.apple.com/widget/account/repair?#!repair","noTrustedDevices":true,"aboutTwoFactorAuthenticationUrl":"https://support.apple.com/kb/HT204921","autoVerified":false,"showAutoVerificationUI":false,"supportsCustodianRecovery":false,"hideSendSMSCodeOption":false,"supervisedChangePasswordFlow":false,"trustedPhoneNumber":{"numberWithDialCode":"+852 •••• ••63","pushMode":"sms","obfuscatedNumber":"•••• ••63","lastTwoDigits":"63","id":4},"hsa2Account":true,"restrictedAccount":false,"supportsRecovery":true,"managedAccount":false},"authFactors":["robocall","sms","generatedcode"],"source_returnurl":"https://idmsa.apple.com/","sourceAppId":93},"referrerQuery":"","urlContext":"/appleauth","tag":"\u003Chsa2 class=\u0027auth-v1\u0027 suppress-iforgot=\"{suppressIforgot}\" skip-trust-browser-step=\"{skipTrustBrowserStep}\"\u003E\u003C/hsa2\u003E","authType":"hsa2","authInitialRoute":"auth/verify/phone/options","appleIDUrl":"https://appleid.apple.com"},"additional":{"canRoute2sv":true}}
 </script>',
         ),
 
-        SendPhoneSecurityCode::class => MockResponse::make(
+        SendPhoneSecurityCodeRequest::class => MockResponse::make(
             body: (new \Modules\AppleClient\Database\Factories\SendPhoneVerificationCodeFactory())->makeOne()->toArray(
             ),
         ),
 
-        VerifyTrustedDeviceSecurityCode::class => MockResponse::make(
+        VerifyTrustedDeviceSecurityCodeRequest::class => MockResponse::make(
             body: [],
         ),
 
-        VerifyPhoneSecurityCode::class       => MockResponse::make(
+        VerifyPhoneSecurityCodeRequest::class       => MockResponse::make(
             body: (new VerifyPhoneSecurityCodeFactoryFactory())->makeOne()->toArray(),
         ),
-        SendTrustedDeviceSecurityCode::class => MockResponse::make(
+        SendTrustedDeviceSecurityCodeRequest::class => MockResponse::make(
             body: (new SendDeviceSecurityCodeFactory())->makeOne()->toArray(),
         ),
 

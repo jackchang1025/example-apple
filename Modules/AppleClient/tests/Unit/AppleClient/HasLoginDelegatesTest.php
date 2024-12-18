@@ -9,7 +9,6 @@ use Modules\AppleClient\Service\DataConstruct\Icloud\LoginDelegates\MobileMe\Ser
 use Modules\AppleClient\Service\DataConstruct\Icloud\LoginDelegates\MobileMe\Token;
 use Modules\AppleClient\Service\Exception\VerificationCodeException;
 use Modules\AppleClient\Service\Integrations\Icloud\IcloudConnector;
-use Modules\AppleClient\Service\Integrations\Icloud\Resources\Resources;
 use Modules\AppleClient\Service\Trait\HasLoginDelegates;
 use Modules\AppleClient\Service\Response\Response;
 use Saloon\Http\Auth\BasicAuthenticator;

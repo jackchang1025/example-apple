@@ -9,8 +9,8 @@ namespace Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth;
 
 use Modules\AppleClient\Service\Integrations\Idmsa\Dto\Response\Auth\Auth as AuthResponse;
 use Modules\AppleClient\Service\Integrations\Request;
-use Modules\AppleClient\Service\Response\Response;
 use Saloon\Enums\Method;
+use Saloon\Http\Response;
 
 class AuthRequest extends Request
 {
@@ -21,9 +21,30 @@ class AuthRequest extends Request
         return '/appleauth/auth';
     }
 
+    /**
+     * @throws \JsonException
+     */
     public function createDtoFromResponse(Response $response): AuthResponse
     {
-        return AuthResponse::from($response->json());
+        $document = $response->dom()
+            ->filter('script[type="application/json"].boot_args')
+            ->first();
+
+        if (!$document->count()) {
+            throw new \RuntimeException('未找到 boot_args 节点');
+        }
+
+        // 获取 script 标签的内容
+        $jsonString = $document->text();
+
+        // 解码 JSON 数据
+        $data = json_decode($jsonString, true, 512, JSON_THROW_ON_ERROR);
+
+        if ($data === null && json_last_error() !== JSON_ERROR_NONE) {
+            throw new \RuntimeException('JSON解析错误: '.json_last_error_msg());
+        }
+
+        return AuthResponse::from($data);
     }
 
     public function defaultHeaders(): array

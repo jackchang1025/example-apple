@@ -3,13 +3,14 @@
 namespace App\Filament\Actions;
 
 use App\Models\Account;
+use App\Services\FamilyService;
 use Exception;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Actions\Action;
 use Illuminate\Support\Facades\Log;
-use Modules\AppleClient\Service\AppleAccountManagerFactory;
+use Modules\AppleClient\Service\AppleFactory;
 
 class CreateFamilySharingAction extends Action
 {
@@ -106,9 +107,7 @@ class CreateFamilySharingAction extends Action
 
         //{"organizerAppleId":"licade_2015@163.com","organizerAppleIdForPurchases":"jackchang2021@163.com","organizerAppleIdForPurchasesPassword":"AtA3FH2sBfrtSv6","organizerShareMyLocationEnabledDefault":true,"iTunesTosVersion":284005}
 
-        app(AppleAccountManagerFactory::class)
-            ->create($account)
-            ->getFamilyService()
+        FamilyService::make($account)
             ->createFamily($account, $pay_account, $pay_password);
 
     }

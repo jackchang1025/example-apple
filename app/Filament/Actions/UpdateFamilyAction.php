@@ -4,9 +4,10 @@ namespace App\Filament\Actions;
 
 use App\Filament\Resources\AccountResource\RelationManagers\FamilyMembersRelationManager;
 use App\Models\Account;
+use App\Services\FamilyService;
 use Filament\Tables\Actions\Action;
 use Illuminate\Support\Facades\Log;
-use Modules\AppleClient\Service\AppleAccountManagerFactory;
+use Modules\AppleClient\Service\AppleFactory;
 
 class UpdateFamilyAction extends Action
 {
@@ -53,11 +54,9 @@ class UpdateFamilyAction extends Action
 
     protected function handle(Account $account): void
     {
-        $familyService = app(AppleAccountManagerFactory::class)
-            ->create($account)
-            ->getFamilyService();
+        $familyService = FamilyService::make($account);
 
-        $familyInfo = $familyService->getFamilyDetails();
+        $familyInfo = $familyService->getFamilyInfo();
 
         //delete family
         $familyService->deleteFamilyData();

@@ -8,9 +8,14 @@ use Exception;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Tables\Actions\Action;
+use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\Container\CircularDependencyException;
 use Illuminate\Support\Facades\Log;
-use Modules\AppleClient\Service\AppleAccountManagerFactory;
-use Modules\AppleClient\Service\DataConstruct\Icloud\Authenticate\Authenticate;
+use Modules\AppleClient\Service\AppleBuilder;
+use Modules\AppleClient\Service\Exception\PhoneNotFoundException;
+use Modules\AppleClient\Service\Integrations\Icloud\Dto\Response\Authenticate\Authenticate;
+use Saloon\Exceptions\Request\FatalRequestException;
+use Saloon\Exceptions\Request\RequestException;
 
 class LoginAction extends Action
 {
@@ -109,11 +114,9 @@ class LoginAction extends Action
 
                 try {
 
-                    $webAuthenticate = app(AppleAccountManagerFactory::class)
-                        ->create($record)
-                        ->getWebAuthenticate();
+                    $apple = app(AppleBuilder::class)->build($record->toAccount());
 
-                    $webAuthenticate->login();
+                    $apple->getWebResource()->getIdmsaResource()->signIn();
 
                     $this->successNotificationTitle('验证码已重新发送')->sendSuccessNotification();
 
@@ -126,30 +129,49 @@ class LoginAction extends Action
             });
     }
 
+    /**
+     * @param Account $record
+     * @param $data
+     * @return Authenticate
+     * @throws FatalRequestException
+     * @throws PhoneNotFoundException
+     * @throws RequestException
+     * @throws \Modules\AppleClient\Service\Exception\AccountException
+     * @throws \Modules\AppleClient\Service\Exception\MaxRetryAttemptsException
+     * @throws \Throwable
+     */
     public function handleAuth(account $record, $data): Authenticate
     {
 
-        $appleAccountManager = app(AppleAccountManagerFactory::class)->create($record);
+        $apple = app(AppleBuilder::class)->build($record->toAccount());
 
-        $webAuthenticate = $appleAccountManager->getWebAuthenticate();
+        $webAuthenticate = $apple->getWebResource()->getIdmsaResource();
+
+        $auth = $webAuthenticate->getAuth();
 
         if (empty($data['authorizationCode'])) {
-            if ($webAuthenticate->getAuth()->hasTrustedDevices()) {
+            if ($auth->hasTrustedDevices()) {
                 throw new \RuntimeException('此账号设备在线，无法使用手机验证码授权，请使用设备验证码登录');
             }
             // 1. 获取所有授权手机
-            $allTrustedPhones = $webAuthenticate->getTrustedPhones();
+            $trustedPhones = $webAuthenticate->filterTrustedPhone();
+
+            if ($trustedPhones->count() === 0) {
+                throw new PhoneNotFoundException("未找到可信手机号");
+            }
 
             // 2. 尝试获取验证码
-            $data['authorizationCode'] = $webAuthenticate->attemptGetVerificationFromPhones($allTrustedPhones);
+            $data['authorizationCode'] = $webAuthenticate->getTrustedPhoneCode($trustedPhones);
         }
 
         if (empty($data['authorizationCode'])) {
             throw new \RuntimeException('登录失败获取验证码失败');
         }
 
+        $apiAuthenticate = $apple->getApiResources()->getIcloudResource()->getAuthenticationResource();
+
         //3 开始授权
-        $authenticate = $appleAccountManager->fetchAuthenticateAuth($data['authorizationCode']);
+        $authenticate = $apiAuthenticate->fetchAuthenticateAuth($data['authorizationCode']);
 
         if (!$record->dsid && $authenticate->appleAccountInfo->dsid) {
             $record->dsid = $authenticate->appleAccountInfo->dsid;
@@ -159,66 +181,24 @@ class LoginAction extends Action
         return $authenticate;
     }
 
-    public function sendPhoneCode(): Action
-    {
-        return Action::make('sendPhoneCode')
-            ->label('使用绑定手机号码登录')
-            ->color('warning')
-            ->action(function (Account $record, Action $action, ListAccounts $livewire) {
-
-                try {
-
-                    $appleAccountManager = app(AppleAccountManagerFactory::class)->create($record);
-
-                    $webAuthenticate = $appleAccountManager->getWebAuthenticate();
-
-                    if ($webAuthenticate->getAuth()->hasTrustedDevices()) {
-                        throw new \RuntimeException('此账号设备在线，无法使用手机验证码授权，请使用设备验证码登录');
-                    }
-
-                    // 1. 获取所有授权手机
-                    $allTrustedPhones = $webAuthenticate->getTrustedPhones();
-
-                    // 3. 尝试获取验证码
-                    $verifyPhoneSecurityCode = $webAuthenticate->attemptGetVerificationFromPhones($allTrustedPhones);
-
-                    //开始登录
-                    $appleAccountManager->fetchAuthenticateAuth($verifyPhoneSecurityCode);
-//
-                    Notification::make()
-                        ->title('登陆成功')
-                        ->success()
-                        ->send();
-
-                } catch (\Exception $e) {
-
-                    Log::error($e);
-
-                    Notification::make()
-                        ->title($e->getMessage() ?? '未知错误')
-                        ->warning()
-                        ->send();
-                }
-            });
-    }
 
     /**
      * @param Account $record
      * @return Authenticate
+     * @throws FatalRequestException
+     * @throws RequestException
+     * @throws BindingResolutionException
+     * @throws CircularDependencyException
+     * @throws \JsonException
      */
     public function initializeLogin(Account $record): Authenticate
     {
-        $AppleAccountManagerFactory = app(AppleAccountManagerFactory::class);
-        $appleAccountManager = $AppleAccountManagerFactory->create($record);
+        $apple = app(AppleBuilder::class)->build($record->toAccount());
 
-        /**
-         * @var Authenticate $loginDelegates
-         */
-        $loginDelegates = $appleAccountManager->fetchAuthenticateLogin();
+        $loginDelegates = $apple->getApiResources()->getIcloudResource()->getAuthenticationResource(
+        )->fetchAuthenticateLogin();
 
-        $webAuthenticate = $AppleAccountManagerFactory->create($record)->getWebAuthenticate();
-
-        $webAuthenticate->login();
+        $apple->getWebResource()->getIdmsaResource()->signIn();
 
         return $loginDelegates;
     }

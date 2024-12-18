@@ -5,10 +5,11 @@ namespace App\Filament\Actions;
 use App\Filament\Resources\AccountResource\RelationManagers\FamilyMembersRelationManager;
 use App\Models\Account;
 use App\Models\FamilyMember;
+use App\Services\FamilyService;
 use Exception;
 use Filament\Tables\Actions\Action;
 use Illuminate\Support\Facades\Log;
-use Modules\AppleClient\Service\AppleAccountManagerFactory;
+use Modules\AppleClient\Service\AppleFactory;
 
 class RemoveFamilyMemberAction extends Action
 {
@@ -55,9 +56,7 @@ class RemoveFamilyMemberAction extends Action
 
     protected function handle(Account $account, FamilyMember $familyMember): void
     {
-        app(AppleAccountManagerFactory::class)
-            ->create($account)
-            ->getFamilyService()
+        FamilyService::make($account)
             ->removeFamilyMember(
             $familyMember,
         );

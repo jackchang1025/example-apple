@@ -9,7 +9,7 @@ use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-use Modules\AppleClient\Service\AppleAccountManagerFactory;
+use Modules\AppleClient\Service\AppleFactory;
 use Modules\AppleClient\Service\ProcessAccountImportService;
 use Psr\Log\LoggerInterface;
 
@@ -47,7 +47,7 @@ class ProcessAccountImport implements ShouldQueue
         $this->onQueue('account-processing');
     }
 
-    public function handle(AppleAccountManagerFactory $accountManagerFactory, LoggerInterface $logger): void
+    public function handle(AppleFactory $accountManagerFactory, LoggerInterface $logger): void
     {
         Log::info('开始处理账号数据', ['account' => $this->account->toArray()]);
 

@@ -5,10 +5,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage;
+namespace Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\SecurityPhone;
 
 use Modules\AppleClient\Service\Exception\VerificationCodeException;
-use Modules\AppleClient\Service\Integrations\AppleId\Dto\SecurityVerifyPhone\SecurityVerifyPhone;
+use Modules\AppleClient\Service\Integrations\AppleId\Dto\Response\SecurityVerifyPhone\SecurityVerifyPhone;
 use Modules\AppleClient\Service\Integrations\Request;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;

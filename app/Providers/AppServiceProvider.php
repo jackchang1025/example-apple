@@ -30,7 +30,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Event::subscribe(AccountStatusSubscriber::class);
 
         RateLimiter::for('api_rate_limiter', function (Request $request) {
             return Limit::perMinute(2)->by( $request->ip())->response(function () {
@@ -39,7 +38,6 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Table::$defaultDateTimeDisplayFormat = 'Y-m-d H:i:s';
-
 
         //hook PageVisitsTable table auto refresh
         FilamentView::registerRenderHook(

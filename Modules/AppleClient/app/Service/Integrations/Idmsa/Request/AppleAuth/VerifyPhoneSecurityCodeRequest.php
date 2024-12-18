@@ -9,9 +9,9 @@ namespace Modules\AppleClient\Service\Integrations\Idmsa\Request\AppleAuth;
 
 use Modules\AppleClient\Service\Integrations\Idmsa\Dto\Response\VerifyPhoneSecurityCode\VerifyPhoneSecurityCode;
 use Modules\AppleClient\Service\Integrations\Request;
-use Modules\AppleClient\Service\Response\Response;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
+use Saloon\Http\Response;
 use Saloon\Traits\Body\HasJsonBody;
 
 class VerifyPhoneSecurityCodeRequest extends Request implements HasBody

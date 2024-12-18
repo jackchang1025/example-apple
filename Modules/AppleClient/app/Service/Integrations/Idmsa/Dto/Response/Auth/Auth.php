@@ -2,8 +2,13 @@
 
 namespace Modules\AppleClient\Service\Integrations\Idmsa\Dto\Response\Auth;
 
+use Illuminate\Support\Str;
 use Modules\AppleClient\Service\DataConstruct\Data;
+use Modules\AppleClient\Service\DataConstruct\PhoneNumber;
+use Modules\AppleClient\Service\Exception\MaxRetryAttemptsException;
+use Modules\AppleClient\Service\Exception\PhoneNotFoundException;
 use Modules\AppleClient\Service\Response\Response;
+use Spatie\LaravelData\DataCollection;
 
 class Auth extends Data
 {
@@ -17,12 +22,24 @@ class Auth extends Data
     ) {
     }
 
-    public function getTrustedPhoneNumbers(): \Spatie\LaravelData\DataCollection
+    public function getTrustedPhoneNumbers(): DataCollection
     {
         return $this->direct->twoSV->phoneNumberVerification->trustedPhoneNumbers;
     }
 
-    public function getTrustedPhoneNumber(): \Modules\AppleClient\Service\DataConstruct\PhoneNumber
+    public function filterTrustedPhone(string $phone): DataCollection
+    {
+        return $this->getTrustedPhoneNumbers()->filter(
+            fn(PhoneNumber $trustedPhone) => Str::contains($phone, $trustedPhone->lastTwoDigits)
+        );
+    }
+
+    public function filterTrustedPhoneById(int $id): ?PhoneNumber
+    {
+        return collect($this->getTrustedPhoneNumbers()->all())->first(fn($phone) => $id === $phone->id);
+    }
+
+    public function getTrustedPhoneNumber(): PhoneNumber
     {
         return $this->direct->twoSV->phoneNumberVerification->trustedPhoneNumber;
     }

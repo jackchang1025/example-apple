@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage;
+namespace Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\Account;
 
-use Modules\AppleClient\Service\DataConstruct\Payment\PaymentConfig;
+use Modules\AppleClient\Service\Integrations\AppleId\Dto\Response\AccountManager\AccountManager;
 use Modules\AppleClient\Service\Integrations\Request;
 use Saloon\Enums\Method;
 use Saloon\Http\Response;
@@ -16,8 +16,8 @@ class AccountManageRequest extends Request
         return '/account/manage';
     }
 
-    public function createDtoFromResponse(Response $response): PaymentConfig
+    public function createDtoFromResponse(Response $response): AccountManager
     {
-        return PaymentConfig::from($response->json());
+        return AccountManager::from($response->json());
     }
 }

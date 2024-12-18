@@ -8,9 +8,9 @@ use Modules\AppleClient\Service\Exception\PhoneException;
 use Modules\AppleClient\Service\Exception\PhoneNumberAlreadyExistsException;
 use Modules\AppleClient\Service\Exception\StolenDeviceProtectionException;
 use Modules\AppleClient\Service\Exception\VerificationCodeSentTooManyTimesException;
-use Modules\AppleClient\Service\Integrations\AppleId\Dto\SecurityVerifyPhone\SecurityVerifyPhone;
-use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\SecurityVerifyPhoneRequest;
-use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\SecurityVerifyPhoneSecurityCodeRequest;
+use Modules\AppleClient\Service\Integrations\AppleId\Dto\Response\SecurityVerifyPhone\SecurityVerifyPhone;
+use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\SecurityPhone\SecurityVerifyPhoneRequest;
+use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\SecurityPhone\SecurityVerifyPhoneSecurityCodeRequest;
 use Modules\AppleClient\Service\Integrations\BaseResource;
 use Modules\AppleClient\Service\Response\Response;
 use Saloon\Exceptions\Request\FatalRequestException;
@@ -25,14 +25,13 @@ class SecurityPhoneResources extends BaseResource
      * @param bool $nonFTEU
      *
      * @return SecurityVerifyPhone
-     * @throws RequestException
-     * @throws PhoneException
-     * @throws VerificationCodeSentTooManyTimesException
+     * @throws BindPhoneException
      * @throws ErrorException
+     * @throws FatalRequestException
+     * @throws PhoneException
      * @throws PhoneNumberAlreadyExistsException
      * @throws StolenDeviceProtectionException
-     * @throws BindPhoneException|FatalRequestException
-     *
+     * @throws VerificationCodeSentTooManyTimesException
      */
     public function securityVerifyPhone(
         string $countryCode,
