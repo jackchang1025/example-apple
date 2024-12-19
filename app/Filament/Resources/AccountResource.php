@@ -5,20 +5,19 @@ namespace App\Filament\Resources;
 use App\Apple\Enums\AccountStatus;
 use App\Apple\Enums\AccountType;
 use App\Filament\Actions\AddFamilyMemberAction;
-use App\Filament\Actions\AddFamilyMemberActions;
 use App\Filament\Actions\CreateFamilySharingAction;
 use App\Filament\Actions\LoginAction;
-use App\Filament\Actions\UpdateFamilyAction;
 use App\Filament\Actions\UpdatePaymentAction;
 use App\Filament\Actions\WebIcloud\UpdateDeviceAction;
 use App\Filament\Exports\AccountJsonExporter;
 use App\Filament\Exports\AccountTableExporter;
 use App\Filament\Resources\AccountResource\Pages;
 use App\Filament\Resources\AccountResource\RelationManagers\DevicesRelationManager;
-use App\Filament\Resources\AccountResource\RelationManagers\LogsRelationManager;
 use App\Filament\Resources\AccountResource\RelationManagers\FamilyMembersRelationManager;
-use App\Filament\Resources\AccountResource\RelationManagers\PhoneNumbersRelationManager;
 use App\Filament\Resources\AccountResource\RelationManagers\IcloudDevicesRelationManager;
+use App\Filament\Resources\AccountResource\RelationManagers\LogsRelationManager;
+use App\Filament\Resources\AccountResource\RelationManagers\PhoneNumbersRelationManager;
+use App\Filament\Resources\AccountResource\RelationManagers\PurchaseHistoryRelationManager;
 use App\Models\Account;
 use App\Models\Payment;
 use Filament\Actions\Exports\Enums\ExportFormat;
@@ -31,7 +30,6 @@ use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
@@ -83,6 +81,7 @@ class AccountResource extends Resource
             IcloudDevicesRelationManager::class,
             FamilyMembersRelationManager::class,
             PhoneNumbersRelationManager::class,
+            PurchaseHistoryRelationManager::class,
         ];
     }
 
@@ -211,23 +210,25 @@ class AccountResource extends Resource
 
                 // Web 操作组
                 ActionGroup::make([
-                    UpdatePaymentAction::make(),
-                    Action::make('登陆')
+
+                    \App\Filament\Actions\AppleId\LoginAction::make('web_apple_id_login')
                         ->label('登陆')
-                        ->icon('heroicon-o-eye')
-                        ->url(fn(Account $account): string => route(
-                            'home',
-                            ['account' => $account->account, 'password' => $account->password]
-                        ))
-                        ->openUrlInNewTab(),
+                        ->icon('heroicon-o-eye'),
+
+                    UpdatePaymentAction::make(),
+
+                    \App\Filament\Actions\AppleId\UpdatePurchaseHistoryAction::make('更新购买历史记录')
+                        ->label('更新购买历史记录')
+                        ->icon('heroicon-o-eye'),
                 ])
                     ->label('Web 操作')
                     ->icon('heroicon-m-globe-alt')
-                    ->color('success'),
+                    ->color('success')
+                    ->size('sm'),
 
                 // Web iCloud 操作组
                 ActionGroup::make([
-                    \App\Filament\Actions\WebIcloud\LoginAction::make('登陆')
+                    \App\Filament\Actions\WebIcloud\LoginAction::make('web_icloud_login')
                         ->label('登陆')
                         ->icon('heroicon-o-eye'),
 

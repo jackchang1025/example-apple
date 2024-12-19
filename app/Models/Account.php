@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
- *
+ * 
  *
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -54,6 +54,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property-read int|null $phone_numbers_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\IcloudDevice> $IcloudDevice
  * @property-read int|null $icloud_device_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseHistory> $purchaseHistory
+ * @property-read int|null $purchase_history_count
  * @mixin \Eloquent
  */
 class Account extends Model
