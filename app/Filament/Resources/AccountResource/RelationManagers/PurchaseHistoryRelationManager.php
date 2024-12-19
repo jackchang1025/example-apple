@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\AccountResource\RelationManagers;
 
 use Filament\Infolists\Components\IconEntry;
+use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
@@ -110,10 +111,17 @@ class PurchaseHistoryRelationManager extends RelationManager
                                         ->label('显示详情'),
                                     TextEntry::make('localized_content.invoiceLine3')
                                         ->label('发票行3'),
-                                    TextEntry::make('localized_content.artworkURL')
-                                        ->label('艺术作品URL')
-                                        ->url(fn($state) => $state)
-                                        ->openUrlInNewTab(),
+                                    ImageEntry::make('localized_content.artworkURL')
+                                        ->label('艺术作品')
+                                        ->height(100)
+                                        ->circular(false)
+                                        ->defaultImageUrl(url('/images/default-artwork.png'))
+                                        ->extraImgAttributes([
+                                            'loading' => 'lazy',
+                                            'alt'     => '艺术作品',
+                                        ])
+                                        ->openUrlInNewTab()
+                                        ->alignCenter(),
                                     TextEntry::make('localized_content.supportURL')
                                         ->label('支持URL')
                                         ->url(fn($state) => $state)

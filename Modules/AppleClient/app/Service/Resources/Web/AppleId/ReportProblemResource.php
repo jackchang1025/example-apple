@@ -115,6 +115,4 @@ class ReportProblemResource
                 $this->login()->token
             );
     }
-
-
 }
