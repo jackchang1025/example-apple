@@ -12,7 +12,7 @@ class SendDeviceSecurityCode extends Data
         public PhoneNumberVerification $phoneNumberVerification,
         public string $aboutTwoFactorAuthenticationUrl,
         public SecurityCode $securityCode,
-        public int $trustedDeviceCount,
+        public ?int $trustedDeviceCount = null,
         public ?string $otherTrustedDeviceClass = null,
     ) {
     }

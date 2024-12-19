@@ -89,6 +89,20 @@ class CookieJar implements CookieJarInterface
         }, $this->getIterator()->getArrayCopy());
     }
 
+    public function clearCookiesByName(array $cookieNames): void
+    {
+        foreach ($cookieNames as $cookieName) {
+            $cookie = $this->getCookieByName($cookieName);
+            if ($cookie) {
+                $this->clear(
+                    domain: $cookie->getDomain(),
+                    path: $cookie->getPath(),
+                    name: $cookie->getName()
+                );
+            }
+        }
+    }
+
     public function clear(?string $domain = null, ?string $path = null, ?string $name = null): void
     {
         if (!$domain) {
@@ -123,6 +137,7 @@ class CookieJar implements CookieJarInterface
             );
         }
     }
+
 
     public function clearSessionCookies(): void
     {
@@ -214,7 +229,8 @@ class CookieJar implements CookieJarInterface
 
     public function extractCookies(PendingRequest $request, Response $response): void
     {
-        if (($cookieHeader = $response->header('Set-Cookie')) && is_array($cookieHeader)) {
+        $cookieHeader = $response->header('Set-Cookie') ?? $response->header('set-cookie');
+        if ($cookieHeader && is_array($cookieHeader)) {
             foreach ($cookieHeader as $cookie) {
                 $sc = SetCookie::fromString($cookie);
 
@@ -267,6 +283,7 @@ class CookieJar implements CookieJarInterface
      * @see https://datatracker.ietf.org/doc/html/rfc6265#section-5.1.4
      *
      * @param PendingRequest $request
+     * @return string
      */
     private function getCookiePathFromRequest(PendingRequest $request): string
     {

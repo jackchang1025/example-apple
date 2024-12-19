@@ -16,6 +16,7 @@ class AppleIdResource extends IdmsaResource
     protected ?PaymentResource $paymentResource = null;
     protected ?SecurityPhoneResource $securityPhoneResource = null;
     protected ?AccountManagerResource $accountManagerResource = null;
+    protected ?ReportProblemResource $reportProblemResource = null;
 
     public function getAccountManagerResource(): AccountManagerResource
     {
@@ -78,6 +79,11 @@ class AppleIdResource extends IdmsaResource
     public function getBuyConnector(): BuyConnector
     {
         return $this->buyConnector ??= new BuyConnector($this->getWebResource()->getApple());
+    }
+
+    public function getReportProblemResource(): ReportProblemResource
+    {
+        return $this->reportProblemResource ??= new ReportProblemResource($this);
     }
 }
 
