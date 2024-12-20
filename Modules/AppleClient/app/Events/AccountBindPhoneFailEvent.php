@@ -17,7 +17,7 @@ class AccountBindPhoneFailEvent
      */
     public function __construct(
         public Account $account,
-        public AddSecurityVerifyPhoneInterface $addSecurityVerifyPhone,
+        public ?AddSecurityVerifyPhoneInterface $addSecurityVerifyPhone = null,
         public string $message = '绑定失败'
     )
     {
