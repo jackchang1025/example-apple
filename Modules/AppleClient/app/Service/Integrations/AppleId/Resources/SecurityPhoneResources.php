@@ -13,6 +13,7 @@ use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\Secur
 use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\SecurityPhone\SecurityVerifyPhoneSecurityCodeRequest;
 use Modules\AppleClient\Service\Integrations\BaseResource;
 use Modules\AppleClient\Service\Response\Response;
+use Saloon\Exceptions\Request\ClientException;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
 
@@ -31,7 +32,7 @@ class SecurityPhoneResources extends BaseResource
      * @throws PhoneException
      * @throws PhoneNumberAlreadyExistsException
      * @throws StolenDeviceProtectionException
-     * @throws VerificationCodeSentTooManyTimesException
+     * @throws VerificationCodeSentTooManyTimesException|RequestException
      */
     public function securityVerifyPhone(
         string $countryCode,
@@ -39,17 +40,24 @@ class SecurityPhoneResources extends BaseResource
         string $countryDialCode,
         bool $nonFTEU = true
     ): SecurityVerifyPhone {
+
         try {
+
             return $this->getConnector()
-                ->send(new SecurityVerifyPhoneRequest($countryCode, $phoneNumber, $countryDialCode, $nonFTEU))->dto();
-        } catch (RequestException $e) {
+                ->send(
+                    new SecurityVerifyPhoneRequest($countryCode, $phoneNumber, $countryDialCode, $nonFTEU)
+                )->dto();
+
+        } catch (ClientException  $e) {
             /**
              * @var Response $response
              */
             $response = $e->getResponse();
 
-            if ($response->successful() || $response->status() === 423) {
-                return $response->dto();
+            if ($response->status() === 423) {
+                throw new VerificationCodeSentTooManyTimesException(
+                    response: $response
+                );
             }
 
             $error = $response->getFirstServiceError();
