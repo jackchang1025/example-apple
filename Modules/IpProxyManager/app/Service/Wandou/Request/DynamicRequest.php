@@ -23,10 +23,6 @@ class DynamicRequest extends Request
         if (empty($this->dto->get('app_key'))) {
             throw new \InvalidArgumentException("请配置代理 app_key");
         }
-
-        if ($province = $this->dto->get('province')) {
-            $this->dto->add('area_id', $province);
-        }
     }
 
     public function createDtoFromResponse(Response $response): BaseDto
@@ -51,7 +47,7 @@ class DynamicRequest extends Request
 
     public function resolveEndpoint(): string
     {
-        return 'dynamic';
+        return '';
     }
 
     protected function defaultQuery(): array
