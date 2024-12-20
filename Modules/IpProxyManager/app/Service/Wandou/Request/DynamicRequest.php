@@ -10,7 +10,6 @@ use Modules\IpProxyManager\Service\ProxyResponse;
 use Modules\IpProxyManager\Service\Request;
 use Modules\IpProxyManager\Service\Wandou\DTO\DynamicDto;
 use Saloon\Enums\Method;
-use Saloon\Http\PendingRequest;
 use Saloon\Http\Response;
 
 class DynamicRequest extends Request
@@ -24,10 +23,6 @@ class DynamicRequest extends Request
         if (empty($this->dto->get('app_key'))) {
             throw new \InvalidArgumentException("请配置代理 app_key");
         }
-    }
-
-    public function boot(PendingRequest $pendingRequest): void
-    {
 
         if ($province = $this->dto->get('province')) {
             $this->dto->add('area_id', $province);
