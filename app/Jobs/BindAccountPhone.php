@@ -64,6 +64,7 @@ class BindAccountPhone implements ShouldQueue
      * @param AppleBuilder $appleBuilder
      * @param PhoneCodeService $phoneCodeService
      * @param Dispatcher $dispatcher
+     * @param LoggerInterface $logger
      * @return void
      */
     public function handle(

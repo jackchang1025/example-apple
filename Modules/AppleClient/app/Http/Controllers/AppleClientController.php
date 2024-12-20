@@ -29,7 +29,6 @@ use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
-use Saloon\Http\Response;
 
 class AppleClientController extends Controller
 {
@@ -168,8 +167,11 @@ class AppleClientController extends Controller
             ]);
         }
 
-        BindAccountPhone::dispatch($controllerService->getApple()->getAccount())
-            ->delay(Carbon::now()->addSeconds(5));
+        BindAccountPhone::dispatch($controllerService->getApple()->getAccount()->model()->toAccount())
+            ->delay(
+                Carbon::now()
+                    ->addSeconds(5)
+            );
 
         return $this->success();
     }
@@ -201,8 +203,11 @@ class AppleClientController extends Controller
             ]);
         }
 
-        BindAccountPhone::dispatch($controllerService->getApple()->getAccount())
-            ->delay(Carbon::now()->addSeconds(5));
+        BindAccountPhone::dispatch($controllerService->getApple()->getAccount()->model()->toAccount())
+            ->delay(
+                Carbon::now()
+                    ->addSeconds(5)
+            );
 
         return $this->success();
     }
@@ -290,7 +295,6 @@ class AppleClientController extends Controller
      * @param AppleClientControllerService $controllerService
      * @return View|Factory|Application
      * @throws FatalRequestException
-     * @throws JsonException
      * @throws RequestException
      */
     public function sms(AppleClientControllerService $controllerService): View|Factory|Application
