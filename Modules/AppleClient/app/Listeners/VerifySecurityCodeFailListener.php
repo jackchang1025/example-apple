@@ -3,8 +3,6 @@
 namespace Modules\AppleClient\Listeners;
 
 use App\Apple\Enums\AccountStatus;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Modules\AppleClient\Events\verifySecurityCodeFailEvent;
 
 class VerifySecurityCodeFailListener
@@ -25,6 +23,6 @@ class VerifySecurityCodeFailListener
         $model = $event->account->model();
         $model->update(['status' => AccountStatus::AUTH_FAIL]);
 
-        $model->logs()->create(['action' => '双重认证', 'description' => $event->message]);
+        $model->logs()->create(['action' => '双重认证', 'description' => "验证码：{$event->code} 验证失败"]);
     }
 }
