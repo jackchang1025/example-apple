@@ -42,7 +42,7 @@ return [
     ],
 
     // Proxy settings
-    'proxy'      => [
+    'proxy_service' => [
         'class' => \Modules\IpProxyManager\Service\ProxyService::class,
     ],
 

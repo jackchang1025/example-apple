@@ -6,14 +6,12 @@ use Illuminate\Contracts\Events\Dispatcher;
 use Modules\AppleClient\Service\Config\Config;
 use Modules\AppleClient\Service\Config\HasConfig;
 use Modules\AppleClient\Service\DataConstruct\Account;
+use Modules\AppleClient\Service\Middleware\MiddlewareInterface;
+use Modules\AppleClient\Service\Retry\RetryHandlerInterface;
 use Psr\SimpleCache\CacheInterface;
 use RuntimeException;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
-use Modules\AppleClient\Service\Middleware\MiddlewareInterface;
-use Modules\AppleClient\Service\Cookies\CookieJarInterface;
-use Modules\AppleClient\Service\Header\HeaderSynchronizeInterface;
-use Modules\AppleClient\Service\Retry\RetryHandlerInterface;
 
 class AppleBuilder
 {
@@ -38,81 +36,17 @@ class AppleBuilder
      */
     private function loadConfigurations(): void
     {
-        // 加载 Cookie 配置
-//        $this->apple->withCookies($this->loadCookieConfig());
-
-        // 加载 Header 配置
-//        $this->apple->withHeaderRepositories($this->loadHeaderConfig());
-
         // 加载 Logger 配置
         $this->apple->withLogger(app($this->config->get('logger.class')));
 
         // 加载 Proxy 配置
-        $this->apple->withProxy(app($this->config->get('proxy.class')));
+        $this->apple->withProxy(app($this->config->get('proxy_service.class')));
 
         // 加载 Retry 配置
         $this->loadRetryConfig();
 
         // 加载中间件
         $this->loadMiddlewares();
-    }
-
-    /**
-     * 加载 Cookie 配置
-     */
-    private function loadCookieConfig(): CookieJarInterface
-    {
-        $cookieJar = $this->config->get('cookie.class');
-        if (!class_exists($cookieJar)) {
-            throw new RuntimeException("Cookie class {$cookieJar} not found");
-        }
-
-        $cookie = new $cookieJar(
-            cache: $this->cache,
-            key: $this->account->getSessionId(),
-            ttl: $this->config->get('cookie.ttl')
-        );
-
-        if (!$cookie instanceof CookieJarInterface) {
-            throw new RuntimeException('Cookie class must implement CookieJarInterface');
-        }
-
-        return $cookie;
-    }
-
-    /**
-     * 加载 Header 配置
-     */
-    private function loadHeaderConfig(): HeaderSynchronizeInterface
-    {
-        $headerClass = $this->config->get('header.class');
-        if (!class_exists($headerClass)) {
-            throw new RuntimeException("Header class {$headerClass} not found");
-        }
-
-        $storeClass = $this->config->get('header.store.class');
-
-        if (!class_exists($storeClass)) {
-            throw new RuntimeException("Store class {$storeClass} not found");
-        }
-
-        // 创建存储实例
-        $store = new $storeClass(
-            cache: $this->cache,
-            key: $this->account->getSessionId(),
-            ttl: $this->config->get('header.store.ttl'),
-            prx: $this->config->get('header.store.prefix'),
-            defaultData: $this->config->get('header.store.defaultData')
-        );
-
-        // 创建 Header 同步实例
-        $header = new $headerClass($store);
-
-        if (!$header instanceof HeaderSynchronizeInterface) {
-            throw new RuntimeException('Header class must implement HeaderSynchronizeInterface');
-        }
-
-        return $header;
     }
 
     /**
