@@ -7,7 +7,6 @@ use Exception;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use JsonException;
 use Modules\AppleClient\Events\AccountBindPhoneFailEvent;
 use Modules\AppleClient\Events\AccountBindPhoneSuccessEvent;
 use Modules\AppleClient\Service\Exception\AccountException;
@@ -34,104 +33,100 @@ use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
 use Throwable;
 
+/**
+ * Apple账户安全验证手机号添加服务类
+ *
+ * 该服务负责处理Apple账户绑定安全验证手机号的完整流程，包括:
+ * - 手机号验证码的发送和验证
+ * - 重试机制的实现
+ * - 异常处理
+ * - 事件分发
+ */
 class AddSecurityVerifyPhoneService
 {
     use HasTries;
     use HasNotification;
 
-    protected ?Phone $phone = null;
+    /**
+     * @var Phone|null 当前正在处理的手机号对象
+     */
+    private ?Phone $phone = null;
 
-    protected array $notInPhones = [];
+    /**
+     * @var array 已尝试过的无效手机号ID列表
+     */
+    private array $notInPhones = [];
 
+    /**
+     * @var int 当前尝试次数
+     */
     private int $attempts = 1;
 
+    /**
+     * 构造函数
+     *
+     * @param Apple $apple Apple服务实例
+     * @param PhoneCodeService $phoneCodeService 手机验证码服务
+     * @param Dispatcher $dispatcher 事件分发器
+     * @param LoggerInterface $logger 日志记录器
+     * @param PhoneCodeParser $phoneCodeParser 手机验证码解析器
+     */
     public function __construct(
-        protected Apple $apple,
-        protected PhoneCodeService $phoneCodeService,
-        protected Dispatcher $dispatcher,
-        protected LoggerInterface $logger,
-        protected PhoneCodeParser $phoneCodeParser = new PhoneCodeParser()
+        private readonly Apple $apple,
+        private readonly PhoneCodeService $phoneCodeService,
+        private readonly Dispatcher $dispatcher,
+        private readonly LoggerInterface $logger,
+        private readonly PhoneCodeParser $phoneCodeParser = new PhoneCodeParser()
     ) {
-        $this->withTries(5)->withRetryInterval(1000)->withUseExponentialBackoff();
+        $this->initializeRetrySettings();
     }
 
     /**
-     * @return void
-     * @throws AccountException
-     * @throws BindPhoneException
-     * @throws FatalRequestException
-     * @throws MaxRetryAttemptsException
-     * @throws PhoneNotFoundException
-     * @throws RequestException
-     * @throws Throwable
+     * 初始化重试设置
+     * 设置最大重试次数、重试间隔和指数退避策略
+     */
+    private function initializeRetrySettings(): void
+    {
+        $this->withTries(5)
+            ->withRetryInterval(1000)
+            ->withUseExponentialBackoff();
+    }
+
+    /**
+     * 处理手机验证的主要流程
+     *
+     * @throws AccountException 账户相关异常
+     * @throws MaxRetryAttemptsException 超过最大重试次数异常
+     * @throws PhoneNotFoundException 手机号未找到异常
+     * @throws Throwable 其他异常
      */
     public function handle(): void
     {
         $this->fetchInfo();
-
         $this->handleAddSecurityVerifyPhone();
     }
 
     /**
+     *
+     *  获取用户信息
+     *  包括支付配置和设备信息的更新或创建
      * @return void
-     * @throws AccountException
-     * @throws BindPhoneException
-     * @throws FatalRequestException
-     * @throws JsonException
-     * @throws MaxRetryAttemptsException
-     * @throws PhoneNotFoundException
-     * @throws RequestException
-     * @throws Throwable
      */
-    public function handleAddSecurityVerifyPhone(): void
-    {
-        try {
-
-            $this->validateAccount();
-
-            $this->attemptBind();
-
-        } catch (Throwable|Exception $e) {
-
-            $this->handleException($e);
-
-            throw $e;
-        }
-    }
-
-    public function getPhoneCodeService(): PhoneCodeService
-    {
-        return $this->phoneCodeService;
-    }
-
-    public function getDispatcher(): ?Dispatcher
-    {
-        return $this->dispatcher;
-    }
-
-    public function getApple(): Apple
-    {
-        return $this->apple;
-    }
-
     protected function fetchInfo(): void
     {
         try {
-
             $this->updateOrCreatePaymentConfig();
-
             $this->updateOrCreateDevices();
-
-        } catch (\Exception $e) {
-
+        } catch (Exception $e) {
             $this->errorNotification("获取用户信息失败", $e->getMessage());
         }
     }
 
     /**
+     * 更新或创建支付配置信息
      * @return \App\Models\Payment
      * @throws FatalRequestException
-     * @throws RequestException
+     * @throws \Saloon\Exceptions\Request\RequestException
      */
     public function updateOrCreatePaymentConfig(): \App\Models\Payment
     {
@@ -139,13 +134,15 @@ class AddSecurityVerifyPhoneService
             ->getAppleIdResource()
             ->getPaymentResource()
             ->getPayment()
-            ->primaryPaymentMethod->updateOrCreate($this->apple->getAccount()->model()->id);
+            ->primaryPaymentMethod
+            ->updateOrCreate($this->apple->getAccount()->model()->id);
     }
 
     /**
+     * 更新或创建设备信息
      * @return Collection
      * @throws FatalRequestException
-     * @throws RequestException
+     * @throws \Saloon\Exceptions\Request\RequestException
      */
     public function updateOrCreateDevices(): Collection
     {
@@ -158,8 +155,35 @@ class AddSecurityVerifyPhoneService
     }
 
     /**
-     * @return void
-     * @throws AccountException
+     * 处理添加安全验证手机号的核心逻辑
+     *
+     * @throws AccountException 账户相关异常
+     * @throws MaxRetryAttemptsException 超过最大重试次数异常
+     * @throws PhoneNotFoundException 手机号未找到异常
+     * @throws Throwable 其他异常
+     */
+    public function handleAddSecurityVerifyPhone(): void
+    {
+        try {
+
+            $this->validateAccount();
+
+            $this->attemptBind();
+
+        } catch (Throwable $e) {
+
+            $this->handleException($e);
+
+            $this->dispatchFailEvent($e);
+            throw $e;
+        }
+    }
+
+    /**
+     * 验证账户状态
+     * 检查账户是否已经绑定了手机号
+     *
+     * @throws AccountException 如果账户已绑定手机号则抛出异常
      */
     public function validateAccount(): void
     {
@@ -169,21 +193,19 @@ class AddSecurityVerifyPhoneService
     }
 
     /**
+     * 尝试绑定手机号 实现重试机制，在失败时自动重试
      * @return void
      * @throws BindPhoneException
      * @throws FatalRequestException
-     * @throws JsonException
      * @throws MaxRetryAttemptsException
      * @throws PhoneNotFoundException
      * @throws RequestException
-     * @throws Throwable
      */
     private function attemptBind(): void
     {
         $tries = $this->getTries() ?: 1;
 
         for ($this->attempts = 1; $this->attempts <= $tries; $this->attempts++) {
-
             try {
 
                 $this->refreshAvailablePhone();
@@ -193,6 +215,7 @@ class AddSecurityVerifyPhoneService
                 $this->handleBindSuccess();
 
                 return;
+
             } catch (AppleClientException|AttemptBindPhoneCodeException|BindPhoneCodeException $e) {
 
                 $this->handleException($e);
@@ -200,24 +223,33 @@ class AddSecurityVerifyPhoneService
                 if ($e instanceof StolenDeviceProtectionException) {
                     throw $e;
                 }
+
+                $this->dispatchFailEvent($e);
             }
         }
 
-        throw new MaxRetryAttemptsException(
-            sprintf("账号：%s 尝试 %d 次后绑定失败", $this->getApple()->getAccount()->account, $this->attempts)
-        );
+        throw new MaxRetryAttemptsException($this->formatMaxRetriesMessage());
     }
 
-    public function getPhone(): ?Phone
-    {
-        return $this->phone;
-    }
-
+    /**
+     * 刷新可用手机号
+     * 获取新的可用手机号并更新当前实例
+     *
+     * @return Phone 可用的手机号实例
+     * @throws PhoneNotFoundException
+     */
     public function refreshAvailablePhone(): Phone
     {
         return $this->phone = $this->getAvailablePhone();
     }
 
+    /**
+     * 获取可用手机号
+     * 从数据库中查询并锁定一个可用的手机号
+     *
+     * @return Phone 可用的手机号实例
+     * @throws PhoneNotFoundException 当没有可用手机号时抛出
+     */
     protected function getAvailablePhone(): Phone
     {
         return DB::transaction(function () {
@@ -245,97 +277,235 @@ class AddSecurityVerifyPhoneService
     }
 
     /**
-     * @return SecurityVerifyPhone
-     * @throws AttemptBindPhoneCodeException
+     * 添加安全验证手机号的完整流程
+     * 包括发送验证码、等待间隔、验证码验证等步骤
+     *
+     * @return SecurityVerifyPhone 验证结果
+     * @throws AttemptBindPhoneCodeException 验证码绑定异常
+     * @throws BindPhoneException
      * @throws ErrorException
      * @throws FatalRequestException
      * @throws PhoneException
      * @throws PhoneNumberAlreadyExistsException
-     * @throws RequestException
      * @throws StolenDeviceProtectionException
      * @throws VerificationCodeException
      * @throws VerificationCodeSentTooManyTimesException
-     * @throws BindPhoneException
+     * @throws RequestException
      */
     private function addSecurityVerifyPhone(): SecurityVerifyPhone
     {
-        try {
+        $response = $this->initiatePhoneVerification();
 
-            $response = $this->apple->getWebResource()->getAppleIdResource()->getSecurityPhoneResource(
-            )->securityVerifyPhone(
+        $this->waitForRetryInterval();
+
+        $code = $this->getVerificationCode();
+
+        $response = $this->completePhoneVerification($response, $code);
+
+        $this->dispatchSuccessEvent();
+
+        return $response;
+    }
+
+    /**
+     * 发起手机验证
+     * @return SecurityVerifyPhone
+     * @throws BindPhoneException
+     * @throws ErrorException
+     * @throws PhoneNumberAlreadyExistsException
+     * @throws VerificationCodeSentTooManyTimesException
+     * @throws PhoneException
+     * @throws StolenDeviceProtectionException
+     * @throws FatalRequestException|RequestException
+     */
+    private function initiatePhoneVerification(): SecurityVerifyPhone
+    {
+        return $this->apple->getWebResource()
+            ->getAppleIdResource()
+            ->getSecurityPhoneResource()
+            ->securityVerifyPhone(
                 countryCode: $this->getPhone()->country_code,
                 phoneNumber: $this->getPhone()->national_number,
                 countryDialCode: $this->getPhone()->country_dial_code
             );
+    }
 
-            //为了防止拿到上一次验证码导致错误，这里建议睡眠一段时间再尝试
-            usleep($this->getSleepTime($this->attempts, $this->getRetryInterval(), $this->getUseExponentialBackoff()));
+    public function getPhone(): ?Phone
+    {
+        return $this->phone;
+    }
 
-            //获取验证码
-            $code = $this->getPhoneCodeService()->attemptGetPhoneCode(
-                $this->getPhone()->phone_address,
-                $this->phoneCodeParser
-            );
+    /**
+     * 等待重试间隔
+     */
+    private function waitForRetryInterval(): void
+    {
+        usleep(
+            $this->getSleepTime(
+                $this->attempts,
+                $this->getRetryInterval(),
+                $this->getUseExponentialBackoff()
+            )
+        );
+    }
 
-            $response = $this->apple->getWebResource()->getAppleIdResource()->getSecurityPhoneResource(
-            )->securityVerifyPhoneSecurityCode(
+    /**
+     * 获取验证码
+     * @return string
+     * @throws AttemptBindPhoneCodeException
+     * @throws FatalRequestException
+     * @throws \Saloon\Exceptions\Request\RequestException
+     */
+    private function getVerificationCode(): string
+    {
+        return $this->getPhoneCodeService()->attemptGetPhoneCode(
+            $this->getPhone()->phone_address,
+            $this->phoneCodeParser
+        );
+    }
+
+    public function getPhoneCodeService(): PhoneCodeService
+    {
+        return $this->phoneCodeService;
+    }
+
+    /**
+     * 完成手机验证
+     * @param SecurityVerifyPhone $response
+     * @param string $code
+     * @return SecurityVerifyPhone
+     * @throws Exception|VerificationCodeException
+     * @throws FatalRequestException
+     */
+    private function completePhoneVerification(SecurityVerifyPhone $response, string $code): SecurityVerifyPhone
+    {
+        return $this->apple->getWebResource()
+            ->getAppleIdResource()
+            ->getSecurityPhoneResource()
+            ->securityVerifyPhoneSecurityCode(
                 id: $response->phoneNumberVerification->phoneNumber->id,
                 phoneNumber: $this->getPhone()->national_number,
                 countryCode: $this->getPhone()->country_code,
                 countryDialCode: $this->getPhone()->country_dial_code,
                 code: $code
             );
-
-            $this->getDispatcher()?->dispatch(
-                new AccountBindPhoneSuccessEvent(
-                    account: $this->apple->getAccount(),
-                    addSecurityVerifyPhone: $this->getPhone(),
-                    message: "次数: {$this->attempts} 手机号码: {$this->getPhone()->phone} 绑定成功"
-                )
-            );
-
-            return $response;
-
-        } catch (\Exception $e) {
-
-            $this->getDispatcher()?->dispatch(
-                new AccountBindPhoneFailEvent(
-                    account: $this->apple->getAccount(),
-                    addSecurityVerifyPhone: $this->getPhone(),
-                    message: "次数：{$this->attempts} 手机号码：{$this->getPhone()->phone} 绑定失败 消息: {$e->getMessage()}"
-                )
-            );
-            throw $e;
-        }
     }
 
     /**
-     * @return void
-     * @throws Throwable
+     * 分发成功事件
+     */
+    private function dispatchSuccessEvent(): void
+    {
+        $this->getDispatcher()?->dispatch(
+            new AccountBindPhoneSuccessEvent(
+                account: $this->apple->getAccount(),
+                addSecurityVerifyPhone: $this->getPhone(),
+                message: $this->formatSuccessMessage()
+            )
+        );
+    }
+
+    public function getDispatcher(): ?Dispatcher
+    {
+        return $this->dispatcher;
+    }
+
+    /**
+     * 格式化成功消息
+     */
+    private function formatSuccessMessage(): string
+    {
+        return sprintf(
+            "次数: %d 手机号码: %s 绑定成功",
+            $this->attempts,
+            $this->getPhone()->phone
+        );
+    }
+
+
+    /**
+     * 处理绑定成功
      */
     protected function handleBindSuccess(): void
     {
-        $this->successNotification("绑定成功", "次数: {$this->attempts} 手机号码：{$this->getPhone()->phone} 绑定成功");
+        $this->successNotification(
+            "绑定成功",
+            $this->formatSuccessMessage()
+        );
     }
 
+    /**
+     * 处理异常
+     */
     protected function handleException(Throwable $exception): void
     {
         if ($this->getPhone()) {
-
-            $status = $exception instanceof PhoneException ? Phone::STATUS_INVALID : Phone::STATUS_NORMAL;
-            Phone::where('id', $this->getPhone()->id)->update(['status' => $status]);
+            $this->updatePhoneStatus($exception);
             $this->addNotInPhones($this->getPhone()->id);
         }
 
         $this->errorNotification(
             "绑定失败",
-            "次数: {$this->attempts} 手机号码: {$this->getPhone()->phone} 绑定失败 消息: {$exception->getMessage()}"
+            $this->formatFailMessage($exception)
         );
+    }
+
+    /**
+     * 更新手机状态
+     */
+    private function updatePhoneStatus(Throwable $exception): void
+    {
+        $status = $exception instanceof PhoneException ? Phone::STATUS_INVALID : Phone::STATUS_NORMAL;
+        Phone::where('id', $this->getPhone()->id)->update(['status' => $status]);
     }
 
     public function addNotInPhones(int|string $id): void
     {
         $this->notInPhones[] = $id;
+    }
+
+    /**
+     * 格式化失败消息
+     */
+    private function formatFailMessage(Throwable $e): string
+    {
+        return sprintf(
+            "次数：%d 手机号码：%s 绑定失败 消息: %s",
+            $this->attempts,
+            $this->getPhone()?->phone,
+            $e->getMessage()
+        );
+    }
+
+    /**
+     * 分发失败事件
+     */
+    private function dispatchFailEvent(Throwable $e): void
+    {
+        $this->getDispatcher()?->dispatch(
+            new AccountBindPhoneFailEvent(
+                account: $this->apple->getAccount(),
+                addSecurityVerifyPhone: $this->getPhone(),
+                message: $this->formatFailMessage($e)
+            )
+        );
+    }
+
+    /**
+     * 格式化最大重试消息
+     */
+    private function formatMaxRetriesMessage(): string
+    {
+        return sprintf(
+            "账号：%s 尝试 %d 次后绑定失败",
+            $this->getApple()->getAccount()->account,
+            $this->attempts
+        );
+    }
+
+    public function getApple(): Apple
+    {
+        return $this->apple;
     }
 
     public function getLogger(): LoggerInterface

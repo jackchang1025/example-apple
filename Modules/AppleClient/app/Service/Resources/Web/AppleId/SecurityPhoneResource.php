@@ -51,6 +51,7 @@ class SecurityPhoneResource
      * @throws \Modules\AppleClient\Service\Exception\StolenDeviceProtectionException
      * @throws \Modules\AppleClient\Service\Exception\VerificationCodeSentTooManyTimesException
      * @throws \Saloon\Exceptions\Request\FatalRequestException
+     * @throws RequestException
      */
     public function securityVerifyPhone(
         string $countryCode,
