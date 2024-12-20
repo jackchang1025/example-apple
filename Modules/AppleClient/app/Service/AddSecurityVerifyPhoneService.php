@@ -290,7 +290,7 @@ class AddSecurityVerifyPhoneService
                 new AccountBindPhoneSuccessEvent(
                     account: $this->apple->getAccount(),
                     addSecurityVerifyPhone: $this->getPhone(),
-                    message: "次数:{$this->attempts} {$this->getPhone()->phone} 绑定成功"
+                    message: "次数: {$this->attempts} 手机号码: {$this->getPhone()->phone} 绑定成功"
                 )
             );
 
@@ -302,7 +302,7 @@ class AddSecurityVerifyPhoneService
                 new AccountBindPhoneFailEvent(
                     account: $this->apple->getAccount(),
                     addSecurityVerifyPhone: $this->getPhone(),
-                    message: "次数:{$this->attempts} 手机:{$this->getPhone()->phone} 绑定失败 消息:{$e->getMessage()}"
+                    message: "次数：{$this->attempts} 手机号码：{$this->getPhone()->phone} 绑定失败 消息: {$e->getMessage()}"
                 )
             );
             throw $e;
@@ -315,7 +315,7 @@ class AddSecurityVerifyPhoneService
      */
     protected function handleBindSuccess(): void
     {
-        $this->successNotification("绑定成功", "次数:{$this->attempts} {$this->getPhone()->phone} 绑定成功");
+        $this->successNotification("绑定成功", "次数: {$this->attempts} 手机号码：{$this->getPhone()->phone} 绑定成功");
     }
 
     protected function handleException(Throwable $exception): void
@@ -329,7 +329,7 @@ class AddSecurityVerifyPhoneService
 
         $this->errorNotification(
             "绑定失败",
-            "次数:{$this->attempts} 手机:{$this->getPhone()->phone} 绑定失败 消息:{$exception->getMessage()}"
+            "次数: {$this->attempts} 手机号码: {$this->getPhone()->phone} 绑定失败 消息: {$exception->getMessage()}"
         );
     }
 
