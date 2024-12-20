@@ -12,7 +12,7 @@ class DynamicDto extends BaseDto implements WithResponse
 
     public function toQueryParameters(): array
     {
-        $this->data['area_id'] = $this->data['province'] ?? null;
+        $this->data['area_id'] = $this->data['city'] ?? $this->data['province'] ?? null;
         return array_filter($this->data, static fn($value) => $value !== null);
     }
 }
