@@ -5,6 +5,7 @@ namespace Modules\AppleClient\Service;
 use App\Models\Phone;
 use Exception;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Modules\AppleClient\Events\AccountBindPhoneFailEvent;
@@ -198,8 +199,8 @@ class AddSecurityVerifyPhoneService
      * @throws BindPhoneException
      * @throws FatalRequestException
      * @throws MaxRetryAttemptsException
-     * @throws PhoneNotFoundException
-     * @throws RequestException
+     * @throws ModelNotFoundException
+     * @throws RequestException|Throwable
      */
     private function attemptBind(): void
     {
@@ -236,7 +237,8 @@ class AddSecurityVerifyPhoneService
      * 获取新的可用手机号并更新当前实例
      *
      * @return Phone 可用的手机号实例
-     * @throws PhoneNotFoundException
+     * @throws ModelNotFoundException
+     * @throws Throwable
      */
     public function refreshAvailablePhone(): Phone
     {
@@ -248,7 +250,8 @@ class AddSecurityVerifyPhoneService
      * 从数据库中查询并锁定一个可用的手机号
      *
      * @return Phone 可用的手机号实例
-     * @throws PhoneNotFoundException 当没有可用手机号时抛出
+     * @throws Throwable
+     * @throws ModelNotFoundException 当没有可用手机号时抛出
      */
     protected function getAvailablePhone(): Phone
     {
@@ -418,7 +421,7 @@ class AddSecurityVerifyPhoneService
         return sprintf(
             "次数: %d 手机号码: %s 绑定成功",
             $this->attempts,
-            $this->getPhone()->phone
+            $this->getPhone()?->phone
         );
     }
 
