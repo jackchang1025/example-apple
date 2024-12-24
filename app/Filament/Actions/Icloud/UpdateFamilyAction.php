@@ -1,13 +1,11 @@
 <?php
 
-namespace App\Filament\Actions;
+namespace App\Filament\Actions\Icloud;
 
-use App\Filament\Resources\AccountResource\RelationManagers\FamilyMembersRelationManager;
 use App\Models\Account;
 use App\Services\FamilyService;
-use Filament\Tables\Actions\Action;
+use Filament\Actions\Action;
 use Illuminate\Support\Facades\Log;
-use Modules\AppleClient\Service\AppleFactory;
 
 class UpdateFamilyAction extends Action
 {
@@ -31,16 +29,11 @@ class UpdateFamilyAction extends Action
                 try {
 
                     /**
-                     * @var FamilyMembersRelationManager $relationManager
+                     * @var Account $account
                      */
-                    $relationManager = $this->getLivewire();
+                    $account = $this->getRecord();
 
-                    /**
-                     * @var Account $record
-                     */
-                    $record = $relationManager->ownerRecord;
-
-                    $this->handle($record);
+                    $this->handle($account);
 
                     $this->success();
 

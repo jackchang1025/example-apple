@@ -4,17 +4,13 @@ namespace App\Providers;
 
 use App\Filament\Widgets\PageVisitsTable;
 use App\Hook\AutoRefreshTableWidgetHook;
-use App\Listeners\AccountStatusSubscriber;
-use App\Livewire\LoginModalComponent;
 use Filament\Support\Facades\FilamentView;
 use Filament\Tables\Table;
 use Filament\Widgets\View\WidgetsRenderHook;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
-use Livewire\Livewire;
 
 class AppServiceProvider extends ServiceProvider
 {

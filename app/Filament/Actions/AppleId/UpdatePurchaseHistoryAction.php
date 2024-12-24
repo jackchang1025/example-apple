@@ -4,7 +4,7 @@ namespace App\Filament\Actions\AppleId;
 
 use App\Models\Account;
 use App\Models\PurchaseHistory;
-use Filament\Tables\Actions\Action;
+use Filament\Actions\Action;
 use Illuminate\Support\Facades\Log;
 use Modules\AppleClient\Service\AppleBuilder;
 use Modules\AppleClient\Service\Integrations\ReportProblem\Data\Response\Search\Pli;
@@ -27,9 +27,14 @@ class UpdatePurchaseHistoryAction extends Action
             ->successNotificationTitle('更新购买历史记录成功')
             ->modalSubmitActionLabel('确认')
             ->modalCancelActionLabel('取消')
-            ->action(function (Account $account) {
+            ->action(function () {
 
                 try {
+
+                    /**
+                     * @var Account $account
+                     */
+                    $account = $this->getRecord();
 
                     $this->handle($account);
 
@@ -38,7 +43,9 @@ class UpdatePurchaseHistoryAction extends Action
                 } catch (\Exception $e) {
 
                     Log::error($e);
-                    $this->failureNotificationTitle($e->getMessage())->sendFailureNotification();
+
+                    $this->failureNotificationTitle($e->getMessage());
+                    $this->failure();
                 }
             });
     }

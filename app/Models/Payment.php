@@ -103,6 +103,7 @@ class Payment extends Model
         'family_card',
         'expiration_supported',
         'payment_method_option',
+        'default_shipping_address',
     ];
 
     protected $casts = [
@@ -115,6 +116,7 @@ class Payment extends Model
         'family_card'           => 'boolean',
         'expiration_supported'  => 'boolean',
         'payment_method_option' => 'array',
+        'default_shipping_address' => 'array',
     ];
 
 

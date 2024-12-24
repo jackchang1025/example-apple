@@ -1,28 +1,27 @@
 <?php
 
-namespace Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\Payment;
+namespace Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\Payment\AliPay;
 
-use Modules\AppleClient\Service\Integrations\AppleId\Dto\Request\AddPayment\AddPayment;
+use Modules\AppleClient\app\Service\Integrations\AppleId\Dto\Request\Payment\AliPay\AddAliPay;
 use Modules\AppleClient\Service\Integrations\Request;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
 use Saloon\Traits\Body\HasJsonBody;
 
-class AddPaymentRequest extends Request implements HasBody
+class AddAliPayRequest extends Request implements HasBody
 {
     use HasJsonBody;
 
     protected Method $method = Method::PUT;
 
-
     public function __construct(
-        public AddPayment $dto,
+        public AddAliPay $dto,
     ) {
     }
 
     public function resolveEndpoint(): string
     {
-        return "/account/manage/payment/method/card/{$this->dto->id}";
+        return "/account/manage/payment/method/alipay/{$this->dto->id}";
     }
 
     protected function defaultBody(): array

@@ -4,13 +4,10 @@ namespace App\Filament\Resources;
 
 use App\Apple\Enums\AccountStatus;
 use App\Apple\Enums\AccountType;
-use App\Filament\Actions\AddFamilyMemberAction;
-use App\Filament\Actions\CreateFamilySharingAction;
-use App\Filament\Actions\LoginAction;
-use App\Filament\Actions\UpdatePaymentAction;
-use App\Filament\Actions\WebIcloud\UpdateDeviceAction;
 use App\Filament\Exports\AccountJsonExporter;
 use App\Filament\Exports\AccountTableExporter;
+use App\Filament\Pages\Icloud;
+use App\Filament\Pages\SecuritySettings;
 use App\Filament\Resources\AccountResource\Pages;
 use App\Filament\Resources\AccountResource\RelationManagers\DevicesRelationManager;
 use App\Filament\Resources\AccountResource\RelationManagers\FamilyMembersRelationManager;
@@ -30,7 +27,7 @@ use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -208,52 +205,25 @@ class AccountResource extends Resource
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),
 
-                // Web 操作组
-                ActionGroup::make([
-
-                    \App\Filament\Actions\AppleId\LoginAction::make('web_apple_id_login')
-                        ->label('登陆')
-                        ->icon('heroicon-o-eye'),
-
-                    UpdatePaymentAction::make(),
-
-                    \App\Filament\Actions\AppleId\UpdatePurchaseHistoryAction::make('更新购买历史记录')
-                        ->label('更新购买历史记录')
-                        ->icon('heroicon-o-eye'),
-                ])
-                    ->label('Web 操作')
-                    ->icon('heroicon-m-globe-alt')
+                Action::make('account_manage')
+                    ->label('账号管理')
+                    ->icon('heroicon-o-shield-check')
                     ->color('success')
-                    ->size('sm'),
+                    ->size('sm')
+                    ->url(fn(Account $record) => SecuritySettings::getUrl(['record' => $record->id]))
+                    ->openUrlInNewTab(),
 
-                // Web iCloud 操作组
-                ActionGroup::make([
-                    \App\Filament\Actions\WebIcloud\LoginAction::make('web_icloud_login')
-                        ->label('登陆')
-                        ->icon('heroicon-o-eye'),
-
-                    UpdateDeviceAction::make('更新 icloud 设备')
-                        ->label('更新 icloud 设备')
-                        ->icon('heroicon-o-device-phone-mobile'),
-
-                    //                    Action::make('icloud_drive')
-                    //                        ->label('iCloud 云盘')
-                    //                        ->icon('heroicon-o-folder')
-                    //                        ->url(fn(Account $account): string => 'https://www.icloud.com/iclouddrive')
-                    //                        ->openUrlInNewTab(),
-                ])
-                    ->label('iCloud 操作')
-                    ->icon('heroicon-m-cloud')
-                    ->color('info'),
-
-                // 家庭组操作组
-                ActionGroup::make([
-                    LoginAction::make(),
-                    CreateFamilySharingAction::make(),
-                ])
-                    ->label('家庭组操作')
+                Action::make('api_icloud')
+                    ->label('家庭共享')
                     ->icon('heroicon-m-user-group')
-                    ->color('warning'),
+                    ->url(fn(Account $record) => Icloud::getUrl(['record' => $record->id]))
+                    ->openUrlInNewTab(),
+
+                Action::make('web_icloud')
+                    ->label('icloud')
+                    ->icon('heroicon-o-cloud')
+                    ->url(fn(Account $record) => Icloud::getUrl(['record' => $record->id]))
+                    ->openUrlInNewTab(),
 
             ])
             ->bulkActions([
@@ -323,7 +293,7 @@ class AccountResource extends Resource
                          *
                          * // 账号编辑权限
                          * "appleIDEditable": true,                      // Apple ID是否可编辑
-                         * "obfuscatedName": "li******************************", // 混淆后的名称
+                         * "obfuscatedName": "li******************************", // ��淆后的名称
                          *
                          * // 安全相关
                          * "recoveryKeyEnabled": false,                  // 是否启用恢复密钥
@@ -503,7 +473,7 @@ class AccountResource extends Resource
                 Section::make('家庭共享信息')
                     ->schema([
                         // 作为组织者的家庭信息
-                        Fieldset::make('组织的��庭')
+                        Fieldset::make('组织的信息')
                             ->schema([
                                 TextEntry::make('belongToFamily.family_id')
                                     ->label('家庭组 ID'),
@@ -532,7 +502,7 @@ class AccountResource extends Resource
                         //                                    ->label('屏幕使用时间')
                         //                                    ->boolean(),
                         //                                IconEntry::make('familyMember.has_ask_to_buy_enabled')
-                        //                                    ->label('购买请求')
+                        //                                    ->label('购请求')
                         //                                    ->boolean(),
                         //                                IconEntry::make('familyMember.has_share_purchases_enabled')
                         //                                    ->label('购买项目共享')

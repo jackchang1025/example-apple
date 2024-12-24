@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Filament\Actions;
+namespace App\Filament\Actions\Icloud;
 
 use App\Models\Account;
 use App\Services\FamilyService;
 use Exception;
-use Filament\Tables\Actions\Action;
+use Filament\Actions\Action;
 use Illuminate\Support\Facades\Log;
-use Modules\AppleClient\Service\AppleFactory;
 
 class LeaveFamilyAction extends Action
 {
@@ -29,7 +28,7 @@ class LeaveFamilyAction extends Action
             // 弹窗取消按钮
             ->modalCancelActionLabel('取消')
             // 需要确认
-            ->requiresConfirmation('确定退出家庭共享吗？')
+            ->requiresConfirmation('确定要退出当前家庭吗？退出后将失去所有家庭共享权益。？')
             ->successNotificationTitle('成功退出家庭共享组')
             ->action(function () {
                 $relationManager = $this->getLivewire();

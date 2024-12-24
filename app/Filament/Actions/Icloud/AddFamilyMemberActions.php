@@ -1,16 +1,14 @@
 <?php
 
-namespace App\Filament\Actions;
+namespace App\Filament\Actions\Icloud;
 
-use App\Filament\Resources\AccountResource\RelationManagers\FamilyMembersRelationManager;
 use App\Models\Account;
 use App\Services\FamilyService;
 use Exception;
+use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Wizard\Step;
-use Filament\Tables\Actions\Action;
-use Filament\Tables\Table;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\HtmlString;
@@ -18,7 +16,6 @@ use Modules\AppleClient\Service\Integrations\Icloud\Dto\Request\VerifyCVV\Verify
 
 class AddFamilyMemberActions extends Action
 {
-
     public static function getDefaultName(): ?string
     {
         return 'addFamilyMembers';
@@ -28,48 +25,41 @@ class AddFamilyMemberActions extends Action
     {
         parent::setUp();
 
-        $this->fillForm(function (Table $table): array {
-
-            /**
-             * @var FamilyMembersRelationManager $FamilyMembersRelationManager
-             */
-            $FamilyMembersRelationManager = $table->getLivewire();
-
-            /**
-             * @var Account $account
-             */
-            $account = $FamilyMembersRelationManager->ownerRecord;
-
-            try {
-
-                $familyService = FamilyService::make($account);
-                $ITunesAccountPaymentInfo = $familyService->getITunesAccountPaymentInfo();
-
-                return array_merge(
-                    $account->makeHidden(['account', 'password'])->toArray(),
-                    $ITunesAccountPaymentInfo->toArray()
-                );
-
-            } catch (Exception $e) {
-
-                Log::error($e);
-                $this->failureNotificationTitle($e->getMessage())->sendFailureNotification();
-
-                $this->halt(); // 停止执行动作
-
-            }
-
-        });
-
-        $this->label('添加家庭共享成员')
+        $this->label('添加家庭成员')
             ->icon('heroicon-o-user-group')
-            ->modalDescription('创建家庭共享需要绑定支付方式')
-            ->successNotificationTitle('添加家庭共享组成功！')
+            ->modalDescription('添加家庭成员需要验证支付方式')
             ->modalSubmitActionLabel('确认')
             ->modalCancelActionLabel('取消')
+            ->failureNotificationTitle('添加家庭成员失败')
+            ->closeModalByClickingAway(false)
+            ->fillForm(function () {
+                try {
+
+                    /**
+                     * @var Account $account
+                     */
+                    $account                  = $this->getRecord();
+                    $familyService            = FamilyService::make($account);
+                    $ITunesAccountPaymentInfo = $familyService->getITunesAccountPaymentInfo();
+
+                    return array_merge(
+                        $account->makeHidden(['account', 'password'])->toArray(),
+                        $ITunesAccountPaymentInfo->toArray()
+                    );
+                } catch (Exception $e) {
+                    Log::error($e);
+
+                    $this->failureNotificationTitle($e->getMessage());
+                    $this->failure();
+
+                    //关闭弹窗
+                    $this->halt();
+
+                }
+            })
             ->steps([
                 Step::make('select account')
-                    ->description('Give the category a unique name')
+                    ->description('选择要添加的账号')
                     ->schema([
                         Select::make('account_id')
                             ->options(Account::all()->pluck('account', 'id'))
@@ -192,36 +182,23 @@ class AddFamilyMemberActions extends Action
                     ]),
             ])
             ->action(function (array $data) {
-
-                /**
-                 * @var FamilyMembersRelationManager $relationManager
-                 */
-                $relationManager = $this->getLivewire();
-
-                /**
-                 * @var Account $record
-                 */
-                $record = $relationManager->ownerRecord;
-
                 try {
-                    $this->handle($record, $data);
 
+                    /**
+                     * @var Account $account
+                     */
+                    $account = $this->getRecord();
+
+                    $this->handle($account, $data);
                     $this->success();
-
                 } catch (Exception $e) {
                     Log::error($e);
-                    $this->failureNotificationTitle($e->getMessage())->sendFailureNotification();
+                    $this->failure();
                 }
             });
     }
 
-    /**
-     * @param Account $record
-     * @param array $data
-     * @return void
-     * @throws \Illuminate\Validation\ValidationException|\App\Exceptions\Family\FamilyException|\Throwable
-     */
-    protected function handle(Account $record, array $data): void
+    protected function handle(Account $account, array $data): void
     {
         if (!empty($data['account_id'])) {
 
@@ -238,7 +215,7 @@ class AddFamilyMemberActions extends Action
             'password'         => 'required',
         ])->validated();
 
-        FamilyService::make($record)
+        FamilyService::make($account)
             ->addFamilyMember(
                 addAccount: $data['account'],
                 addPassword: $data['password'],

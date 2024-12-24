@@ -2,9 +2,6 @@
 
 namespace App\Filament\Resources\AccountResource\RelationManagers;
 
-use App\Filament\Actions\AddFamilyMemberActions;
-use App\Filament\Actions\LeaveFamilyAction;
-use App\Filament\Actions\UpdateFamilyAction;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -65,19 +62,11 @@ class FamilyMembersRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                AddFamilyMemberActions::make(),
-                UpdateFamilyAction::make(),
-                LeaveFamilyAction::make()
-                    ->visible(function () {
-                        return true;
-                    }),
+
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
-                \App\Filament\Actions\RemoveFamilyMemberAction::make()
-                    ->visible(function ($record) {
-                        return true;
-                    }),
+
             ])
             ->bulkActions([
                 //

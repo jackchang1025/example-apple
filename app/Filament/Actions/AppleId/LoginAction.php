@@ -2,12 +2,11 @@
 
 namespace App\Filament\Actions\AppleId;
 
-use App\Filament\Resources\AccountResource\Pages\ListAccounts;
 use App\Models\Account;
 use Exception;
+use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
-use Filament\Tables\Actions\Action;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Container\CircularDependencyException;
 use Illuminate\Support\Facades\Log;
@@ -69,11 +68,16 @@ class LoginAction extends Action
                     ->helperText('如果使用绑定手机号码登录请留空')
                     ->placeholder('请输入授权码'),
             ])
-            ->beforeFormFilled(function (Account $record) {
+            ->beforeFormFilled(function () {
                 try {
 
+                    /**
+                     * @var Account $account
+                     */
+                    $account = $this->getRecord();
+
                     //初始化登录
-                    $this->initializeLogin($record);
+                    $this->initializeLogin($account);
 
                 } catch (Exception $e) {
 
@@ -83,11 +87,16 @@ class LoginAction extends Action
                     $this->failure();
                 }
             })
-            ->action(function (Account $record, $data) {
+            ->action(function (array $data) {
 
                 try {
 
-                    $this->handleAuth($record, $data);
+                    /**
+                     * @var Account $account
+                     */
+                    $account = $this->getRecord();
+
+                    $this->handleAuth($account, $data);
 
                     $this->success();
 
@@ -111,11 +120,16 @@ class LoginAction extends Action
         return Action::make('resendDeviceCode')
             ->label('发送设备验证码')
             ->color('warning')
-            ->action(function (Account $record, ListAccounts $livewire) {
+            ->action(function () {
 
                 try {
 
-                    $apple = app(AppleBuilder::class)->build($record->toAccount());
+                    /**
+                     * @var Account $account
+                     */
+                    $account = $this->getRecord();
+
+                    $apple = app(AppleBuilder::class)->build($account->toAccount());
 
                     $apple->getWebResource()->getAppleIdResource()->sendVerificationCode();
 

@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Filament\Actions;
+namespace App\Filament\Actions\Icloud;
 
 use App\Filament\Resources\AccountResource\Pages\ListAccounts;
 use App\Models\Account;
 use Exception;
+use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
-use Filament\Tables\Actions\Action;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Container\CircularDependencyException;
 use Illuminate\Support\Facades\Log;
@@ -35,6 +35,7 @@ class LoginAction extends Action
             ->modalHeading('login')
             ->modalSubmitActionLabel('确认')
             ->modalCancelActionLabel('取消')
+            ->closeModalByClickingAway(false)
             ->successNotificationTitle('登陆成功')
             ->extraModalFooterActions([
                 $this->resendDeviceCode(),

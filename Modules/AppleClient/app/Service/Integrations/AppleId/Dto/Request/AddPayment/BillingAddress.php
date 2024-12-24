@@ -4,7 +4,7 @@ namespace Modules\AppleClient\Service\Integrations\AppleId\Dto\Request\AddPaymen
 
 use Spatie\LaravelData\Data;
 
-class BillingAddressData extends Data
+class BillingAddress extends Data
 {
     public function __construct(
         public string $id,

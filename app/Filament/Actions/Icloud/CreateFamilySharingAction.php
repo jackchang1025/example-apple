@@ -1,16 +1,15 @@
 <?php
 
-namespace App\Filament\Actions;
+namespace App\Filament\Actions\Icloud;
 
 use App\Models\Account;
 use App\Services\FamilyService;
 use Exception;
+use Filament\Actions\Action;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Tables\Actions\Action;
 use Illuminate\Support\Facades\Log;
-use Modules\AppleClient\Service\AppleFactory;
 
 class CreateFamilySharingAction extends Action
 {
@@ -29,6 +28,7 @@ class CreateFamilySharingAction extends Action
             ->modalDescription('开通家庭共享需要主账号和一个拥有付款帐号，付款帐号也可以是主账号本身')
             ->modalSubmitActionLabel('确认')
             ->modalCancelActionLabel('取消')
+            ->closeModalByClickingAway(false)
             ->form([
 
 
@@ -75,21 +75,19 @@ class CreateFamilySharingAction extends Action
 
 
             ])
-            ->action(function (Account $record, array $data) {
-
-
+            ->action(function (array $data) {
                 try {
 
-                    $this->handleFamilySharing($record, $data);
-
+                    $this->handleFamilySharing($this->getRecord(), $data);
                     $this->success();
 
                 } catch (Exception $e) {
 
                     Log::error($e);
-                    $this->failureNotificationTitle($e->getMessage())->sendFailureNotification();
-                }
+                    $this->failureNotificationTitle($e->getMessage());
+                    $this->failure();
 
+                }
             });
     }
 

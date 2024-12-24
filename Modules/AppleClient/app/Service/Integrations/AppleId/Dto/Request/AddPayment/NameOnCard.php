@@ -4,7 +4,7 @@ namespace Modules\AppleClient\Service\Integrations\AppleId\Dto\Request\AddPaymen
 
 use Spatie\LaravelData\Data;
 
-class NameOnCardData extends Data
+class NameOnCard extends Data
 {
     public function __construct(
         public string $firstName,
