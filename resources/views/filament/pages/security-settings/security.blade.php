@@ -3,7 +3,7 @@
         管理与登录到您的账户、账户安全相关的设置，以及在登录遇到问题时如何恢复您的数据。
     </div>
 
-    <div class="grid gap-6">
+    <div class="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         <!-- Email & Phone Numbers -->
         <div class="bg-white rounded-lg shadow p-6">
             <div class="flex items-center justify-between">

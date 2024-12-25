@@ -9,7 +9,7 @@
 
     <div class="space-y-4">
         <!-- 第一行：Name 和 Birthday -->
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             <!-- Name Card -->
             <div
                 x-data
@@ -50,7 +50,7 @@
         </div>
 
         <!-- 第二行：Country/Region 和 Language -->
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             <!-- Country/Region Card -->
             <div class="rounded-lg border border-gray-100 shadow-sm">
                 <div class="p-4">
