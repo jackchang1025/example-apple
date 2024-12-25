@@ -97,6 +97,7 @@ class Icloud extends Page
         return [
             LoginAction::make('icloud_login')
                 ->record($this->account)
+                ->closeModalByClickingAway(false)
                 ->visible(fn() => true),
 
             CreateFamilySharingAction::make('create-family-member')

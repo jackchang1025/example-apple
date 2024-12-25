@@ -5,6 +5,7 @@ namespace App\Providers\Filament;
 use App\Filament\Pages\Icloud;
 use App\Filament\Pages\LogView;
 use App\Filament\Pages\SecuritySettings;
+use App\Filament\Pages\WebIcloud;
 use App\Filament\Widgets\PageVisits;
 use App\Filament\Widgets\PageVisitsTable;
 use App\Http\Middleware\CheckUserValidityMiddleware;
@@ -76,6 +77,7 @@ class AdminPanelProvider extends PanelProvider
                 Pages\Dashboard::class,
                 SecuritySettings::class,
                 Icloud::class,
+                WebIcloud::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
@@ -117,5 +119,13 @@ class AdminPanelProvider extends PanelProvider
 
             return 'admin';
         }
+    }
+
+    public function getPages(): array
+    {
+        return [
+            // ... 其他页面
+            'accounts.web-icloud' => WebIcloud::class,
+        ];
     }
 }

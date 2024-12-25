@@ -8,6 +8,7 @@ use App\Filament\Exports\AccountJsonExporter;
 use App\Filament\Exports\AccountTableExporter;
 use App\Filament\Pages\Icloud;
 use App\Filament\Pages\SecuritySettings;
+use App\Filament\Pages\WebIcloud;
 use App\Filament\Resources\AccountResource\Pages;
 use App\Filament\Resources\AccountResource\RelationManagers\DevicesRelationManager;
 use App\Filament\Resources\AccountResource\RelationManagers\FamilyMembersRelationManager;
@@ -220,10 +221,12 @@ class AccountResource extends Resource
                     ->openUrlInNewTab(),
 
                 Action::make('web_icloud')
-                    ->label('icloud')
+                    ->label('iCloud 设备')
                     ->icon('heroicon-o-cloud')
-                    ->url(fn(Account $record) => Icloud::getUrl(['record' => $record->id]))
-                    ->openUrlInNewTab(),
+                    ->color('info')
+                    ->url(fn(Account $record) => WebIcloud::getUrl(['record' => $record->id]))
+                    ->openUrlInNewTab()
+                    ->tooltip('管理 iCloud 设备'),
 
             ])
             ->bulkActions([
@@ -342,7 +345,7 @@ class AccountResource extends Resource
                             ->boolean(),
 
                         TextEntry::make('accountManager.config.account.familyOrganizerName')
-                            ->label('家庭组织者'),
+                            ->label('家庭组��者'),
 
                         IconEntry::make('accountManager.config.hasCustodians')
                             ->label('是否有监护人')

@@ -21,6 +21,7 @@ use Modules\AppleClient\Service\Integrations\Idmsa\Dto\Response\SendVerification
 use Modules\AppleClient\Service\Integrations\Idmsa\Dto\Response\SendVerificationCode\SendPhoneVerificationCode;
 use Modules\AppleClient\Service\Integrations\Idmsa\Dto\Response\SignIn\SignInComplete;
 use Modules\AppleClient\Service\Integrations\Idmsa\Dto\Response\VerifyPhoneSecurityCode\VerifyPhoneSecurityCode;
+use Modules\AppleClient\Service\Integrations\Idmsa\IdmsaConnector;
 use Modules\AppleClient\Service\Resources\Web\WebResource;
 use Modules\AppleClient\Service\Trait\HasTries;
 use Modules\PhoneCode\Service\Exception\AttemptBindPhoneCodeException;
@@ -29,9 +30,7 @@ use Modules\PhoneCode\Service\PhoneCodeService;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
 use Spatie\LaravelData\DataCollection;
-use Modules\AppleClient\Service\Integrations\Idmsa\IdmsaConnector;
 use Throwable;
-use function VeeWee\Xml\Dom\Xpath\Configurator\functions;
 
 /**
  *

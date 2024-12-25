@@ -3,11 +3,11 @@
 namespace App\Filament\Actions\WebIcloud;
 
 use App\Models\Account;
-use Filament\Tables\Actions\Action;
+use App\Models\IcloudDevice;
+use Filament\Actions\Action;
 use Illuminate\Support\Facades\Log;
 use Modules\AppleClient\Service\AppleBuilder;
 use Modules\AppleClient\Service\Integrations\WebIcloud\Dto\Response\Devices\Device;
-use App\Models\IcloudDevice;
 
 class UpdateDeviceAction extends Action
 {
@@ -25,9 +25,13 @@ class UpdateDeviceAction extends Action
             ->successNotificationTitle('更新 icloud 设备成功')
             ->modalSubmitActionLabel('确认')
             ->modalCancelActionLabel('取消')
-            ->action(function (Account $account) {
+            ->action(function () {
 
                 try {
+                    /**
+                     * @var Account $account
+                     */
+                    $account = $this->getRecord();
 
                     $this->handle($account);
 

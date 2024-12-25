@@ -2,12 +2,11 @@
 
 namespace App\Filament\Actions\WebIcloud;
 
-use App\Filament\Resources\AccountResource\Pages\ListAccounts;
 use App\Models\Account;
 use Exception;
+use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
-use Filament\Tables\Actions\Action;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Container\CircularDependencyException;
 use Illuminate\Support\Facades\Log;
@@ -68,8 +67,13 @@ class LoginAction extends Action
                     ->helperText('如果使用绑定手机号码登录请留空')
                     ->placeholder('请输入授权码'),
             ])
-            ->beforeFormFilled(function (Account $record) {
+            ->beforeFormFilled(function () {
                 try {
+
+                    /**
+                     * @var Account $record
+                     */
+                    $record = $this->getRecord();
 
                     //初始化登录
                     $this->initializeLogin($record);
@@ -82,9 +86,14 @@ class LoginAction extends Action
                     $this->failure();
                 }
             })
-            ->action(function (Account $record, $data) {
+            ->action(function (array $data) {
 
                 try {
+
+                    /**
+                     * @var Account $record
+                     */
+                    $record = $this->getRecord();
 
                     $this->handleAuth($record, $data);
 
@@ -110,12 +119,17 @@ class LoginAction extends Action
         return Action::make('resendDeviceCode')
             ->label('发送设备验证码')
             ->color('warning')
-            ->action(function (Account $record, ListAccounts $livewire) {
+            ->action(function () {
 
                 try {
 
+                    /**
+                     * @var Account $record
+                     */
+                    $record = $this->getRecord();
+
                     $apple = app(AppleBuilder::class)->build(
-                        \Modules\AppleClient\Service\DataConstruct\Account::from($record->toArray())
+                        \Modules\AppleClient\Service\DataConstruct\Account::from($record->toAccount())
                     );
 
                     $apple->getWebResource()->getIcloudResource()->sendVerificationCode();
@@ -146,8 +160,8 @@ class LoginAction extends Action
      * @throws \Throwable
      */
     public function handleAuth(
-        account $record,
-        $data
+        Account $record,
+        array $data
     ): \Modules\AppleClient\Service\Integrations\WebIcloud\Dto\Response\AccountLogin\AccountLogin {
 
         $apple = app(AppleBuilder::class)->build($record->toAccount());
@@ -193,7 +207,7 @@ class LoginAction extends Action
     public function initializeLogin(Account $record
     ): \Modules\AppleClient\Service\Integrations\WebIcloud\Dto\Response\AccountLogin\AccountLogin {
         $apple = app(AppleBuilder::class)->build(
-            \Modules\AppleClient\Service\DataConstruct\Account::from($record->toArray())
+            \Modules\AppleClient\Service\DataConstruct\Account::from($record->toAccount())
         );
 
         $apple->getWebResource()->getIcloudResource()->signIn();
