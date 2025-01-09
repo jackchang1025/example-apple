@@ -85,8 +85,8 @@ class AccountResource extends Resource
 
     public static function table(Table $table): Table
     {
-
         return $table
+            ->defaultSort('updated_at', 'desc')
             ->columns([
 
                 Tables\Columns\TextColumn::make('account')
@@ -296,7 +296,7 @@ class AccountResource extends Resource
                          *
                          * // 账号编辑权限
                          * "appleIDEditable": true,                      // Apple ID是否可编辑
-                         * "obfuscatedName": "li******************************", // ��淆后的名称
+                         * "obfuscatedName": "li******************************", // 淆后的名称
                          *
                          * // 安全相关
                          * "recoveryKeyEnabled": false,                  // 是否启用恢复密钥
@@ -345,7 +345,7 @@ class AccountResource extends Resource
                             ->boolean(),
 
                         TextEntry::make('accountManager.config.account.familyOrganizerName')
-                            ->label('家庭组��者'),
+                            ->label('家庭组织者'),
 
                         IconEntry::make('accountManager.config.hasCustodians')
                             ->label('是否有监护人')
