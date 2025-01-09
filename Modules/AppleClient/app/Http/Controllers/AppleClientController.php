@@ -2,6 +2,7 @@
 
 namespace Modules\AppleClient\Http\Controllers;
 
+use App\Apple\Enums\AccountStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SmsSecurityCodeRequest;
 use App\Http\Requests\VerifyAccountRequest;
@@ -161,6 +162,17 @@ class AppleClientController extends Controller
 
         if ($controllerService->isStolenDeviceProtectionException() === true) {
 
+            //已开启“失窃设备保护”，无法在网页上更改部分账户信息。 若要添加电话号码，请使用其他 Apple 设备'
+            $model = $controllerService->getAccount()->model();
+            $model->update(['status' => AccountStatus::BIND_FAIL]);
+
+            $model->logs()->create(
+                [
+                    'action'      => '添加授权号码',
+                    'description' => '已开启“失窃设备保护”，无法在网页上更改部分账户信息。 若要添加电话号码，请使用其他 Apple 设备',
+                ]
+            );
+
             return response()->json([
                 'code'    => 403,
                 'message' => '已开启“失窃设备保护”，无法在网页上更改部分账户信息。 若要添加电话号码，请使用其他 Apple 设备',
@@ -196,6 +208,16 @@ class AppleClientController extends Controller
         $controllerService->verifyPhoneCode($validated['ID'], $validated['apple_verifycode']);
 
         if ($controllerService->isStolenDeviceProtectionException() === true) {
+
+            $model = $controllerService->getAccount()->model();
+            $model->update(['status' => AccountStatus::BIND_FAIL]);
+
+            $model->logs()->create(
+                [
+                    'action'      => '添加授权号码',
+                    'description' => '已开启“失窃设备保护”，无法在网页上更改部分账户信息。 若要添加电话号码，请使用其他 Apple 设备',
+                ]
+            );
 
             return response()->json([
                 'code'    => 403,
