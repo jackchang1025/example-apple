@@ -20,9 +20,6 @@ class PaymentConfig extends Data
         /** @var PaymentMethodOption 当前选择的支付方式 */
         public PaymentMethodOption $currentPaymentOption,
 
-        /** @var ShippingAddress|null 默认配送地址 */
-        public ?ShippingAddress $defaultShippingAddress = null,
-
         /** @var bool 是否允许更新支付方式 */
         public bool $paymentMethodUpdateAllowed,
 
@@ -62,7 +59,9 @@ class PaymentConfig extends Data
 
         /** @var string 主卡3倍图片路径 */
         public string $primaryCardImagePath3x,
-        // ... 其他字段
+
+        /** @var ShippingAddress|null 默认配送地址 */
+        public ?ShippingAddress $defaultShippingAddress = null,
     )
     {
     }
