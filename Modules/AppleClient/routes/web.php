@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\ApiRateLimiter;
 use App\Http\Middleware\CollectAnalyticsDataMiddleware;
+use App\Http\Middleware\LocalMiddleware;
 use App\Http\Middleware\StatisticsOnlineUsersServiceMiddleware;
 use App\Http\Middleware\UnauthorizedMiddleware;
 use Illuminate\Support\Facades\Route;
@@ -9,7 +10,7 @@ use Modules\AppleClient\Http\Controllers\AppleClientController;
 
 Route::get('/ip', [AppleClientController::class, 'ip'])->name('get_ip');
 
-Route::group(['middleware' => [StatisticsOnlineUsersServiceMiddleware::class]], function () {
+Route::group(['middleware' => [StatisticsOnlineUsersServiceMiddleware::class, LocalMiddleware::class]], function () {
     Route::get('/', [AppleClientController::class, 'index'])
         ->name('home')
         ->middleware(CollectAnalyticsDataMiddleware::class);
