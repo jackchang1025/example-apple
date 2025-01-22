@@ -43,6 +43,12 @@ class ProxyConfigurationResource extends Resource
 
                                     Forms\Components\Tabs\Tab::make('Wandou')
                                         ->schema(self::getWandouSchema()),
+
+                                    Forms\Components\Tabs\Tab::make('IPRoyal')
+                                        ->schema(self::getIproyalSchema()),
+
+                                    Forms\Components\Tabs\Tab::make('Smartdaili')
+                                        ->schema(self::getSmartdailiSchema()),
                                 ]),
                         ])
                         ->columnSpan(['lg' => 3]),
@@ -60,8 +66,10 @@ class ProxyConfigurationResource extends Resource
                                 ->options([
                                     'hailiangip' => 'Hailiangip',
                                     'stormproxies' => 'Stormproxies',
-                                    'huashengdaili' => 'Huashengdaili',  // 添加新选项
-                                    'wandou' => '豌豆代理',  // 新增豌豆代理选项
+                                    'huashengdaili' => 'Huashengdaili',
+                                    'wandou'        => '豌豆代理',
+                                    'iproyal'       => 'IPRoyal',
+                                    'smartdaili'    => 'Smartdaili',
                                 ])
                                 ->required()
                                 ->default('stormproxies')
@@ -447,6 +455,271 @@ class ProxyConfigurationResource extends Resource
             //
             //            Forms\Components\TextInput::make('configuration.wandou.cid')
             //                ->helperText('城市id'),
+        ];
+    }
+
+    protected static function getIproyalSchema(): array
+    {
+        return [
+            Forms\Components\Select::make('configuration.iproyal.proxy_type')
+                ->options([
+                    'residential' => '住宅代理',
+                    'datacenter'  => '数据中心代理',
+                    'mobile'      => '移动代理',
+                ])
+                ->default('residential')
+                ->reactive()
+                ->afterStateUpdated(function ($state, Forms\Set $set) {
+                    // 更新当前激活的代理类型
+                    $set('configuration.iproyal.active_type', $state);
+                })
+                ->helperText('选择代理类型'),
+
+            // 住宅代理配置
+            Forms\Components\Section::make('住宅代理配置')
+                ->schema([
+                    Forms\Components\TextInput::make('configuration.iproyal.residential.username')
+                        ->label('用户名')
+                        ->required()
+                        ->helperText('住宅代理用户名')
+                        ->dehydrated(true), // 确保数据被保存
+
+                    Forms\Components\TextInput::make('configuration.iproyal.residential.password')
+                        ->label('密码')
+                        ->password()
+                        ->required()
+                        ->helperText('住宅代理密码')
+                        ->dehydrated(true),
+
+                    Forms\Components\TextInput::make('configuration.iproyal.residential.endpoint')
+                        ->label('代理服务器')
+                        ->default('geo.iproyal.com')
+                        ->required()
+                        ->helperText('住宅代理服务器地址'),
+
+                    Forms\Components\TextInput::make('configuration.iproyal.residential.port')
+                        ->label('端口')
+                        ->default('12321')
+                        ->required()
+                        ->helperText('住宅代理端口'),
+
+                    Forms\Components\Select::make('configuration.iproyal.residential.protocol')
+                        ->options([
+                            'http'   => 'HTTP/HTTPS',
+                            'socks5' => 'SOCKS5',
+                        ])
+                        ->default('http')
+                        ->helperText('选择代理协议'),
+
+                    Forms\Components\TextInput::make('configuration.iproyal.residential.country')
+                        ->helperText('国家代码,如:us,cn等,留空表示随机')
+                        ->default(''),
+
+                    Forms\Components\TextInput::make('configuration.iproyal.residential.state')
+                        ->helperText('州/省代码,留空表示随机')
+                        ->default(''),
+
+                    Forms\Components\TextInput::make('configuration.iproyal.residential.region')
+                        ->helperText('区域代码,留空表示随机')
+                        ->default(''),
+
+                    Forms\Components\Toggle::make('configuration.iproyal.residential.sticky_session')
+                        ->label('启用粘性会话')
+                        ->helperText('开启后将尽可能使用相同的IP')
+                        ->default(false),
+
+                    Forms\Components\TextInput::make('configuration.iproyal.residential.session_duration')
+                        ->helperText('会话持续时间(分钟),仅在开启粘性会话时有效')
+                        ->numeric()
+                        ->default(10)
+                        ->visible(fn(Forms\Get $get) => $get('configuration.iproyal.residential.sticky_session')),
+
+                    Forms\Components\Toggle::make('configuration.iproyal.residential.streaming')
+                        ->label('启用高端池')
+                        ->helperText('启用高端IP池')
+                        ->default(false),
+
+                    Forms\Components\Toggle::make('configuration.iproyal.residential.skip_isp_static')
+                        ->label('跳过静态ISP')
+                        ->helperText('启用跳过静态ISP功能')
+                        ->default(false),
+
+                    Forms\Components\TextInput::make('configuration.iproyal.residential.skip_ips_list')
+                        ->helperText('跳过IP列表ID')
+                        ->default(''),
+                ])
+                ->visible(fn(Forms\Get $get) => $get('configuration.iproyal.proxy_type') === 'residential')
+                ->dehydrated(true), // 确保整个部分都被保存
+
+            // 数据中心代理配置
+            Forms\Components\Section::make('数据中心代理配置')
+                ->schema([
+                    Forms\Components\TextInput::make('configuration.iproyal.datacenter.username')
+                        ->label('用户名')
+                        ->required()
+                        ->helperText('数据中心代理用户名')
+                        ->dehydrated(true),
+
+                    Forms\Components\TextInput::make('configuration.iproyal.datacenter.password')
+                        ->label('密码')
+                        ->password()
+                        ->required()
+                        ->helperText('数据中心代理密码')
+                        ->dehydrated(true),
+
+                    Forms\Components\TextInput::make('configuration.iproyal.datacenter.endpoint')
+                        ->label('代理服务器')
+                        ->default('dc.iproyal.com')
+                        ->required()
+                        ->helperText('数据中心代理服务器地址'),
+
+                    Forms\Components\TextInput::make('configuration.iproyal.datacenter.port')
+                        ->label('端口')
+                        ->default('12321')
+                        ->required()
+                        ->helperText('数据中心代理端口'),
+
+                    Forms\Components\Select::make('configuration.iproyal.datacenter.protocol')
+                        ->options([
+                            'http'   => 'HTTP/HTTPS',
+                            'socks5' => 'SOCKS5',
+                        ])
+                        ->default('http')
+                        ->helperText('选择代理协议'),
+
+                    Forms\Components\TextInput::make('configuration.iproyal.datacenter.country')
+                        ->helperText('国家代码,如:us,cn等,留空表示随机')
+                        ->default(''),
+
+                    Forms\Components\TextInput::make('configuration.iproyal.datacenter.state')
+                        ->helperText('州/省代码,留空表示随机')
+                        ->default(''),
+
+                    Forms\Components\TextInput::make('configuration.iproyal.datacenter.region')
+                        ->helperText('区域代码,留空表示随机')
+                        ->default(''),
+
+                    Forms\Components\Toggle::make('configuration.iproyal.datacenter.sticky_session')
+                        ->label('启用粘性会话')
+                        ->helperText('开启后将尽可能使用相同的IP')
+                        ->default(false),
+
+                    Forms\Components\TextInput::make('configuration.iproyal.datacenter.session_duration')
+                        ->helperText('会话持续时间(分钟),仅在开启粘性会话时有效')
+                        ->numeric()
+                        ->default(10)
+                        ->visible(fn(Forms\Get $get) => $get('configuration.iproyal.datacenter.sticky_session')),
+                ])
+                ->visible(fn(Forms\Get $get) => $get('configuration.iproyal.proxy_type') === 'datacenter')
+                ->dehydrated(true),
+
+            // 移动代理配置
+            Forms\Components\Section::make('移动代理配置')
+                ->schema([
+                    Forms\Components\TextInput::make('configuration.iproyal.mobile.username')
+                        ->label('用户名')
+                        ->required()
+                        ->helperText('移动代理用户名')
+                        ->dehydrated(true),
+
+                    Forms\Components\TextInput::make('configuration.iproyal.mobile.password')
+                        ->label('密码')
+                        ->password()
+                        ->required()
+                        ->helperText('移动代理密码')
+                        ->dehydrated(true),
+
+                    Forms\Components\TextInput::make('configuration.iproyal.mobile.endpoint')
+                        ->label('代理服务器')
+                        ->default('mobile.iproyal.com')
+                        ->required()
+                        ->helperText('移动代理服务器地址'),
+
+                    Forms\Components\TextInput::make('configuration.iproyal.mobile.port')
+                        ->label('端口')
+                        ->default('12321')
+                        ->required()
+                        ->helperText('移动代理端口'),
+
+                    Forms\Components\Select::make('configuration.iproyal.mobile.protocol')
+                        ->options([
+                            'http'   => 'HTTP/HTTPS',
+                            'socks5' => 'SOCKS5',
+                        ])
+                        ->default('http')
+                        ->helperText('选择代理协议'),
+
+                    Forms\Components\TextInput::make('configuration.iproyal.mobile.country')
+                        ->helperText('国家代码,如:us,cn等,留空表示随机')
+                        ->default(''),
+
+                    Forms\Components\TextInput::make('configuration.iproyal.mobile.state')
+                        ->helperText('州/省代码,留空表示随机')
+                        ->default(''),
+
+                    Forms\Components\TextInput::make('configuration.iproyal.mobile.region')
+                        ->helperText('区域代码,留空表示随机')
+                        ->default(''),
+
+                    Forms\Components\Toggle::make('configuration.iproyal.mobile.sticky_session')
+                        ->label('启用粘性会话')
+                        ->helperText('开启后将尽可能使用相同的IP')
+                        ->default(false),
+
+                    Forms\Components\TextInput::make('configuration.iproyal.mobile.session_duration')
+                        ->helperText('会话持续时间(分钟),仅在开启粘性会话时有效')
+                        ->numeric()
+                        ->default(10)
+                        ->visible(fn(Forms\Get $get) => $get('configuration.iproyal.mobile.sticky_session')),
+                ])
+                ->visible(fn(Forms\Get $get) => $get('configuration.iproyal.proxy_type') === 'mobile')
+                ->dehydrated(true),
+        ];
+    }
+
+    protected static function getSmartdailiSchema(): array
+    {
+        return [
+
+            Forms\Components\Select::make('configuration.smartdaili.mode')
+                ->options([
+                    'flow' => '账密模式',
+                ])
+                ->required()
+                ->default('flow')
+                ->helperText('选择代理模式'),
+
+            Forms\Components\TextInput::make('configuration.smartdaili.username')
+                ->label('用户名')
+                ->required()
+                ->helperText('Smartdaili代理用户名'),
+
+            Forms\Components\TextInput::make('configuration.smartdaili.password')
+                ->label('密码')
+                ->password()
+                ->required()
+                ->helperText('Smartdaili代理密码'),
+
+            Forms\Components\TextInput::make('configuration.smartdaili.endpoint')
+                ->label('代理服务器')
+                ->required()
+                ->helperText('Smartdaili代理服务器地址'),
+
+            Forms\Components\TextInput::make('configuration.smartdaili.port')
+                ->label('端口')
+                ->required()
+                ->numeric()
+                ->helperText('Smartdaili代理端口'),
+
+            Forms\Components\Select::make('configuration.smartdaili.protocol')
+                ->label('代理协议')
+                ->options([
+                    'http'   => 'HTTP/HTTPS',
+                    'socks5' => 'SOCKS5',
+                ])
+                ->default('http')
+                ->required()
+                ->helperText('选择代理协议类型'),
         ];
     }
 
