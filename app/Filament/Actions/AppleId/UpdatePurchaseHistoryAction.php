@@ -50,6 +50,14 @@ class UpdatePurchaseHistoryAction extends Action
             });
     }
 
+    /**
+     * @param Account $account
+     * @return void
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws \Illuminate\Contracts\Container\CircularDependencyException
+     * @throws \Saloon\Exceptions\Request\FatalRequestException
+     * @throws \Saloon\Exceptions\Request\RequestException
+     */
     protected function handle(Account $account): void
     {
         $apple           = app(AppleBuilder::class)->build($account->toAccount());

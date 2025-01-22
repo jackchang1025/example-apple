@@ -3,6 +3,9 @@
 use Modules\IpProxyManager\Service\HuaSheng\Dto\ExtractDto;
 use Modules\IpProxyManager\Service\HuaSheng\HuaShengConnector;
 use Modules\IpProxyManager\Service\HuaSheng\Requests\ExtractRequest;
+use Modules\IpProxyManager\Service\Smartdaili\DTO\ProxyDto;
+use Modules\IpProxyManager\Service\Smartdaili\Request\ProxyRequest;
+use Modules\IpProxyManager\Service\Smartdaili\SmartdailiConnector;
 use Modules\IpProxyManager\Service\Stormproxies\StormConnector;
 use Modules\IpProxyManager\Service\Wandou\DTO\AccountPasswordDto;
 use Modules\IpProxyManager\Service\Wandou\DTO\DynamicDto;
@@ -116,6 +119,59 @@ return [
                         'nr'      => 0,            // 可选,自动去重
                         'area_id' => 0,       // 可选,地区id
                         'isp'     => 0,           // 可选,运营商
+                    ],
+                ],
+            ],
+        ],
+        'iproyal' => [
+            'connector' => \Modules\IpProxyManager\Service\IpRoyal\IpRoyalConnector::class,
+            'mode'      => [
+                'residential' => [
+                    'dto'            => \Modules\IpProxyManager\Service\IpRoyal\DTO\ProxyDto::class,
+                    'request'        => \Modules\IpProxyManager\Service\IpRoyal\Request\ProxyRequest::class,
+                    'default_config' => [
+                        'protocol'         => 'http',
+                        'sticky_session'   => false,
+                        'session_duration' => 10,
+                        'streaming'        => false,
+                        'skip_isp_static'  => false,
+                        'skip_ips_list'    => null,
+                        'endpoint'         => 'geo.iproyal.com',
+                    ],
+                ],
+                'datacenter'  => [
+                    'dto'            => \Modules\IpProxyManager\Service\IpRoyal\DTO\ProxyDto::class,
+                    'request'        => \Modules\IpProxyManager\Service\IpRoyal\Request\ProxyRequest::class,
+                    'default_config' => [
+                        'protocol'         => 'http',
+                        'sticky_session'   => false,
+                        'session_duration' => 10,
+                        'endpoint'         => 'dc.iproyal.com',
+                        'port'             => 12321,
+                    ],
+                ],
+                'mobile'      => [
+                    'dto'            => \Modules\IpProxyManager\Service\IpRoyal\DTO\ProxyDto::class,
+                    'request'        => \Modules\IpProxyManager\Service\IpRoyal\Request\ProxyRequest::class,
+                    'default_config' => [
+                        'protocol'         => 'http',
+                        'sticky_session'   => false,
+                        'session_duration' => 10,
+                        'endpoint'         => 'mobile.iproyal.com',
+                        'port'             => 12321,
+                    ],
+                ],
+            ],
+        ],
+        'smartdaili' => [
+            'driver'    => 'smartdaili',
+            'connector' => SmartdailiConnector::class,
+            'mode'      => [
+                'flow' => [
+                    'request'        => ProxyRequest::class,
+                    'dto'            => ProxyDto::class,
+                    'default_config' => [
+
                     ],
                 ],
             ],

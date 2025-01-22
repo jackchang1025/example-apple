@@ -23,7 +23,7 @@ class LoginAction extends Action
 {
     public static function getDefaultName(): ?string
     {
-        return 'login';
+        return 'apple_id_login';
     }
 
     protected function setUp(): void
@@ -32,7 +32,6 @@ class LoginAction extends Action
 
         $this->label('登陆')
             ->icon('heroicon-o-user-group')
-            ->modalHeading('login')
             ->modalSubmitActionLabel('确认')
             ->modalCancelActionLabel('取消')
             ->successNotificationTitle('登陆成功')
@@ -71,6 +70,7 @@ class LoginAction extends Action
             ->beforeFormFilled(function () {
                 try {
 
+                    dd(1);
                     /**
                      * @var Account $account
                      */

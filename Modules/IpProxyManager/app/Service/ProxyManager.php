@@ -99,21 +99,26 @@ class ProxyManager extends Manager
         $config = $this->getActiveConfiguration();
 
         if ($driver !== null) {
-            // 如果指定了驱动，使用活动配置中该驱动的配置
             if (!isset($config[$driver])) {
                 throw new ProxyConfigurationNotFoundException("Driver {$driver} not configured");
             }
-
-            // 修改驱动但保持其他配置
             $config['default_driver'] = $driver;
         }
 
-        $driver       = $config['default_driver'];
+        $driver = $config['default_driver'];
         $driverConfig = $config[$driver] ?? [];
 
         if (empty($driver)) {
             throw new ProxyConfigurationNotFoundException("Driver is not empty");
         }
+
+        // 获取当前激活的代理类型配置
+        if ($driver === 'iproyal') {
+            $activeType           = $driverConfig['active_type'] ?? 'residential';
+            $driverConfig         = array_merge($driverConfig, $driverConfig[$activeType] ?? []);
+            $driverConfig['mode'] = $activeType;
+        }
+
 
         // 检查并获取模式
         if (empty($driverConfig['mode'])) {

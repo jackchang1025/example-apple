@@ -6,7 +6,7 @@ use App\Models\Account;
 use App\Models\Payment;
 use Exception;
 use Filament\Actions\Action;
-use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Log;
 use Modules\AppleClient\Service\AppleBuilder;
 
 class UpdatePaymentAction extends Action
@@ -24,6 +24,7 @@ class UpdatePaymentAction extends Action
             ->icon('heroicon-o-user-group')
             ->modalSubmitActionLabel('确认')
             ->modalCancelActionLabel('取消')
+            ->successNotificationTitle('更新支付方式成功')
             ->action(function () {
 
                 try {
@@ -35,21 +36,25 @@ class UpdatePaymentAction extends Action
 
                     $this->handle($account);
 
-                    Notification::make()
-                        ->title('更新支付方式成功')
-                        ->success()
-                        ->send();
+                    $this->success();
 
                 } catch (Exception $e) {
 
-                    Notification::make()
-                        ->title($e->getMessage())
-                        ->warning()
-                        ->send();
+                    Log::error($e);
+                    $this->failureNotificationTitle($e->getMessage());
+                    $this->failure();
                 }
             });
     }
 
+    /**
+     * @param Account $account
+     * @return void
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws \Illuminate\Contracts\Container\CircularDependencyException
+     * @throws \Saloon\Exceptions\Request\FatalRequestException
+     * @throws \Saloon\Exceptions\Request\RequestException
+     */
     protected function handle(Account $account): void
     {
 

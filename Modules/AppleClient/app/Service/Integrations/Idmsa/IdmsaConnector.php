@@ -7,14 +7,11 @@
 
 namespace Modules\AppleClient\Service\Integrations\Idmsa;
 
-use Illuminate\Support\Facades\Log;
 use Modules\AppleClient\Service\Apple;
 use Modules\AppleClient\Service\Cookies\CookieAuthenticator;
 use Modules\AppleClient\Service\Header\HeaderSynchronizeInterface;
 use Modules\AppleClient\Service\Integrations\AppleConnector;
 use Modules\AppleClient\Service\Integrations\Idmsa\Resources\AuthenticateResources;
-use Saloon\Http\PendingRequest;
-use Saloon\Http\Response;
 
 class IdmsaConnector extends AppleConnector
 {
@@ -55,7 +52,7 @@ class IdmsaConnector extends AppleConnector
             'Origin'                      => $this->resolveBaseUrl(),
             'Referer'                     => $this->resolveBaseUrl(),
             'Accept'                      => 'application/json, text/javascript, */*; q=0.01',
-            'Accept-Language'             => 'zh-CN,en;q=0.9,zh;q=0.8',
+            // 'Accept-Language'             => 'zh-CN,en;q=0.9,zh;q=0.8',
             'User-Agent'                  => 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36',
             'Content-Type'                => 'application/json',
             'Priority'                    => 'u=1, i',
@@ -63,7 +60,7 @@ class IdmsaConnector extends AppleConnector
             'Sec-Ch-Ua-Mobile'            => '?0',
             'Sec-Ch-Ua-Platform'          => 'Windows',
             'Connection'                  => 'Keep-Alive',
-            'X-Apple-I-TimeZone'          => 'Asia/Shanghai',
+            // 'X-Apple-I-TimeZone'          => 'Asia/Shanghai',
             'Sec-Fetch-Site'              => 'same-origin',
             'Sec-Fetch-Mode'              => 'cors',
             'Sec-Fetch-Dest'              => 'empty',

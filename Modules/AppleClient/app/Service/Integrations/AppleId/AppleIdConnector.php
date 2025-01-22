@@ -7,19 +7,16 @@
 
 namespace Modules\AppleClient\Service\Integrations\AppleId;
 
-use Illuminate\Support\Facades\Log;
 use Modules\AppleClient\Service\Apple;
 use Modules\AppleClient\Service\Cookies\CookieAuthenticator;
 use Modules\AppleClient\Service\Header\HeaderSynchronizeInterface;
 use Modules\AppleClient\Service\Integrations\AppleConnector;
+use Modules\AppleClient\Service\Integrations\AppleId\Resources\AccountManagerResource;
 use Modules\AppleClient\Service\Integrations\AppleId\Resources\AuthenticateResources;
 use Modules\AppleClient\Service\Integrations\AppleId\Resources\BootstrapResources;
 use Modules\AppleClient\Service\Integrations\AppleId\Resources\PaymentResources;
 use Modules\AppleClient\Service\Integrations\AppleId\Resources\SecurityDevicesResources;
 use Modules\AppleClient\Service\Integrations\AppleId\Resources\SecurityPhoneResources;
-use Saloon\Contracts\Authenticator;
-use Saloon\Http\PendingRequest;
-use Saloon\Http\Response;
 
 class AppleIdConnector extends AppleConnector
 {
@@ -51,9 +48,9 @@ class AppleIdConnector extends AppleConnector
             'Connection' => 'Keep-Alive',
             'Content-Type' => 'application/json',
             'Accept' => 'application/json, text/plain, */*',
-            'Accept-Language' => 'zh-CN,en;q=0.9,zh;q=0.8',
+            // 'Accept-Language' => 'zh-CN,en;q=0.9,zh;q=0.8',
             'X-Apple-I-Request-Context' => 'ca',
-            'X-Apple-I-TimeZone' => 'Asia/Shanghai',
+            // 'X-Apple-I-TimeZone' => 'Asia/Shanghai',
             'Sec-Fetch-Site' => 'same-origin',
             'Sec-Fetch-Mode' => 'cors',
             'Sec-Fetch-Dest' => 'empty',
@@ -93,5 +90,10 @@ class AppleIdConnector extends AppleConnector
     public function getSecurityPhoneResources(): SecurityPhoneResources
     {
         return new SecurityPhoneResources($this);
+    }
+
+    public function getAccountManagerResources(): AccountManagerResource
+    {
+        return new AccountManagerResource($this);
     }
 }
