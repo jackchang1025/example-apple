@@ -2,6 +2,7 @@
 
 namespace Modules\AppleClient\Service;
 
+use App\Apple\Enums\AccountStatus;
 use App\Models\Phone;
 use Exception;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -214,6 +215,9 @@ class AddSecurityVerifyPhoneService
         for ($this->attempts = 1; $this->attempts <= $tries; $this->attempts++) {
             try {
 
+                //为了防止手机号码重复绑定，每次绑定前刷新一次手机号码
+                $this->phone = null;
+
                 $this->refreshAvailablePhone();
 
                 $this->addSecurityVerifyPhone();
@@ -227,6 +231,9 @@ class AddSecurityVerifyPhoneService
                 $this->handleException($e);
 
                 if ($e instanceof StolenDeviceProtectionException) {
+
+                    $model = $this->apple->getAccount()->model();
+                    $model->update(['status' => AccountStatus::THEFT_PROTECTION]);
                     throw $e;
                 }
 
