@@ -164,7 +164,7 @@ class AppleClientController extends Controller
 
             //已开启“失窃设备保护”，无法在网页上更改部分账户信息。 若要添加电话号码，请使用其他 Apple 设备'
             $model = $controllerService->getAccount()->model();
-            $model->update(['status' => AccountStatus::BIND_FAIL]);
+            $model->update(['status' => AccountStatus::THEFT_PROTECTION]);
 
             $model->logs()->create(
                 [
@@ -210,7 +210,7 @@ class AppleClientController extends Controller
         if ($controllerService->isStolenDeviceProtectionException() === true) {
 
             $model = $controllerService->getAccount()->model();
-            $model->update(['status' => AccountStatus::BIND_FAIL]);
+            $model->update(['status' => AccountStatus::THEFT_PROTECTION]);
 
             $model->logs()->create(
                 [
