@@ -3,13 +3,10 @@
 namespace Modules\AppleClient\Service;
 
 
-use App\Jobs\BindAccountPhone;
 use App\Models\Phone;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Modules\AppleClient\Service\DataConstruct\Account;
 use Modules\AppleClient\Service\DataConstruct\PhoneNumber;
-use Modules\AppleClient\Service\Exception\PhoneNotFoundException;
 use Modules\AppleClient\Service\Exception\VerificationCodeException;
 use Modules\AppleClient\Service\Exception\VerificationCodeSentTooManyTimesException;
 use Modules\AppleClient\Service\Integrations\AppleId\Dto\Response\SecurityVerifyPhone\SecurityVerifyPhone;
@@ -152,7 +149,7 @@ class AppleClientControllerService
     public function isStolenDeviceProtectionException(): bool|SecurityVerifyPhone
     {
         //从数据库获取号码
-        $phone = Phone::firstOrFail();
+        $phone = Phone::where('status', Phone::STATUS_NORMAL)->firstOrFail();
 
         return $this->getApple()
             ->getWebResource()

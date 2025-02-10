@@ -2,12 +2,13 @@
 
 namespace Modules\AppleClient\Service\Resources\Web\AppleId;
 
-use Modules\AppleClient\Service\Exception\AppleClientException;
 use Modules\AppleClient\Service\Exception\StolenDeviceProtectionException;
+use Modules\AppleClient\Service\Integrations\AppleId\Dto\Response\AccountManager\AccountManager;
 use Modules\AppleClient\Service\Integrations\AppleId\Dto\Response\SecurityVerifyPhone\SecurityVerifyPhone;
 use Modules\AppleClient\Service\Integrations\AppleId\Dto\Response\Token\Token;
 use Modules\AppleClient\Service\Integrations\AppleId\Dto\Response\ValidatePassword\ValidatePassword;
 use Saloon\Exceptions\Request\FatalRequestException;
+use Saloon\Exceptions\Request\RequestException;
 
 class AccountManagerResource
 {
@@ -23,6 +24,11 @@ class AccountManagerResource
     public function getAppleIdResource(): AppleIdResource
     {
         return $this->appleIdResource;
+    }
+
+    public function account(): AccountManager
+    {
+        return $this->getAppleIdResource()->getAppleIdConnector()->getAccountManagerResources()->account();
     }
 
     /**
@@ -54,7 +60,6 @@ class AccountManagerResource
      * @param string $countryDialCode
      * @return SecurityVerifyPhone|bool
      * @throws FatalRequestException
-     * @throws \Modules\AppleClient\Service\Exception\BindPhoneException|\Saloon\Exceptions\Request\RequestException
      */
     public function isStolenDeviceProtectionException(
         string $countryCode,
@@ -72,7 +77,7 @@ class AccountManagerResource
                 countryDialCode: $countryDialCode
             );
 
-        } catch (AppleClientException $e) {
+        } catch (RequestException $e) {
 
             return $e instanceof StolenDeviceProtectionException;
         }

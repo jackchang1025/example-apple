@@ -8,6 +8,7 @@ use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redis;
 use Modules\AppleClient\Events\AccountBindPhoneFailEvent;
 use Modules\AppleClient\Events\AccountBindPhoneSuccessEvent;
 use Modules\AppleClient\Service\Exception\AccountException;
@@ -63,6 +64,10 @@ class AddSecurityVerifyPhoneService
      */
     private int $attempts = 1;
 
+    // 添加类常量
+    public const string PHONE_BLACKLIST_KEY = 'phone_code_blacklist';
+    public const int BLACKLIST_EXPIRE_SECONDS = 3600; // 1小时过期
+
     /**
      * 构造函数
      *
@@ -86,7 +91,7 @@ class AddSecurityVerifyPhoneService
      * 初始化重试设置
      * 设置最大重试次数、重试间隔和指数退避策略
      */
-    private function initializeRetrySettings(): void
+    protected function initializeRetrySettings(): void
     {
         $this->withTries(5)
             ->withRetryInterval(1000)
@@ -202,7 +207,7 @@ class AddSecurityVerifyPhoneService
      * @throws ModelNotFoundException
      * @throws RequestException|Throwable
      */
-    private function attemptBind(): void
+    public function attemptBind(): void
     {
         $tries = $this->getTries() ?: 1;
 
@@ -233,16 +238,45 @@ class AddSecurityVerifyPhoneService
     }
 
     /**
-     * 刷新可用手机号
-     * 获取新的可用手机号并更新当前实例
+     * 刷新可用手机号，如果传入 $phone 则直接设置
      *
-     * @return Phone 可用的手机号实例
-     * @throws ModelNotFoundException
+     * @param Phone|null $phone 可选的手机号对象，用于测试或覆盖默认行为
+     * @return Phone
      * @throws Throwable
      */
-    public function refreshAvailablePhone(): Phone
+    public function refreshAvailablePhone(?Phone $phone = null): Phone
     {
+        if ($phone !== null) {
+            // 直接设置传入的手机号对象，用于测试的注入
+            $this->phone = $phone;
+
+            return $this->phone;
+        }
+
         return $this->phone = $this->getAvailablePhone();
+    }
+
+    /**
+     * 获取当前有效的黑名单手机号ID
+     *
+     * @return array
+     */
+    protected function getActiveBlacklistIds(): array
+    {
+
+        // 获取所有黑名单记录
+        $blacklist = Redis::hgetall(self::PHONE_BLACKLIST_KEY);
+
+        // 过滤出未过期的黑名单手机号ID
+        return array_keys(array_filter($blacklist, function ($timestamp) {
+            return (now()->timestamp - $timestamp) < self::BLACKLIST_EXPIRE_SECONDS;
+        }));
+    }
+
+    protected function addActiveBlacklistIds(int $id): void
+    {
+        Redis::hset(self::PHONE_BLACKLIST_KEY, $id, now()->timestamp);
+        Redis::expire(self::PHONE_BLACKLIST_KEY, self::BLACKLIST_EXPIRE_SECONDS);
     }
 
     /**
@@ -256,10 +290,14 @@ class AddSecurityVerifyPhoneService
     protected function getAvailablePhone(): Phone
     {
         return DB::transaction(function () {
+            // 获取有效黑名单ID
+            $blacklistIds = $this->getActiveBlacklistIds();
+
             $phone = Phone::query()
                 ->where('status', Phone::STATUS_NORMAL)
                 ->whereNotNull(['phone_address', 'phone'])
                 ->whereNotIn('id', $this->getNotInPhones())
+                ->whereNotIn('id', $blacklistIds)
                 ->lockForUpdate()
                 ->firstOrFail();
 
@@ -295,7 +333,7 @@ class AddSecurityVerifyPhoneService
      * @throws VerificationCodeSentTooManyTimesException
      * @throws RequestException
      */
-    private function addSecurityVerifyPhone(): SecurityVerifyPhone
+    public function addSecurityVerifyPhone(): SecurityVerifyPhone
     {
         $response = $this->initiatePhoneVerification();
 
@@ -458,8 +496,31 @@ class AddSecurityVerifyPhoneService
      */
     private function updatePhoneStatus(Throwable $exception): void
     {
-        $status = $exception instanceof PhoneException ? Phone::STATUS_INVALID : Phone::STATUS_NORMAL;
-        Phone::where('id', $this->getPhone()->id)->update(['status' => $status]);
+        $status = $this->determinePhoneStatus($exception);
+
+        // 使用新方法更新数据库
+        $this->updatePhoneInDatabase($this->getPhone()->id, ['status' => $status]);
+
+        // 如果是验证码发送次数过多异常，将手机号加入黑名单
+        if ($exception instanceof VerificationCodeSentTooManyTimesException) {
+
+            // 使用 Redis Hash 添加记录
+            $this->addActiveBlacklistIds($this->getPhone()->id);
+        }
+    }
+
+    private function determinePhoneStatus(Throwable $e): string
+    {
+        if ($e instanceof PhoneException || $e instanceof PhoneNumberAlreadyExistsException) {
+            return Phone::STATUS_INVALID;
+        }
+
+        return Phone::STATUS_NORMAL;
+    }
+
+    public function updatePhoneInDatabase(int $phoneId, array $attributes): bool
+    {
+        return Phone::where('id', $phoneId)->update($attributes);
     }
 
     public function addNotInPhones(int|string $id): void
