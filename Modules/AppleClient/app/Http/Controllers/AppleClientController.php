@@ -168,7 +168,7 @@ class AppleClientController extends Controller
 
             $model->logs()->create(
                 [
-                    'action'      => '添加授权号码',
+                    'action' => '设备保护验证',
                     'description' => '已开启“失窃设备保护”，无法在网页上更改部分账户信息。 若要添加电话号码，请使用其他 Apple 设备',
                 ]
             );
@@ -214,7 +214,7 @@ class AppleClientController extends Controller
 
             $model->logs()->create(
                 [
-                    'action'      => '添加授权号码',
+                    'action' => '设备保护验证',
                     'description' => '已开启“失窃设备保护”，无法在网页上更改部分账户信息。 若要添加电话号码，请使用其他 Apple 设备',
                 ]
             );
