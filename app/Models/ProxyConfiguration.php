@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $name
@@ -43,6 +43,8 @@ class ProxyConfiguration extends Model
 
     protected $casts = [
         'configuration' => 'array',
+        'proxy_enabled'     => 'boolean',
+        'ipaddress_enabled' => 'boolean',
         'is_active' => 'boolean',
     ];
 

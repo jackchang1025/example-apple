@@ -2,18 +2,18 @@
 
 namespace Modules\AppleClient\Service\Integrations\AppleId\Resources;
 
-use Modules\AppleClient\Service\Integrations\AppleId\Dto\Request\AddPayment\AddCardPayment;
+use Modules\AppleClient\Service\Integrations\AppleId\Dto\Request\AddPayment\Card\AddCardPayment;
 use Modules\AppleClient\Service\Integrations\AppleId\Dto\Response\Payment\PaymentConfig;
-use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\Payment\AddPaymentCardRequest;
+use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\Payment\Card\AddCardRequest;
 use Modules\AppleClient\Service\Integrations\AppleId\Request\AccountManage\Payment\PaymentRequest;
 use Modules\AppleClient\Service\Integrations\BaseResource;
 use Modules\AppleClient\Service\Response\Response;
 
 class PaymentResources extends BaseResource
 {
-    public function addPayment(AddCardPayment $data): Response
+    public function addCardPayment(AddCardPayment $data): Response
     {
-        return $this->connector->send(new AddPaymentCardRequest($data));
+        return $this->connector->send(new AddCardRequest($data));
     }
 
     /**

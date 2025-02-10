@@ -2,50 +2,28 @@
 
 namespace Modules\AppleClient\Service\Integrations\AppleId\Dto\Response\AccountManager;
 
-
 use Modules\AppleClient\Service\DataConstruct\Data;
 
-/**
- * 主电子邮件地址数据类
- */
 class PrimaryEmailAddress extends Data
 {
     public function __construct(
-        /**
-         * 电子邮件地址
-         * @var string
-         */
-        public string $address,
+        /** @var string 邮箱地址 */
+        public string $emailAddress = '',
 
-        /**
-         * 地址 ID
-         * @var string
-         */
-        public string $id,
+        /** @var bool 是否已验证 */
+        public bool $verified = false,
 
-        /**
-         * 地址类型
-         * @var string
-         */
-        public string $type,
+        /** @var bool 是否为主要邮箱 */
+        public bool $primary = true,
 
-        /**
-         * 验证状态
-         * @var VettingStatus
-         */
-        public VettingStatus $vettingStatus,
+        /** @var bool 是否可编辑 */
+        public bool $editable = false,
 
-        /**
-         * 是否与账户名称相同
-         * @var bool
-         */
-        public bool $isEmailSameAsAccountName,
+        /** @var bool 是否隐藏 */
+        public bool $hidden = false,
 
-        /**
-         * 是否已验证
-         * @var bool
-         */
-        public bool $vetted,
+        /** @var array 邮箱选项 */
+        public array $options = []
     ) {
     }
 }

@@ -31,21 +31,31 @@ class LeaveFamilyAction extends Action
             ->requiresConfirmation('确定要退出当前家庭吗？退出后将失去所有家庭共享权益。？')
             ->successNotificationTitle('成功退出家庭共享组')
             ->action(function () {
-                $relationManager = $this->getLivewire();
-                $record          = $relationManager->ownerRecord;
+
+                /**
+                 * @var Account $account
+                 */
+                $account = $this->getRecord();
 
                 try {
-                    $this->handle($record);
+                    $this->handle($account);
 
                     $this->success();
 
                 } catch (Exception $e) {
                     Log::error($e);
-                    $this->failureNotificationTitle($e->getMessage())->sendFailureNotification();
+                    $this->failureNotificationTitle($e->getMessage());
+                    $this->failure();
                 }
             });
     }
 
+    /**
+     * @param Account $account
+     * @return void
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws \Illuminate\Contracts\Container\CircularDependencyException
+     */
     protected function handle(Account $account): void
     {
         FamilyService::make($account)

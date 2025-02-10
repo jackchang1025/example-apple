@@ -1,30 +1,32 @@
 <?php
 
-namespace App\Filament\Actions\Icloud;
+namespace App\Filament\Actions\AppleId;
 
 use App\Models\Account;
-use App\Services\FamilyService;
+use App\Models\AccountManager;
+use Exception;
 use Filament\Actions\Action;
 use Illuminate\Support\Facades\Log;
+use Modules\AppleClient\Service\AppleBuilder;
+use Modules\AppleClient\Service\Integrations\AppleId\Dto\Response\AccountManager\AccountManager as AccountManagerDto;
 
-class UpdateFamilyAction extends Action
+class UpdateAccountAction extends Action
 {
     public static function getDefaultName(): ?string
     {
-        return 'updateFamilyMember';
+        return 'update-account';
     }
 
     protected function setUp(): void
     {
         parent::setUp();
 
-
-        $this->label('更新家庭共享成员')
+        $this->label('更新账户')
             ->icon('heroicon-o-user-group')
-            ->successNotificationTitle('更新家庭共享组成功')
             ->modalSubmitActionLabel('确认')
             ->modalCancelActionLabel('取消')
-            ->action(function () {
+            ->successNotificationTitle('更新账户成功')
+            ->action(function (\App\Filament\Pages\SecuritySettings $livewire) {
 
                 try {
 
@@ -37,7 +39,7 @@ class UpdateFamilyAction extends Action
 
                     $this->success();
 
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
 
                     Log::error($e);
                     $this->failureNotificationTitle($e->getMessage());
@@ -54,15 +56,18 @@ class UpdateFamilyAction extends Action
      */
     protected function handle(Account $account): void
     {
-        $familyService = FamilyService::make($account);
+        $apple = app(AppleBuilder::class)->build($account->toAccount());
 
-        $familyInfo = $familyService->getFamilyInfo();
+        /** @var AccountManagerDto $accountManager */
+        $accountManager = $apple->getWebResource()
+            ->getAppleIdResource()
+            ->getAccountManagerResource()
+            ->account();
 
-        //delete family
-        $familyService->deleteFamilyData();
-
-        // Update family information
-        $familyService->updateFamilyData($familyInfo);
-
+        // 更新或创建 AccountManager 记录
+        AccountManager::updateOrCreate(
+            ['account_id' => $account->id],
+            $accountManager->toArray()
+        );
     }
 }

@@ -3,50 +3,33 @@
 namespace Modules\AppleClient\Service\Integrations\AppleId\Dto\Response\AccountManager\Security;
 
 use Modules\AppleClient\Service\DataConstruct\Data;
-use Spatie\LaravelData\Attributes\DataCollectionOf;
-use Spatie\LaravelData\DataCollection;
 
 class Security extends Data
 {
     public function __construct(
-
-        /** @var Device[] 设备列表 */
-        #[DataCollectionOf(Device::class)]
-        public DataCollection $devices,
-
-        /** @var bool 是否支持设备注销 */
-        public bool $supportsDeviceSignout,
-
-        /** @var int 最大允许的可信电话号码数量 */
-        public int $maxAllowedTrustedPhones,
-
-        /** @var array 密码策略 */
-        public array $passwordPolicy,
-
-        /** @var bool 是否符合 HSA2 资格 */
-        public bool $hsa2Eligible,
+        /** @var bool 是否启用双重认证 */
+        public bool $twoFactorAuthEnabled = false,
 
         /** @var bool 是否存在安全问题 */
-        public bool $questionsPresent,
+        public bool $securityQuestionsExist = false,
 
-        /** @var bool 是否允许 HSA 退出 */
-        public bool $allowHSAOptOut,
+        /** @var bool 是否可以重置密码 */
+        public bool $passwordResetEligible = false,
 
-        /** @var bool 是否有辅助密码 */
-        public bool $hasSecondaryPassword,
+        /** @var array 受信任的手机号码 */
+        public array $trustedPhoneNumbers = [],
 
-        /** @var bool HSA 注册是否受限制 */
-        public bool $isHSAEnrollmentEmbargoed,
+        /** @var bool 是否启用恢复密钥 */
+        public bool $recoveryKeyEnabled = false,
 
-        /** @var bool 联系邮箱是否已验证 */
-        public bool $isContactEmailVerified,
+        /** @var bool 是否需要额外验证 */
+        public bool $additionalAuthenticationRequired = false,
 
-        /** @var PhoneNumber[] 电话号码列表 */
-        #[DataCollectionOf(PhoneNumber::class)]
-        public DataCollection $phoneNumbers,
+        /** @var array 安全设置历史 */
+        public array $securityHistory = [],
 
-        /** @var string 出生日期 */
-        public string $birthday
+        /** @var string 最后更新时间 */
+        public string $lastUpdated = ''
     ) {
     }
 }

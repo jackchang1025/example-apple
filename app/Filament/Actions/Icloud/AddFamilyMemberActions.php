@@ -193,11 +193,22 @@ class AddFamilyMemberActions extends Action
                     $this->success();
                 } catch (Exception $e) {
                     Log::error($e);
+                    $this->failureNotificationTitle($e->getMessage());
                     $this->failure();
                 }
             });
     }
 
+    /**
+     * @param Account $account
+     * @param array $data
+     * @return void
+     * @throws \App\Exceptions\Family\FamilyException
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws \Illuminate\Contracts\Container\CircularDependencyException
+     * @throws \Illuminate\Validation\ValidationException
+     * @throws \Throwable
+     */
     protected function handle(Account $account, array $data): void
     {
         if (!empty($data['account_id'])) {

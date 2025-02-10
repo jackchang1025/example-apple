@@ -2,7 +2,6 @@
 
 namespace Modules\AppleClient\Service\Integrations\AppleId\Dto\Response\AccountManager;
 
-
 use Modules\AppleClient\Service\DataConstruct\Data;
 
 /**
@@ -15,49 +14,49 @@ class AppleID extends Data
          * Apple ID 名称
          * @var string
          */
-        public string $name,
+        public string $name = '',
 
         /**
          * 格式化的账户名称
          * @var string
          */
-        public string $formattedAccountName,
+        public string $formattedAccountName = '',
 
         /**
          * 是否为非 FTEU 启用
          * @var bool
          */
-        public bool $nonFTEUEnabled,
+        public bool $nonFTEUEnabled = false,
 
         /**
          * 模糊化的 Apple ID
          * @var string
          */
-        public string $obfuscatedAppleId,
+        public string $obfuscatedAppleId = '',
 
         /**
          * 是否可编辑
          * @var bool
          */
-        public bool $editable,
+        public bool $editable = false,
 
         /**
          * 账户名称
          * @var string
          */
-        public string $accountName,
+        public string $accountName = '',
 
         /**
          * 是否为 Apple 拥有的域名
          * @var bool
          */
-        public bool $appleOwnedDomain,
+        public bool $appleOwnedDomain = false,
 
         /**
          * 域名
          * @var string
          */
-        public string $domain,
+        public string $domain = '',
     ) {
     }
 }

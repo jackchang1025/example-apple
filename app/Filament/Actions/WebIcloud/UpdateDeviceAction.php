@@ -40,11 +40,18 @@ class UpdateDeviceAction extends Action
                 } catch (\Exception $e) {
 
                     Log::error($e);
-                    $this->failureNotificationTitle($e->getMessage())->sendFailureNotification();
+                    $this->failureNotificationTitle($e->getMessage());
+                    $this->failure();
                 }
             });
     }
 
+    /**
+     * @param Account $account
+     * @return void
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws \Illuminate\Contracts\Container\CircularDependencyException
+     */
     protected function handle(Account $account): void
     {
         $apple = app(AppleBuilder::class)->build($account->toAccount());

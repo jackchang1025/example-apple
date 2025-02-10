@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Filament\Actions\AppleId\LoginAction;
+use App\Filament\Actions\AppleId\UpdateAccountAction;
 use App\Filament\Actions\AppleId\UpdatePaymentAction;
 use App\Filament\Actions\AppleId\UpdatePurchaseHistoryAction;
 use App\Models\Account;
@@ -12,7 +13,6 @@ use Filament\Forms\Form;
 use Filament\Navigation\NavigationItem;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
-use Filament\Pages\SubNavigationPosition;
 use Filament\Support\Exceptions\Halt;
 use Illuminate\Support\Carbon;
 use Modules\AppleClient\Service\AppleBuilder;
@@ -29,7 +29,6 @@ class SecuritySettings extends Page
 
     protected static bool $shouldRegisterNavigation = false;
 
-    protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Start;
 
     // 修改路由定义
     protected static ?string $slug = 'accounts/{record}/security';
@@ -38,13 +37,12 @@ class SecuritySettings extends Page
 
     public ?string $activeTab = 'personal';
 
-    public $birthday = '';
+    public string $birthday = '';
 
-    public $fullName = '';
+    public string $fullName = '';
 
     public ?array $data = [];
 
-    public $showLoginModal = false;
 
     public function mount($record)
     {
@@ -168,7 +166,7 @@ class SecuritySettings extends Page
     {
         return [
 
-            LoginAction::make('login')
+            LoginAction::make('apple_id_login')
                 ->record($this->account)
                 ->closeModalByClickingAway(false)
                 ->visible(fn() => true),
@@ -178,6 +176,9 @@ class SecuritySettings extends Page
 
             UpdatePaymentAction::make('update-payment')
                 ->record($this->account)->visible(fn() => $this->activeTab === 'payment'),
+
+            UpdateAccountAction::make('update-account')
+                ->record($this->account)->visible(fn() => $this->activeTab === 'personal'),
         ];
     }
 

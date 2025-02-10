@@ -24,8 +24,6 @@ class DefaultShippingAddress extends Data
         public StateProvince $stateProvince,
         public string $postalCode,
         public string $countryName,
-        public string $county,
-        public string $suburb,
         public string $recipientFirstName,
         public string $recipientLastName,
         public array $stateProvinces,
@@ -35,6 +33,8 @@ class DefaultShippingAddress extends Data
         public bool $preferred,
         public string $id,
         public string $type,
+        public ?string $county = null,
+        public ?string $suburb = null,
     ) {
     }
 }

@@ -30,7 +30,7 @@ class ProxyRequest extends Request
             'username' => '用户名',
             'password' => '密码',
             'endpoint' => '服务器地址',
-            'port'     => '端口',
+            'port' => '端口',
         ];
 
         foreach ($requiredFields as $field => $name) {
@@ -67,16 +67,16 @@ class ProxyRequest extends Request
         $username = $this->dto->get('username');
         $password = $this->dto->get('password');
         $endpoint = $this->dto->get('endpoint');
-        $port     = $this->dto->get('port');
+        $port = $this->dto->get('port');
         $protocol = $this->dto->get('protocol', 'http');
 
 
         return [
             'username' => $username,
             'password' => $password,
-            'host'     => $endpoint,
-            'port'     => $port,
-            'url'      => $this->buildProxyUrl($username, $password, $endpoint, $port, $protocol),
+            'host' => $endpoint,
+            'port' => $port,
+            'url'  => $this->buildProxyUrl($username, $password, $endpoint, $port, $protocol),
         ];
     }
 

@@ -28,6 +28,7 @@ class CreateFamilySharingAction extends Action
             ->modalDescription('开通家庭共享需要主账号和一个拥有付款帐号，付款帐号也可以是主账号本身')
             ->modalSubmitActionLabel('确认')
             ->modalCancelActionLabel('取消')
+            ->successNotificationTitle('创建家庭共享成功')
             ->closeModalByClickingAway(false)
             ->form([
 
@@ -78,7 +79,11 @@ class CreateFamilySharingAction extends Action
             ->action(function (array $data) {
                 try {
 
-                    $this->handleFamilySharing($this->getRecord(), $data);
+                    /**
+                     * @var Account $account
+                     */
+                    $account = $this->getRecord();
+                    $this->handleFamilySharing($account, $data);
                     $this->success();
 
                 } catch (Exception $e) {

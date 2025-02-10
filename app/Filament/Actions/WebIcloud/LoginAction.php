@@ -6,7 +6,6 @@ use App\Models\Account;
 use Exception;
 use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
-use Filament\Notifications\Notification;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Container\CircularDependencyException;
 use Illuminate\Support\Facades\Log;
@@ -88,6 +87,7 @@ class LoginAction extends Action
             })
             ->action(function (array $data) {
 
+
                 try {
 
                     /**
@@ -103,13 +103,8 @@ class LoginAction extends Action
 
                     Log::error($e);
 
-                    Notification::make()
-                        ->title($e->getMessage())
-                        ->danger()
-                        ->persistent()
-                        ->send();
-
-                    $this->halt();
+                    $this->failureNotificationTitle($e->getMessage());
+                    $this->failure();
                 }
             });
     }
@@ -147,16 +142,16 @@ class LoginAction extends Action
 
     /**
      * @param Account $record
-     * @param $data
+     * @param array $data
      * @return \Modules\AppleClient\Service\Integrations\WebIcloud\Dto\Response\AccountLogin\AccountLogin
      * @throws BindingResolutionException
      * @throws CircularDependencyException
      * @throws FatalRequestException
+     * @throws MaxRetryAttemptsException
+     * @throws PhoneAddressException
      * @throws PhoneNotFoundException
      * @throws RequestException
      * @throws \JsonException
-     * @throws MaxRetryAttemptsException
-     * @throws PhoneAddressException
      * @throws \Throwable
      */
     public function handleAuth(
@@ -178,8 +173,11 @@ class LoginAction extends Action
             $apple->getWebResource()->getIcloudResource()->twoFactorAuthentication();
         }
 
-        $headerRepositories = $apple->getWebResource()->getIcloudResource()->getHeaderSynchronize(
-        )->getHeaderRepositories()->all();
+        $headerRepositories = $apple->getWebResource()
+            ->getIcloudResource()
+            ->getHeaderSynchronize()
+            ->getHeaderRepositories()
+            ->all();
 
         if (empty($headerRepositories['X-Apple-Session-Token'])) {
             throw new \RuntimeException('No X-Apple-Session-Token cookie found');

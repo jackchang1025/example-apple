@@ -41,7 +41,7 @@
                     <p class="text-sm text-gray-500">
                         双重认证
                         <span class="ml-2 px-2 py-1 bg-gray-100 rounded-full text-xs">
-                            {{ $account->accountManager?->config['twoFactorEnabled'] ? '已开启' : '未开启' }}
+                            {{ empty($account->accountManager?->config['twoFactorEnabled']) ? '未开启' : '已开启' }}
                         </span>
                     </p>
                 </div>

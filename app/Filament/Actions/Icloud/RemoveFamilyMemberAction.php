@@ -2,7 +2,6 @@
 
 namespace App\Filament\Actions\Icloud;
 
-use App\Filament\Resources\AccountResource\RelationManagers\FamilyMembersRelationManager;
 use App\Models\Account;
 use App\Models\FamilyMember;
 use App\Services\FamilyService;
@@ -31,28 +30,30 @@ class RemoveFamilyMemberAction extends Action
             ->action(function (FamilyMember $familyMember) {
 
                 /**
-                 * @var FamilyMembersRelationManager $relationManager
+                 * @var Account $account
                  */
-                $relationManager = $this->getLivewire();
-
-                /**
-                 * @var Account $record
-                 */
-                $record = $relationManager->ownerRecord;
-
+                $account = $this->getRecord();
 
                 try {
-                    $this->handle($record, $familyMember);
+                    $this->handle($account, $familyMember);
 
                     $this->success();
 
                 } catch (Exception $e) {
                     Log::error($e);
-                    $this->failureNotificationTitle($e->getMessage())->sendFailureNotification();
+                    $this->failureNotificationTitle($e->getMessage());
+                    $this->failure();
                 }
             });
     }
 
+    /**
+     * @param Account $account
+     * @param FamilyMember $familyMember
+     * @return void
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws \Illuminate\Contracts\Container\CircularDependencyException
+     */
     protected function handle(Account $account, FamilyMember $familyMember): void
     {
         FamilyService::make($account)

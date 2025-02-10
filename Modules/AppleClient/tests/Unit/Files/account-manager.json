@@ -124,41 +124,6 @@
     "localizedBirthday": "October 25, 1996",
     "showHSA2RecoveryKeySection": false,
     "nameOrder": "firstName/lastName",
-    "modules": {
-        "amp-subscriptions-selection": {
-            "url": "https://apps.apple.com/includes/commerce/subscriptions/selection"
-        },
-        "ase-commerce": {
-            "url": "https://apps.apple.com/includes/commerce"
-        },
-        "family-section": {
-            "url": "https://familyws.icloud.apple.com/members"
-        },
-        "amp-buy": {
-            "url": "https://apps.apple.com/includes/commerce/buy"
-        },
-        "amp-subscriptions-price-increase": {
-            "url": "https://apps.apple.com/includes/commerce/subscriptions/price-increase"
-        },
-        "devices": {
-            "url": "https://appleid.apple.com/widget/module/devices"
-        },
-        "amp-subscriptions": {
-            "url": "https://apps.apple.com/includes/commerce/subscriptions"
-        },
-        "amp-subscriptions-privacy": {
-            "url": "https://apps.apple.com/includes/commerce/subscriptions/privacy"
-        },
-        "amp-subscriptions-impact-messaging": {
-            "url": "https://apps.apple.com/includes/commerce/subscriptions/impact-messaging"
-        },
-        "family-memberDetails": {
-            "url": "https://familyws.icloud.apple.com/member-details"
-        },
-        "family-unlink": {
-            "url": "https://familyws.icloud.apple.com/confirm-unlink"
-        }
-    },
     "alternateEmailAddresses": [],
     "countriesWithPhoneNumberRemovalRestriction": [
         {

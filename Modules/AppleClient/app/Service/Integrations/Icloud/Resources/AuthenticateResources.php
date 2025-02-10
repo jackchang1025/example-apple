@@ -8,6 +8,7 @@ use Modules\AppleClient\Service\Integrations\BaseResource;
 use Modules\AppleClient\Service\Integrations\Icloud\Dto\Response\Authenticate\Authenticate;
 use Modules\AppleClient\Service\Integrations\Icloud\Dto\Response\LoginDelegates\LoginDelegates;
 use Modules\AppleClient\Service\Integrations\Icloud\Request\AuthenticateRequest;
+use Modules\AppleClient\Service\Integrations\Icloud\Request\LoginDelegatesRequest;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
 
@@ -47,7 +48,7 @@ class AuthenticateResources extends BaseResource
     ): LoginDelegates
     {
         return $this->getConnector()
-            ->send(new LoginDelegatesRequestTest($appleId, $password, $authCode, $clientId, $protocolVersion))
+            ->send(new LoginDelegatesRequest($appleId, $password, $authCode, $clientId, $protocolVersion))
             ->dto();
     }
 }

@@ -6,7 +6,6 @@ use App\Models\Account;
 use Exception;
 use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
-use Filament\Notifications\Notification;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Container\CircularDependencyException;
 use Illuminate\Support\Facades\Log;
@@ -104,13 +103,8 @@ class LoginAction extends Action
 
                     Log::error($e);
 
-                    Notification::make()
-                        ->title($e->getMessage())
-                        ->danger()
-                        ->persistent()
-                        ->send();
-
-                    $this->halt();
+                    $this->failureNotificationTitle($e->getMessage());
+                    $this->failure();
                 }
             });
     }
@@ -120,6 +114,7 @@ class LoginAction extends Action
         return Action::make('resendDeviceCode')
             ->label('发送设备验证码')
             ->color('warning')
+            ->successNotificationTitle('验证码已重新发送')
             ->action(function () {
 
                 try {
@@ -133,7 +128,7 @@ class LoginAction extends Action
 
                     $apple->getWebResource()->getIdmsaResource()->signIn();
 
-                    $this->successNotificationTitle('验证码已重新发送')->sendSuccessNotification();
+                    $this->success();
 
                 } catch (Exception $e) {
 
@@ -162,9 +157,9 @@ class LoginAction extends Action
 
         $webAuthenticate = $apple->getWebResource()->getIdmsaResource();
 
-        $auth = $webAuthenticate->getAuth();
-
         if (empty($data['authorizationCode'])) {
+
+            $auth = $webAuthenticate->getAuth();
             if ($auth->hasTrustedDevices()) {
                 throw new \RuntimeException('此账号设备在线，无法使用手机验证码授权，请使用设备验证码登录');
             }

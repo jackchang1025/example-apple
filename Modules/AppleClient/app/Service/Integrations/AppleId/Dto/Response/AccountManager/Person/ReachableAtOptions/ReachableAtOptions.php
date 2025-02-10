@@ -4,8 +4,8 @@ namespace Modules\AppleClient\Service\Integrations\AppleId\Dto\Response\AccountM
 
 
 use Modules\AppleClient\Service\DataConstruct\Data;
-use Modules\AppleClient\Service\Integrations\AppleId\Dto\Response\AccountManager\Account\AppleID;
-use Modules\AppleClient\Service\Integrations\AppleId\Dto\Response\AccountManager\Account\PrimaryEmailAddress;
+use Modules\AppleClient\Service\Integrations\AppleId\Dto\Response\AccountManager\AppleID;
+use Modules\AppleClient\Service\Integrations\AppleId\Dto\Response\AccountManager\PrimaryEmailAddress;
 
 /**
  * 可达选项数据类
@@ -37,11 +37,7 @@ class ReachableAtOptions extends Data
          */
         public ContactInformationOptions $contactInformationOptions,
 
-        /**
-         * 电话号码列表
-         * @var array
-         */
-        public array $phoneNumbers,
+
 
         /**
          * 账户名称是否可编辑
@@ -144,6 +140,12 @@ class ReachableAtOptions extends Data
          * @var string
          */
         public string $accountName,
+
+        /**
+         * 电话号码列表
+         * @var array
+         */
+        public array $phoneNumbers = [],
     ) {
     }
 }

@@ -70,7 +70,6 @@ class LoginAction extends Action
             ->beforeFormFilled(function () {
                 try {
 
-                    dd(1);
                     /**
                      * @var Account $account
                      */
