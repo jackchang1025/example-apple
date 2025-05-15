@@ -14,7 +14,6 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
@@ -24,17 +23,13 @@ use Modules\AppleClient\Service\DataConstruct\PhoneNumber;
 use Modules\AppleClient\Service\Exception\StolenDeviceProtectionException;
 use Modules\AppleClient\Service\Exception\VerificationCodeException;
 use Modules\AppleClient\Service\Exception\VerificationCodeSentTooManyTimesException;
-use Modules\Phone\Services\HasPhoneNumber;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
-use Weijiajia\IpAddress\IpAddressManager;
 use App\Models\Account;
-use Saloon\CachePlugin\Drivers\LaravelCacheDriver;
 class AppleClientController extends Controller
 {
-    use HasPhoneNumber;
 
     public function __construct(
         protected readonly Request $request,

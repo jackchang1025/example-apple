@@ -1,22 +1,14 @@
 <?php
 
-namespace Modules\Phone\Rules;
+namespace App\Rules;
 
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Facades\Validator;
-use Modules\Phone\Services\PhoneNumberFactory;
-use Modules\Phone\Services\PhoneService;
+use Propaganistas\LaravelPhone\PhoneNumber;
 
 class EmailOrPhoneValidationRule implements ValidationRule
 {
-    protected PhoneService $phoneService;
-
-    public function __construct(protected PhoneNumberFactory $phoneNumberFactory)
-    {
-
-    }
-
     /**
      * Run the validation rule.
      *
@@ -35,9 +27,7 @@ class EmailOrPhoneValidationRule implements ValidationRule
         // If it's not a valid email, check if it's a valid phone number
         try {
 
-            $this->phoneService = $this->phoneNumberFactory->create($value);
-
-            if (!$this->phoneService->isValid()) {
+            if (! (new PhoneNumber($value))->isValid()) {
                 $fail(':attribute 必须是一个有效的电子邮件地址或电话号码.');
             }
         } catch (\Exception $e) {

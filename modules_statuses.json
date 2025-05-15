@@ -1,7 +1,0 @@
-{
-    "PhoneCode": true,
-    "IpAddress": true,
-    "IpProxyManager": true,
-    "AppleClient": false,
-    "Phone": true
-}

@@ -6,13 +6,11 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Client\RequestException;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
-use Modules\AppleClient\Service\Exception\StolenDeviceProtectionException;
-use Modules\AppleClient\Service\Exception\UnauthorizedException;
-use Saloon\Exceptions\Request\Statuses\UnauthorizedException as SaloonUnauthorizedException;
-use Modules\AppleClient\Service\Exception\VerificationCodeException;
+use Saloon\Exceptions\Request\Statuses\UnauthorizedException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Weijiajia\SaloonphpAppleClient\Exception\StolenDeviceProtectionException;
+use Weijiajia\SaloonphpAppleClient\Exception\VerificationCodeException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -42,7 +40,7 @@ return Application::configure(basePath: dirname(__DIR__))
             ]);
         });
 
-        $exceptions->render(function (UnauthorizedException|NotFoundHttpException|SaloonUnauthorizedException $e) {
+        $exceptions->render(function (UnauthorizedException|NotFoundHttpException $e) {
 
             // 检查请求的是否为资源文件
             $path           = request()->path();
@@ -81,5 +79,5 @@ return Application::configure(basePath: dirname(__DIR__))
             ]);
         });
 
-        
+
     })->create();

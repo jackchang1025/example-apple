@@ -7,7 +7,6 @@ use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\Isolatable;
 use Weijiajia\SaloonphpAppleClient\DataConstruct\PhoneNumber;
 use App\Services\AddSecurityVerifyPhoneService;
-use Modules\Phone\Services\PhoneNumberFactory;
 
 class SignIn extends Command implements Isolatable
 {
@@ -31,7 +30,7 @@ class SignIn extends Command implements Isolatable
     /**
      * Execute the console command.
      */
-    public function handle(PhoneNumberFactory $phoneNumberFactory)
+    public function handle()
     {
         $appleId = $this->argument('appleId');
         if(!$appleId){
