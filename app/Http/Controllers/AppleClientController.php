@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Apple\Enums\AccountStatus;
-use App\Http\Controllers\Controller;
 use App\Http\Requests\SmsSecurityCodeRequest;
 use App\Http\Requests\VerifyAccountRequest;
 use App\Http\Requests\VerifySecurityCodeRequest;
@@ -19,15 +18,17 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use JsonException;
 use App\Services\AppleClientControllerService;
-use Modules\AppleClient\Service\DataConstruct\PhoneNumber;
-use Modules\AppleClient\Service\Exception\StolenDeviceProtectionException;
-use Modules\AppleClient\Service\Exception\VerificationCodeException;
-use Modules\AppleClient\Service\Exception\VerificationCodeSentTooManyTimesException;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
 use App\Models\Account;
+use Weijiajia\SaloonphpAppleClient\DataConstruct\PhoneNumber;
+use Weijiajia\SaloonphpAppleClient\Exception\Phone\PhoneNotFoundException;
+use Weijiajia\SaloonphpAppleClient\Exception\StolenDeviceProtectionException;
+use Weijiajia\SaloonphpAppleClient\Exception\VerificationCodeException;
+use Weijiajia\SaloonphpAppleClient\Exception\VerificationCodeSentTooManyTimesException;
+
 class AppleClientController extends Controller
 {
 
@@ -108,7 +109,7 @@ class AppleClientController extends Controller
         /**
          * @var PhoneNumber $trustedPhoneNumbers
          */
-        $trustedPhoneNumbers = $auth->getTrustedPhoneNumbers()->first();
+        $trustedPhoneNumbers = $auth->getTrustedPhoneNumbers()->toCollection()->first();
 
         return $this->success(data: [
             'Guid'   => $guid,
@@ -171,11 +172,7 @@ class AppleClientController extends Controller
             ]);
         }
 
-        BindAccountPhone::dispatch($controllerService->getApple()->getAccount()->model()->toAccount())
-            ->delay(
-                Carbon::now()
-                    ->addSeconds(5)
-            );
+        BindAccountPhone::dispatch($controllerService->getApple());
 
         return $this->success();
     }
@@ -188,7 +185,7 @@ class AppleClientController extends Controller
      * @throws JsonException
      * @throws RequestException
      * @throws StolenDeviceProtectionException
-     * @throws VerificationCodeException|\Modules\AppleClient\Service\Exception\PhoneNotFoundException
+     * @throws VerificationCodeException|PhoneNotFoundException
      */
     public function smsSecurityCode(
         SmsSecurityCodeRequest $request,
@@ -216,11 +213,7 @@ class AppleClientController extends Controller
             ]);
         }
 
-        BindAccountPhone::dispatch($controllerService->getApple()->getAccount()->model()->toAccount())
-            ->delay(
-                Carbon::now()
-                    ->addSeconds(5)
-            );
+        BindAccountPhone::dispatch($controllerService->getApple());
 
         return $this->success();
     }

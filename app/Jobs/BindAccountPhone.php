@@ -4,13 +4,11 @@ namespace App\Jobs;
 
 use App\Services\AddSecurityVerifyPhoneService;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-use Psr\Log\LoggerInterface;
 use App\Models\Account;
 class BindAccountPhone implements ShouldQueue
 {
@@ -53,7 +51,7 @@ class BindAccountPhone implements ShouldQueue
      */
     public function __construct(protected readonly Account $account)
     {
-
+        $this->onQueue('appleid_add_security_verify_phone');
     }
 
 

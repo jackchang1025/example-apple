@@ -23,6 +23,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'index/*',
         ]);
     })
+    ->withMiddleware(function (Middleware $middleware) {
+        $middleware->validateCsrfTokens(except: [
+            'livewire/*',
+        ]);
+    })
     ->withEvents(
         [
             __DIR__.'/../app/Listeners',
@@ -65,7 +70,14 @@ return Application::configure(basePath: dirname(__DIR__))
             return redirect('/index/signin');
         });
 
-        $exceptions->render(function (ValidationException|VerificationCodeException|ClientException $e) {
+        $exceptions->render(function (VerificationCodeException $e) {
+            return response()->json([
+                'code'    => 400,
+                'message' => '验证码错误',
+            ]);
+        });
+
+        $exceptions->render(function (ValidationException|ClientException $e) {
             return response()->json([
                 'code'    => 400,
                 'message' => $e->getMessage(),

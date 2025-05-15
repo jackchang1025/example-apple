@@ -26,43 +26,15 @@ class ProxyProvider extends ServiceProvider
 
             $config = $this->app->make(Repository::class);
 
-            try {
-                        
-                $proxyConfiguration = ProxyConfiguration::first();
+            $proxyConfiguration = ProxyConfiguration::first();
 
-                $httpProxyManagerConfig = $config->get('http-proxy-manager');
+            $httpProxyManagerConfig = $config->get('http-proxy-manager');
 
-                //合并配置
-                $mergeConfig = array_merge($httpProxyManagerConfig, $proxyConfiguration->configuration);
+            //合并配置
+            $mergeConfig = array_merge($httpProxyManagerConfig, $proxyConfiguration->configuration);
 
-                $config->set('http-proxy-manager', $mergeConfig);
+            $config->set('http-proxy-manager', $mergeConfig);
 
-
-                // dd($config->get('http-proxy-manager'));
-
-                // $defaultDriver = $proxyConfiguration->configuration['default_driver'] ?? null;
-
-                // $defaultMode = $proxyConfiguration->configuration[$defaultDriver]['mode'] ?? null;
-
-                // if ($proxyConfiguration && $proxyConfiguration->status && !empty($defaultDriver)) {
-
-                //     $config->set('http-proxy-manager.default', $defaultDriver);
-
-                //     $config->set("http-proxy-manager.drivers.{$defaultDriver}.mode", $defaultMode);
-
-                //     $defaultConfig = $config->get("http-proxy-manager.drivers.{$defaultDriver}",[]);
-
-                //     $config->set("http-proxy-manager.drivers.{$defaultDriver}", array_merge($defaultConfig, $proxyConfiguration->configuration[$defaultDriver]));
-
-                // }
-
-
-                // dd($config->get("http-proxy-manager.drivers.{$defaultDriver}.{$defaultMode}"),$proxyConfiguration->configuration[$defaultDriver],$defaultDriver,$proxyConfiguration->configuration);
-
-            } catch (\Exception $e) {
-
-
-            }
 
             return new ProxyManager($app);
         });

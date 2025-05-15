@@ -195,7 +195,7 @@ return [
         ],
         'supervisor-2' => [
             'connection'          => 'redis',
-            'queue'               => ['account-processing'],
+            'queue'               => ['appleid_add_security_verify_phone'],
             'balance'             => 'auto',
             'autoScalingStrategy' => 'size',
             'maxProcesses'        => 10,

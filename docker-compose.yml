@@ -55,8 +55,8 @@ services:
             timeout: 5s
     redis:
         image: 'redis:alpine'
-        ports:
-            - '${FORWARD_REDIS_PORT:-6379}:6379'
+        # ports:
+        #     - '${FORWARD_REDIS_PORT:-6379}:6379'
         volumes:
             - 'sail-redis:/data'
         command: "redis-server --appendonly yes --replica-read-only no"
@@ -74,8 +74,8 @@ services:
             context: './docker/apple-auth'
             dockerfile: Dockerfile
         # image: apple-auth:latest
-        ports:
-            - '${FORWARD_APPLE_AUTH_PORT:-8088}:8088'
+        # ports:
+        #     - '${FORWARD_APPLE_AUTH_PORT:-8088}:8088'
         networks:
             - sail
     supervisor:
@@ -93,7 +93,7 @@ services:
         networks:
             - sail
         depends_on:
-            - laravel.test #确保supervisor服务在laravel.test之后启动
+            - laravel.test
             - mysql
             - redis
 networks:

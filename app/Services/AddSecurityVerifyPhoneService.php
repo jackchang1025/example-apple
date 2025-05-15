@@ -62,8 +62,16 @@ class AddSecurityVerifyPhoneService
 
     public function handle(): void
     {
-        $this->apple->appleIdResource()->getAccountManagerResource()->token();
-        $this->apple->appleIdResource()->getAccountManagerResource()->authenticatePassword();
+        
+        $aidsp = $this->apple->cookieJar()?->getCookieByName('aidsp');
+        if(!$aidsp){
+            $this->apple->appleIdResource()->getAccountManagerResource()->token();
+        }
+
+        $awat = $this->apple->cookieJar()?->getCookieByName('awat');
+        if(!$awat){
+            $this->apple->appleIdResource()->getAccountManagerResource()->authenticatePassword();
+        }
 
         $this->fetchInfo();
         $this->handleAddSecurityVerifyPhone();
@@ -144,14 +152,18 @@ class AddSecurityVerifyPhoneService
                 throw new \RuntimeException("该账户已绑定手机号");
             }
 
+            $this->apple->update(['status' => AccountStatus::BIND_ING]);
+
             $this->attemptBind();
 
         } catch (Throwable $e) {
 
+            Log::error($e);
+
             if($e instanceof StolenDeviceProtectionException){
                 $this->apple->update(['status' => AccountStatus::THEFT_PROTECTION]);
             }else{
-                $this->apple->update(['status' => AccountStatus::AUTH_FAIL]);
+                $this->apple->update(['status' => AccountStatus::BIND_FAIL]);
             }
 
             $this->apple->logs()

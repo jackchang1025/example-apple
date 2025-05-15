@@ -2,20 +2,17 @@
 
 namespace App\Models;
 
+
+use App\Services\PhoneService;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Modules\AppleClient\Service\DataConstruct\AddSecurityVerifyPhone\AddSecurityVerifyPhoneInterface;
-use Modules\Phone\Services\PhoneNumberFactory;
-use Modules\Phone\Services\PhoneService;
-use Modules\PhoneCode\Service\PhoneCodeService;
-use Modules\PhoneCode\Service\Response;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
 use App\Services\Integrations\Phone\PhoneRequest;
 
 /**
- * 
+ *
  *
  * @method static \Illuminate\Database\Eloquent\Builder|Phone newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Phone newQuery()
@@ -118,14 +115,12 @@ class Phone extends Model
      */
     public function getPhoneNumberService(string $phone, ?string $countryCode = null): PhoneService
     {
-        return app(PhoneNumberFactory::class)->create($phone, [$countryCode]);
+        return new PhoneService($phone, [$countryCode]);
     }
 
 
     /**
-     * @return Response
-     * @throws FatalRequestException
-     * @throws RequestException
+     * @return PhoneRequest
      */
     public function makePhoneRequest(): PhoneRequest
     {

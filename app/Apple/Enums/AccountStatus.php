@@ -9,6 +9,7 @@ enum AccountStatus: string
     case AUTH_SUCCESS = 'auth_success';
     case AUTH_FAIL = 'auth_fail';
     case BIND_SUCCESS = 'bind_success';
+    case BIND_ING = 'bind_ing';
     case BIND_FAIL = 'bind_fail';
     case THEFT_PROTECTION = 'theft_protection';
 
@@ -20,6 +21,7 @@ enum AccountStatus: string
             self::AUTH_SUCCESS => '授权成功',
             self::AUTH_FAIL => '授权失败',
             self::BIND_SUCCESS => '绑定成功',
+            self::BIND_ING => '绑定中',
             self::BIND_FAIL => '绑定失败',
             self::THEFT_PROTECTION => '失窃设备保护',
         };
@@ -30,6 +32,7 @@ enum AccountStatus: string
         return match($this) {
             self::LOGIN_SUCCESS, self::AUTH_SUCCESS, self::BIND_SUCCESS => 'success',
             self::LOGIN_FAIL, self::AUTH_FAIL, self::BIND_FAIL, self::THEFT_PROTECTION => 'danger',
+            self::BIND_ING => 'warning',
         };
     }
 
