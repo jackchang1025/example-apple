@@ -62,4 +62,5 @@ return [
         'authenticate' => \Modules\AppleClient\Service\Middleware\AuthenticateMiddleware::class,
         'debug'        => \Modules\AppleClient\Service\Middleware\DebugMiddleware::class,
     ],
+    'apple_auth_url' => env('APPLE_AUTH_URL')
 ];
