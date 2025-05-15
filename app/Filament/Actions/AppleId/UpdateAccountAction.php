@@ -7,8 +7,6 @@ use App\Models\AccountManager;
 use Exception;
 use Filament\Actions\Action;
 use Illuminate\Support\Facades\Log;
-use Modules\AppleClient\Service\AppleBuilder;
-use Modules\AppleClient\Service\Integrations\AppleId\Dto\Response\AccountManager\AccountManager as AccountManagerDto;
 
 class UpdateAccountAction extends Action
 {
@@ -54,19 +52,16 @@ class UpdateAccountAction extends Action
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      * @throws \Illuminate\Contracts\Container\CircularDependencyException
      */
-    protected function handle(Account $account): void
+    protected function handle(Account $apple): void
     {
-        $apple = app(AppleBuilder::class)->build($account->toAccount());
 
-        /** @var AccountManagerDto $accountManager */
-        $accountManager = $apple->getWebResource()
-            ->getAppleIdResource()
+        $accountManager = $apple->appleIdResource()
             ->getAccountManagerResource()
             ->account();
 
         // 更新或创建 AccountManager 记录
         AccountManager::updateOrCreate(
-            ['account_id' => $account->id],
+            ['account_id' => $apple->id],
             $accountManager->toArray()
         );
     }

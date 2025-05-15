@@ -6,10 +6,6 @@ use App\Models\Account;
 use App\Models\PurchaseHistory;
 use Filament\Actions\Action;
 use Illuminate\Support\Facades\Log;
-use Modules\AppleClient\Service\AppleBuilder;
-use Modules\AppleClient\Service\Integrations\ReportProblem\Data\Response\Search\Pli;
-use Modules\AppleClient\Service\Integrations\ReportProblem\Data\Response\Search\Purchase;
-use Modules\AppleClient\Service\Integrations\ReportProblem\Data\Response\Search\SearchResponse;
 
 class UpdatePurchaseHistoryAction extends Action
 {
@@ -58,11 +54,9 @@ class UpdatePurchaseHistoryAction extends Action
      * @throws \Saloon\Exceptions\Request\FatalRequestException
      * @throws \Saloon\Exceptions\Request\RequestException
      */
-    protected function handle(Account $account): void
+    protected function handle(Account $apple): void
     {
-        $apple           = app(AppleBuilder::class)->build($account->toAccount());
-        $purchaseHistory = $apple->getWebResource()
-            ->getAppleIdResource()
+        $purchaseHistory = $apple->appleIdResource()
             ->getReportProblemResource()
             ->searchCollection();
 

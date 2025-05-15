@@ -2,6 +2,6 @@
     "PhoneCode": true,
     "IpAddress": true,
     "IpProxyManager": true,
-    "AppleClient": true,
+    "AppleClient": false,
     "Phone": true
 }

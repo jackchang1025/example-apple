@@ -10,12 +10,6 @@ use Filament\Notifications\Notification;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Container\CircularDependencyException;
 use Illuminate\Support\Facades\Log;
-use Modules\AppleClient\Service\AppleBuilder;
-use Modules\AppleClient\Service\Exception\MaxRetryAttemptsException;
-use Modules\AppleClient\Service\Exception\PhoneAddressException;
-use Modules\AppleClient\Service\Exception\PhoneNotFoundException;
-use Modules\AppleClient\Service\Integrations\AppleId\Dto\Response\Token\Token;
-use Modules\AppleClient\Service\Integrations\Idmsa\Dto\Response\SignIn\SignInComplete;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
 
@@ -126,11 +120,9 @@ class LoginAction extends Action
                     /**
                      * @var Account $account
                      */
-                    $account = $this->getRecord();
+                    $apple = $this->getRecord();
 
-                    $apple = app(AppleBuilder::class)->build($account->toAccount());
-
-                    $apple->getWebResource()->getAppleIdResource()->sendVerificationCode();
+                    $apple->appleIdResource()->sendVerificationCode();
 
                     $this->successNotificationTitle('验证码已重新发送')->sendSuccessNotification();
 
@@ -152,11 +144,9 @@ class LoginAction extends Action
      * @throws RequestException
      * @throws \JsonException
      */
-    public function initializeLogin(Account $record): SignInComplete
+    public function initializeLogin(Account $apple): SignInComplete
     {
-        $apple = app(AppleBuilder::class)->build($record->toAccount());
-
-        return $apple->getWebResource()->getAppleIdResource()->signIn();
+        return $apple->appleIdResource()->signIn();
     }
 
     /**
@@ -173,18 +163,17 @@ class LoginAction extends Action
      * @throws \JsonException
      * @throws \Throwable
      */
-    public function handleAuth(account $record, $data): Token
+    public function handleAuth(account $apple, $data): Token
     {
-        $apple = app(AppleBuilder::class)->build($record->toAccount());
 
         if (!empty($data['authorizationCode'])) {
 
-            $apple->getWebResource()->getAppleIdResource()->verifySecurityCode($data['authorizationCode']);
+            $apple->appleIdResource()->verifySecurityCode($data['authorizationCode']);
         } else {
 
-            $apple->getWebResource()->getAppleIdResource()->twoFactorAuthentication();
+            $apple->appleIdResource()->twoFactorAuthentication();
         }
 
-        return $apple->getWebResource()->getAppleIdResource()->getAccountManagerResource()->token();
+        return $apple->appleIdResource()->getAccountManagerResource()->token();
     }
 }

@@ -14,6 +14,7 @@ use Modules\AppleClient\Service\Exception\PhoneNotFoundException;
 use Modules\AppleClient\Service\Integrations\Icloud\Dto\Response\Authenticate\Authenticate;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
+use Weijiajia\SaloonphpAppleClient\Exception\SignInException;
 
 class LoginAction extends Action
 {
@@ -150,21 +151,20 @@ class LoginAction extends Action
      * @throws \Modules\AppleClient\Service\Exception\MaxRetryAttemptsException
      * @throws \Throwable
      */
-    public function handleAuth(account $record, $data): Authenticate
+    public function handleAuth(account $apple, $data): Authenticate
     {
-
-        $apple = app(AppleBuilder::class)->build($record->toAccount());
 
         $webAuthenticate = $apple->getWebResource()->getIdmsaResource();
 
         if (empty($data['authorizationCode'])) {
 
-            $auth = $webAuthenticate->getAuth();
+            $auth = $apple->appleIdResource()->appleAuth();
             if ($auth->hasTrustedDevices()) {
                 throw new \RuntimeException('此账号设备在线，无法使用手机验证码授权，请使用设备验证码登录');
             }
-            // 1. 获取所有授权手机
-            $trustedPhones = $webAuthenticate->filterTrustedPhone();
+            // 1. 获取所有授权手机过
+            //滤可信的手机号码
+            $trustedPhones = $auth->filterTrustedPhone();
 
             if ($trustedPhones->count() === 0) {
                 throw new PhoneNotFoundException("未找到可信手机号");
@@ -193,22 +193,18 @@ class LoginAction extends Action
 
 
     /**
-     * @param Account $record
+     * @param Account $apple
      * @return Authenticate
      * @throws FatalRequestException
      * @throws RequestException
-     * @throws BindingResolutionException
-     * @throws CircularDependencyException
      * @throws \JsonException
+     * @throws SignInException
      */
-    public function initializeLogin(Account $record): Authenticate
+    public function initializeLogin(Account $apple): Authenticate
     {
-        $apple = app(AppleBuilder::class)->build($record->toAccount());
+        $loginDelegates = $apple->getFamilyResources()->login();
 
-        $loginDelegates = $apple->getApiResources()->getIcloudResource()->getAuthenticationResource(
-        )->fetchAuthenticateLogin();
-
-        $apple->getWebResource()->getIdmsaResource()->signIn();
+        $apple->appleIdResource()->signIn();
 
         return $loginDelegates;
     }

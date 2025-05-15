@@ -7,7 +7,6 @@ use App\Models\Payment;
 use Exception;
 use Filament\Actions\Action;
 use Illuminate\Support\Facades\Log;
-use Modules\AppleClient\Service\AppleBuilder;
 
 class UpdatePaymentAction extends Action
 {
@@ -55,13 +54,10 @@ class UpdatePaymentAction extends Action
      * @throws \Saloon\Exceptions\Request\FatalRequestException
      * @throws \Saloon\Exceptions\Request\RequestException
      */
-    protected function handle(Account $account): void
+    protected function handle(Account $apple): void
     {
 
-        $apple = app(AppleBuilder::class)->build($account->toAccount());
-
-        $payment = $apple->getWebResource()
-            ->getAppleIdResource()
+        $payment = $apple->appleIdResource()
             ->getPaymentResource()
             ->getPayment();
 
@@ -69,7 +65,7 @@ class UpdatePaymentAction extends Action
         $primaryPaymentMethod = $payment->primaryPaymentMethod;
 
         Payment::updateOrCreate([
-            'account_id' => $account->id,
+            'account_id' => $apple->id,
             'payment_id' => $primaryPaymentMethod->paymentId,
         ],
             array_merge($primaryPaymentMethod->toArray(), [

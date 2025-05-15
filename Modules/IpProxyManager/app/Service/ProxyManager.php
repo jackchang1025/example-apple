@@ -62,6 +62,8 @@ class ProxyManager extends Manager
             throw new ProxyConfigurationNotFoundException("No active proxy configuration found");
         }
 
+        
+
         // 提取公共配置
         $commonConfig = Arr::Only($config->toArray(), [
             'ipaddress_enabled',
@@ -74,6 +76,7 @@ class ProxyManager extends Manager
         $defaultDriver = $configuration['default_driver'];
         unset($configuration['default_driver']);
 
+        // dd($configuration);
         // 为每个驱动合并公共配置
         foreach ($configuration as $driver => $driverConfig) {
             $configuration[$driver] = array_merge(array_filter($driverConfig, fn($value) => !is_null($value)),
@@ -97,6 +100,8 @@ class ProxyManager extends Manager
     protected function createDriver($driver = null): ProxyService
     {
         $config = $this->getActiveConfiguration();
+
+        dd($config);
 
         if ($driver !== null) {
             if (!isset($config[$driver])) {

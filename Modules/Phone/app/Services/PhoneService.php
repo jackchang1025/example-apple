@@ -18,7 +18,7 @@ class PhoneService
         protected array $country = [],
         protected int $format = PhoneNumberFormat::INTERNATIONAL
     ) {
-        $this->phone = new PhoneNumber($number, $country);
+        $this->phone = new PhoneNumber($number, country: $country);
     }
 
     public function getDefaultNumber(): string

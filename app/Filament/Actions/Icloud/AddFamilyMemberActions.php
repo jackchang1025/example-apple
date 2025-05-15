@@ -12,7 +12,7 @@ use Filament\Forms\Components\Wizard\Step;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\HtmlString;
-use Modules\AppleClient\Service\Integrations\Icloud\Dto\Request\VerifyCVV\VerifyCVV;
+use Weijiajia\SaloonphpAppleClient\Integrations\SetupIcloud\Dto\Request\VerifyCVV\VerifyCVV;
 
 class AddFamilyMemberActions extends Action
 {
