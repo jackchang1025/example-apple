@@ -22,6 +22,16 @@ class ProxyConfigurationResource extends Resource
 
     protected static ?string $label = '代理设置';
 
+    public static function canCreate(): bool
+    {
+        return false;
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return false;
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -49,19 +59,16 @@ class ProxyConfigurationResource extends Resource
 
                                     Forms\Components\Tabs\Tab::make('Smartdaili')
                                         ->schema(self::getSmartdailiSchema()),
+
+                                    Forms\Components\Tabs\Tab::make('smartproxy')
+                                    ->schema(self::getSmartProxySchema()),
                                 ]),
                         ])
                         ->columnSpan(['lg' => 3]),
                     Section::make('Meta Information')
                         ->schema([
 
-                            Forms\Components\TextInput::make('name')
-                                ->label('代理配置名称')
-                                ->required()
-                                ->maxLength(255)
-                                ->helperText('给这个代理配置一个易于识别的名称'),
-
-                            Forms\Components\Select::make('configuration.default_driver')
+                            Forms\Components\Select::make('configuration.default')
                                 ->label('代理驱动')
                                 ->options([
                                     'hailiangip' => 'Hailiangip',
@@ -70,47 +77,24 @@ class ProxyConfigurationResource extends Resource
                                     'wandou'        => '豌豆代理',
                                     'iproyal'       => 'IPRoyal',
                                     'smartdaili'    => 'Smartdaili',
+                                    'smartproxy'    => 'SmartProxy',
                                 ])
                                 ->required()
                                 ->default('stormproxies')
                                 ->helperText('选择默认代理驱动')
                                 ->reactive(),
 
-                            Forms\Components\Toggle::make('proxy_enabled')
+                            Forms\Components\Toggle::make('configuration.proxy_enabled')
                                 ->label('是否开启代理')
                                 ->required()
-                                ->default(ProxyConfiguration::OFF)
+                                ->default(false)
                                 ->helperText('开启则使用代理，关闭则不使用代理'),
 
-                            Forms\Components\Toggle::make('ipaddress_enabled')
+                            Forms\Components\Toggle::make('configuration.ipaddress_enabled')
                                 ->label('根据用户 IP 地址自动选择代理')
                                 ->required()
-                                ->default(ProxyConfiguration::OFF)
-                                ->helperText('开启后将根据用户 IP 地址选择代理 IP的地址，关闭则使用随机的代理 IP 地址,注意暂时只支持国内 IP 地址'),
-
-                            Forms\Components\Toggle::make('is_active')
-                                ->label('是否开启默认代理')
-                                ->required()
                                 ->default(false)
-                                ->helperText('激活此配置将使其成为默认代理配置，并会自动取消激活其他配置。')
-                                ->afterStateUpdated(function (Forms\Get $get, Forms\Set $set, $state) {
-                                    if ($state) {
-                                        // 如果用户正在激活这个配置，我们不需要做任何事情
-                                        // 模型的 boot 方法会处理取消激活其他配置
-                                    } else {
-                                        // 如果用户正在取消激活这个配置，我们需要确保至少有一个配置是活动的
-                                        $activeConfigs = ProxyConfiguration::where('is_active', true)->count();
-                                        if ($activeConfigs === 0) {
-                                            $set('is_active', true);
-                                            Notification::make()
-                                                ->warning()
-                                                ->title('无法取消激活')
-                                                ->body('必须至少有一个活动的代理配置。')
-                                                ->send();
-                                        }
-                                    }
-                                }),
-
+                                ->helperText('开启后将根据用户 IP 地址选择代理 IP的地址，关闭则使用随机的代理 IP 地址,注意暂时只支持国内 IP 地址'),
                         ])
                         ->columnSpan(['lg' => 1]),
                 ])
@@ -119,88 +103,24 @@ class ProxyConfigurationResource extends Resource
             ]);
     }
 
-    public static function table(Table $table): Table
-    {
-        return $table
-            ->columns([
-                Tables\Columns\TextColumn::make('name')
-//                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('configuration.default_driver')
-                    ->label('Default Driver')
-                    ->formatStateUsing(fn (string $state): string => class_basename($state))
-                    ->sortable(),
-                Tables\Columns\IconColumn::make('is_active')
-                    ->boolean()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(),
-            ])
-            ->filters([
-//                Tables\Filters\SelectFilter::make('default_driver')
-//                    ->options([
-//                        'flow' => 'Flow Proxy',
-//                        'dynamic' => 'Dynamic Proxy',
-//                    ])
-//                    ->attribute('configuration->default_driver'),
-//                Tables\Filters\TernaryFilter::make('is_active')
-//                    ->label('Active Status')
-//                    ->trueLabel('Active')
-//                    ->falseLabel('Inactive')
-//                    ->nullable(),
-            ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-
-                Action::make('activate')
-                    ->icon('heroicon-o-check-circle')
-                    ->color('success')
-                    ->requiresConfirmation()
-                    ->modalHeading('dedault config')
-                    ->modalDescription('激活此配置将使其成为默认代理配置，并会自动取消激活其他配置。')
-                    ->visible(fn (ProxyConfiguration $record): bool => !$record->is_active)
-                    ->action(function (ProxyConfiguration $record) {
-                        $record->update(['is_active' => true]);
-                        Notification::make()
-                            ->success()
-                            ->title('配置已激活')
-                            ->body('该配置现在是默认的代理配置。')
-                            ->send();
-                    }),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
-    }
-
     protected static function getHailiangipSchema(): array{
         return [
-            Forms\Components\Select::make('configuration.hailiangip.mode')
+            Forms\Components\Select::make('configuration.drivers.hailiangip.mode')
                 ->options([
-                    'flow' => '默认账密模式',
-                    'dynamic' => '通道模式',
+                    'direct_connection_ip' => '默认账密模式',
+                    'extract_ip' => '提取模式',
                 ])
-                ->default('flow')
+                ->default('direct_connection_ip')
                 ->helperText('选择代理模式'),
 
-            Forms\Components\TextInput::make('configuration.hailiangip.orderId')
+            Forms\Components\TextInput::make('configuration.drivers.hailiangip.orderId')
 //                ->required()
                 ->helperText('代理订单ID'),
-            Forms\Components\TextInput::make('configuration.hailiangip.pwd')
+            Forms\Components\TextInput::make('configuration.drivers.hailiangip.pwd')
 //                ->required()
-                ->password()
                 ->helperText('代理订单密码'),
 
-            Forms\Components\TextInput::make('configuration.hailiangip.secret')
+            Forms\Components\TextInput::make('configuration.drivers.hailiangip.secret')
 //                ->required()
                 ->helperText('代理订单密钥'),
 
@@ -231,7 +151,7 @@ class ProxyConfigurationResource extends Resource
 //                ->minLength(1, 200)
 //                ->maxLength(200)
 ////                ->helperText('提取数量：1-200之间'),
-            Forms\Components\TextInput::make('configuration.hailiangip.pid')
+            Forms\Components\TextInput::make('configuration.drivers.hailiangip.pid')
                 ->default(-1)
                 ->helperText('省份ID：-1表示中国'),
 //            Forms\Components\TextInput::make('configuration.hailiangip.unbindTime')
@@ -239,10 +159,10 @@ class ProxyConfigurationResource extends Resource
 //                ->default(600)
 //                ->minValue(1)
 //                ->helperText('占用时长（单位：秒）'),
-            Forms\Components\TextInput::make('configuration.hailiangip.cid')
+            Forms\Components\TextInput::make('configuration.drivers.hailiangip.cid')
                 ->default('')
                 ->helperText('城市ID，留空表示随机'),
-            Forms\Components\Toggle::make('configuration.hailiangip.noDuplicate')
+            Forms\Components\Toggle::make('configuration.drivers.hailiangip.noDuplicate')
                 ->default(0)
                 ->helperText('是否去重：关闭表示不去重，开启表示24小时去重'),
 //            Forms\Components\Select::make('configuration.hailiangip.dataType')
@@ -259,14 +179,29 @@ class ProxyConfigurationResource extends Resource
 
     protected static function getStormproxiesSchema(): array{
         return [
-            Forms\Components\Select::make('configuration.stormproxies.mode')
+            Forms\Components\Select::make('configuration.drivers.stormproxies.mode')
                 ->options([
-                    'flow' => '账密模式',
-                    'dynamic' => '通道模式',
+                    'direct_connection_ip' => '账密模式',
+                    'extract_ip' => '提取模式',
                 ])
 //                ->required()
-                ->default('flow')
+                ->default('direct_connection_ip')
                 ->helperText('选择代理模式'),
+
+            Forms\Components\TextInput::make('configuration.drivers.stormproxies.username')
+            //                ->required()
+                            ->helperText('用户名'),
+            
+            Forms\Components\TextInput::make('configuration.drivers.stormproxies.password')
+//                ->required()
+                ->helperText('密码'),
+
+            Forms\Components\TextInput::make('configuration.drivers.stormproxies.app_key')
+//                ->required()
+                ->helperText('开放的app_key,可以通过用户个人中心获取'),
+
+            Forms\Components\TextInput::make('configuration.drivers.stormproxies.pt')
+                ->helperText('套餐id,提取界面选择套餐可指定对应套餐进行提取'),
 
             Forms\Components\Select::make('configuration.stormproxies.host')
                 ->options([
@@ -279,30 +214,33 @@ class ProxyConfigurationResource extends Resource
                 ->default('proxy.stormip.cn')
                 ->helperText('选择代理网络(代理网络是指中转服务器的位置)'),
 
-            Forms\Components\Select::make('configuration.stormproxies.area')
+            Forms\Components\TextInput::make('configuration.drivers.stormproxies.port')
+                ->default('1000')
+                ->helperText('端口'),
+            
+            Forms\Components\Select::make('configuration.drivers.stormproxies.protocol')
                 ->options([
-                    '' => '全球混播',
-                    'hk' => '香港',
-                    'us' => '美国',
-                    'cn' => '中国',
+                    'http'   => 'HTTP/HTTPS',
+                    // 'socks5' => 'SOCKS5',
                 ])
-                ->default('cn')
-                ->helperText('选择节点国家'),
+                ->default('http')
+                ->helperText('选择代理协议'),
 
-            Forms\Components\TextInput::make('configuration.stormproxies.username')
-//                ->required()
-                ->helperText('用户名'),
+          
+            Forms\Components\TextInput::make('configuration.drivers.stormproxies.area')
+                ->helperText('国家代码(area-cn),是配置国家的关键。取值为两个字母的国家代码 (ISO 3166-1 alpha-2 format)。 使用此配置解析代理时，我们的路由器将随机选择您设置的国家/地区，作为国家/地区密钥值之一。留空表示随机')
+                ->default(null),
 
-            Forms\Components\TextInput::make('configuration.stormproxies.password')
-//                ->required()
-                ->helperText('密码'),
+            Forms\Components\Toggle::make('configuration.drivers.stormproxies.sticky_session')
+            ->label('启用粘性会话')
+            ->helperText('此选项能够让您在会话期间始终保持代理不变。使用粘性会话，您可以配置“生命周期”参数，该参数决定在切换到新代理之前使用相同代理的时间。这对于需要持续连接到同一IP地址的任务特别有用，例如在访问具有基于会话的身份验证或追踪的Web资源时始终保持会话不变。')
+            ->default(false),
 
-            Forms\Components\TextInput::make('configuration.stormproxies.app_key')
-//                ->required()
-                ->helperText('开放的app_key,可以通过用户个人中心获取'),
-
-            Forms\Components\TextInput::make('configuration.stormproxies.pt')
-                ->helperText('套餐id,提取界面选择套餐可指定对应套餐进行提取'),
+            Forms\Components\TextInput::make('configuration.drivers.stormproxies.life')
+                ->helperText('会话持续时间(分钟),仅在开启粘性会话时有效,会指示路由器会话保持有效的持续时间。')
+                ->default('10'),
+                
+           
         ];
     }
 
@@ -310,17 +248,17 @@ class ProxyConfigurationResource extends Resource
     {
         return [
 
-            Forms\Components\Select::make('configuration.huashengdaili.mode')
+            Forms\Components\Select::make('configuration.drivers.huashengdaili.mode')
                 ->options([
                     'api' => 'api 提取',
                 ])
                 ->default('api')
                 ->helperText('选择代理模式'),
 
-            Forms\Components\TextInput::make('configuration.huashengdaili.session')
+            Forms\Components\TextInput::make('configuration.drivers.huashengdaili.session')
                 ->helperText('session密钥'),
 
-            Forms\Components\Toggle::make('configuration.huashengdaili.only')
+            Forms\Components\Toggle::make('configuration.drivers.huashengdaili.only')
                 ->default(false)
                 ->helperText('是否去重'),
 
@@ -332,7 +270,7 @@ class ProxyConfigurationResource extends Resource
             //                        ->numeric()
             //                        ->helperText('城市编号'),
 
-            Forms\Components\Select::make('configuration.huashengdaili.iptype')
+            Forms\Components\Select::make('configuration.drivers.huashengdaili.iptype')
                 ->options([
                     'tunnel' => '隧道',
                     'direct' => '直连',
@@ -386,35 +324,35 @@ class ProxyConfigurationResource extends Resource
     protected static function getWandouSchema(): array
     {
         return [
-            Forms\Components\Select::make('configuration.wandou.mode')
+            Forms\Components\Select::make('configuration.drivers.wandou.mode')
                 ->options([
-                    'flow'    => '账密模式',
-                    'dynamic' => '通道模式',
+                    'direct_connection_ip'    => '账密模式',
+                    'extract_ip' => '提取模式',
                 ])
-                ->default('flow')
+                ->default('direct_connection_ip')
                 ->helperText('选择代理模式'),
 
-            Forms\Components\TextInput::make('configuration.wandou.app_key')
-                ->helperText('通道模式时需要 开放的app_key,可以通过用户个人中心获取'),
+            Forms\Components\TextInput::make('configuration.drivers.wandou.app_key')
+                ->helperText('提取模式时需要 开放的app_key,可以通过用户个人中心获取'),
 
             //            Forms\Components\TextInput::make('configuration.wandou.session')
             //                ->helperText('账密模式时需要 session 值'),
 
-            Forms\Components\TextInput::make('configuration.wandou.username')
+            Forms\Components\TextInput::make('configuration.drivers.wandou.username')
                 ->helperText('账密模式时需要，可以通过用户个人中心获取'),
 
-            Forms\Components\TextInput::make('configuration.wandou.password')
+            Forms\Components\TextInput::make('configuration.drivers.wandou.password')
                 ->helperText('账密模式时需要，可以通过用户个人中心获取'),
 
-            Forms\Components\TextInput::make('configuration.wandou.host')
+            Forms\Components\TextInput::make('configuration.drivers.wandou.host')
                 ->default('api.wandoujia.com')
                 ->helperText('账密模式时需要，可以通过用户个人中心获取'),
 
-            Forms\Components\TextInput::make('configuration.wandou.port')
+            Forms\Components\TextInput::make('configuration.drivers.wandou.port')
                 ->default('1000')
                 ->helperText(' 账密模式时需要，可以通过用户个人中心获取'),
 
-            Forms\Components\Select::make('configuration.wandou.xy')
+            Forms\Components\Select::make('configuration.drivers.wandou.xy')
                 ->options([
                     1 => 'HTTP/HTTPS',
                     3 => 'SOCKS5',
@@ -422,7 +360,7 @@ class ProxyConfigurationResource extends Resource
                 ->default(1)
                 ->helperText('代理协议'),
 
-            Forms\Components\Select::make('configuration.wandou.isp')
+            Forms\Components\Select::make('configuration.drivers.wandou.isp')
                 ->options([
                     null => '不限',
                     1    => '电信',
@@ -436,19 +374,19 @@ class ProxyConfigurationResource extends Resource
             //                ->default(0)
             //                ->helperText('地区id,默认0全国混播,多个地区使用|分割'),
 
-            Forms\Components\TextInput::make('configuration.wandou.num')
+            Forms\Components\TextInput::make('configuration.drivers.wandou.num')
                 ->numeric()
                 ->default(1)
-                ->helperText('通道模式时需要单次提取IP数量,最大100'),
+                ->helperText('提取模式时需要单次提取IP数量,最大100'),
 
-            Forms\Components\Toggle::make('configuration.wandou.nr')
+            Forms\Components\Toggle::make('configuration.drivers.wandou.nr')
                 ->default(false)
-                ->helperText('通道模式时需要 是否自动去重'),
+                ->helperText('提取模式时需要 是否自动去重'),
 
-            Forms\Components\TextInput::make('configuration.wandou.life')
+            Forms\Components\TextInput::make('configuration.drivers.wandou.life')
                 ->numeric()
                 ->default(1)
-                ->helperText('通道模式时需要 尽可能保持一个ip的使用时间(分钟)'),
+                ->helperText('提取模式时需要 尽可能保持一个ip的使用时间(分钟)'),
 
             //            Forms\Components\TextInput::make('configuration.wandou.pid')
             //                ->helperText('省份id'),
@@ -461,219 +399,90 @@ class ProxyConfigurationResource extends Resource
     protected static function getIproyalSchema(): array
     {
         return [
-            Forms\Components\Select::make('configuration.iproyal.proxy_type')
+
+            Forms\Components\Select::make('configuration.drivers.iproyal.mode')
                 ->options([
-                    'residential' => '住宅代理',
-                    'datacenter'  => '数据中心代理',
-                    'mobile'      => '移动代理',
+                    'direct_connection_ip'    => '账密模式',
                 ])
-                ->default('residential')
-                ->reactive()
-                ->afterStateUpdated(function ($state, Forms\Set $set) {
-                    // 更新当前激活的代理类型
-                    $set('configuration.iproyal.active_type', $state);
-                })
-                ->helperText('选择代理类型'),
+                ->default('direct_connection_ip')
+                ->helperText('选择代理模式'),
 
-            // 住宅代理配置
-            Forms\Components\Section::make('住宅代理配置')
-                ->schema([
-                    Forms\Components\TextInput::make('configuration.iproyal.residential.username')
-                        ->label('用户名')
-                        ->required()
-                        ->helperText('住宅代理用户名')
-                        ->dehydrated(true), // 确保数据被保存
+            Forms\Components\TextInput::make('configuration.drivers.iproyal.username')
+                ->label('用户名')
+                ->helperText('住宅代理用户名')
+                ->dehydrated(true), // 确保数据被保存
 
-                    Forms\Components\TextInput::make('configuration.iproyal.residential.password')
-                        ->label('密码')
-                        ->password()
-                        ->required()
-                        ->helperText('住宅代理密码')
-                        ->dehydrated(true),
-
-                    Forms\Components\TextInput::make('configuration.iproyal.residential.endpoint')
-                        ->label('代理服务器')
-                        ->default('geo.iproyal.com')
-                        ->required()
-                        ->helperText('住宅代理服务器地址'),
-
-                    Forms\Components\TextInput::make('configuration.iproyal.residential.port')
-                        ->label('端口')
-                        ->default('12321')
-                        ->required()
-                        ->helperText('住宅代理端口'),
-
-                    Forms\Components\Select::make('configuration.iproyal.residential.protocol')
-                        ->options([
-                            'http'   => 'HTTP/HTTPS',
-                            'socks5' => 'SOCKS5',
-                        ])
-                        ->default('http')
-                        ->helperText('选择代理协议'),
-
-                    Forms\Components\TextInput::make('configuration.iproyal.residential.country')
-                        ->helperText('国家代码,如:us,cn等,留空表示随机')
-                        ->default(''),
-
-                    Forms\Components\TextInput::make('configuration.iproyal.residential.state')
-                        ->helperText('州/省代码,留空表示随机')
-                        ->default(''),
-
-                    Forms\Components\TextInput::make('configuration.iproyal.residential.region')
-                        ->helperText('区域代码,留空表示随机')
-                        ->default(''),
-
-                    Forms\Components\Toggle::make('configuration.iproyal.residential.sticky_session')
-                        ->label('启用粘性会话')
-                        ->helperText('开启后将尽可能使用相同的IP')
-                        ->default(false),
-
-                    Forms\Components\TextInput::make('configuration.iproyal.residential.session_duration')
-                        ->helperText('会话持续时间(分钟),仅在开启粘性会话时有效')
-                        ->numeric()
-                        ->default(10)
-                        ->visible(fn(Forms\Get $get) => $get('configuration.iproyal.residential.sticky_session')),
-
-                    Forms\Components\Toggle::make('configuration.iproyal.residential.streaming')
-                        ->label('启用高端池')
-                        ->helperText('启用高端IP池')
-                        ->default(false),
-
-                    Forms\Components\Toggle::make('configuration.iproyal.residential.skip_isp_static')
-                        ->label('跳过静态ISP')
-                        ->helperText('启用跳过静态ISP功能')
-                        ->default(false),
-
-                    Forms\Components\TextInput::make('configuration.iproyal.residential.skip_ips_list')
-                        ->helperText('跳过IP列表ID')
-                        ->default(''),
-                ])
-                ->visible(fn(Forms\Get $get) => $get('configuration.iproyal.proxy_type') === 'residential')
-                ->dehydrated(true), // 确保整个部分都被保存
-
-            // 数据中心代理配置
-            Forms\Components\Section::make('数据中心代理配置')
-                ->schema([
-                    Forms\Components\TextInput::make('configuration.iproyal.datacenter.username')
-                        ->label('用户名')
-                        ->required()
-                        ->helperText('数据中心代理用户名')
-                        ->dehydrated(true),
-
-                    Forms\Components\TextInput::make('configuration.iproyal.datacenter.password')
-                        ->label('密码')
-                        ->password()
-                        ->required()
-                        ->helperText('数据中心代理密码')
-                        ->dehydrated(true),
-
-                    Forms\Components\TextInput::make('configuration.iproyal.datacenter.endpoint')
-                        ->label('代理服务器')
-                        ->default('dc.iproyal.com')
-                        ->required()
-                        ->helperText('数据中心代理服务器地址'),
-
-                    Forms\Components\TextInput::make('configuration.iproyal.datacenter.port')
-                        ->label('端口')
-                        ->default('12321')
-                        ->required()
-                        ->helperText('数据中心代理端口'),
-
-                    Forms\Components\Select::make('configuration.iproyal.datacenter.protocol')
-                        ->options([
-                            'http'   => 'HTTP/HTTPS',
-                            'socks5' => 'SOCKS5',
-                        ])
-                        ->default('http')
-                        ->helperText('选择代理协议'),
-
-                    Forms\Components\TextInput::make('configuration.iproyal.datacenter.country')
-                        ->helperText('国家代码,如:us,cn等,留空表示随机')
-                        ->default(''),
-
-                    Forms\Components\TextInput::make('configuration.iproyal.datacenter.state')
-                        ->helperText('州/省代码,留空表示随机')
-                        ->default(''),
-
-                    Forms\Components\TextInput::make('configuration.iproyal.datacenter.region')
-                        ->helperText('区域代码,留空表示随机')
-                        ->default(''),
-
-                    Forms\Components\Toggle::make('configuration.iproyal.datacenter.sticky_session')
-                        ->label('启用粘性会话')
-                        ->helperText('开启后将尽可能使用相同的IP')
-                        ->default(false),
-
-                    Forms\Components\TextInput::make('configuration.iproyal.datacenter.session_duration')
-                        ->helperText('会话持续时间(分钟),仅在开启粘性会话时有效')
-                        ->numeric()
-                        ->default(10)
-                        ->visible(fn(Forms\Get $get) => $get('configuration.iproyal.datacenter.sticky_session')),
-                ])
-                ->visible(fn(Forms\Get $get) => $get('configuration.iproyal.proxy_type') === 'datacenter')
+            Forms\Components\TextInput::make('configuration.drivers.iproyal.password')
+                ->label('密码')
+                ->helperText('住宅代理密码')
                 ->dehydrated(true),
 
-            // 移动代理配置
-            Forms\Components\Section::make('移动代理配置')
-                ->schema([
-                    Forms\Components\TextInput::make('configuration.iproyal.mobile.username')
-                        ->label('用户名')
-                        ->required()
-                        ->helperText('移动代理用户名')
-                        ->dehydrated(true),
+            Forms\Components\TextInput::make('configuration.drivers.iproyal.host')
+                ->label('代理服务器')
+                ->default('geo.iproyal.com')
+                ->helperText('住宅代理服务器地址'),
 
-                    Forms\Components\TextInput::make('configuration.iproyal.mobile.password')
-                        ->label('密码')
-                        ->password()
-                        ->required()
-                        ->helperText('移动代理密码')
-                        ->dehydrated(true),
+            Forms\Components\TextInput::make('configuration.drivers.iproyal.port')
+                ->label('端口')
+                ->default('12321')
+                ->helperText('住宅代理端口,请记住，端口将根据协议（HTTP/SOCKS5）而有所不同。'),
 
-                    Forms\Components\TextInput::make('configuration.iproyal.mobile.endpoint')
-                        ->label('代理服务器')
-                        ->default('mobile.iproyal.com')
-                        ->required()
-                        ->helperText('移动代理服务器地址'),
-
-                    Forms\Components\TextInput::make('configuration.iproyal.mobile.port')
-                        ->label('端口')
-                        ->default('12321')
-                        ->required()
-                        ->helperText('移动代理端口'),
-
-                    Forms\Components\Select::make('configuration.iproyal.mobile.protocol')
-                        ->options([
-                            'http'   => 'HTTP/HTTPS',
-                            'socks5' => 'SOCKS5',
-                        ])
-                        ->default('http')
-                        ->helperText('选择代理协议'),
-
-                    Forms\Components\TextInput::make('configuration.iproyal.mobile.country')
-                        ->helperText('国家代码,如:us,cn等,留空表示随机')
-                        ->default(''),
-
-                    Forms\Components\TextInput::make('configuration.iproyal.mobile.state')
-                        ->helperText('州/省代码,留空表示随机')
-                        ->default(''),
-
-                    Forms\Components\TextInput::make('configuration.iproyal.mobile.region')
-                        ->helperText('区域代码,留空表示随机')
-                        ->default(''),
-
-                    Forms\Components\Toggle::make('configuration.iproyal.mobile.sticky_session')
-                        ->label('启用粘性会话')
-                        ->helperText('开启后将尽可能使用相同的IP')
-                        ->default(false),
-
-                    Forms\Components\TextInput::make('configuration.iproyal.mobile.session_duration')
-                        ->helperText('会话持续时间(分钟),仅在开启粘性会话时有效')
-                        ->numeric()
-                        ->default(10)
-                        ->visible(fn(Forms\Get $get) => $get('configuration.iproyal.mobile.sticky_session')),
+            Forms\Components\Select::make('configuration.drivers.iproyal.protocol')
+                ->options([
+                    'http'   => 'HTTP/HTTPS',
+                    'socks5' => 'SOCKS5',
                 ])
-                ->visible(fn(Forms\Get $get) => $get('configuration.iproyal.proxy_type') === 'mobile')
-                ->dehydrated(true),
+                ->default('http')
+                ->helperText('选择代理协议,在配置代理时，重要的是要考虑最适合您需求的协议。有两种主要类型可用：HTTP/HTTPS和SOCKS5。每种协议都在其不同的端口上运行，并服务于不同的目的。我们提供两种常见的代理协议类型。'),
+
+            Forms\Components\TextInput::make('configuration.drivers.iproyal.country')
+                ->helperText('国家代码(country-dk,it,ie),是配置国家的关键。取值为两个字母的国家代码 (ISO 3166-1 alpha-2 format)。 可以选择多个国家。使用此配置解析代理时，我们的路由器将随机选择您设置的国家/地区，作为国家/地区密钥值之一。留空表示随机')
+                ->default(null),
+
+            Forms\Components\TextInput::make('configuration.drivers.iproyal.state')
+                ->helperText('州/省代码,用于针对美国的一个州。该值应该是该州的名称。一定要选择美国作为国家。留空表示随机')
+                ->default(null),
+
+            Forms\Components\TextInput::make('configuration.drivers.iproyal.region')
+                ->helperText('区域代码,是配置区域的关键。添加此值可告诉我们的路由器筛选出位于该区域的代理,留空表示随机')
+                ->default(null),
+
+            Forms\Components\TextInput::make('configuration.drivers.iproyal.city')
+                ->helperText('城市代码,是锁定城市的关键。该值应该是城市的名称。此外，在针对特定城市时，必须指定国家，因为多个国家可能有同名的城市。留空表示随机')
+                ->default(null),
+
+            Forms\Components\Toggle::make('configuration.drivers.iproyal.sticky_session')
+                ->label('启用粘性会话')
+                ->helperText('此选项能够让您在会话期间始终保持代理不变。使用粘性会话，您可以配置“生命周期”参数，该参数决定在切换到新代理之前使用相同代理的时间。这对于需要持续连接到同一IP地址的任务特别有用，例如在访问具有基于会话的身份验证或追踪的Web资源时始终保持会话不变。')
+                ->default(false),
+
+            Forms\Components\TextInput::make('configuration.drivers.iproyal.session')
+            ->label('会话ID')
+            ->helperText('会话ID(用于粘性会话,如果为空则自动生成)')
+            ->default(null),
+
+            Forms\Components\TextInput::make('configuration.drivers.iproyal.lifetime')
+                ->helperText('会话持续时间(m:分钟,h:小时,d:天),仅在开启粘性会话时有效,会指示路由器会话保持有效的持续时间。最短持续时间设置为1秒，最长持续时间设置为7天。注意这里的格式至关重要：只能指定一个时间单位。这个参数对于定义粘性会话的操作跨度、平衡会话稳定性和安全需求方面都起到非常关键的作用。')
+                ->default('10m'),
+
+            Forms\Components\Toggle::make('configuration.drivers.iproyal.streaming')
+                ->label('启用高端池')
+                ->helperText('激活后，“高端池”选项能够让您访问我们甄选出的最快速且最可靠的代理。但请注意，在提升品质的同时，可用代理的池会比通常可访问的总池要小，也就是“贵精不贵多”的道理。')
+                ->default(false),
+
+            Forms\Components\Toggle::make('configuration.drivers.iproyal.skipispstatic')
+                ->label('跳过静态ISP')
+                ->helperText('启用后，此选项可让我们的路由器跳过静态代理')
+                ->default(false),
+
+            Forms\Components\Toggle::make('configuration.drivers.iproyal.forcerandom')
+                ->label('强制随机')
+                ->helperText('强制随机IP')
+                ->default(true),
+
+            Forms\Components\TextInput::make('configuration.drivers.iproyal.skipipslist')
+                ->helperText('跳过IP功能够让您生成多个IP范围列表，这些列表将在代理连接的IP解析过程中被自动绕过。要启用此功能，您需要添加 _skipipslist- 键，该键的值是生成列表的ULID (id)')
+                ->default(null),
         ];
     }
 
@@ -681,61 +490,144 @@ class ProxyConfigurationResource extends Resource
     {
         return [
 
-            Forms\Components\Select::make('configuration.smartdaili.mode')
+            Forms\Components\Select::make('configuration.drivers.smartdaili.mode')
                 ->options([
-                    'flow' => '账密模式',
+                    'direct_connection_ip' => '账密模式',
                 ])
-                ->required()
-                ->default('flow')
+                ->default('direct_connection_ip')
                 ->helperText('选择代理模式'),
 
-            Forms\Components\TextInput::make('configuration.smartdaili.username')
+            Forms\Components\TextInput::make('configuration.drivers.smartdaili.username')
                 ->label('用户名')
-                ->required()
                 ->helperText('Smartdaili代理用户名'),
 
-            Forms\Components\TextInput::make('configuration.smartdaili.password')
+            Forms\Components\TextInput::make('configuration.drivers.smartdaili.password')
                 ->label('密码')
-                ->password()
-                ->required()
                 ->helperText('Smartdaili代理密码'),
 
-            Forms\Components\TextInput::make('configuration.smartdaili.endpoint')
+            Forms\Components\TextInput::make('configuration.drivers.smartdaili.host')
                 ->label('代理服务器')
-                ->required()
                 ->helperText('Smartdaili代理服务器地址'),
 
-            Forms\Components\TextInput::make('configuration.smartdaili.port')
+            Forms\Components\TextInput::make('configuration.drivers.smartdaili.port')
                 ->label('端口')
-                ->required()
                 ->numeric()
                 ->helperText('Smartdaili代理端口'),
 
-            Forms\Components\Select::make('configuration.smartdaili.protocol')
+            Forms\Components\Select::make('configuration.drivers.smartdaili.protocol')
                 ->label('代理协议')
                 ->options([
                     'http'   => 'HTTP/HTTPS',
                     'socks5' => 'SOCKS5',
                 ])
                 ->default('http')
-                ->required()
                 ->helperText('选择代理协议类型'),
+
+                Forms\Components\TextInput::make('configuration.drivers.smartdaili.country')
+                ->helperText('国家代码(country-dk,it,ie),是配置国家的关键。取值为两个字母的国家代码 (ISO 3166-1 alpha-2 format)。 留空表示随机')
+                ->default(null),
+
+            Forms\Components\TextInput::make('configuration.drivers.smartdaili.state')
+                ->helperText('州/省代码,用于针对美国的一个州。该值应该是该州的名称。一定要选择美国作为国家。留空表示随机')
+                ->default(null),
+
+            Forms\Components\TextInput::make('configuration.drivers.smartdaili.city')
+                ->helperText('城市名称。将此参数添加到用户名中将允许你指定要使用的 IP 所在的城市。请将此参数与国家/地区参数一起使用。留空表示随机')
+                ->default(null),
+            Forms\Components\TextInput::make('configuration.drivers.smartdaili.session')
+            ->label('会话ID')
+            ->helperText('会话ID(用于粘性会话,如果为空则自动生成)')
+            ->default(null),
+
+            Forms\Components\Toggle::make('configuration.drivers.smartdaili.sticky_session')
+                ->label('启用粘性会话')
+                ->helperText('此选项能够让您在会话期间始终保持代理不变。使用粘性会话，您可以配置“生命周期”参数，该参数决定在切换到新代理之前使用相同代理的时间。这对于需要持续连接到同一IP地址的任务特别有用，例如在访问具有基于会话的身份验证或追踪的Web资源时始终保持会话不变。')
+                ->default(false),
+            Forms\Components\TextInput::make('configuration.drivers.smartdaili.sessionduration')
+            ->helperText('会话持续时间(分钟),与会话一起使用。指定粘滞会话时间（以分钟为单位） - 可以设置为 1 到 30 之间的任意数字。如果未指定此参数，会话默认持续 10 分钟。')
+            ->default(10),
         ];
     }
 
-    public static function getRelations(): array
+    protected static function getSmartProxySchema(): array
     {
         return [
-            //
+
+            Forms\Components\Select::make('configuration.drivers.smartproxy.mode')
+                ->options([
+                    'direct_connection_ip' => '账密模式',
+                    // 'extract_ip' => '提取模式',
+                ])
+                ->default('direct_connection_ip')
+                ->helperText('选择代理模式'),
+
+            Forms\Components\TextInput::make('configuration.drivers.smartproxy.username')
+                ->label('选择套餐账号')
+                ->helperText('选择套餐账号'),
+
+            Forms\Components\TextInput::make('configuration.drivers.smartproxy.password')
+                ->label('密码')
+                ->helperText('SmartProxy 代理密码'),
+
+                Forms\Components\Select::make('configuration.drivers.smartproxy.host')
+                ->options([
+                    'proxy.smartproxycn.com' => '智能',
+                    'as.smartproxycn.com' => '亚洲区域',
+                    'eu.smartproxycn.com' => '美洲区域',
+                    'us.smartproxycn.com' => '欧洲区域',
+                ])
+//                ->required()
+                ->default('proxy.stormip.cn')
+                ->helperText('选择代理网络(代理网络是指中转服务器的位置)'),
+
+    
+            Forms\Components\TextInput::make('configuration.drivers.smartproxy.port')
+                ->label('端口')
+                ->numeric()
+                ->helperText('SmartProxy代理端口'),
+
+            Forms\Components\Select::make('configuration.drivers.smartproxy.protocol')
+                ->label('代理协议')
+                ->options([
+                    'http'   => 'HTTP/HTTPS',
+                    'socks5' => 'SOCKS5',
+                ])
+                ->default('http')
+                ->helperText('选择代理协议类型'),
+
+            Forms\Components\TextInput::make('configuration.drivers.smartproxy.area')
+            ->helperText('国家代码,如:us,cn等,留空表示随机')
+            ->default(''),
+
+            Forms\Components\TextInput::make('configuration.drivers.smartproxy.city')
+                ->helperText('州/省代码,留空表示随机')
+                ->default(''),
+
+            Forms\Components\TextInput::make('configuration.drivers.smartproxy.state')
+                ->helperText('区域代码,留空表示随机')
+                ->default(''),
+
+            Forms\Components\Toggle::make('configuration.drivers.smartproxy.sticky_session')
+                ->label('启用粘性会话')
+                ->helperText('开启后将尽可能使用相同的IP')
+                ->default(false),
+
+            Forms\Components\TextInput::make('configuration.drivers.smartproxy.life')
+                ->helperText('尽可能保持一个ip的使用时间(分钟),仅在开启粘性会话时有效')
+                ->numeric()
+                ->default(10),
+
+            Forms\Components\TextInput::make('configuration.drivers.smartproxy.ip')
+            ->helperText('指定数据中心地址'),
+
         ];
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListProxyConfigurations::route('/'),
-            'create' => Pages\CreateProxyConfiguration::route('/create'),
-            'edit' => Pages\EditProxyConfiguration::route('/{record}/edit'),
+            'index' => Pages\EditProxyConfiguration::route('/'),
         ];
     }
 }
+
