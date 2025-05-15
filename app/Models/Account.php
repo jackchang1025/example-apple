@@ -9,23 +9,46 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Weijiajia\SaloonphpAppleClient\Trait\ProvidesAppleIdCapabilities;
+use Weijiajia\HttpProxyManager\ProxyManager;
+use Weijiajia\IpAddress\IpAddressManager;
+use GuzzleHttp\Cookie\CookieJarInterface;
+use GuzzleHttp\Cookie\FileCookieJar;
+use Weijiajia\SaloonphpHeaderSynchronizePlugin\Contracts\HeaderSynchronizeDriver;
+use Weijiajia\SaloonphpHeaderSynchronizePlugin\Driver\FileHeaderSynchronize;
+use Weijiajia\SaloonphpHttpProxyPlugin\ProxySplQueue;
+use Illuminate\Support\Collection;
+use Weijiajia\SaloonphpAppleClient\Browser\Browser;
+use Weijiajia\SaloonphpAppleClient\Contracts\AppleId as AppleIdContract;
+use Psr\Log\LoggerInterface;
+use Weijiajia\SaloonphpAppleClient\Country;
+use Weijiajia\HttpProxyManager\Contracts\ProxyInterface;
+use Illuminate\Support\Facades\Cache;
+use Saloon\CachePlugin\Drivers\LaravelCacheDriver;
+use Saloon\Http\PendingRequest;
+use GuzzleHttp\RequestOptions;
+use Psr\EventDispatcher\EventDispatcherInterface;
+use Saloon\Helpers\MiddlewarePipeline;
+use App\Services\Trait\HasLog;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string $account 账号
+ * @property string $appleid 账号 (Apple ID)
  * @property string $password 密码
  * @property string $bind_phone 绑定的手机号码
  * @property string $bind_phone_address 绑定的手机号码所在地址
+ * @property string|null $country_code 国家代码
  * @method static \Illuminate\Database\Eloquent\Builder|Account newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Account newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Account query()
- * @method static \Illuminate\Database\Eloquent\Builder|Account whereAccount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereAppleid($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Account whereBindPhone($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Account whereBindPhoneAddress($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereCountryCode($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Account whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Account whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Account wherePassword($value)
@@ -47,6 +70,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property-read \App\Models\Family|null $family
  * @property string|null $dsid dsid
  * @method static \Illuminate\Database\Eloquent\Builder|Account whereDsid($value)
+ * @method getApiResources()
  * @property-read \App\Models\AccountManager|null $accountManager
  * @property-read \App\Models\FamilyMember|null $asFamilyMember
  * @property-read \App\Models\Family|null $belongToFamily
@@ -58,27 +82,258 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property-read int|null $purchase_history_count
  * @mixin \Eloquent
  */
-class Account extends Model
+class Account extends Model implements AppleIdContract
 {
     use HasFactory;
+    use ProvidesAppleIdCapabilities;
+    use HasLog;
 
     protected $table = 'account';
+
+    protected $fillable = ['appleid', 'password', 'bind_phone', 'bind_phone_address', 'country_code', 'id', 'status', 'type', 'dsid'];
 
     protected $casts = [
         'status' => AccountStatus::class,
         'type' => AccountType::class,
     ];
 
+    protected static function booted()
+    {
+        static::retrieved(function (Account $account) {
+
+            $account->config()->add('apple_auth_url', config('apple.apple_auth_url'));
+        });
+    }
+
+    public function proxyManager(): ProxyManager
+    {
+        return app()->make(ProxyManager::class);
+    }
+
+    public function middleware(): MiddlewarePipeline
+    {
+        if(!isset($this->middlewarePipeline) || $this->middlewarePipeline === null){
+            $this->middlewarePipeline = new MiddlewarePipeline;
+            $this->middlewarePipeline->onRequest($this->debugRequest());
+            $this->middlewarePipeline->onResponse($this->debugResponse());
+        }
+        return $this->middlewarePipeline;
+    }
+
+    public function log(string $message, array $data = []): void
+    {
+        $this->logs()->create(['action' => $message, 'request' => $data]);
+    }
+
+    public function ipAddressManager(): IpAddressManager
+    {
+        return app()->make(IpAddressManager::class);
+    }
+
     public function getStatusDescriptionAttribute(): string
     {
         return $this->status->description();
     }
 
-    protected $fillable = ['account', 'password', 'bind_phone', 'bind_phone_address', 'id', 'status', 'type', 'dsid'];
+    public function logger(): ?LoggerInterface
+    {
+        return $this->logger ??= app()->make(LoggerInterface::class);
+    }
+
+    public function country(): ?Country
+    {
+        if ($this->country) {
+            return $this->country;
+        }
+
+        if(!config('http-proxy-manager.ipaddress_enabled')){
+            return null;
+        }
+
+        // if ($this->country_code) {
+        //     return $this->country ??= Country::make($this->country_code);
+        // }
+
+        // 获取ip地址
+        $ip = request()->ip();
+
+        // 判断 IP 地址是否为私有或保留地址 (常见的内网/本地地址)
+        $isPrivateOrReservedIp = false;
+        if (filter_var($ip, FILTER_VALIDATE_IP)) {
+            // 如果IP有效，但 filter_var 认为它在私有或保留范围内，则以下会返回 false
+            if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+                $isPrivateOrReservedIp = true;
+            }
+        } else {
+            // IP 地址本身无效，也视为一种特殊情况
+            $isPrivateOrReservedIp = true;
+        }
+
+        if ($isPrivateOrReservedIp) {
+            // 如果没有配置默认国家，并且是内网IP，则抛出异常或返回一个预定义的“未知”国家
+            // 避免查询一个无法确定地理位置的IP
+            // 或者，你可以根据业务需求决定是否要记录日志并尝试用如 '1.1.1.1' 这样的公网IP去查询
+            // 这里我们选择优先使用配置的默认国家，如果存在
+            throw new \RuntimeException("Cannot determine country for private/reserved IP address: {$ip} and no default country is configured.");
+        }
+
+        $ipInfo = $this->ipAddressManager()
+            ->forgetDrivers()
+            ->driver()
+            ->withProxyEnabled(false)
+            ->withCacheDriver(new LaravelCacheDriver(Cache::store('redis')))
+            ->withCacheExpiry(99999999)
+            ->withCacheKey('ip_info_' . $ip)
+            ->request(['ip' => $ip]);
+
+        return $this->country ??= Country::make($ipInfo->getCountry());
+    }
+
+    public function cookieJar(): ?CookieJarInterface
+    {
+        if($this->cookieJar !== null){
+            return $this->cookieJar;
+        }
+
+        $path = storage_path("/app/cookies/{$this->appleId()}.json");
+        //判断目录是否存在
+        if (!file_exists(dirname($path)) && !mkdir($concurrentDirectory = dirname($path), 0777, true) && !is_dir(
+                $concurrentDirectory
+            )) {
+                throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
+            }
+        return $this->cookieJar ??= new FileCookieJar($path,true);
+    }
+
+    public function headerSynchronizeDriver(): HeaderSynchronizeDriver
+    {
+        if($this->headerSynchronizeDriver !== null){
+            return $this->headerSynchronizeDriver;
+        }
+
+        $path = storage_path("/app/headers/{$this->appleId()}.json");
+        //判断目录是否存在
+        if (!file_exists(dirname($path)) && !mkdir($concurrentDirectory = dirname($path), 0777, true) && !is_dir(
+                $concurrentDirectory
+            )) {
+                throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
+            }
+        return $this->headerSynchronizeDriver ??= new FileHeaderSynchronize($path);
+    }
+
+
+    public function makeLaravelPhonePhoneNumber(): \Propaganistas\LaravelPhone\PhoneNumber
+    {
+        return $this->makePhoneNumber(
+            $this->appleid,
+        );
+    }
+
+    public function appleId(): string
+    {
+        return $this->getAttribute('appleid');
+    }
+
+    public function password(): string
+    {
+        return $this->getAttribute('password');
+    }
+
+    public function getSessionId(): string
+    {
+        return base64_encode($this->appleId());
+    }
+
+    public function proxySplQueue(): ?ProxySplQueue
+    {
+        $proxyManager = $this->proxyManager();
+
+        if(!config('http-proxy-manager.proxy_enabled')){
+            return null;
+        }
+
+        if ($this->proxySplQueue === null) {
+
+            $proxyConnector = $proxyManager->forgetDrivers()
+                ->driver()
+                ->withLogger($this->logger());
+
+            if ($this->country() !== null) {
+                $proxyConnector->withCountry($this->country()->getAlpha2Code());
+            }
+
+            if ($this->debug()) {
+                $proxyConnector->debug();
+            }
+
+            $proxyConnector->middleware()->merge($this->middleware());
+
+            $proxy = $proxyConnector->defaultModelIp();
+
+            if ($proxy instanceof Collection) {
+                $proxies = $proxy->map(fn(ProxyInterface $item) => $item->getUrl())->toArray();
+                return  $this->proxySplQueue = new ProxySplQueue(roundRobinEnabled: true, proxies: $proxies);
+            }
+
+            if ($proxy instanceof ProxyInterface) {
+                return $this->proxySplQueue = new ProxySplQueue(roundRobinEnabled: true, proxies: [$proxy->getUrl()]);
+            }
+
+            throw new \InvalidArgumentException('提供的代理不是有效的代理对象');
+        }
+        return $this->proxySplQueue;
+    }
+
+    public function browser(): Browser
+    {
+        if ($this->browser === null) {
+
+            $this->browser = new Browser();
+
+            if($this->country() !== null){
+                $this->browser->withLanguageForCountry($this->country()->getAlpha2Code());
+            }
+
+            return $this->browser;
+
+            $proxyQueue = $this->proxySplQueue(); // 获取代理队列
+            if (!$proxyQueue || $proxyQueue->isEmpty()) {
+                throw new \RuntimeException('Cannot create browser info without a proxy.');
+            }
+
+            $ipAddressRequest = $this->ipAddressManager()
+                ->forgetDrivers()
+                ->driver()
+                ->withCacheDriver(new LaravelCacheDriver(Cache::store('redis')))
+                ->withCacheExpiry(60 * 30)
+                ->withCacheKey(function (PendingRequest $pendingRequest) {
+
+                    //获取代理配置
+                    $proxyConfig = $pendingRequest->config()->get(RequestOptions::PROXY);
+                })
+                ->withLogger($this->logger())
+                ->withForceProxy(true)
+                ->withProxyEnabled(true)
+                ->withProxyQueue($proxyQueue);
+
+            if ($this->debug()) {
+                $ipAddressRequest->debug();
+            }
+
+            $ipAddressRequest->middleware()->merge($this->middleware());
+
+            $ipInfo = $ipAddressRequest->request();
+
+            $this->browser = new Browser();
+            $this->browser->timezone = $ipInfo->getTimezone();
+            $this->browser->withLanguageForCountry($ipInfo->getCountryCode());
+        }
+        return $this->browser;
+    }
 
     public function logs(): HasMany
     {
-        return $this->hasMany(AccountLogs::class);
+        return $this->hasMany(AccountLogs::class,'account_id','id');
     }
 
     public function devices(): HasMany
@@ -91,10 +346,10 @@ class Account extends Model
         return $this->hasMany(IcloudDevice::class);
     }
 
-//    public function payment(): HasMany
-//    {
-//        return $this->hasMany(Payment::class);
-//    }
+    //    public function payment(): HasMany
+    //    {
+    //        return $this->hasMany(Payment::class);
+    //    }
 
     public function payment(): HasOne
     {
@@ -106,11 +361,6 @@ class Account extends Model
         return $this->HasMany(PurchaseHistory::class);
     }
 
-    public function getSessionId(): string
-    {
-        return md5(sprintf('%s_%s', $this->account, $this->password));
-    }
-
     /**
      * 获取账号所属的家庭组（无论是否为组织者）
      */
@@ -119,7 +369,7 @@ class Account extends Model
         return $this->belongsTo(Family::class, 'dsid', 'organizer')
             ->orWhereHas('members', function ($query) {
                 $query->where('dsid', $this->dsid)
-                    ->orWhere('apple_id', $this->account);
+                    ->orWhere('apple_id', $this->appleid);
             });
     }
 
@@ -137,7 +387,7 @@ class Account extends Model
                     ->whereColumn('fm.family_id', 'family_members.family_id')
                     ->where(function ($q) {
                         $q->where('fm.dsid', $this->dsid)
-                            ->orWhere('fm.apple_id', $this->account);
+                            ->orWhere('fm.apple_id', $this->appleid);
                     });
             });
     }
@@ -148,7 +398,7 @@ class Account extends Model
     public function asFamilyMember(): HasOne
     {
         return $this->hasOne(FamilyMember::class, 'dsid', 'dsid')
-            ->orWhere('apple_id', $this->account);
+            ->orWhere('apple_id', $this->appleid);
     }
 
     /**
@@ -172,6 +422,11 @@ class Account extends Model
         return $this->hasOne(AccountManager::class);
     }
 
+    public function dispatcher(): ?EventDispatcherInterface
+    {
+        return $this->eventDispatcher ??= app()->make(EventDispatcherInterface::class);
+    }
+
     /**
      * 获取所有相关的家庭成员ID（用于调试）
      */
@@ -189,7 +444,7 @@ class Account extends Model
         $asMemberFamilyIds = FamilyMember::query()
             ->where(function ($query) {
                 $query->where('dsid', $this->dsid)
-                    ->orWhere('apple_id', $this->account);
+                    ->orWhere('apple_id', $this->appleid);
             })
             ->pluck('family_id')
             ->toArray();
@@ -206,5 +461,4 @@ class Account extends Model
     {
         return \Modules\AppleClient\Service\DataConstruct\Account::from($this->toArray());
     }
-
 }

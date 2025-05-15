@@ -6,27 +6,18 @@ use App\Exceptions\Family\FamilyException;
 use App\Models\Account;
 use App\Models\Family;
 use App\Models\FamilyMember;
-use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Contracts\Container\CircularDependencyException;
 use Illuminate\Support\Facades\DB;
-use Modules\AppleClient\Service\Apple;
-use Modules\AppleClient\Service\AppleBuilder;
-use Modules\AppleClient\Service\Integrations\Icloud\Dto\Request\CreateFamily\CreateFamily;
-use Modules\AppleClient\Service\Integrations\Icloud\Dto\Response\FamilyDetails\FamilyDetails;
-use Modules\AppleClient\Service\Integrations\Icloud\Dto\Response\FamilyInfo\FamilyInfo;
-use Modules\AppleClient\Service\Integrations\Icloud\Dto\Request\VerifyCVV\VerifyCVV;
-use Modules\AppleClient\Service\Integrations\Icloud\Dto\Response\ITunesAccountPaymentInfo\ITunesAccountPaymentInfo;
+use Weijiajia\SaloonphpAppleClient\Integrations\SetupIcloud\Dto\Request\CreateFamily\CreateFamily;
+use Weijiajia\SaloonphpAppleClient\Integrations\SetupIcloud\Dto\Request\VerifyCVV\VerifyCVV;
+use Weijiajia\SaloonphpAppleClient\Integrations\SetupIcloud\Dto\Response\FamilyDetails\FamilyDetails;
+use Weijiajia\SaloonphpAppleClient\Integrations\SetupIcloud\Dto\Response\FamilyInfo\FamilyInfo;
+use Weijiajia\SaloonphpAppleClient\Integrations\SetupIcloud\Dto\Response\ITunesAccountPaymentInfo\ITunesAccountPaymentInfo;
 
 readonly class FamilyService
 {
 
-
-    /**
-     *
-     * @param Apple $apple
-     */
     public function __construct(
-        protected Apple $apple
+        protected Account $apple
     ) {
 
     }
@@ -34,22 +25,20 @@ readonly class FamilyService
     /**
      * @param Account $apple
      * @return self
-     * @throws BindingResolutionException
-     * @throws CircularDependencyException
      */
     public static function make(Account $apple): self
     {
-        return new self(app(AppleBuilder::class)->build($apple->toAccount()));
+        return new self($apple);
     }
 
     public function getFamilyDetails(): FamilyDetails
     {
-        return $this->apple->getApiResources()->getIcloudResource()->getFamilyResources()->getFamilyDetails();
+        return $this->apple->getFamilyResources()->getFamilyDetails();
     }
 
     public function getFamilyInfo(): FamilyInfo
     {
-        return $this->apple->getApiResources()->getIcloudResource()->getFamilyResources()->getFamilyInfo();
+        return $this->apple->getFamilyResources()->getFamilyInfo();
     }
 
     /**
@@ -58,7 +47,7 @@ readonly class FamilyService
     public function createFamily(Account $account, string $payAccount, string $payPassword): Family
     {
 
-        $familyInfo = $this->apple->getApiResources()->getIcloudResource()->getFamilyResources()->createFamily(
+        $familyInfo = $this->apple->getFamilyResources()->createFamily(
             CreateFamily::from([
                 'organizerAppleId'                     => $account->account,
                 'organizerAppleIdForPurchases'         => $payAccount,
@@ -83,8 +72,6 @@ readonly class FamilyService
     {
 
         $familyInfo = $this->apple
-            ->getApiResources()
-            ->getIcloudResource()
             ->getFamilyResources()
             ->addFamilyMember($addAccount, $addPassword, $data);
 
@@ -97,7 +84,7 @@ readonly class FamilyService
     public function removeFamilyMember(FamilyMember $member): ?Family
     {
 
-        $familyInfo = $this->apple->getApiResources()->getIcloudResource()->getFamilyResources()->removeFamilyMember(
+        $familyInfo = $this->apple->getFamilyResources()->removeFamilyMember(
             $member->dsid
         );
 
@@ -114,7 +101,7 @@ readonly class FamilyService
      */
     public function leaveFamily(): void
     {
-        $this->apple->getApiResources()->getIcloudResource()->getFamilyResources()->leaveFamily();
+        $this->apple->getFamilyResources()->leaveFamily();
 
         DB::transaction(fn() => $this->deleteFamilyData());
     }
@@ -124,7 +111,7 @@ readonly class FamilyService
      */
     public function getITunesAccountPaymentInfo(): ITunesAccountPaymentInfo
     {
-        return $this->apple->getApiResources()->getIcloudResource()->getFamilyResources()->getITunesAccountPaymentInfo(
+        return $this->apple->getFamilyResources()->getITunesAccountPaymentInfo(
         );
     }
 
@@ -140,6 +127,6 @@ readonly class FamilyService
 
     public function deleteFamilyData(): ?bool
     {
-        return $this->apple->getAccount()->model()?->belongToFamily?->delete();
+        return $this->apple->belongToFamily?->delete();
     }
 }

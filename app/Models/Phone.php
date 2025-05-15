@@ -12,7 +12,7 @@ use Modules\PhoneCode\Service\PhoneCodeService;
 use Modules\PhoneCode\Service\Response;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
-
+use App\Services\Integrations\Phone\PhoneRequest;
 
 /**
  * 
@@ -41,7 +41,7 @@ use Saloon\Exceptions\Request\RequestException;
  * @method static \Database\Factories\PhoneFactory factory($count = null, $state = [])
  * @mixin \Eloquent
  */
-class Phone extends Model implements AddSecurityVerifyPhoneInterface
+class Phone extends Model
 {
     use HasFactory;
 
@@ -121,14 +121,15 @@ class Phone extends Model implements AddSecurityVerifyPhoneInterface
         return app(PhoneNumberFactory::class)->create($phone, [$countryCode]);
     }
 
+
     /**
      * @return Response
      * @throws FatalRequestException
      * @throws RequestException
      */
-    public function getPhoneCode(): Response
+    public function makePhoneRequest(): PhoneRequest
     {
-        return app(PhoneCodeService::class)->getPhoneCode($this->phone_address);
+       return new PhoneRequest($this->phone_address);
     }
 
     public function getCountryCode(): string

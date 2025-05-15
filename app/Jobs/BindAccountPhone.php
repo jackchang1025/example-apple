@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Services\AddSecurityVerifyPhoneService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -9,12 +10,8 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-use Modules\AppleClient\Service\AddSecurityVerifyPhoneService;
-use Modules\AppleClient\Service\AppleBuilder;
-use Modules\AppleClient\Service\DataConstruct\Account;
-use Modules\PhoneCode\Service\PhoneCodeService;
 use Psr\Log\LoggerInterface;
-
+use App\Models\Account;
 class BindAccountPhone implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -39,7 +36,7 @@ class BindAccountPhone implements ShouldQueue
      */
     public function uniqueId(): string
     {
-        return $this->account->getAccount();
+        return $this->account->appleid;
     }
 
     /**
@@ -59,28 +56,12 @@ class BindAccountPhone implements ShouldQueue
 
     }
 
-    /**
-     * Execute the job.
-     * @param AppleBuilder $appleBuilder
-     * @param PhoneCodeService $phoneCodeService
-     * @param Dispatcher $dispatcher
-     * @param LoggerInterface $logger
-     * @return void
-     */
-    public function handle(
-        AppleBuilder $appleBuilder,
-        PhoneCodeService $phoneCodeService,
-        Dispatcher $dispatcher,
-        LoggerInterface $logger
-    ): void
+
+    public function handle(): void
     {
         try {
 
-            $addSecurityVerifyPhoneService = new AddSecurityVerifyPhoneService(
-                apple: $appleBuilder->build(
-                $this->account
-            ), phoneCodeService: $phoneCodeService, dispatcher: $dispatcher, logger: $logger
-            );
+            $addSecurityVerifyPhoneService = new AddSecurityVerifyPhoneService($this->account);
 
             $addSecurityVerifyPhoneService->handle();
 
@@ -97,6 +78,7 @@ class BindAccountPhone implements ShouldQueue
                 'account' => $this->account,
                 'error' => $e
             ]);
+
             $this->fail($e);
         }
     }

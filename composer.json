@@ -22,7 +22,6 @@
         "laravel/tinker": "^2.9",
         "nwidart/laravel-modules": "^11.1",
         "nyholm/psr7": "^1.8",
-        "propaganistas/laravel-phone": "^5.3",
         "pxlrbt/filament-excel": "^2.3",
         "saade/filament-laravel-log": "^3.0",
         "saloonphp/saloon": "^3.10",
@@ -31,6 +30,10 @@
         "symfony/dom-crawler": "^7.1",
         "symfony/property-access": "^7.1",
         "tomatophp/filament-users": "*",
+        "weijiajia/http-proxy-manager": "dev-main",
+        "weijiajia/ip-address": "dev-master",
+        "weijiajia/saloonphp-apple-client": "dev-main",
+        "weijiajia/saloonphp-cookie-plugin": "dev-main",
         "ysfkaya/filament-phone-input": "^2.3"
     },
     "require-dev": {
@@ -94,6 +97,6 @@
             "wikimedia/composer-merge-plugin": true
         }
     },
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "prefer-stable": true
 }

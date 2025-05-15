@@ -46,7 +46,7 @@ class AccountResource extends Resource
         return $form
             ->schema([
 
-                Forms\Components\TextInput::make('account')
+                Forms\Components\TextInput::make('appleid')
                     ->required()
                     ->maxLength(255),
 
@@ -89,7 +89,7 @@ class AccountResource extends Resource
             ->defaultSort('updated_at', 'desc')
             ->columns([
 
-                Tables\Columns\TextColumn::make('account')
+                Tables\Columns\TextColumn::make('appleid')
                     ->toggleable()
                     ->searchable(),
 
@@ -255,7 +255,7 @@ class AccountResource extends Resource
             ->schema([
                 Section::make('基本信息')
                     ->schema([
-                        TextEntry::make('account')->label('账号'),
+                        TextEntry::make('appleid')->label('账号'),
                         TextEntry::make('password')->label('密码'),
                         TextEntry::make('status')->label('状态')
                             ->formatStateUsing(fn(AccountStatus $state): string => $state->description())
@@ -417,7 +417,8 @@ class AccountResource extends Resource
 
                         IconEntry::make('payment.is_primary')
                             ->label('是否主要支付方式')
-                            ->icon(fn(bool $state): string => $state ? 'heroicon-o-check-circle' : 'heroicon-o-x-circle'
+                            ->icon(
+                                fn(bool $state): string => $state ? 'heroicon-o-check-circle' : 'heroicon-o-x-circle'
                             )
                             ->color(fn(bool $state): string => $state ? 'success' : 'danger'),
 
@@ -530,5 +531,4 @@ class AccountResource extends Resource
             'view'   => Pages\ViewAccount::route('/{record}'),
         ];
     }
-
 }
