@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Account;
+use App\Models\Phone;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\Isolatable;
 use Weijiajia\SaloonphpAppleClient\DataConstruct\PhoneNumber;
@@ -32,6 +33,7 @@ class SignIn extends Command implements Isolatable
      */
     public function handle()
     {
+
         $appleId = $this->argument('appleId');
         if(!$appleId){
             $appleId = $this->ask('请输入账号');
@@ -46,13 +48,14 @@ class SignIn extends Command implements Isolatable
             ['password' => $password]  // 需要更新或创建的值（密码已哈希）
         );
 
+
         $apple->config()->add('apple_auth_url',value: config('apple.apple_auth_url'));
         $apple->withDebug(true);
 
         //todo 添加登陆状态失败
-        $aidsp = $apple->cookieJar()?->getCookieByName('aidsp');
-
-        if(!$aidsp){
+        $awat = $apple->cookieJar()?->getCookieByName('awat');
+      
+        if(!$awat || $awat->isExpired()){
             $apple->appleIdResource()->signIn();
 
             $auth = $apple->appleIdResource()->appleAuth();
