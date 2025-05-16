@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent\Model;
 use Ysfkaya\FilamentPhoneInput\Forms\PhoneInput;
 use Ysfkaya\FilamentPhoneInput\PhoneInputNumberType;
 use Ysfkaya\FilamentPhoneInput\Tables\PhoneColumn;
+use Filament\Tables\Actions\BulkAction;
+use Illuminate\Support\Collection;
 
 class PhoneResource extends Resource
 {
@@ -28,7 +30,6 @@ class PhoneResource extends Resource
     protected function getHeaderActions(): array
     {
         return [
-
             CreateAction::make(),
         ];
     }
@@ -103,6 +104,23 @@ class PhoneResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
+                BulkAction::make('export_phones')
+                        ->label('批量导出')
+                        ->icon('heroicon-o-document-arrow-down')
+                        ->color('info')
+                        ->action(function (Collection $records,Table $table) {
+
+                            $content = '';
+
+                            foreach ($records as $record) {
+                                /** @var Phone $record */
+                                $content .= "{$record->phone}----{$record->phone_address}\n";
+                            }
+
+                            return response()->streamDownload(function () use ($content) {
+                                echo $content;
+                            }, 'phones_export_' . now()->format('YmdHis') . '.txt');
+                        }),
             ])->defaultSort('updated_at', 'desc');
     }
 
