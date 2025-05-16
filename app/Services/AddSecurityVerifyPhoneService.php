@@ -63,14 +63,9 @@ class AddSecurityVerifyPhoneService
     public function handle(): void
     {
         
-        $aidsp = $this->apple->cookieJar()?->getCookieByName('aidsp');
-        if(!$aidsp){
-            $this->apple->appleIdResource()->getAccountManagerResource()->token();
-        }
-
         $awat = $this->apple->cookieJar()?->getCookieByName('awat');
-        if(!$awat){
-            $this->apple->appleIdResource()->getAccountManagerResource()->authenticatePassword();
+        if(!$awat || $awat->isExpired()){
+            $this->apple->appleIdResource()->getAccountManagerResource()->token();
         }
 
         $this->fetchInfo();
@@ -340,7 +335,7 @@ class AddSecurityVerifyPhoneService
             ->getSecurityPhoneResource()
             ->securityVerifyPhone(
                 countryCode: $this->getPhone()->country_code,
-                phoneNumber: $this->getPhone()->national_number,
+                phoneNumber: $this->getPhone()->format(),
                 countryDialCode: $this->getPhone()->country_dial_code
             );
     }

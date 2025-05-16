@@ -206,6 +206,19 @@ return [
             'timeout' => 60 * 30,
             'nice' => 0,
         ],
+        'supervisor-3' => [
+            'connection'          => 'redis',
+            'queue'               => ['appleid_synchronous_sign_in_status'],
+            'balance'             => 'auto',
+            'autoScalingStrategy' => 'size',
+            'maxProcesses'        => 10,
+            'maxTime'             => 0,
+            'maxJobs'             => 0,
+            'memory' => 128,
+            'tries' => 1,
+            'timeout' => 60 * 10,
+            'nice' => 0,
+        ],
     ],
 
     'environments' => [
@@ -220,6 +233,11 @@ return [
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
+            'supervisor-3' => [
+                'maxProcesses'    => 50,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
         ],
 
         'local' => [
@@ -228,6 +246,9 @@ return [
             ],
             'supervisor-2' => [
                 'maxProcesses' => 20,
+            ],
+            'supervisor-3' => [
+                'maxProcesses' => 50,
             ],
         ],
     ],

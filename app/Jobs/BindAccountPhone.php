@@ -10,6 +10,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use App\Models\Account;
+use App\Apple\Enums\AccountStatus;
 class BindAccountPhone implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -34,7 +35,7 @@ class BindAccountPhone implements ShouldQueue
      */
     public function uniqueId(): string
     {
-        return $this->account->appleid;
+        return $this->appleid->appleid;
     }
 
     /**
@@ -49,7 +50,7 @@ class BindAccountPhone implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(protected readonly Account $account)
+    public function __construct(protected readonly Account $appleid)
     {
         $this->onQueue('appleid_add_security_verify_phone');
     }
@@ -59,25 +60,25 @@ class BindAccountPhone implements ShouldQueue
     {
         try {
 
-            $addSecurityVerifyPhoneService = new AddSecurityVerifyPhoneService($this->account);
+            $this->appleid->refresh();
 
-            $addSecurityVerifyPhoneService->handle();
+            if(!$this->appleid || $this->appleid->status === AccountStatus::BIND_SUCCESS){
+                return;
+            }
 
-            // 任务成功执行，记录日志
-            Log::info("BindAccountPhone job completed successfully", [
-                'job_id' => $this->job->getJobId(),
-                'account' => $this->account,
-            ]);
+            (new AddSecurityVerifyPhoneService($this->appleid))->handle();
 
         } catch (\Throwable $e) {
 
-            Log::error("BindAccountPhone job failed", [
-                'job_id' => $this->job->getJobId(),
-                'account' => $this->account,
-                'error' => $e
-            ]);
+            Log::error("BindAccountPhone job failed {$this->appleid->appleid} {$e}");
 
             $this->fail($e);
+
+            //如果绑定失败，则重新同步登录状态，保持账号不退出
+            SynchronousAppleIdSignInStatusJob::dispatch($this->appleid)->delay(now()->addMinutes(10));
+
+            //如果绑定失败，则在设置时间后重新绑定
+            self::dispatch($this->appleid)->delay(delay: now()->addMinutes(value: 60));
         }
     }
 }
