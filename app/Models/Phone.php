@@ -70,7 +70,7 @@ class Phone extends Model
     {
         return Attribute::make(
             set: function (?string $value, array $attributes) {
-                return $this->getPhoneNumberService($attributes['phone'], $attributes['country_code'])->getCountryCode(
+                return $this->phoneNumberService()->getCountryCode(
                 );
             }
         );
@@ -80,10 +80,7 @@ class Phone extends Model
     {
         return Attribute::make(
             get: function (?string $value, array $attributes) {
-                return $this->getPhoneNumberService(
-                    $attributes['phone'],
-                    $attributes['country_code']
-                )->getNationalNumber();
+                return $this->phoneNumberService()->getNationalNumber();
             }
         );
     }
@@ -92,7 +89,7 @@ class Phone extends Model
     {
         return Attribute::make(
             set: function (?string $value, array $attributes) {
-                return $this->getPhoneNumberService($attributes['phone'], $value)->getCountry();
+                return $this->phoneNumberService([$value])->getCountry();
             }
         );
     }
@@ -113,9 +110,20 @@ class Phone extends Model
      * @param string|null $countryCode
      * @return PhoneService
      */
-    public function getPhoneNumberService(string $phone, ?string $countryCode = null): PhoneService
+    public function phoneNumberService(array $countryCode = []): PhoneService  
     {
-        return new PhoneService($phone, [$countryCode]);
+        if(empty($countryCode)){
+            $countryCode = [$this->attributes['country_code']];
+        }
+        return new PhoneService($this->phone, $countryCode);
+    }
+
+    public function format(): string
+    {
+        if(strtoupper($this->country_code) === 'US'){
+            return $this->phoneNumberService()->formatNational();
+        }
+        return $this->phoneNumberService()->getNationalNumber();
     }
 
 

@@ -11,7 +11,7 @@ use Saloon\Exceptions\Request\Statuses\UnauthorizedException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Weijiajia\SaloonphpAppleClient\Exception\StolenDeviceProtectionException;
 use Weijiajia\SaloonphpAppleClient\Exception\VerificationCodeException;
-
+use Saloon\Exceptions\SaloonException;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
@@ -88,6 +88,15 @@ return Application::configure(basePath: dirname(__DIR__))
             return response()->json([
                 'code'    => 400,
                 'message' => $e->response->json(),
+            ]);
+        });
+
+
+        $exceptions->render(function (SaloonException $e) {
+
+            return response()->json([
+                'code'    => 500,
+                'message' => $e->getMessage(),
             ]);
         });
 

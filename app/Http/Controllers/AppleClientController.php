@@ -28,6 +28,7 @@ use Weijiajia\SaloonphpAppleClient\Exception\Phone\PhoneNotFoundException;
 use Weijiajia\SaloonphpAppleClient\Exception\StolenDeviceProtectionException;
 use Weijiajia\SaloonphpAppleClient\Exception\VerificationCodeException;
 use Weijiajia\SaloonphpAppleClient\Exception\VerificationCodeSentTooManyTimesException;
+use Saloon\Exceptions\SaloonException;
 
 class AppleClientController extends Controller
 {
@@ -282,7 +283,7 @@ class AppleClientController extends Controller
 
             Session::flash('Error', $e->getMessage());
 
-        } catch (JsonException|FatalRequestException|RequestException $e) {
+        } catch (JsonException|FatalRequestException|RequestException|SaloonException $e) {
 
             Session::flash('Error', __('controller.exception'));
 

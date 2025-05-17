@@ -359,7 +359,7 @@ class AddSecurityVerifyPhoneService
             ->getSecurityPhoneResource()
             ->securityVerifyPhoneSecurityCode(
                 id: $response->phoneNumberVerification->phoneNumber->id,
-                phoneNumber: $this->getPhone()->national_number,
+                phoneNumber: $this->getPhone()->format(),
                 countryCode: $this->getPhone()->country_code,
                 countryDialCode: $this->getPhone()->country_dial_code,
                 code: $code
