@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Weijiajia\SaloonphpAppleClient\Trait\ProvidesAppleIdCapabilities;
 use Weijiajia\HttpProxyManager\ProxyManager;
-use Weijiajia\IpAddress\IpAddressManager;
 use GuzzleHttp\Cookie\CookieJarInterface;
 use GuzzleHttp\Cookie\FileCookieJar;
 use Weijiajia\SaloonphpHeaderSynchronizePlugin\Contracts\HeaderSynchronizeDriver;
@@ -30,6 +29,7 @@ use GuzzleHttp\RequestOptions;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Saloon\Helpers\MiddlewarePipeline;
 use App\Services\Trait\HasLog;
+use App\Services\Trait\IpInfo;
 
 /**
  *
@@ -87,6 +87,7 @@ class Account extends Model implements AppleIdContract
     use HasFactory;
     use ProvidesAppleIdCapabilities;
     use HasLog;
+    use IpInfo;
 
     protected $table = 'account';
 
@@ -112,7 +113,7 @@ class Account extends Model implements AppleIdContract
 
     public function middleware(): MiddlewarePipeline
     {
-        if(!isset($this->middlewarePipeline) || $this->middlewarePipeline === null){
+        if(!isset($this->middlewarePipeline)){
             $this->middlewarePipeline = new MiddlewarePipeline;
             $this->middlewarePipeline->onRequest($this->debugRequest());
             $this->middlewarePipeline->onResponse($this->debugResponse());
@@ -125,68 +126,29 @@ class Account extends Model implements AppleIdContract
         $this->logs()->create(['action' => $message, 'request' => $data]);
     }
 
-    public function ipAddressManager(): IpAddressManager
-    {
-        return app()->make(IpAddressManager::class);
-    }
-
-    public function getStatusDescriptionAttribute(): string
-    {
-        return $this->status->description();
-    }
-
     public function logger(): ?LoggerInterface
     {
         return $this->logger ??= app()->make(LoggerInterface::class);
     }
 
+
     public function country(): ?Country
     {
-        if ($this->country) {
-            return $this->country;
-        }
+        return $this->country ??= Country::make($this->ipInfo()->getCountry());
+    }
 
-        if(!config('http-proxy-manager.ipaddress_enabled')){
+    public function city(): ?string
+    {
+        $city = $this->ipInfo()->getCity();
+        if($city === null){
             return null;
         }
 
-        // if ($this->country_code) {
-        //     return $this->country ??= Country::make($this->country_code);
-        // }
-
-        // 获取ip地址
-        $ip = request()->ip();
-
-        // 判断 IP 地址是否为私有或保留地址 (常见的内网/本地地址)
-        $isPrivateOrReservedIp = false;
-        if (filter_var($ip, FILTER_VALIDATE_IP)) {
-            // 如果IP有效，但 filter_var 认为它在私有或保留范围内，则以下会返回 false
-            if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
-                $isPrivateOrReservedIp = true;
-            }
-        } else {
-            // IP 地址本身无效，也视为一种特殊情况
-            $isPrivateOrReservedIp = true;
+        if(str_contains($city, ' ')){
+            return explode( separator: ' ', string: $city)[0];
         }
 
-        if ($isPrivateOrReservedIp) {
-            // 如果没有配置默认国家，并且是内网IP，则抛出异常或返回一个预定义的“未知”国家
-            // 避免查询一个无法确定地理位置的IP
-            // 或者，你可以根据业务需求决定是否要记录日志并尝试用如 '1.1.1.1' 这样的公网IP去查询
-            // 这里我们选择优先使用配置的默认国家，如果存在
-            throw new \RuntimeException("Cannot determine country for private/reserved IP address: {$ip} and no default country is configured.");
-        }
-
-        $ipInfo = $this->ipAddressManager()
-            ->forgetDrivers()
-            ->driver()
-            ->withProxyEnabled(false)
-            ->withCacheDriver(new LaravelCacheDriver(Cache::store('redis')))
-            ->withCacheExpiry(99999999)
-            ->withCacheKey('ip_info_' . $ip)
-            ->request(['ip' => $ip]);
-
-        return $this->country ??= Country::make($ipInfo->getCountry());
+        return $city;
     }
 
     public function cookieJar(): ?CookieJarInterface
@@ -258,8 +220,11 @@ class Account extends Model implements AppleIdContract
                 ->driver()
                 ->withLogger($this->logger());
 
-            if ($this->country() !== null) {
-                $proxyConnector->withCountry($this->country()->getAlpha2Code());
+            if (config('http-proxy-manager.ipaddress_enabled') && $this->country() !== null) {
+                $proxyConnector->withCountry(
+                    $this->country()->getAlpha2Code()
+                    )
+                    ->withCity($this->city());
             }
 
             if ($this->debug()) {
@@ -455,10 +420,5 @@ class Account extends Model implements AppleIdContract
             ->toArray();
 
         return array_unique(array_merge($asOrganizerMembers, $asMemberMembers));
-    }
-
-    public function toAccount(): \Modules\AppleClient\Service\DataConstruct\Account
-    {
-        return \Modules\AppleClient\Service\DataConstruct\Account::from($this->toArray());
     }
 }

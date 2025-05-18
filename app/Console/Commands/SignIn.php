@@ -92,8 +92,6 @@ class SignIn extends Command implements Isolatable
             }
         }
 
-
-
         $addSecurityVerifyPhoneService = new AddSecurityVerifyPhoneService($apple);
 
         $addSecurityVerifyPhoneService->handle();

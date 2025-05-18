@@ -203,7 +203,7 @@ class ProxyConfigurationResource extends Resource
             Forms\Components\TextInput::make('configuration.drivers.stormproxies.pt')
                 ->helperText('套餐id,提取界面选择套餐可指定对应套餐进行提取'),
 
-            Forms\Components\Select::make('configuration.stormproxies.host')
+            Forms\Components\Select::make('configuration.drivers.stormproxies.host')
                 ->options([
                     'proxy.stormip.cn' => '智能',
                     'hk.stormip.cn' => '亚洲区域',

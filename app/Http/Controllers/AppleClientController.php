@@ -7,7 +7,6 @@ use App\Http\Requests\SmsSecurityCodeRequest;
 use App\Http\Requests\VerifyAccountRequest;
 use App\Http\Requests\VerifySecurityCodeRequest;
 use App\Jobs\BindAccountPhone;
-use Carbon\Carbon;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
@@ -25,14 +24,15 @@ use Saloon\Exceptions\Request\RequestException;
 use App\Models\Account;
 use Weijiajia\SaloonphpAppleClient\DataConstruct\PhoneNumber;
 use Weijiajia\SaloonphpAppleClient\Exception\Phone\PhoneNotFoundException;
+use Weijiajia\SaloonphpAppleClient\Exception\SignInException;
 use Weijiajia\SaloonphpAppleClient\Exception\StolenDeviceProtectionException;
 use Weijiajia\SaloonphpAppleClient\Exception\VerificationCodeException;
 use Weijiajia\SaloonphpAppleClient\Exception\VerificationCodeSentTooManyTimesException;
 use Saloon\Exceptions\SaloonException;
-
+use App\Services\Trait\IpInfo;
 class AppleClientController extends Controller
 {
-
+    use IpInfo;
     public function __construct(
         protected readonly Request $request,
         protected readonly LoggerInterface $logger,
@@ -51,6 +51,8 @@ class AppleClientController extends Controller
         Session::flash('account', $request->input('account', ''));
         Session::flash('password', $request->input('password', ''));
 
+        $this->ipInfo();
+
         return view('index/index');
     }
 
@@ -68,6 +70,11 @@ class AppleClientController extends Controller
     /**
      * @param VerifyAccountRequest $request
      * @return JsonResponse
+     * @throws FatalRequestException
+     * @throws JsonException
+     * @throws RequestException
+     * @throws \Throwable
+     * @throws SignInException
      */
     public function verifyAccount(
         VerifyAccountRequest $request
