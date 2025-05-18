@@ -10,24 +10,27 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use App\Models\Account;
 use App\Apple\Enums\AccountStatus;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Saloon\Exceptions\SaloonException;
 use Saloon\Exceptions\Request\Statuses\UnauthorizedException;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Support\Facades\Log;
+use DateTime;
 
-class BindAccountPhone implements ShouldQueue, ShouldBeUnique
+class AppleidAddSecurityVerifyPhone implements ShouldQueue, ShouldBeUnique
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public int $tries = 1;
+    public function retryUntil(): DateTime
+    {
+        return now()->addHours(24);
+    }
 
     /**
      * 作业在超时前可以运行的秒数。
      * 单次尝试的超时时间。
      * @var int
      */
-    public int $timeout = 60 * 10; // 30 minutes
+    public int $timeout = 60 * 10; // 10 minutes
 
     /**
      * 唯一任务锁
@@ -35,7 +38,7 @@ class BindAccountPhone implements ShouldQueue, ShouldBeUnique
      */
     public function uniqueId(): string
     {
-        return "bind_account_phone_lock_{$this->appleid->appleid}";
+        return "appleid_add_security_verify_phone_lock_{$this->appleid->appleid}";
     }
 
     /**
@@ -46,7 +49,16 @@ class BindAccountPhone implements ShouldQueue, ShouldBeUnique
      */
     public function uniqueFor(): int
     {
-        return 60 * 10;
+        return 60 * 60 * 24;
+    }
+
+    /**
+     * 定义每次重试之间的延迟（秒）。
+     * @return int|array
+     */
+    public function backoff(): int|array
+    {
+        return 60 * 60;
     }
 
     /**
@@ -66,27 +78,23 @@ class BindAccountPhone implements ShouldQueue, ShouldBeUnique
             }
 
             if ($this->appleid->status === AccountStatus::BIND_ING) {
+                //如果有其他任务真在添加信任设备，我们需要让任务重试
+                $this->release($this->backoff());
                 return;
             }
 
             (new AddSecurityVerifyPhoneService($this->appleid))->handle();
 
             Log::info("[BindAccountPhone] Successfully bound phone for account {$this->appleid->appleid} on attempt {$this->attempts()}.");
-        } catch (ModelNotFoundException $e) {
-
-            return;
-        } catch (UnauthorizedException $e) {
-
-            return;
-        } catch (SaloonException $e) {
-
-            SynchronousAppleIdSignInStatusJob::dispatch($this->appleid)->delay(now()->addMinutes(10));
-            AppleidAddSecurityVerifyPhone::dispatch($this->appleid)->delay(now()->addMinutes(60));
-
-            return;
         } catch (\Throwable $e) {
 
             Log::error("{$e}");
+
+            if($e instanceof SaloonException && !$e instanceof UnauthorizedException){
+                //重新抛出异常让任务重试
+                throw $e;
+            }
+            
             return;
         }
     }

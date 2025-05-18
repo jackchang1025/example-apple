@@ -15,7 +15,6 @@ use App\Filament\Resources\AccountResource\Pages\ViewAccount;
 use Filament\Notifications\Actions\Action;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Saloon\Exceptions\SaloonException;
-use Illuminate\Support\Facades\Cache;
 use Filament\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use DateTime;
@@ -82,11 +81,17 @@ class SynchronousAppleIdSignInStatusJob implements ShouldQueue,ShouldBeUnique
             if ($this->appleid->status === AccountStatus::BIND_SUCCESS) {
                 return;
             }
+            
+            if ($this->appleid->status === AccountStatus::BIND_ING) {
+                $this->fail();
+                return;
+            }
 
             $this->appleid->appleIdResource()
                 ->getAccountManagerResource()
                 ->token();
 
+            $this->fail();
 
         } catch (\Throwable $e) {
 
@@ -96,7 +101,7 @@ class SynchronousAppleIdSignInStatusJob implements ShouldQueue,ShouldBeUnique
 
             $this->appleid->logs()
                 ->create([
-                    'action' => '同步苹果 ID 登录状态失败', 
+                    'action' => '同步苹果 ID 登录状态失败',
                     'request' => ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]
                 ]);
 

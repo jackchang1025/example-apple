@@ -146,7 +146,6 @@ class AddSecurityVerifyPhoneService
             if ($this->apple->bind_phone) {
                 throw new \RuntimeException("该账户已绑定手机号");
             }
-
             $this->apple->update(['status' => AccountStatus::BIND_ING]);
 
             $this->attemptBind();

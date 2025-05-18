@@ -41,11 +41,6 @@ class AppleClientController extends Controller
 
     }
 
-    public function ip(): string
-    {
-        return $this->request->ip();
-    }
-
     public function index(Request $request): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
     {
         Session::flash('account', $request->input('account', ''));
