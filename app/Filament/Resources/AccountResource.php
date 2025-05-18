@@ -33,7 +33,7 @@ use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-
+use Illuminate\Support\Collection;
 class AccountResource extends Resource
 {
     protected static ?string $model = Account::class;
@@ -231,6 +231,27 @@ class AccountResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
+
+                Tables\Actions\BulkAction::make('export_appleid')
+                ->label('批量导出')
+                ->icon('heroicon-o-document-arrow-down')
+                ->color('info')
+                ->action(function (Collection $records,Table $table) {
+
+                    $content = '';
+
+                    foreach ($records as $record) {
+                        /** @var Account $record */
+                        $content .= sprintf(
+                            "%s----%s----%s----%s----%s\n", 
+                            $record->appleid(), $record->password(), $record->payment?->payment_method_name ?? 'None', $record->bind_phone ?? 'None', $record->bind_phone_address ?? 'None'
+                        );
+                    }
+
+                    return response()->streamDownload(function () use ($content) {
+                        echo $content;
+                    }, 'appleid_export_' . now()->format('YmdHis') . '.txt');
+                }),
 
                 Tables\Actions\ExportBulkAction::make('json')
                     ->label('导出 json')
