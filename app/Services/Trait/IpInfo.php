@@ -29,8 +29,7 @@ trait IpInfo
     public function ip(): ?string
     {
          // 获取ip地址
-        // $ip = request()->ip();
-        $ip = '120.85.97.28';
+        $ip = request()->ip();
 
         // 判断 IP 地址是否为私有或保留地址 (常见的内网/本地地址)
         $isPrivateOrReservedIp = false;
