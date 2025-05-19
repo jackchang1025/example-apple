@@ -220,7 +220,7 @@ class Account extends Model implements AppleIdContract
                 ->driver()
                 ->withLogger($this->logger());
 
-            if (config('http-proxy-manager.ipaddress_enabled') && $this->country() !== null) {
+            if (config('http-proxy-manager.ipaddress_enabled') && $this->country()) {
                 $proxyConnector->withCountry(
                     $this->country()->getAlpha2Code()
                     )

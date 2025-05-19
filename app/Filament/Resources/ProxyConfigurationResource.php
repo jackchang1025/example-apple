@@ -326,31 +326,20 @@ class ProxyConfigurationResource extends Resource
         return [
             Forms\Components\Select::make('configuration.drivers.wandou.mode')
                 ->options([
-                    'direct_connection_ip'    => '账密模式',
                     'extract_ip' => '提取模式',
                 ])
-                ->default('direct_connection_ip')
+                ->default('extract_ip')
                 ->helperText('选择代理模式'),
 
             Forms\Components\TextInput::make('configuration.drivers.wandou.app_key')
                 ->helperText('提取模式时需要 开放的app_key,可以通过用户个人中心获取'),
 
-            //            Forms\Components\TextInput::make('configuration.wandou.session')
-            //                ->helperText('账密模式时需要 session 值'),
 
             Forms\Components\TextInput::make('configuration.drivers.wandou.username')
                 ->helperText('账密模式时需要，可以通过用户个人中心获取'),
 
             Forms\Components\TextInput::make('configuration.drivers.wandou.password')
                 ->helperText('账密模式时需要，可以通过用户个人中心获取'),
-
-            Forms\Components\TextInput::make('configuration.drivers.wandou.host')
-                ->default('api.wandoujia.com')
-                ->helperText('账密模式时需要，可以通过用户个人中心获取'),
-
-            Forms\Components\TextInput::make('configuration.drivers.wandou.port')
-                ->default('1000')
-                ->helperText(' 账密模式时需要，可以通过用户个人中心获取'),
 
             Forms\Components\Select::make('configuration.drivers.wandou.xy')
                 ->options([
@@ -370,9 +359,9 @@ class ProxyConfigurationResource extends Resource
                 ->default(null)
                 ->helperText('运营商选择'),
 
-            //            Forms\Components\TextInput::make('configuration.wandou.area_id')
-            //                ->default(0)
-            //                ->helperText('地区id,默认0全国混播,多个地区使用|分割'),
+            Forms\Components\TextInput::make('configuration.wandou.area_id')
+                ->default(0)
+                ->helperText('地区id,默认0全国混播,多个地区使用|分割,查看地区 https://h.wandouip.com/help/news/432113'),
 
             Forms\Components\TextInput::make('configuration.drivers.wandou.num')
                 ->numeric()
