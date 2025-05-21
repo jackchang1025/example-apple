@@ -11614,12 +11614,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/jackchang1025/http-proxy-manager.git",
-                "reference": "1eb935ea70daaea645b1654fdf6eb642e945a038"
+                "reference": "0420eef57173141b0043ae133a04fc1ef9fa9920"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jackchang1025/http-proxy-manager/zipball/1eb935ea70daaea645b1654fdf6eb642e945a038",
-                "reference": "1eb935ea70daaea645b1654fdf6eb642e945a038",
+                "url": "https://api.github.com/repos/jackchang1025/http-proxy-manager/zipball/0420eef57173141b0043ae133a04fc1ef9fa9920",
+                "reference": "0420eef57173141b0043ae133a04fc1ef9fa9920",
                 "shasum": ""
             },
             "require": {
@@ -11678,7 +11678,7 @@
                 "issues": "https://github.com/jackchang1025/http-proxy-manager/issues",
                 "source": "https://github.com/jackchang1025/http-proxy-manager/tree/main"
             },
-            "time": "2025-05-19T15:49:26+00:00"
+            "time": "2025-05-20T06:36:23+00:00"
         },
         {
             "name": "weijiajia/ip-address",
@@ -11751,15 +11751,16 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/jackchang1025/province-city-china.git",
-                "reference": "73ef2b0e885f3bc03f6bce5f1925ff822427ba7f"
+                "reference": "a669fe2aedf5299376160211943b32319d0ce495"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jackchang1025/province-city-china/zipball/73ef2b0e885f3bc03f6bce5f1925ff822427ba7f",
-                "reference": "73ef2b0e885f3bc03f6bce5f1925ff822427ba7f",
+                "url": "https://api.github.com/repos/jackchang1025/province-city-china/zipball/a669fe2aedf5299376160211943b32319d0ce495",
+                "reference": "a669fe2aedf5299376160211943b32319d0ce495",
                 "shasum": ""
             },
             "require": {
+                "illuminate/support": "^10.0|^11.0|^12.0",
                 "overtrue/pinyin": "^5.3",
                 "php": "^8.0"
             },
@@ -11797,7 +11798,7 @@
                 "issues": "https://github.com/jackchang1025/province-city-china/issues",
                 "source": "https://github.com/jackchang1025/province-city-china/tree/main"
             },
-            "time": "2025-05-19T12:06:16+00:00"
+            "time": "2025-05-19T19:32:32+00:00"
         },
         {
             "name": "weijiajia/saloonphp-apple-client",
