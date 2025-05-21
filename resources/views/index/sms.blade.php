@@ -146,7 +146,7 @@
                                             </div>
 
                                                 <div class="form-message-wrappers" >
-                                                    <span class="form-message">{{ session('Error') }}</span>
+                                                    <span class="form-message">{{ $message }}</span>
                                                 </div>
 
                                             <div class="si-info">

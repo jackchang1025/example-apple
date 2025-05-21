@@ -277,25 +277,28 @@ class AppleClientController extends Controller
             'phoneNumber' => 'required|string|max:255',
         ])->validated();
 
+        $message = '';
         try {
+
 
             $controllerService->sendSms((int)$params['ID']);
 
         } catch (VerificationCodeSentTooManyTimesException $e) {
 
-            Session::flash('Error', $e->getMessage());
+            $message = $e->getMessage();
 
         } catch (JsonException|FatalRequestException|RequestException|SaloonException $e) {
 
-            Session::flash('Error', __('controller.exception'));
-
             $this->logger->error($e);
+
+            $message = __('controller.exception');
 
         }
 
         return view('index/sms', [
             'ID'           => $params['ID'],
             'phoneNumber'  => $params['phoneNumber'],
+            'message'  => $message,
             'is_diffPhone' => $controllerService->getTrustedPhoneNumbers()->count() >= 2,
         ]);
     }
