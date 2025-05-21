@@ -47,3 +47,9 @@ function something()
 {
     // ..
 }
+
+function getFixturesFile(string $filename): string
+{
+    return file_get_contents(__DIR__.'/Fixtures/Files/'. $filename);
+}
+

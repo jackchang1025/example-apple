@@ -10,7 +10,7 @@
         <array>
             <dict>
                 <key>member-invite-email</key>
-                <string>674648134@qq.com</string>
+                <string>xxxxxxxxxxx@qq.com</string>
                 <key>member-status</key>
                 <string>Pending</string>
                 <key>member-display-label</key>
@@ -49,19 +49,19 @@
                 <key>member-display-label</key>
                 <string>组织者</string>
                 <key>member-invite-email</key>
-                <string>licade_2015@163.com</string>
+                <string>xxxxxxxxxxx@163.com</string>
                 <key>member-type</key>
                 <string>ADULT</string>
                 <key>linked-itunes-account-dsid</key>
                 <integer>21905965912</integer>
                 <key>member-apple-id</key>
-                <string>licade_2015@163.com</string>
+                <string>xxxxxxxxxxx@163.com</string>
                 <key>member-last-name</key>
                 <string>jack</string>
                 <key>is-ask-to-buy-enabled</key>
                 <false/>
                 <key>linked-itunes-account-appleid</key>
-                <string>licade_2015@163.com</string>
+                <string>xxxxxxxxxxx@163.com</string>
             </dict>
             <dict>
                 <key>member-first-name</key>
@@ -93,19 +93,19 @@
                 <key>member-display-label</key>
                 <string>成人</string>
                 <key>member-invite-email</key>
-                <string>jackchang2021@163.com</string>
+                <string>xxxxxxxxxxx@163.com</string>
                 <key>member-type</key>
                 <string>ADULT</string>
                 <key>linked-itunes-account-dsid</key>
                 <integer>20186096743</integer>
                 <key>member-apple-id</key>
-                <string>jackchang2021@163.com</string>
+                <string>xxxxxxxxxxx@163.com</string>
                 <key>member-last-name</key>
                 <string>jack</string>
                 <key>is-ask-to-buy-enabled</key>
                 <false/>
                 <key>linked-itunes-account-appleid</key>
-                <string>jackchang2021@163.com</string>
+                <string>xxxxxxxxxxx@163.com</string>
             </dict>
         </array>
         <key>is-member-of-family</key>

@@ -1,9 +1,6 @@
 <?php
 
-use Illuminate\Foundation\Testing\TestCase;
-use Modules\AppleClient\Service\DataConstruct\Device\Devices;
-
-uses(TestCase::class);
+use Weijiajia\SaloonphpAppleClient\Integrations\AppleId\Dto\Response\Device\Devices;
 
 beforeEach(function () {
 

@@ -1,10 +1,8 @@
 <?php
 
 use Illuminate\Foundation\Testing\TestCase;
-use Modules\AppleClient\Service\DataConstruct\SecurityCode;
-use Modules\AppleClient\Service\DataConstruct\SendVerificationCode\SendDeviceSecurityCode;
-
-uses(TestCase::class);
+use Weijiajia\SaloonphpAppleClient\Integrations\Idmsa\Dto\Response\SendVerificationCode\SendDeviceSecurityCode;
+use Weijiajia\SaloonphpAppleClient\DataConstruct\SecurityCode;
 
 it('can create from json', function () {
 

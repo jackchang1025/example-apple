@@ -1,18 +1,17 @@
 <?php
 
 use Illuminate\Foundation\Testing\TestCase;
-use Modules\AppleClient\Service\DataConstruct\Icloud\FamilyDetails\FamilyDetails;
-use Modules\AppleClient\Service\DataConstruct\Icloud\FamilyDetails\FamilyMember;
-use Modules\AppleClient\Service\DataConstruct\Icloud\FamilyDetails\PendingMember;
-use Modules\AppleClient\Service\Helpers\PlistXmlParser;
 use Spatie\LaravelData\DataCollection;
+use Weijiajia\SaloonphpAppleClient\Helpers\PlistXmlParser;
+use Weijiajia\SaloonphpAppleClient\Integrations\SetupIcloud\Dto\Response\FamilyDetails\FamilyDetails;
+use Weijiajia\SaloonphpAppleClient\Integrations\SetupIcloud\Dto\Response\FamilyDetails\PendingMember;
+use Weijiajia\SaloonphpAppleClient\Integrations\SetupIcloud\Dto\Response\FamilyDetails\FamilyMember;
 
-uses(TestCase::class);
 
 
 it('can parse plist xml', function () {
 
-    $xmlContent = (file_get_contents(base_path('/Modules/AppleClient/tests/Unit/Files/getFamilyDetails.xml')));
+    $xmlContent = getFixturesFile("getFamilyDetails.xml");
     $parser     = new PlistXmlParser();
     $result     = $parser->xmlParse(simplexml_load_string($xmlContent));
 
@@ -22,11 +21,11 @@ it('can parse plist xml', function () {
         ->toBeInstanceOf(FamilyDetails::class)
         ->and($familyDetails->pendingMembers)
         ->toBeInstanceOf(DataCollection::class)
-        ->and($familyDetails->pendingMembers->first())
+        ->and($familyDetails->pendingMembers->toCollection()->first())
         ->toBeInstanceOf(PendingMember::class)
         ->and($familyDetails->familyMembers)
         ->toBeInstanceOf(DataCollection::class)
-        ->and($familyDetails->familyMembers->first())
+        ->and($familyDetails->familyMembers->toCollection()->first())
         ->toBeInstanceOf(FamilyMember::class);
 });
 

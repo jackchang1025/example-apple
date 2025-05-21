@@ -1,11 +1,10 @@
 <?php
 
 use Illuminate\Foundation\Testing\TestCase;
-use Modules\AppleClient\Service\DataConstruct\SecurityVerifyPhone\PhoneNumber;
-use Modules\AppleClient\Service\DataConstruct\SecurityVerifyPhone\PhoneNumberVerification;
-use Modules\AppleClient\Service\DataConstruct\SecurityVerifyPhone\SecurityVerifyPhone;
+use Weijiajia\SaloonphpAppleClient\Integrations\AppleId\Dto\Response\SecurityVerifyPhone\PhoneNumber;
+use Weijiajia\SaloonphpAppleClient\Integrations\AppleId\Dto\Response\SecurityVerifyPhone\PhoneNumberVerification;
+use Weijiajia\SaloonphpAppleClient\Integrations\AppleId\Dto\Response\SecurityVerifyPhone\SecurityVerifyPhone;
 
-uses(TestCase::class);
 
 it('can create from json', function () {
 

@@ -1,18 +1,17 @@
 <?php
 
 use Illuminate\Foundation\Testing\TestCase;
-use Modules\AppleClient\Service\DataConstruct\Icloud\LoginDelegates\Delegate;
-use Modules\AppleClient\Service\DataConstruct\Icloud\LoginDelegates\GameCenter\GameCenter;
-use Modules\AppleClient\Service\DataConstruct\Icloud\LoginDelegates\Ids\Ids;
-use Modules\AppleClient\Service\DataConstruct\Icloud\LoginDelegates\LoginDelegates;
-use Modules\AppleClient\Service\DataConstruct\Icloud\LoginDelegates\MobileMe\MobileMe;
-use Modules\AppleClient\Service\Helpers\PlistXmlParser;
+use Weijiajia\SaloonphpAppleClient\Helpers\PlistXmlParser;
+use Weijiajia\SaloonphpAppleClient\Integrations\SetupIcloud\Dto\Response\LoginDelegates\Delegate;
+use Weijiajia\SaloonphpAppleClient\Integrations\SetupIcloud\Dto\Response\LoginDelegates\GameCenter\GameCenter;
+use Weijiajia\SaloonphpAppleClient\Integrations\SetupIcloud\Dto\Response\LoginDelegates\Ids\Ids;
+use Weijiajia\SaloonphpAppleClient\Integrations\SetupIcloud\Dto\Response\LoginDelegates\LoginDelegates;
+use Weijiajia\SaloonphpAppleClient\Integrations\SetupIcloud\Dto\Response\LoginDelegates\MobileMe\MobileMe;
 
-uses(TestCase::class);
 
 it('can parse plist xml', function () {
 
-    $xmlContent = (file_get_contents(base_path('/Modules/AppleClient/tests/Unit/Files/login.xml')));
+    $xmlContent = getFixturesFile('login.xml');
     $parser     = new PlistXmlParser();
     $result     = $parser->xmlParse(simplexml_load_string($xmlContent));
 
@@ -37,7 +36,7 @@ it('can parse plist xml', function () {
 
 it('can parse plist login fail xml', function () {
 
-    $xmlContent = (file_get_contents(base_path('/Modules/AppleClient/tests/Unit/Files/loginfail.xml')));
+    $xmlContent = getFixturesFile('loginfail.xml');
     $parser     = new PlistXmlParser();
     $result     = $parser->xmlParse(simplexml_load_string($xmlContent));
 
@@ -57,7 +56,7 @@ it('can parse plist login fail xml', function () {
 
 it('can parse plist login auth xml', function () {
 
-    $xmlContent = (file_get_contents(base_path('/Modules/AppleClient/tests/Unit/Files/auth.xml')));
+    $xmlContent = getFixturesFile('auth.xml');
     $parser     = new PlistXmlParser();
     $result     = $parser->xmlParse(simplexml_load_string($xmlContent));
 

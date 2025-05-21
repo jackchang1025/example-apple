@@ -1,12 +1,11 @@
 <?php
 
 use Illuminate\Foundation\Testing\TestCase;
-use Modules\AppleClient\Service\DataConstruct\PhoneNumber;
-use Modules\AppleClient\Service\DataConstruct\SecurityCode;
-use Modules\AppleClient\Service\DataConstruct\VerifyPhoneSecurityCode\VerifyPhoneSecurityCode;
 use Spatie\LaravelData\DataCollection;
+use Weijiajia\SaloonphpAppleClient\Integrations\Idmsa\Dto\Response\VerifyPhoneSecurityCode\VerifyPhoneSecurityCode;
+use Weijiajia\SaloonphpAppleClient\DataConstruct\PhoneNumber;
+use Weijiajia\SaloonphpAppleClient\DataConstruct\SecurityCode;
 
-uses(TestCase::class);
 
 it('can create from json', function () {
 

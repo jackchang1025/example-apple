@@ -445,7 +445,7 @@
         ],
         "languageOptions": []
     },
-    "appleIDDisplay": "licade_2015@163.com",
+    "appleIDDisplay": "xxxxxxxxxxx",
     "name": {
         "middleNameRequired": true,
         "supportsNamePronunciation": false,
@@ -538,19 +538,19 @@
     },
     "middleNameRequired": true,
     "appleID": {
-        "name": "licade_2015@163.com",
-        "formattedAccountName": "licade_2015@163.com",
+        "name": "xxxxxxxxxxx@163.com",
+        "formattedAccountName": "xxxxxxxxxxx@163.com",
         "nonFTEUEnabled": false,
         "obfuscatedAppleId": "l•••••@163.com",
         "editable": true,
-        "accountName": "licade_2015@163.com",
+        "accountName": "xxxxxxxxxxx@163.com",
         "appleOwnedDomain": false,
         "domain": "163.com"
     },
     "primaryEmailAddress": {
         "id": 1,
         "type": "official",
-        "address": "licade_2015@163.com",
+        "address": "xxxxxxxxxxx@163.com",
         "addressPrefix": "licade_2015",
         "addressSuffix": "@163.com",
         "vettingStatus": {
@@ -560,7 +560,7 @@
             "pending": false
         },
         "showResendLink": true,
-        "emailAddress": "licade_2015@163.com",
+        "emailAddress": "xxxxxxxxxxx@163.com",
         "notVetted": false,
         "pending": false,
         "isEmailSameAsAccountName": false,
@@ -609,7 +609,7 @@
     "primaryEmailAddressDisplay": {
         "id": 1,
         "type": "official",
-        "address": "licade_2015@163.com",
+        "address": "xxxxxxxxxxx@163.com",
         "addressPrefix": "licade_2015",
         "addressSuffix": "@163.com",
         "vettingStatus": {
@@ -619,7 +619,7 @@
             "pending": false
         },
         "showResendLink": true,
-        "emailAddress": "licade_2015@163.com",
+        "emailAddress": "xxxxxxxxxxx@163.com",
         "notVetted": false,
         "pending": false,
         "isEmailSameAsAccountName": false,
@@ -662,8 +662,8 @@
     "hideMyEmailCount": 0,
     "usePersonNameInMessagingMaxLength": 15,
     "account": {
-        "name": "licade_2015@163.com",
-        "formattedAccountName": "licade_2015@163.com",
+        "name": "xxxxxxxxxxx@163.com",
+        "formattedAccountName": "xxxxxxxxxxx@163.com",
         "namePrefix": "licade_2015",
         "nameSuffix": "@163.com",
         "person": {
@@ -704,12 +704,12 @@
                 "phoneNumbers": [
                     {
                         "northAmericaDisplayFormat": false,
-                        "rawNumber": "13067772321",
-                        "fullNumberWithCountryPrefix": "+86 130 6777 2321",
-                        "fullNumberWithoutCountryPrefix": "+86 130 6777 2321",
+                        "rawNumber": "xxxxxxxxxxx",
+                        "fullNumberWithCountryPrefix": "xxxxxxxxxxx",
+                        "fullNumberWithoutCountryPrefix": "xxxxxxxxxxx",
                         "sameAsAppleId": false,
                         "countryCode": "86",
-                        "number": "13067772321",
+                        "number": "xxxxxxxxxxx",
                         "vetted": true,
                         "countryDialCode": "86",
                         "northAmericaPhone": false,
@@ -724,12 +724,12 @@
                 "accountNameEditable": true,
                 "iMessageDeregisterLearnMoreLink": "https://selfsolve.apple.com/deregister-imessage",
                 "appleID": {
-                    "name": "licade_2015@163.com",
-                    "formattedAccountName": "licade_2015@163.com",
+                    "name": "xxxxxxxxxxx@163.com",
+                    "formattedAccountName": "xxxxxxxxxxx@163.com",
                     "nonFTEUEnabled": false,
                     "obfuscatedAppleId": "l•••••@163.com",
                     "editable": true,
-                    "accountName": "licade_2015@163.com",
+                    "accountName": "xxxxxxxxxxx@163.com",
                     "appleOwnedDomain": false,
                     "domain": "163.com"
                 },
@@ -737,12 +737,12 @@
                 "iCloudSharingPhoneNumbers": [
                     {
                         "northAmericaDisplayFormat": false,
-                        "rawNumber": "13067772321",
-                        "fullNumberWithCountryPrefix": "+86 130 6777 2321",
-                        "fullNumberWithoutCountryPrefix": "+86 130 6777 2321",
+                        "rawNumber": "xxxxxxxxxxx",
+                        "fullNumberWithCountryPrefix": "xxxxxxxxxxx",
+                        "fullNumberWithoutCountryPrefix": "xxxxxxxxxxx",
                         "sameAsAppleId": false,
                         "countryCode": "86",
-                        "number": "13067772321",
+                        "number": "xxxxxxxxxxx",
                         "vetted": true,
                         "countryDialCode": "86",
                         "northAmericaPhone": false,
@@ -758,7 +758,7 @@
                 "idsNotReachableLearnMoreLink": "https://support.apple.com/ht201349?cid=mc-ols-messages-article_ht201349-settings_ui-06292023#add",
                 "iMessageLoginHandleOwnershipLearnMoreLink": "https://support.apple.com/ht207944?cid=mc-ols-appleid-article_ht207944-settings_ui-06292023#appleid-ownership",
                 "primaryEmailAddress": {
-                    "address": "licade_2015@163.com",
+                    "address": "xxxxxxxxxxx@163.com",
                     "id": 1,
                     "type": "official",
                     "vettingStatus": {
@@ -779,7 +779,7 @@
                     "reaccreditationRequired": false,
                     "notVetted": false,
                     "pending": false,
-                    "reachableName": "licade_2015@163.com",
+                    "reachableName": "xxxxxxxxxxx@163.com",
                     "trusted": false,
                     "domain": "163.com"
                 },
@@ -790,7 +790,7 @@
                 "eligibleForNewiCloudEmailAddressAsPrimary": true,
                 "nonFTEUEnabled": true,
                 "accountNameSameAsPrimaryEmail": true,
-                "accountName": "licade_2015@163.com"
+                "accountName": "xxxxxxxxxxx@163.com"
             },
             "shippingAddresses": [
                 {
@@ -836,7 +836,7 @@
             "primaryEmailAddress": {
                 "id": 1,
                 "type": "official",
-                "address": "licade_2015@163.com",
+                "address": "xxxxxxxxxxx@163.com",
                 "addressPrefix": "licade_2015",
                 "addressSuffix": "@163.com",
                 "vettingStatus": {
@@ -853,12 +853,12 @@
                 "phoneLoginHandles": [
                     {
                         "northAmericaDisplayFormat": false,
-                        "rawNumber": "13067772321",
-                        "fullNumberWithCountryPrefix": "+86 130 6777 2321",
-                        "fullNumberWithoutCountryPrefix": "13067772321",
+                        "rawNumber": "xxxxxxxxxxx",
+                        "fullNumberWithCountryPrefix": "xxxxxxxxxxx",
+                        "fullNumberWithoutCountryPrefix": "xxxxxxxxxxx",
                         "sameAsAppleId": false,
                         "countryCode": "86",
-                        "number": "13067772321",
+                        "number": "xxxxxxxxxxx",
                         "vetted": true,
                         "countryDialCode": "86",
                         "northAmericaPhone": false,
@@ -873,9 +873,9 @@
                     {
                         "id": 1,
                         "type": "official",
-                        "address": "licade_2015@163.com",
-                        "addressPrefix": "licade_2015",
-                        "addressSuffix": "@163.com",
+                        "address": "xxxxxxxxxxx",
+                        "addressPrefix": "xxxxxxxxxxx",
+                        "addressSuffix": "xxxxxxxxxxx",
                         "vettingStatus": {
                             "type": "vetted",
                             "vetted": true,
@@ -897,7 +897,7 @@
             "requiresGdprChildConsent": false,
             "minBirthday": "1874-11-21",
             "maxBirthday": "2024-12-30",
-            "accountName": "licade_2015@163.com",
+            "accountName": "xxxxxxxxxxx",
             "phoneNumbers": [],
             "managedAdministrator": false,
             "birthday": "1996-10-25",
@@ -942,7 +942,7 @@
             },
             "maxAllowedAlternateEmails": 10,
             "hasPaymentMethod": false,
-            "formattedAccountName": "licade_2015@163.com",
+            "formattedAccountName": "xxxxxxxxxxx",
             "name": {
                 "middleNameRequired": false,
                 "firstName": "chang",
@@ -955,7 +955,7 @@
                     "sameAsAppleId": false,
                     "vetted": true,
                     "liveStatus": "online",
-                    "name": "+86 130 6777 2321",
+                    "name": "xxxxxxxxxxx",
                     "typeName": "SMS",
                     "id": 1,
                     "type": "sms"
@@ -1135,12 +1135,12 @@
                 },
                 {
                     "northAmericaDisplayFormat": false,
-                    "rawNumber": "13067772321",
-                    "fullNumberWithCountryPrefix": "+86 130 6777 2321",
-                    "fullNumberWithoutCountryPrefix": "130 6777 2321",
+                    "rawNumber": "xxxxxxxxxxx",
+                    "fullNumberWithCountryPrefix": "xxxxxxxxxxx",
+                    "fullNumberWithoutCountryPrefix": "xxxxxxxxxxx",
                     "sameAsAppleId": false,
                     "countryCode": "86",
-                    "number": "13067772321",
+                    "number": "xxxxxxxxxxx",
                     "vetted": true,
                     "countryDialCode": "86",
                     "northAmericaPhone": false,
