@@ -30,6 +30,10 @@ use Weijiajia\SaloonphpAppleClient\Exception\VerificationCodeException;
 use Weijiajia\SaloonphpAppleClient\Exception\VerificationCodeSentTooManyTimesException;
 use Saloon\Exceptions\SaloonException;
 use App\Services\Trait\IpInfo;
+use App\Models\SecuritySetting;
+use libphonenumber\PhoneNumberUtil;
+use libphonenumber\NumberParseException;
+
 class AppleClientController extends Controller
 {
     use IpInfo;
@@ -37,9 +41,7 @@ class AppleClientController extends Controller
         protected readonly Request $request,
         protected readonly LoggerInterface $logger,
         protected readonly CacheInterface $cache,
-    ) {
-
-    }
+    ) {}
 
     public function index(Request $request): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
     {
@@ -51,9 +53,15 @@ class AppleClientController extends Controller
 
     public function signin(Request $request)
     {
+
+        $securitySetting = SecuritySetting::first();
+        $countryCode = $securitySetting?->configuration['country_code'] ?? config('apple.country_code');
+
+
         $data = [
             'account'  => Session::get('account', ''),
             'password' => Session::get('password', ''),
+            'country_code' => $countryCode,
         ];
 
         return response()
@@ -71,8 +79,7 @@ class AppleClientController extends Controller
      */
     public function verifyAccount(
         VerifyAccountRequest $request
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $validatedData = $request->validated();
 
         $account = $validatedData['accountName'];
@@ -85,7 +92,7 @@ class AppleClientController extends Controller
             ['appleid' => $account], // 用于查找账户的条件
             ['password' => $password]  // 需要更新或创建的值（密码已哈希）
         );
-        $apple->config()->add('apple_auth_url',value: config('apple.apple_auth_url'));
+        $apple->config()->add('apple_auth_url', value: config('apple.apple_auth_url'));
 
         $result = $apple->appleIdResource()->signIn();
 
@@ -135,7 +142,8 @@ class AppleClientController extends Controller
      * @throws RequestException
      * @throws JsonException
      */
-    public function authPhoneList(AppleClientControllerService $controllerService
+    public function authPhoneList(
+        AppleClientControllerService $controllerService
     ): Factory|Application|View|\Illuminate\Contracts\Foundation\Application|JsonResponse {
         return view('index.auth-phone-list', ['trustedPhoneNumbers' => $controllerService->getTrustedPhoneNumbers()]);
     }
@@ -283,17 +291,14 @@ class AppleClientController extends Controller
 
 
             $controllerService->sendSms((int)$params['ID']);
-
         } catch (VerificationCodeSentTooManyTimesException $e) {
 
             $message = $e->getMessage();
-
-        } catch (JsonException|FatalRequestException|RequestException|SaloonException $e) {
+        } catch (JsonException | FatalRequestException | RequestException | SaloonException $e) {
 
             $this->logger->error($e);
 
             $message = __('controller.exception');
-
         }
 
         return view('index/sms', [

