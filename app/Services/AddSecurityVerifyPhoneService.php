@@ -32,7 +32,7 @@ use Weijiajia\SaloonphpAppleClient\Integrations\AppleId\Dto\Response\SecurityVer
 use App\Services\Integrations\Phone\Exception\AttemptGetPhoneCodeException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-
+use App\Models\AccountManager;
 class AddSecurityVerifyPhoneService
 {
 
@@ -83,7 +83,11 @@ class AddSecurityVerifyPhoneService
             if($this->apple->devices->isEmpty()){
                 $this->updateOrCreateDevices();
             }
-            
+
+            if(!$this->apple->accountManager){
+                $this->updateOrCreateAccountManager();
+            }
+
         } catch (Exception $e) {
 
             Notification::make()
@@ -100,6 +104,19 @@ class AddSecurityVerifyPhoneService
 
             Log::error($e);
         }
+    }
+
+    protected function updateOrCreateAccountManager(): void
+    {
+        $accountManager = $this->apple->appleIdResource()->getAccountManagerResource()->account();
+
+        if($accountManager->account){
+            AccountManager::updateOrCreate(
+                ['account_id' => $this->apple->id],
+                $accountManager->toArray()
+            );
+        }
+        
     }
 
     public function updateOrCreatePaymentConfig(): Payment

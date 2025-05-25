@@ -46,6 +46,7 @@ use Weijiajia\SaloonphpAppleClient\Integrations\AppleId\Request\AccountManage\De
 use Weijiajia\SaloonphpAppleClient\Integrations\AppleId\Request\AccountManage\Devices\DeviceDetailRequest;
 use Weijiajia\SaloonphpAppleClient\Integrations\Idmsa\Request\AppleAuth\VerifyTrustedDeviceSecurityCodeRequest;
 use App\Services\Integrations\Phone\PhoneRequest;
+use Weijiajia\SaloonphpAppleClient\Integrations\AppleId\Request\AccountManage\Account\AccountManageRequest;
 enum Request: string
 {
     case ACCOUNT = Account::class;
@@ -93,6 +94,7 @@ enum Request: string
     case DEVICEDETAILREQUEST = DeviceDetailRequest::class;
     case PHONEREQUEST = PhoneRequest::class;
     case VERIFYTRUSTEDDEVICESECURITYCODEREQUEST = VerifyTrustedDeviceSecurityCodeRequest::class;
+    case ACCOUNTMANAGERREQUEST = AccountManageRequest::class;
     public function label(): string
     {
         return match($this) {
@@ -140,6 +142,7 @@ enum Request: string
             self::DEVICEDETAILREQUEST => '获取设备详情',
             self::PHONEREQUEST => '获取手机验证码',
             self::VERIFYTRUSTEDDEVICESECURITYCODEREQUEST => '验证受信任设备安全码',
+            self::ACCOUNTMANAGERREQUEST => '获取账号管理信息',
         };
     }
 
