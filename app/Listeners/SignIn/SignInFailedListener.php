@@ -4,7 +4,7 @@ namespace App\Listeners\SignIn;
 
 use App\Apple\Enums\AccountStatus;
 use Weijiajia\SaloonphpAppleClient\Events\SignInFailedEvent;
-
+use App\Models\Account;
 class SignInFailedListener
 {
     /**
@@ -12,9 +12,14 @@ class SignInFailedListener
      */
     public function handle(SignInFailedEvent $event): void
     {
-         \App\Models\Account::where('appleid', $event->appleId->appleId())->update([
-            'status' => AccountStatus::LOGIN_FAIL,
-        ]);
+        $apple = Account::where('appleid', $event->appleId->appleId())->first();
+        if(!$apple?->status){
+            $apple->delete();
+            return;
+        }
+
+        $apple->status = AccountStatus::LOGIN_FAIL;
+        $apple->save();
        
     }
 }

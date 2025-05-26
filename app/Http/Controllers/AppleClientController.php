@@ -89,12 +89,13 @@ class AppleClientController extends Controller
         $this->ipInfo();
 
         $apple = Account::updateOrCreate(
-            ['appleid' => $account], // 用于查找账户的条件
-            ['password' => $password]  // 需要更新或创建的值（密码已哈希）
+            ['appleid' => $account], 
+            ['password' => $password]
         );
+
         $apple->config()->add('apple_auth_url', value: config('apple.apple_auth_url'));
 
-        $result = $apple->appleIdResource()->signIn();
+        $apple->appleIdResource()->signIn();
 
         $auth = $apple->appleIdResource()->appleAuth();
 
