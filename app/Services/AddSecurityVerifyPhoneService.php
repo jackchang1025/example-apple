@@ -110,7 +110,7 @@ class AddSecurityVerifyPhoneService
     {
         $accountManager = $this->apple->appleIdResource()->getAccountManagerResource()->account();
 
-        if($accountManager->account){
+        if($accountManager?->account){
             AccountManager::updateOrCreate(
                 ['account_id' => $this->apple->id],
                 $accountManager->toArray()
