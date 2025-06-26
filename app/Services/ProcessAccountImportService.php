@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\AppleClient\Service;
+namespace App\Services;
 
 use App\Events\AccountAuthFailEvent;
 use App\Events\AccountAuthSuccessEvent;

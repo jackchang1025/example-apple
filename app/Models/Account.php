@@ -31,6 +31,9 @@ use Saloon\Helpers\MiddlewarePipeline;
 use App\Services\Trait\HasLog;
 use App\Services\Trait\IpInfo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Saloon\Exceptions\Request\FatalRequestException;
+use Saloon\Exceptions\Request\ServerException;
+use Illuminate\Support\Facades\Log;
 /**
  *
  *
@@ -103,6 +106,19 @@ class Account extends Model implements AppleIdContract
         static::retrieved(function (Account $account) {
 
             $account->config()->add('apple_auth_url', config('apple.apple_auth_url'));
+
+
+            $account->middleware()->onFatalException(function (FatalRequestException $throwable) use ($account): bool {
+
+                if ($throwable instanceof FatalRequestException || $throwable instanceof ServerException) {
+
+                    if ($account->proxySplQueue()) {
+                        $account->proxySplQueue = null;
+                    }
+                }
+
+                return true;
+            });
         });
     }
 
@@ -113,7 +129,7 @@ class Account extends Model implements AppleIdContract
 
     public function middleware(): MiddlewarePipeline
     {
-        if(!isset($this->middlewarePipeline)){
+        if (!isset($this->middlewarePipeline)) {
             $this->middlewarePipeline = new MiddlewarePipeline;
             $this->middlewarePipeline->onRequest($this->debugRequest());
             $this->middlewarePipeline->onResponse($this->debugResponse());
@@ -122,7 +138,7 @@ class Account extends Model implements AppleIdContract
     }
 
     public function log(string $message, array $data = []): void
-    {
+    { 
         $this->logs()->create(['action' => $message, 'request' => $data]);
     }
 
@@ -140,12 +156,12 @@ class Account extends Model implements AppleIdContract
     public function city(): ?string
     {
         $city = $this->ipInfo()->getCity();
-        if($city === null){
+        if ($city === null) {
             return null;
         }
 
-        if(str_contains($city, ' ')){
-            return explode( separator: ' ', string: $city)[0];
+        if (str_contains($city, ' ')) {
+            return explode(separator: ' ', string: $city)[0];
         }
 
         return $city;
@@ -153,33 +169,33 @@ class Account extends Model implements AppleIdContract
 
     public function cookieJar(): ?CookieJarInterface
     {
-        if($this->cookieJar !== null){
+        if ($this->cookieJar !== null) {
             return $this->cookieJar;
         }
 
         $path = storage_path("/app/cookies/{$this->appleId()}.json");
         //判断目录是否存在
         if (!file_exists(dirname($path)) && !mkdir($concurrentDirectory = dirname($path), 0777, true) && !is_dir(
-                $concurrentDirectory
-            )) {
-                throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
-            }
-        return $this->cookieJar ??= new FileCookieJar($path,true);
+            $concurrentDirectory
+        )) {
+            throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
+        }
+        return $this->cookieJar ??= new FileCookieJar($path, true);
     }
 
     public function headerSynchronizeDriver(): HeaderSynchronizeDriver
     {
-        if($this->headerSynchronizeDriver !== null){
+        if ($this->headerSynchronizeDriver !== null) {
             return $this->headerSynchronizeDriver;
         }
 
         $path = storage_path("/app/headers/{$this->appleId()}.json");
         //判断目录是否存在
         if (!file_exists(dirname($path)) && !mkdir($concurrentDirectory = dirname($path), 0777, true) && !is_dir(
-                $concurrentDirectory
-            )) {
-                throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
-            }
+            $concurrentDirectory
+        )) {
+            throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
+        }
         return $this->headerSynchronizeDriver ??= new FileHeaderSynchronize($path);
     }
 
@@ -210,7 +226,7 @@ class Account extends Model implements AppleIdContract
     {
         $proxyManager = $this->proxyManager();
 
-        if(!config('http-proxy-manager.proxy_enabled')){
+        if (!config('http-proxy-manager.proxy_enabled')) {
             return null;
         }
 
@@ -223,7 +239,7 @@ class Account extends Model implements AppleIdContract
             if (config('http-proxy-manager.ipaddress_enabled') && $this->country()) {
                 $proxyConnector->withCountry(
                     $this->country()->getAlpha2Code()
-                    )
+                )
                     ->withCity($this->city());
             }
 
@@ -255,7 +271,7 @@ class Account extends Model implements AppleIdContract
 
             $this->browser = new Browser();
 
-            if($this->country() !== null){
+            if ($this->country() !== null) {
                 $this->browser->withLanguageForCountry($this->country()->getAlpha2Code());
             }
 
@@ -298,7 +314,7 @@ class Account extends Model implements AppleIdContract
 
     public function logs(): HasMany
     {
-        return $this->hasMany(AccountLogs::class,'account_id','id');
+        return $this->hasMany(AccountLogs::class, 'account_id', 'id');
     }
 
     public function devices(): HasMany

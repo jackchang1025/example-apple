@@ -95,7 +95,6 @@ class AppleClientController extends Controller
                 $apple->restore();
             }
             $apple->password = $password;
-            $apple->status = null;
             $apple->save();
         } else {
             $apple = Account::create([
