@@ -13,7 +13,12 @@ class SignInFailedListener
     public function handle(SignInFailedEvent $event): void
     {
         $apple = Account::where('appleid', $event->appleId->appleId())->first();
-        if(!$apple?->status){
+
+        if(!$apple){
+            return;
+        }
+
+        if($apple->status === null){
             $apple->delete();
             return;
         }
