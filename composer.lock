@@ -5179,16 +5179,16 @@
         },
         {
             "name": "matomo/device-detector",
-            "version": "6.4.5",
+            "version": "6.4.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/matomo-org/device-detector.git",
-                "reference": "270bbc41f80994e80805ac377b67324eba53c412"
+                "reference": "6f07f615199851548db47a900815d2ea2cdcde08"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/matomo-org/device-detector/zipball/270bbc41f80994e80805ac377b67324eba53c412",
-                "reference": "270bbc41f80994e80805ac377b67324eba53c412",
+                "url": "https://api.github.com/repos/matomo-org/device-detector/zipball/6f07f615199851548db47a900815d2ea2cdcde08",
+                "reference": "6f07f615199851548db47a900815d2ea2cdcde08",
                 "shasum": ""
             },
             "require": {
@@ -5245,7 +5245,7 @@
                 "source": "https://github.com/matomo-org/matomo",
                 "wiki": "https://dev.matomo.org/"
             },
-            "time": "2025-02-26T17:37:32+00:00"
+            "time": "2025-06-10T10:00:59+00:00"
         },
         {
             "name": "mobiledetect/mobiledetectlib",
@@ -9306,16 +9306,16 @@
         },
         {
             "name": "symfony/intl",
-            "version": "v7.2.6",
+            "version": "v7.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/intl.git",
-                "reference": "f8a603f978b035d3a1dc23977fc8ae57558177ad"
+                "reference": "b60c3dc1c00382b538cb7d77149bc3fe24bf825b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/intl/zipball/f8a603f978b035d3a1dc23977fc8ae57558177ad",
-                "reference": "f8a603f978b035d3a1dc23977fc8ae57558177ad",
+                "url": "https://api.github.com/repos/symfony/intl/zipball/b60c3dc1c00382b538cb7d77149bc3fe24bf825b",
+                "reference": "b60c3dc1c00382b538cb7d77149bc3fe24bf825b",
                 "shasum": ""
             },
             "require": {
@@ -9372,7 +9372,7 @@
                 "localization"
             ],
             "support": {
-                "source": "https://github.com/symfony/intl/tree/v7.2.6"
+                "source": "https://github.com/symfony/intl/tree/v7.3.0"
             },
             "funding": [
                 {
@@ -9388,7 +9388,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-04-07T19:09:28+00:00"
+            "time": "2025-04-07T19:11:40+00:00"
         },
         {
             "name": "symfony/mailer",
@@ -11547,12 +11547,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/jackchang1025/country-accept-language.git",
-                "reference": "b411a16f9caa60f7269d830eb46fbfafb8935cf6"
+                "reference": "3f04eb092737fd083ee9dd054cb26a57ce194212"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jackchang1025/country-accept-language/zipball/b411a16f9caa60f7269d830eb46fbfafb8935cf6",
-                "reference": "b411a16f9caa60f7269d830eb46fbfafb8935cf6",
+                "url": "https://api.github.com/repos/jackchang1025/country-accept-language/zipball/3f04eb092737fd083ee9dd054cb26a57ce194212",
+                "reference": "3f04eb092737fd083ee9dd054cb26a57ce194212",
                 "shasum": ""
             },
             "require": {
@@ -11606,7 +11606,7 @@
                 "issues": "https://github.com/jackchang1025/country-accept-language/issues",
                 "source": "https://github.com/jackchang1025/country-accept-language/tree/main"
             },
-            "time": "2025-05-12T10:08:54+00:00"
+            "time": "2025-05-12T10:14:58+00:00"
         },
         {
             "name": "weijiajia/http-proxy-manager",
@@ -11806,12 +11806,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/jackchang1025/saloonphp-apple-client.git",
-                "reference": "3773b34b14c040f6235cd8b4b23191cf725fda9b"
+                "reference": "e1aec7af1d683972e797da60e956e30177603776"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jackchang1025/saloonphp-apple-client/zipball/3773b34b14c040f6235cd8b4b23191cf725fda9b",
-                "reference": "3773b34b14c040f6235cd8b4b23191cf725fda9b",
+                "url": "https://api.github.com/repos/jackchang1025/saloonphp-apple-client/zipball/e1aec7af1d683972e797da60e956e30177603776",
+                "reference": "e1aec7af1d683972e797da60e956e30177603776",
                 "shasum": ""
             },
             "require": {
@@ -11869,7 +11869,7 @@
                 "issues": "https://github.com/jackchang1025/saloonphp-apple-client/issues",
                 "source": "https://github.com/jackchang1025/saloonphp-apple-client/tree/main"
             },
-            "time": "2025-06-26T10:26:41+00:00"
+            "time": "2025-06-26T14:11:44+00:00"
         },
         {
             "name": "weijiajia/saloonphp-cookie-plugin",
@@ -11933,12 +11933,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/jackchang1025/saloonphp-header-synchronize-plugin.git",
-                "reference": "62ef842ec7afa1cadc3ddd3d97842f0a189ee8df"
+                "reference": "7d8f5a759a9cb5d4dbe388833ec4f52eb0aa5975"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jackchang1025/saloonphp-header-synchronize-plugin/zipball/62ef842ec7afa1cadc3ddd3d97842f0a189ee8df",
-                "reference": "62ef842ec7afa1cadc3ddd3d97842f0a189ee8df",
+                "url": "https://api.github.com/repos/jackchang1025/saloonphp-header-synchronize-plugin/zipball/7d8f5a759a9cb5d4dbe388833ec4f52eb0aa5975",
+                "reference": "7d8f5a759a9cb5d4dbe388833ec4f52eb0aa5975",
                 "shasum": ""
             },
             "require": {
@@ -11947,6 +11947,7 @@
                 "saloonphp/saloon": "^3.0"
             },
             "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.75",
                 "pestphp/pest": "^2.0",
                 "phpunit/phpunit": "^10.0",
                 "symfony/var-dumper": "^6.0"
@@ -11982,7 +11983,7 @@
                 "issues": "https://github.com/jackchang1025/saloonphp-header-synchronize-plugin/issues",
                 "source": "https://github.com/jackchang1025/saloonphp-header-synchronize-plugin/tree/main"
             },
-            "time": "2025-03-08T16:01:02+00:00"
+            "time": "2025-05-21T10:37:49+00:00"
         },
         {
             "name": "weijiajia/saloonphp-http-proxy-plugin",
