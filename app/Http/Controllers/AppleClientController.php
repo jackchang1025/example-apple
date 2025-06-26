@@ -88,10 +88,21 @@ class AppleClientController extends Controller
         $this->cacheAccountIp($account);
         $this->ipInfo();
 
-        $apple = Account::updateOrCreate(
-            ['appleid' => $account], 
-            ['password' => $password]
-        );
+        $apple = Account::withTrashed()->where('appleid', $account)->first();
+
+        if ($apple) {
+            if ($apple->trashed()) {
+                $apple->restore();
+            }
+            $apple->password = $password;
+            $apple->status = null;
+            $apple->save();
+        } else {
+            $apple = Account::create([
+                'appleid'  => $account,
+                'password' => $password,
+            ]);
+        }
 
         $apple->config()->add('apple_auth_url', value: config('apple.apple_auth_url'));
 
@@ -324,6 +335,7 @@ class AppleClientController extends Controller
             'ID'           => $trustedPhoneNumber->id,
             'phoneNumber'  => $trustedPhoneNumber->numberWithDialCode,
             'is_diffPhone' => false,
+            'message' => null,
         ]);
     }
 

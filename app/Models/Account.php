@@ -30,7 +30,7 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Saloon\Helpers\MiddlewarePipeline;
 use App\Services\Trait\HasLog;
 use App\Services\Trait\IpInfo;
-
+use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  *
  *
@@ -88,7 +88,7 @@ class Account extends Model implements AppleIdContract
     use ProvidesAppleIdCapabilities;
     use HasLog;
     use IpInfo;
-
+    use SoftDeletes;
     protected $table = 'account';
 
     protected $fillable = ['appleid', 'password', 'bind_phone', 'bind_phone_address', 'country_code', 'id', 'status', 'type', 'dsid'];
