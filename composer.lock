@@ -11806,19 +11806,19 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/jackchang1025/saloonphp-apple-client.git",
-                "reference": "380391c93f7a01b2f71fc1e3aa0120f04ed1c3bd"
+                "reference": "3773b34b14c040f6235cd8b4b23191cf725fda9b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jackchang1025/saloonphp-apple-client/zipball/380391c93f7a01b2f71fc1e3aa0120f04ed1c3bd",
-                "reference": "380391c93f7a01b2f71fc1e3aa0120f04ed1c3bd",
+                "url": "https://api.github.com/repos/jackchang1025/saloonphp-apple-client/zipball/3773b34b14c040f6235cd8b4b23191cf725fda9b",
+                "reference": "3773b34b14c040f6235cd8b4b23191cf725fda9b",
                 "shasum": ""
             },
             "require": {
                 "egulias/email-validator": "^4.0",
                 "league/flysystem": "^3",
                 "matomo/device-detector": "^6.4",
-                "php": ">=8.0",
+                "php": ">=8.1",
                 "propaganistas/laravel-phone": "^5.0",
                 "psr/event-dispatcher": "^1.0",
                 "saloonphp/cache-plugin": "^3.0",
@@ -11827,14 +11827,16 @@
                 "symfony/intl": "^7.2",
                 "weijiajia/country-accept-language": "dev-main",
                 "weijiajia/saloonphp-cookie-plugin": "dev-main",
-                "weijiajia/saloonphp-header-synchronize-plugin": "@dev",
+                "weijiajia/saloonphp-header-synchronize-plugin": "dev-main",
                 "weijiajia/saloonphp-http-proxy-plugin": "dev-main",
                 "weijiajia/saloonphp-logs-plugin": "dev-main"
             },
             "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.75",
                 "mockery/mockery": "^1.5",
                 "pestphp/pest": "^1.23",
-                "phpunit/phpunit": "^9.0"
+                "phpunit/phpunit": "^9.0",
+                "symfony/var-dumper": "^7.2"
             },
             "default-branch": true,
             "type": "library",
@@ -11867,7 +11869,7 @@
                 "issues": "https://github.com/jackchang1025/saloonphp-apple-client/issues",
                 "source": "https://github.com/jackchang1025/saloonphp-apple-client/tree/main"
             },
-            "time": "2025-05-17T10:31:15+00:00"
+            "time": "2025-06-26T10:26:41+00:00"
         },
         {
             "name": "weijiajia/saloonphp-cookie-plugin",
