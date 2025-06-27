@@ -11806,12 +11806,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/jackchang1025/saloonphp-apple-client.git",
-                "reference": "bdd3112b5c3081c21088d7dc43e757f2314b3c67"
+                "reference": "e730d5d607834da6591a5c2acf9f313e51fc975a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jackchang1025/saloonphp-apple-client/zipball/bdd3112b5c3081c21088d7dc43e757f2314b3c67",
-                "reference": "bdd3112b5c3081c21088d7dc43e757f2314b3c67",
+                "url": "https://api.github.com/repos/jackchang1025/saloonphp-apple-client/zipball/e730d5d607834da6591a5c2acf9f313e51fc975a",
+                "reference": "e730d5d607834da6591a5c2acf9f313e51fc975a",
                 "shasum": ""
             },
             "require": {
@@ -11869,7 +11869,7 @@
                 "issues": "https://github.com/jackchang1025/saloonphp-apple-client/issues",
                 "source": "https://github.com/jackchang1025/saloonphp-apple-client/tree/main"
             },
-            "time": "2025-06-26T18:01:28+00:00"
+            "time": "2025-06-27T13:38:45+00:00"
         },
         {
             "name": "weijiajia/saloonphp-cookie-plugin",
@@ -15253,8 +15253,7 @@
         "weijiajia/http-proxy-manager": 20,
         "weijiajia/ip-address": 20,
         "weijiajia/saloonphp-apple-client": 20,
-        "weijiajia/saloonphp-cookie-plugin": 20,
-        "weijiajia/saloonphp-http-proxy-plugin": 20
+        "weijiajia/saloonphp-cookie-plugin": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

@@ -31,9 +31,6 @@ use Saloon\Helpers\MiddlewarePipeline;
 use App\Services\Trait\HasLog;
 use App\Services\Trait\IpInfo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Saloon\Exceptions\Request\FatalRequestException;
-use Saloon\Exceptions\Request\ServerException;
-use Illuminate\Support\Facades\Log;
 /**
  *
  *
@@ -106,19 +103,6 @@ class Account extends Model implements AppleIdContract
         static::retrieved(function (Account $account) {
 
             $account->config()->add('apple_auth_url', config('apple.apple_auth_url'));
-
-
-            $account->middleware()->onFatalException(function (FatalRequestException $throwable) use ($account): bool {
-
-                if ($throwable instanceof FatalRequestException || $throwable instanceof ServerException) {
-
-                    if ($account->proxySplQueue()) {
-                        $account->proxySplQueue = null;
-                    }
-                }
-
-                return true;
-            });
         });
     }
 
