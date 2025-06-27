@@ -19,6 +19,7 @@ trait IpInfo
         return $this->ipInfo ??= $this->ipAddressManager()
         ->forgetDrivers()
         ->driver()
+        ->withLogger($this->logger())
         ->withProxyEnabled(false)
         ->withCacheDriver(new LaravelCacheDriver(store: Cache::store('redis')))
         ->withCacheExpiry(99999999)

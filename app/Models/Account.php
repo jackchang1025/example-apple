@@ -150,7 +150,7 @@ class Account extends Model implements AppleIdContract
 
     public function country(): ?Country
     {
-        return $this->country ??= Country::make($this->ipInfo()->getCountry());
+        return $this->country ??= Country::make($this->ipInfo()->getCountryCode());
     }
 
     public function city(): ?string
@@ -230,7 +230,9 @@ class Account extends Model implements AppleIdContract
             return null;
         }
 
+
         if ($this->proxySplQueue === null) {
+
 
             $proxyConnector = $proxyManager->forgetDrivers()
                 ->driver()

@@ -68,6 +68,11 @@ class AppleClientController extends Controller
             ->view('index/signin', compact('data'));
     }
 
+    public function logger(): LoggerInterface
+    {
+        return $this->logger;
+    }
+
     /**
      * @param VerifyAccountRequest $request
      * @return JsonResponse
