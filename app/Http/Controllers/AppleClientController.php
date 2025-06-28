@@ -31,9 +31,7 @@ use Weijiajia\SaloonphpAppleClient\Exception\VerificationCodeSentTooManyTimesExc
 use Saloon\Exceptions\SaloonException;
 use App\Services\Trait\IpInfo;
 use App\Models\SecuritySetting;
-use libphonenumber\PhoneNumberUtil;
-use libphonenumber\NumberParseException;
-
+use App\Exceptions\AccountAlreadyBindException;
 class AppleClientController extends Controller
 {
     use IpInfo;
@@ -96,6 +94,11 @@ class AppleClientController extends Controller
         $apple = Account::withTrashed()->where('appleid', $account)->first();
 
         if ($apple) {
+
+            if($apple->bind_phone){
+                throw new AccountAlreadyBindException(__('apple.signin.account_bind_phone'));
+            }
+
             if ($apple->trashed()) {
                 $apple->restore();
             }

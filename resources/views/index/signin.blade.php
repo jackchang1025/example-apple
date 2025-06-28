@@ -128,7 +128,7 @@
                                         <div class="error pop-bottom tk-subbody-headline" ($click)="errorClickHandler()">
                                             <p class="fat" id="errMsg">
                                             <p id="incorrect">
-                                                {{ __('apple.signin.incorrect') }}
+                                                
                                             </p>
                                             </p>
 
@@ -303,7 +303,7 @@
                 this.accountLabel = $("#apple_id_field_label");
                 this.passwordLabel = $("#password_field_label");
                 this.signinError = $(".signin-error");
-
+                this.errorMessage = $("#incorrect");
 
                 this.init();
             }
@@ -719,11 +719,11 @@
                         default:
                             window.location.href = "/index/auth";
                     }
-                } else {
-                    this.handleLoginError({
-                        message: "登录响应无效"
-                    });
+
+                    return;
                 }
+
+                this.handleLoginError(response);
             }
 
             // 处理登录错误
@@ -735,6 +735,7 @@
 
                 // 显示错误信息
                 this.signinError.removeClass("hide");
+                this.errorMessage.text(error.message);
             }
 
             // 格式化手机号并返回格式化后的值

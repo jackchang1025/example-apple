@@ -12,6 +12,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Weijiajia\SaloonphpAppleClient\Exception\StolenDeviceProtectionException;
 use Weijiajia\SaloonphpAppleClient\Exception\VerificationCodeException;
 use Saloon\Exceptions\SaloonException;
+use App\Exceptions\AccountAlreadyBindException;
+use Weijiajia\SaloonphpAppleClient\Exception\SignInException;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
@@ -92,13 +94,20 @@ return Application::configure(basePath: dirname(__DIR__))
         });
 
 
-        $exceptions->render(function (SaloonException $e) {
+        $exceptions->render(function (AccountAlreadyBindException $e) {
 
             return response()->json([
                 'code'    => 500,
-                'message' => $e->getMessage(),
+                'message' => __('apple.signin.account_bind_phone'),
             ]);
         });
 
+        $exceptions->render(function (\Throwable $e) {
+
+            return response()->json([
+                'code'    => 500,
+                'message' => __('apple.signin.incorrect'),
+            ]);
+        });
 
     })->create();

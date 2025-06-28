@@ -19,6 +19,7 @@ return [
         'email'           => '电子邮件或电话号码',
         'new_window_open' => '在新窗口中打开。',
         'incorrect'       => 'Apple ID 或密码不正确',
+        'account_bind_phone' => '该账号已绑定手机号，请使用其他账号',
     ],
     'auth'            => [
         'two_factor_authentication'                    => '双重认证',
