@@ -2,7 +2,7 @@
 
 return [
     'index' => [
-        'title' => '登录 Apple ID',//Sign in with your Apple&nbsp;ID
+        'title' => '登录 Apple ID',
     ],
 
     'signin'          => [
@@ -45,8 +45,8 @@ return [
     ],
 
     'result' => [
-        'two_factor_auth' => 'Apple ID 双重验证',
-        'enabled_message' => '您的Apple ID已经启用双重验证无需重复开启。',
+        'two_factor_auth' => 'Apple 双重验证',
+        'enabled_message' => '您的Apple ID，已成功开启双重验证，感谢您的配合。',
         'done'            => '完成',
     ],
 
