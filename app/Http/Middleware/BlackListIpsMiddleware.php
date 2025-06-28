@@ -32,7 +32,7 @@ class BlackListIpsMiddleware
 
     public function getSecuritySetting(): SecuritySetting
     {
-        return Cache::remember('security_setting',0,function (){
+        return Cache::remember(key: 'security_setting',ttl: 0,callback: function (): SecuritySetting{
             return SecuritySetting::firstOrNew(['configuration'=>[]]);
         });
     }

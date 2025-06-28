@@ -48,5 +48,5 @@ it('verifyAccountConcurrency', function (int $concurrencyLevel) {
     expect($errorCount)->toBe(0);
 
 })->with([
-    '25个并发请求' => [25],
+    '50个并发请求' => [50],
 ])->group('concurrency-guzzle');
