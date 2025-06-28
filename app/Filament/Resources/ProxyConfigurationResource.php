@@ -22,6 +22,10 @@ class ProxyConfigurationResource extends Resource
 
     protected static ?string $label = '代理设置';
 
+    protected static ?string $modelLabel = '代理设置';
+
+    protected static ?string $pluralModelLabel = '代理设置';
+
     public static function canCreate(): bool
     {
         return false;
@@ -228,7 +232,9 @@ class ProxyConfigurationResource extends Resource
 
           
             Forms\Components\TextInput::make('configuration.drivers.stormproxies.area')
-                ->helperText('国家代码(area-cn),是配置国家的关键。取值为两个字母的国家代码 (ISO 3166-1 alpha-2 format)。 使用此配置解析代理时，我们的路由器将随机选择您设置的国家/地区，作为国家/地区密钥值之一。留空表示随机')
+                ->helperText('
+                国家代码(ISO 3166-1 alpha-2)：示例 cn, 此代理无法同时设置多个国家/地区，留空表示随机。
+                ')
                 ->default(null),
 
             Forms\Components\Toggle::make('configuration.drivers.stormproxies.sticky_session')
@@ -425,7 +431,7 @@ class ProxyConfigurationResource extends Resource
                 ->helperText('选择代理协议,在配置代理时，重要的是要考虑最适合您需求的协议。有两种主要类型可用：HTTP/HTTPS和SOCKS5。每种协议都在其不同的端口上运行，并服务于不同的目的。我们提供两种常见的代理协议类型。'),
 
             Forms\Components\TextInput::make('configuration.drivers.iproyal.country')
-                ->helperText('国家代码(country-dk,it,ie),是配置国家的关键。取值为两个字母的国家代码 (ISO 3166-1 alpha-2 format)。 可以选择多个国家。使用此配置解析代理时，我们的路由器将随机选择您设置的国家/地区，作为国家/地区密钥值之一。留空表示随机')
+                ->helperText('国家代码(ISO 3166-1 alpha-2 format) 示例：dk,it,ie,可以选择多个国家。留空表示随机')
                 ->default(null),
 
             Forms\Components\TextInput::make('configuration.drivers.iproyal.state')
@@ -513,7 +519,7 @@ class ProxyConfigurationResource extends Resource
                 ->helperText('选择代理协议类型'),
 
                 Forms\Components\TextInput::make('configuration.drivers.smartdaili.country')
-                ->helperText('国家代码(country-dk,it,ie),是配置国家的关键。取值为两个字母的国家代码 (ISO 3166-1 alpha-2 format)。 留空表示随机')
+                ->helperText('国家代码(ISO 3166-1 alpha-2 format) 示例：country-dk,it,ie, 可以设置多个国家/地区，留空表示随机')
                 ->default(null),
 
             Forms\Components\TextInput::make('configuration.drivers.smartdaili.state')
@@ -585,7 +591,7 @@ class ProxyConfigurationResource extends Resource
                 ->helperText('选择代理协议类型'),
 
             Forms\Components\TextInput::make('configuration.drivers.smartproxy.area')
-            ->helperText('国家代码,如:us,cn等,留空表示随机')
+            ->helperText('国家代码(ISO 3166-1 alpha-2 format) 示例：us, 此代理无法设置多个国家/地区，留空表示随机')
             ->default(''),
 
             Forms\Components\TextInput::make('configuration.drivers.smartproxy.city')

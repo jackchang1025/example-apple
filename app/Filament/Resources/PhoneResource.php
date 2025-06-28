@@ -26,6 +26,10 @@ class PhoneResource extends Resource
 
     protected static ?string $label = '手机';
 
+    protected static ?string $modelLabel = '手机';
+
+    protected static ?string $pluralModelLabel = '手机';
+
 
     protected function getHeaderActions(): array
     {

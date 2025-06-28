@@ -42,6 +42,11 @@ class AccountResource extends Resource
     protected static ?string $model = Account::class;
 
     protected static ?string $label = '账号';
+
+    protected static ?string $modelLabel = '账号';
+
+    protected static ?string $pluralModelLabel = '账号';
+
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
@@ -204,7 +209,13 @@ class AccountResource extends Resource
                     ->searchable()
                     ->preload(),
 
-                Tables\Filters\TrashedFilter::make(),
+                Tables\Filters\TrashedFilter::make()
+                    ->label('删除状态')
+                    ->placeholder('正常')
+                    ->falseLabel('回收站')
+                    ->trueLabel('全部')
+                    
+                    ,
 
             ], layout: FiltersLayout::AboveContent)
             ->actions([
