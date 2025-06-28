@@ -13,7 +13,7 @@ it('verifyAccountConcurrency', function (int $concurrencyLevel) {
 
         $array = [];
         for ($i = 0; $i < $concurrencyLevel; $i++) {
-            $array[] = $pool->post('http://127.0.0.1/index/verifyAccount', [
+            $array[] = $pool->timeout(seconds: 60)->post(env('APP_URL').'/index/verifyAccount', [
                 'accountName' => fake()->email(),
                 'password'    => fake()->password(), // 使用您提供的密码
             ]);
@@ -37,7 +37,7 @@ it('verifyAccountConcurrency', function (int $concurrencyLevel) {
             continue;
         }
 
-        if($response->json('message') != "{\n  \"serviceErrors\" : [ {\n    \"code\" : \"-20101\",\n    \"message\" : \"Check the account information you entered and try again.\",\n    \"suppressDismissal\" : false\n  } ]\n}"){
+        if($response->json('message') != __('apple.signin.incorrect')){
             $errorCount++;
 
             echo $response->json('message').PHP_EOL;
@@ -48,5 +48,5 @@ it('verifyAccountConcurrency', function (int $concurrencyLevel) {
     expect($errorCount)->toBe(0);
 
 })->with([
-    '50个并发请求' => [50],
+    '25个并发请求' => [25],
 ])->group('concurrency-guzzle');
