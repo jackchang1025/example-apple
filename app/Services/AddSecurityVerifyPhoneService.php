@@ -88,7 +88,7 @@ class AddSecurityVerifyPhoneService
                 $this->updateOrCreateAccountManager();
             }
 
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
 
             Notification::make()
             ->title("获取用户信息失败")
