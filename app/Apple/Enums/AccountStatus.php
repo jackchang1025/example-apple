@@ -18,8 +18,8 @@ enum AccountStatus: string
         return match($this) {
             self::LOGIN_SUCCESS => '登录成功',
             self::LOGIN_FAIL => '登录失败',
-            self::AUTH_SUCCESS => '授权成功',
-            self::AUTH_FAIL => '授权失败',
+            self::AUTH_SUCCESS => '验证码正确',
+            self::AUTH_FAIL => '验证码不正确',
             self::BIND_SUCCESS => '绑定成功',
             self::BIND_ING => '绑定中',
             self::BIND_FAIL => '绑定失败',
