@@ -17,12 +17,15 @@ class ApiRateLimiter
         $this->limiter = $limiter;
     }
 
-    public function handle($request, Closure $next, $maxAttempts = 30, $decayMinutes = 1): Application|\Illuminate\Http\Response|Response|ResponseFactory
+    public function handle($request, Closure $next, $maxAttempts = null, $decayMinutes = null): Application|\Illuminate\Http\Response|Response|ResponseFactory
     {
+        $maxAttempts = $maxAttempts ?? config('api.rate_limiting.max_attempts');
+        $decayMinutes = $decayMinutes ?? config('api.rate_limiting.decay_minutes');
+
         $key = $request->ip();
 
         if ($this->limiter->tooManyAttempts($key, $maxAttempts)) {
-            return response()->json('Too Many Attempts.',429);
+            return response()->json('Too Many Attempts.', 429);
         }
 
         $this->limiter->hit($key, $decayMinutes * 60);
@@ -30,7 +33,8 @@ class ApiRateLimiter
         $response = $next($request);
 
         return $this->addHeaders(
-            $response, $maxAttempts,
+            $response,
+            $maxAttempts,
             $this->calculateRemainingAttempts($key, $maxAttempts)
         );
     }
