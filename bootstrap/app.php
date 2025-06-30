@@ -11,15 +11,12 @@ use Saloon\Exceptions\Request\Statuses\UnauthorizedException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Weijiajia\SaloonphpAppleClient\Exception\StolenDeviceProtectionException;
 use Weijiajia\SaloonphpAppleClient\Exception\VerificationCodeException;
-use Saloon\Exceptions\SaloonException;
-use App\Exceptions\AccountAlreadyBindException;
 use Weijiajia\SaloonphpAppleClient\Exception\SignInException;
-use Illuminate\Support\Facades\Log;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
-        web: __DIR__.'/../routes/web.php',
-        commands: __DIR__.'/../routes/console.php',
+        web: __DIR__ . '/../routes/web.php',
+        commands: __DIR__ . '/../routes/console.php',
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
@@ -34,7 +31,7 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withEvents(
         [
-            __DIR__.'/../app/Listeners',
+            __DIR__ . '/../app/Listeners',
         ]
     )
     ->withMiddleware(function (Middleware $middleware) {
@@ -77,7 +74,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (VerificationCodeException $e) {
             return response()->json([
                 'code'    => 400,
-                'message' => '验证码错误',
+                'message' => __('apple.auth.incorrect_verification_code'),
             ]);
         });
 
@@ -96,21 +93,11 @@ return Application::configure(basePath: dirname(__DIR__))
         });
 
 
-        $exceptions->render(function (AccountAlreadyBindException $e) {
+        $exceptions->render(function (SignInException $e) {
 
             return response()->json([
                 'code'    => 500,
-                'message' => __('apple.signin.account_bind_phone'),
-            ]);
-        });
-
-        $exceptions->render(function (\Throwable $e) {
-
-            Log::error($e);
-
-            return response()->json([
-                'code'    => 500,
-                'message' => __('apple.signin.incorrect'),
+                'message' => $e->getMessage(),
             ]);
         });
 
