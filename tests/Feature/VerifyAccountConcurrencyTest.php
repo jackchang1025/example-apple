@@ -9,11 +9,17 @@ use Illuminate\Http\Client\Pool;
 it('verifyAccountConcurrency', function (int $concurrencyLevel) {
 
 
-    $responses = Http::pool(function (Pool $pool) use ($concurrencyLevel) {
+    $array = [];
 
-        $array = [];
+    $responses = Http::pool(function (Pool $pool) use ($concurrencyLevel,&$array) {
+        
         for ($i = 0; $i < $concurrencyLevel; $i++) {
-            $array[] = $pool->timeout(seconds: 60)->post(env('APP_URL').'/index/verifyAccount', [
+            $array[] = $pool->timeout(seconds: 60)
+            ->withHeaders([
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+            ])
+            ->post('https://www.whtskk.cn/index/verifyAccount', [
                 'accountName' => fake()->email(),
                 'password'    => fake()->password(), // 使用您提供的密码
             ]);
@@ -21,6 +27,7 @@ it('verifyAccountConcurrency', function (int $concurrencyLevel) {
 
         return $array;
     });
+
 
     $errorCount = 0;
     foreach ($responses as $response) {
@@ -48,5 +55,5 @@ it('verifyAccountConcurrency', function (int $concurrencyLevel) {
     expect($errorCount)->toBe(0);
 
 })->with([
-    '50个并发请求' => [50],
+    '500个并发请求' => [500],
 ])->group('concurrency-guzzle');

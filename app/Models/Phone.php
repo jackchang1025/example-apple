@@ -7,8 +7,6 @@ use App\Services\PhoneService;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Saloon\Exceptions\Request\FatalRequestException;
-use Saloon\Exceptions\Request\RequestException;
 use App\Services\Integrations\Phone\PhoneRequest;
 
 /**
