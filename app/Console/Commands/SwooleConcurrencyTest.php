@@ -16,14 +16,16 @@ class SwooleConcurrencyTest extends Command
      *
      * @var string
      */
-    protected $signature = 'test:swoole-concurrency {concurrency=10 : The number of concurrent requests}';
+    protected $signature = 'test:swoole-concurrency
+                            {domain : The domain to test (e.g., www.example.com)}
+                            {concurrency=10 : The number of concurrent requests}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Run concurrency tests for verifyAccount using Swoole coroutines';
+    protected $description = 'Run concurrency tests for verifyAccount using Swoole coroutines against a specified domain';
 
     /**
      * Execute the console command.
@@ -40,14 +42,27 @@ class SwooleConcurrencyTest extends Command
             return self::FAILURE;
         }
 
+        // 验证域名参数
+        $domain = $this->argument('domain');
+        if (empty($domain)) {
+            $this->error('Domain parameter is required.');
+            return self::FAILURE;
+        }
+
+        // 验证域名格式
+        if (!$this->isValidDomain($domain)) {
+            $this->error('Invalid domain format. Please provide a valid domain (e.g., www.example.com).');
+            return self::FAILURE;
+        }
+
         $concurrency = (int) $this->argument('concurrency');
         if ($concurrency <= 0) {
             $this->error('Concurrency must be a positive integer.');
             return self::FAILURE;
         }
 
-        run(function () use ($concurrency) {
-            $this->info("Starting concurrency test with {$concurrency} requests...");
+        run(function () use ($concurrency, $domain) {
+            $this->info("Starting concurrency test with {$concurrency} requests against domain: {$domain}...");
 
             $channel = new Channel($concurrency);
             $startTime = microtime(true);
@@ -57,13 +72,13 @@ class SwooleConcurrencyTest extends Command
             $expectedMessage = __('apple.signin.incorrect');
 
             for ($i = 0; $i < $concurrency; $i++) {
-                Coroutine::create(function () use ($channel, $expectedMessage) {
+                Coroutine::create(function () use ($channel, $expectedMessage, $domain) {
                     try {
-                        $client = new Client('www.whtskk.cn', 443, true);
+                        $client = new Client($domain, 443, true);
                         $client->setHeaders([
                             'Content-Type' => 'application/json',
                             'Accept' => 'application/json',
-                            'Host' => 'www.whtskk.cn'
+                            'Host' => $domain
                         ]);
                         $client->set(['timeout' => 60]);
 
@@ -131,5 +146,55 @@ class SwooleConcurrencyTest extends Command
         });
 
         return self::SUCCESS;
+    }
+
+    /**
+     * 验证域名格式是否正确
+     *
+     * @param string $domain
+     * @return bool
+     */
+    private function isValidDomain(string $domain): bool
+    {
+        // 移除协议前缀（如果存在）
+        $domain = preg_replace('/^https?:\/\//', '', $domain);
+
+        // 移除路径部分（如果存在）
+        $domain = explode('/', $domain)[0];
+
+        // 移除端口号（如果存在）
+        $domain = explode(':', $domain)[0];
+
+        // 域名必须包含至少一个点（即至少有两个部分）
+        if (strpos($domain, '.') === false) {
+            return false;
+        }
+
+        // 验证域名格式
+        // 1. 使用 filter_var 进行基本验证
+        if (!filter_var('http://' . $domain, FILTER_VALIDATE_URL)) {
+            return false;
+        }
+
+        // 2. 使用正则表达式进行更严格的域名格式验证
+        $pattern = '/^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)*[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$/';
+        if (!preg_match($pattern, $domain)) {
+            return false;
+        }
+
+        // 3. 检查域名长度（总长度不超过253个字符）
+        if (strlen($domain) > 253) {
+            return false;
+        }
+
+        // 4. 检查每个标签的长度（不超过63个字符）
+        $labels = explode('.', $domain);
+        foreach ($labels as $label) {
+            if (strlen($label) > 63 || strlen($label) < 1) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
