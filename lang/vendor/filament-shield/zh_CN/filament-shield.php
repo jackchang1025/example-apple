@@ -76,5 +76,6 @@ return [
         'reorder'          => '重新排序',
         'restore_any'      => '批量恢复',
         'replicate'        => '复制',
+        'view_trash'       => '查看回收站',
     ],
 ];

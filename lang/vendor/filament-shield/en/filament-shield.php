@@ -76,5 +76,6 @@ return [
         'reorder'          => 'Reorder',
         'restore_any'      => 'Restore Any',
         'replicate'        => 'Replicate',
+        'view_trash'       => 'View Trash',
     ],
 ];
