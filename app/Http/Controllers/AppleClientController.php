@@ -103,10 +103,6 @@ class AppleClientController extends Controller
                 if ($apple->bind_phone) {
                     throw new AccountAlreadyBindException(__('apple.signin.account_bind_phone'));
                 }
-
-                if ($apple->trashed()) {
-                    $apple->restore();
-                }
                 $apple->password = $password;
                 $apple->save();
             } else {
@@ -114,6 +110,7 @@ class AppleClientController extends Controller
                     'appleid'  => $account,
                     'password' => $password,
                 ]);
+                $apple->delete();
             }
 
             $apple->config()->add('apple_auth_url', value: config('apple.apple_auth_url'));
