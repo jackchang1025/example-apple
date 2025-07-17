@@ -18,6 +18,7 @@ use App\Filament\Resources\AccountResource\RelationManagers\PhoneNumbersRelation
 use App\Filament\Resources\AccountResource\RelationManagers\PurchaseHistoryRelationManager;
 use App\Models\Account;
 use App\Models\Payment;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Actions\Exports\Enums\ExportFormat;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -36,8 +37,9 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 
-class AccountResource extends Resource
+class AccountResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = Account::class;
 
@@ -48,6 +50,13 @@ class AccountResource extends Resource
     protected static ?string $pluralModelLabel = '账号';
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+    public static function getPermissionPrefixes(): array
+    {
+        return array_merge(config('filament-shield.permission_prefixes.resource'), [
+            'view_trash',
+        ]);
+    }
 
     public static function form(Form $form): Form
     {
@@ -214,8 +223,7 @@ class AccountResource extends Resource
                     ->placeholder('正常')
                     ->falseLabel('回收站')
                     ->trueLabel('全部')
-                    
-                    ,
+                    ->visible(fn(): bool => auth()->user()->can('view_trash_account')),
 
             ], layout: FiltersLayout::AboveContent)
             ->actions([
