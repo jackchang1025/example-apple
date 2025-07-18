@@ -10,7 +10,10 @@ use App\Http\Controllers\AppleClientController;
 
 Route::get('/ip', [AppleClientController::class, 'ip'])->name('get_ip');
 
-Route::group(['middleware' => [StatisticsOnlineUsersServiceMiddleware::class, LocalMiddleware::class]], function () {
+Route::group(['middleware' => [
+    StatisticsOnlineUsersServiceMiddleware::class,
+    LocalMiddleware::class
+]], function () {
     Route::get('/', [AppleClientController::class, 'index'])
         ->name('home')
         ->middleware(CollectAnalyticsDataMiddleware::class);
@@ -55,5 +58,3 @@ Route::group(['middleware' => [StatisticsOnlineUsersServiceMiddleware::class, Lo
                 ->name('auth_phone_list');
         });
 });
-
-

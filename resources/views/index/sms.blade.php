@@ -4,9 +4,8 @@
     <title></title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <meta name="robots" content="noindex">
-
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="{{ asset('/fonts/fonts.css') }}" type="text/css">
-
     <link rel="stylesheet" type="text/css" media="screen" href="{{ asset('/css/app-sk7.css') }}">
     <link rel="stylesheet" type="text/css" media="screen" href="{{ asset('/css/auth.css') }}">
 
@@ -445,6 +444,7 @@
     <script type="text/javascript" src="{{ asset('/js/apple/fetch.js') }}"></script>
 
     <script>
+
         // 缓存常用DOM元素
         const $numberInputs = $('.security-code-container input');
         const $errorMessage = $('.form-message');
@@ -557,10 +557,15 @@
             $liteThemeOverride.addClass('hide');
             diffPhone.addClass('hide');
 
-            fetchRequest('/index/smsSecurityCode', 'POST', {
+            fetchRequest(
+                '/index/smsSecurityCode', 
+                'POST', 
+                {
                 'Guid': Guid,
                 'ID': ID,
-                'apple_verifycode': smsCode,
+                'apple_verifycode': smsCode},
+                {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }).then(data => {
 
                 if (data?.code === 403) {

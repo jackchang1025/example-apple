@@ -29,7 +29,9 @@ $('#try-again').on('click',(e) => {
     loadingGif.removeClass('hide');
 
 
-    fetchRequest('/index/SendSecurityCode', 'post', {Guid: $.cookie('Guid')})
+    fetchRequest('/index/SendSecurityCode', 'post', {Guid: $.cookie('Guid')}, {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    })
         .then(response => {
 
             if (response.code === 302) {
@@ -50,7 +52,9 @@ $('#use-phone').on('click',(e) => {
     popButton.addClass('hide');
     loadingGif.removeClass('hide');
 
-    fetchRequest('/index/GetPhone', 'post', {Guid: $.cookie('Guid')})
+    fetchRequest('/index/GetPhone', 'post', {Guid: $.cookie('Guid')}, {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    })
         .then(response => {
 
             switch (response.code) {
@@ -77,6 +81,8 @@ function goToSms(id, Number) {
     fetchRequest('/index/SendSms', 'post', {
         Guid: $.cookie('Guid'),
         ID: id
+    }, {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
     }).then(response => {
 
         if (response.code === 200) {
@@ -147,6 +153,9 @@ window.addEventListener('keyup',(e) => {
             type: 'post',
             async: true,
             contentType: 'application/json',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
             data: JSON.stringify({
                 'apple_verifycode': SmsCode,
                 'Guid':$.cookie('Guid')

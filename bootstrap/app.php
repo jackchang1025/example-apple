@@ -20,11 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->validateCsrfTokens(except: [
-            'index/*',
-        ]);
-    })
-    ->withMiddleware(function (Middleware $middleware) {
+        // 确保VerifyCsrfToken中间件被正确配置
         $middleware->validateCsrfTokens(except: [
             'livewire/*',
         ]);
@@ -100,5 +96,4 @@ return Application::configure(basePath: dirname(__DIR__))
                 'message' => $e->getMessage(),
             ]);
         });
-
     })->create();

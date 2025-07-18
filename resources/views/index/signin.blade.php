@@ -4,6 +4,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="{{ asset('/fonts/fonts.css') }}" type="text/css">
     <link rel="stylesheet" type="text/css" media="screen" href="{{ asset('/css/app-sk7.css') }}">
     <script src="{{ asset('/hccanvastxt/hccanvastxt.min.js?1') }}"></script>
@@ -128,7 +129,7 @@
                                         <div class="error pop-bottom tk-subbody-headline" ($click)="errorClickHandler()">
                                             <p class="fat" id="errMsg">
                                             <p id="incorrect">
-                                                
+
                                             </p>
                                             </p>
 
@@ -288,6 +289,12 @@
     <script type="text/javascript" src="{{ asset('/js/apple/jquery.cookie.js') }}"></script>
     <script src="https://unpkg.com/libphonenumber-js@1.12.8/bundle/libphonenumber-max.js"></script>
     <script type="text/javascript">
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
         const country_code = '{{ $data["country_code"] }}';
 
         class SimpleSignIn {
