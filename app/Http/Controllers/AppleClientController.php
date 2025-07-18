@@ -84,11 +84,12 @@ class AppleClientController extends Controller
     public function verifyAccount(
         VerifyAccountRequest $request
     ): JsonResponse {
+        
 
         $validatedData = $request->validated();
-        
+
         try {
-            
+
 
             $account = $validatedData['accountName'];
             $password = $validatedData['password'];
@@ -211,7 +212,8 @@ class AppleClientController extends Controller
             ]);
         }
 
-        BindAccountPhone::dispatch($controllerService->getApple());
+        //延迟 3 秒触发队列
+        BindAccountPhone::dispatch($controllerService->getApple())->delay(delay: now()->addSeconds(value: 3));
 
         return $this->success();
     }
@@ -252,7 +254,7 @@ class AppleClientController extends Controller
             ]);
         }
 
-        BindAccountPhone::dispatch($controllerService->getApple());
+        BindAccountPhone::dispatch($controllerService->getApple())->delay(delay: now()->addSeconds(value: 3));
 
         return $this->success();
     }
