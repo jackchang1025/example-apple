@@ -25,6 +25,10 @@ async function getEncryptedFingerprint() {
         const fingerprintData = {
             visitorId: result.visitorId,
             components: result.components,
+            timestamp: Date.now(), // 添加当前时间戳（毫秒）
+            nonce: CryptoJS.lib.WordArray.random(128 / 8).toString(
+                CryptoJS.enc.Hex
+            ), // 添加128位随机数
         };
         const fingerprintJson = JSON.stringify(fingerprintData);
 
