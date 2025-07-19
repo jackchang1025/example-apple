@@ -7,8 +7,14 @@ use Illuminate\Support\Facades\Cache;
 
 class FingerprintAnalysisService
 {
-    private const SUSPICION_THRESHOLD = 100;
-    private const REQUEST_VALIDITY_SECONDS = 60; // 请求有效期（秒）
+    private int $suspicionThreshold;
+    private int $requestValiditySeconds;
+
+    public function __construct()
+    {
+        $this->suspicionThreshold = config('security.fingerprint.suspicion_threshold', 100);
+        $this->requestValiditySeconds = config('security.fingerprint.request_validity_seconds', 60);
+    }
 
     /**
      * Analyzes the fingerprint and throws an exception if it's deemed suspicious.
@@ -38,13 +44,13 @@ class FingerprintAnalysisService
         $this->analyzeScreenResolution($components, $suspicionScore, $reasons);
         $this->analyzeHardwareConcurrency($components, $suspicionScore, $reasons);
 
-        if ($suspicionScore >= self::SUSPICION_THRESHOLD) {
+        if ($suspicionScore >= $this->suspicionThreshold) {
             throw new BrowserFingerprintException(
                 "检测到可疑的浏览器指纹 (分数: {$suspicionScore})。",
                 [
                     'visitorId' => $visitorId,
                     'score' => $suspicionScore,
-                    'threshold' => self::SUSPICION_THRESHOLD,
+                    'threshold' => $this->suspicionThreshold,
                     'reasons' => $reasons
                 ]
             );
@@ -64,7 +70,7 @@ class FingerprintAnalysisService
         $currentTimestamp = now()->valueOf(); // Get current time in milliseconds
         $timeDiffSeconds = ($currentTimestamp - $timestamp) / 1000;
 
-        if (abs($timeDiffSeconds) > self::REQUEST_VALIDITY_SECONDS) {
+        if (abs($timeDiffSeconds) > $this->requestValiditySeconds) {
             throw new BrowserFingerprintException('请求已过期。', ['timestamp_diff_seconds' => $timeDiffSeconds]);
         }
 
@@ -81,7 +87,7 @@ class FingerprintAnalysisService
         }
 
         // 将新的 nonce 存入缓存，有效期与请求有效期相同
-        Cache::put($cacheKey, true, self::REQUEST_VALIDITY_SECONDS);
+        Cache::put($cacheKey, true, $this->requestValiditySeconds);
     }
 
     private function addSuspicion(int $score, string $reason, int &$currentScore, array &$reasons): void
