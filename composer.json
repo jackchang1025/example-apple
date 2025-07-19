@@ -21,6 +21,7 @@
         "laravel/horizon": "^5.25",
         "laravel/tinker": "^2.9",
         "nyholm/psr7": "^1.8",
+        "phpseclib/phpseclib": "^3.0",
         "pxlrbt/filament-excel": "^2.3",
         "saade/filament-laravel-log": "^3.0",
         "saloonphp/saloon": "^3.10",
