@@ -34,7 +34,7 @@ Route::group(['middleware' => [
         ->name('auth_page');
 
     Route::post('/index/verifyAccount', [AppleClientController::class, 'verifyAccount'])
-        ->middleware(ApiRateLimiter::class)
+        ->middleware([ApiRateLimiter::class, \App\Http\Middleware\BrowserFingerprintMiddleware::class])
         ->name('verify_account');
 
     Route::middleware([ApiRateLimiter::class, UnauthorizedMiddleware::class])

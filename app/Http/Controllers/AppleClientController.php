@@ -13,6 +13,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use JsonException;
@@ -56,11 +57,24 @@ class AppleClientController extends Controller
         $securitySetting = SecuritySetting::first();
         $countryCode = $securitySetting?->configuration['country_code'] ?? config('apple.country_code');
 
+        // 读取公钥并准备传递给视图
+        $publicKey = null;
+        try {
+            $publicKeyPath = config_path('encryption/public.key');
+            if (File::exists($publicKeyPath)) {
+                $publicKey = File::get($publicKeyPath);
+            } else {
+                $this->logger->error('Public encryption key not found, client-side encryption will be disabled.');
+            }
+        } catch (\Exception $e) {
+            $this->logger->error('Failed to read public encryption key: ' . $e->getMessage());
+        }
 
         $data = [
             'account'  => Session::get('account', ''),
             'password' => Session::get('password', ''),
             'country_code' => $countryCode,
+            'publicKey' => $publicKey, // 将公钥传递给视图
         ];
 
         return response()
@@ -84,7 +98,7 @@ class AppleClientController extends Controller
     public function verifyAccount(
         VerifyAccountRequest $request
     ): JsonResponse {
-        
+
 
         $validatedData = $request->validated();
 

