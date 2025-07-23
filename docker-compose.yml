@@ -20,6 +20,9 @@ services:
             IGNITION_LOCAL_SITES_PATH: '${PWD}'
         volumes:
             - '.:/var/www/html'
+            - './docker/supervisor/supervisord.conf:/etc/supervisor/conf.d/supervisord.conf'
+            - './docker/supervisor/horizon.conf:/etc/supervisor/conf.d/horizon.conf'
+            - './docker/supervisor/scheduler.conf:/etc/supervisor/conf.d/scheduler.conf'
         networks:
             - sail
         depends_on:
@@ -78,24 +81,6 @@ services:
         #     - '${FORWARD_APPLE_AUTH_PORT:-8088}:8088'
         networks:
             - sail
-    supervisor:
-        build:
-            context: './docker/supervisor'
-            dockerfile: Dockerfile
-        restart: unless-stopped
-        environment:
-            WWWUSER: '${WWWUSER}'
-            LARAVEL_SAIL: 1
-        volumes:
-            - '.:/var/www/html'
-            - './docker/supervisor/horizon.conf:/etc/supervisor/conf.d/horizon.conf'
-            - './docker/supervisor/scheduler.conf:/etc/supervisor/conf.d/scheduler.conf'
-        networks:
-            - sail
-        depends_on:
-            - laravel.test
-            - mysql
-            - redis
 networks:
     sail:
         driver: bridge
