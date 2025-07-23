@@ -71,6 +71,10 @@ return [
             'try_later'                   => '发送失败,请稍后重试',
         ],
     ],
+    'send_sms' => [
+        'error' => '验证码发送失败,请稍后重试',
+        'verification_code_sent_too_many_times' => '你的验证码发送次数过多,请稍后重试',
+    ],
 
     'stolen_protection' => [
         'title'         => '关闭"失窃设备保护"',

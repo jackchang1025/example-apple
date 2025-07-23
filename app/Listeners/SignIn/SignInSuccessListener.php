@@ -20,16 +20,15 @@ class SignInSuccessListener
 
         $appleId = \App\Models\Account::withTrashed()->where('appleid', $event->appleId->appleId())->first();
 
-        if(!$appleId){
+        if (!$appleId) {
             return;
         }
 
-        if($appleId->trashed()){
+        if ($appleId->trashed()) {
             $appleId->restore();
         }
 
         $appleId->status = AccountStatus::LOGIN_SUCCESS;
         $appleId->save();
-
     }
 }

@@ -72,6 +72,11 @@ return [
         ],
     ],
 
+    'send_sms' => [
+        'error' => 'Failed to send verification code, please try again later.',
+        'verification_code_sent_too_many_times'=> 'You have entered an incorrect verification code too many times. Try again later.',
+    ],
+
     'stolen_protection' => [
         'title'         => 'Turn Off Stolen Device Protection',
         'settings_icon' => 'Settings Icon',

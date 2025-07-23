@@ -9,12 +9,15 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use App\Models\Account;
-use App\Apple\Enums\AccountStatus;
 use Saloon\Exceptions\SaloonException;
 use Saloon\Exceptions\Request\Statuses\UnauthorizedException;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Support\Facades\Log;
 use DateTime;
+use Weijiajia\SaloonphpAppleClient\Exception\StolenDeviceProtectionException;
+use App\Services\PhoneManager;
+use App\Services\AuthenticationService;
+use App\Services\PhoneVerificationService;
 
 class AppleidAddSecurityVerifyPhone implements ShouldQueue, ShouldBeUnique
 {
@@ -58,7 +61,7 @@ class AppleidAddSecurityVerifyPhone implements ShouldQueue, ShouldBeUnique
      */
     public function backoff(): int|array
     {
-        return 60 * 60;
+        return 60 * 10;
     }
 
     /**
@@ -69,33 +72,72 @@ class AppleidAddSecurityVerifyPhone implements ShouldQueue, ShouldBeUnique
         $this->onQueue('appleid_add_security_verify_phone');
     }
 
-    public function handle(): void
+    public function handle(PhoneManager $phoneManager, AuthenticationService $authenticationService): void
     {
         try {
-            $this->appleid->refresh();
-            if ($this->appleid->status === AccountStatus::BIND_SUCCESS) {
-                return;
-            }
-
-            if ($this->appleid->status === AccountStatus::BIND_ING) {
-                //如果有其他任务真在添加信任设备，我们需要让任务重试
-                $this->release($this->backoff());
-                return;
-            }
-
-            (new AddSecurityVerifyPhoneService($this->appleid))->handle();
+            // 执行绑定服务
+            $bindingService = $this->createBindingService($phoneManager, $authenticationService);
+            $bindingService->handle();
 
             Log::info("[BindAccountPhone] Successfully bound phone for account {$this->appleid->appleid} on attempt {$this->attempts()}.");
         } catch (\Throwable $e) {
 
-            Log::error("{$e}");
+            Log::error("[BindAccountPhone] Error binding phone for account {$this->appleid->appleid} on attempt {$this->attempts()}: {$e}");
 
-            if($e instanceof SaloonException && !$e instanceof UnauthorizedException){
-                //重新抛出异常让任务重试
-                throw $e;
-            }
-            
+            // 处理异常，决定是否重试
+            $this->handleException($e);
+        }
+    }
+
+    /**
+     * 创建绑定服务实例
+     * 这个方法可以在测试中被覆盖，方便进行单元测试
+     *
+     * @param PhoneManager $phoneManager
+     * @param AuthenticationService $authenticationService
+     * @return AddSecurityVerifyPhoneService
+     */
+    protected function createBindingService(PhoneManager $phoneManager, AuthenticationService $authenticationService): AddSecurityVerifyPhoneService
+    {
+        // 为这个账号创建专用的PhoneVerificationService实例
+        $accountSpecificVerificationService = app()->make(PhoneVerificationService::class, ['account' => $this->appleid]);
+
+        return new AddSecurityVerifyPhoneService($this->appleid, $phoneManager, $authenticationService, $accountSpecificVerificationService);
+    }
+
+
+    /**
+     * 处理异常，决定重试策略
+     */
+    private function handleException(\Throwable $e): void
+    {
+        $shouldRetry = $this->shouldRetryOnException($e);
+        if (!$shouldRetry) {
             return;
         }
+
+        throw $e;
+    }
+
+    /**
+     * 根据异常类型决定是否应该重试
+     */
+    private function shouldRetryOnException(\Throwable $e): bool
+    {
+        // 对于以下异常类型不重试
+        if (
+            $e instanceof UnauthorizedException ||
+            $e instanceof StolenDeviceProtectionException
+        ) {
+            return false;
+        }
+
+        // 对于Saloon异常，除了401以外都重试
+        if ($e instanceof SaloonException) {
+            return true;
+        }
+
+        // 其他异常默认不重试（由事件监听器处理状态）
+        return false;
     }
 }

