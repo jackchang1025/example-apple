@@ -208,7 +208,7 @@ return [
         ],
         'supervisor-3' => [
             'connection'          => 'redis',
-            'queue'               => ['appleid_synchronous_sign_in_status'],
+            'queue'               => ['update_account_info'],
             'balance'             => 'auto',
             'autoScalingStrategy' => 'size',
             'maxProcesses'        => 10,
