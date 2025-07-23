@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\ProxyConfiguration;
 use App\Models\User;
+use App\Models\ProxyConfiguration;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class ProxyConfigurationPolicy
