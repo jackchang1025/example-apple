@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\ProxyConfigurationResource\Pages;
 
 use App\Filament\Resources\ProxyConfigurationResource;
-use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use App\Models\ProxyConfiguration;
 class EditProxyConfiguration extends EditRecord
@@ -14,7 +13,7 @@ class EditProxyConfiguration extends EditRecord
     {
         $proxyConfiguration = ProxyConfiguration::first();
         if(!$proxyConfiguration){
-            $proxyConfiguration = ProxyConfiguration::create(['configuration' => []]);
+            $proxyConfiguration = ProxyConfiguration::create(['configuration' => [],'name' => 'default','is_active' => 1,'ipaddress_enabled' => 0,'proxy_enabled' => 0]);
         }
 
         $this->record  = $proxyConfiguration;
