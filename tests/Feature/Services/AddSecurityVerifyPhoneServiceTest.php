@@ -25,6 +25,7 @@ use Weijiajia\SaloonphpAppleClient\Exception\VerificationCodeSentTooManyTimesExc
 use App\Services\Integrations\Phone\Exception\AttemptGetPhoneCodeException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Weijiajia\SaloonphpAppleClient\Integrations\AppleId\Dto\Response\SecurityVerifyPhone\SecurityVerifyPhone;
+use App\Services\Integrations\Phone\Exception\InvalidPhoneException;
 
 uses(RefreshDatabase::class);
 
@@ -264,7 +265,7 @@ describe('AddSecurityVerifyPhoneService', function () {
 
             $this->phoneVerificationService->shouldReceive('verify')
                 ->twice()
-                ->andThrow(new VerificationCodeSentTooManyTimesException('Too many attempts'));
+                ->andThrow(new InvalidPhoneException('Too many attempts'));
             $this->phoneVerificationService->shouldReceive('verify')
                 ->once()
                 ->andReturn(Mockery::mock(SecurityVerifyPhone::class));
@@ -300,6 +301,29 @@ describe('AddSecurityVerifyPhoneService', function () {
 
             Event::assertDispatched(PhoneBindingFailed::class, function ($event) use ($stolenDeviceException) {
                 return $event->exception === $stolenDeviceException;
+            });
+        });
+
+
+        
+        it('handles VerificationCodeSentTooManyTimesException as fatal error', function () {
+            // Arrange
+            Event::fake();
+            $this->authService->shouldReceive('ensureAuthenticated')->once();
+            $this->phoneManager->shouldReceive('getAvailablePhone')->once()->andReturn($this->phone);
+            $this->phoneManager->shouldReceive('handlePhoneException')->once();
+
+            $verificationCodeSentTooManyTimesException = new VerificationCodeSentTooManyTimesException('Too many attempts');
+            $this->phoneVerificationService->shouldReceive('verify')
+                ->once()
+                ->andThrow($verificationCodeSentTooManyTimesException);
+
+            // Act & Assert
+            expect(fn() => $this->service->handle())
+                ->toThrow(VerificationCodeSentTooManyTimesException::class);
+
+            Event::assertDispatched(PhoneBindingFailed::class, function ($event) use ($verificationCodeSentTooManyTimesException) {
+                return $event->exception === $verificationCodeSentTooManyTimesException;
             });
         });
 

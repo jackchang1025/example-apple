@@ -103,14 +103,13 @@ class AddSecurityVerifyPhoneService
                 return;
             } catch (
                 VerificationCodeException 
-                | VerificationCodeSentTooManyTimesException 
                 | PhoneNumberAlreadyExistsException 
                 | PhoneException 
                 | AttemptGetPhoneCodeException 
                 | InvalidPhoneException $e
             ) {
                 $this->handlePhoneException($e);
-            } catch (StolenDeviceProtectionException $e) {
+            } catch (StolenDeviceProtectionException | VerificationCodeSentTooManyTimesException $e) {
                 $this->handlePhoneException($e);
                 throw $e;
             } catch (Throwable $e) {
