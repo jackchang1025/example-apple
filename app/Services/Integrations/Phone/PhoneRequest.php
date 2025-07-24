@@ -13,6 +13,7 @@ use Saloon\Http\Request as SaloonRequest;
 use App\Services\Integrations\Phone\Exception\AttemptGetPhoneCodeException;
 use Weijiajia\SaloonphpLogsPlugin\HasLogger;
 use Weijiajia\SaloonphpLogsPlugin\Contracts\HasLoggerInterface;
+use App\Services\Integrations\Phone\Exception\InvalidPhoneException;
 
 class PhoneRequest extends SoloRequest implements HasLoggerInterface
 {
@@ -46,6 +47,10 @@ class PhoneRequest extends SoloRequest implements HasLoggerInterface
     {
         $response = $this->send();
 
+        if($response->json('code') === 10022){
+            throw new InvalidPhoneException('获取验证码失败');   
+        }
+
         return $this->parse($response->body());
     }
 
@@ -68,6 +73,8 @@ class PhoneRequest extends SoloRequest implements HasLoggerInterface
                 self::$phoneHistory[md5(string: $this->uri)] = $code;
                 return $code;
 
+            } catch (InvalidPhoneException $e) {
+                throw $e;
             } catch (\Exception $e) {
                 continue;
             }

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Throwable;
 use Weijiajia\SaloonphpAppleClient\Exception\Phone\PhoneException;
 use Weijiajia\SaloonphpAppleClient\Exception\VerificationCodeSentTooManyTimesException;
+use App\Services\Integrations\Phone\Exception\InvalidPhoneException;
 
 /**
  * 手机号管理器
@@ -143,6 +144,7 @@ class PhoneManager
     {
         return match (true) {
             $exception instanceof PhoneException => Phone::STATUS_INVALID,
+            $exception instanceof InvalidPhoneException => Phone::STATUS_INVALID,
             default => Phone::STATUS_NORMAL,
         };
     }

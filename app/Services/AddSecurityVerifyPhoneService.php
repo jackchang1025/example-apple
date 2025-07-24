@@ -16,6 +16,7 @@ use Weijiajia\SaloonphpAppleClient\Exception\StolenDeviceProtectionException;
 use Weijiajia\SaloonphpAppleClient\Exception\VerificationCodeException;
 use Weijiajia\SaloonphpAppleClient\Exception\VerificationCodeSentTooManyTimesException;
 use App\Services\Integrations\Phone\Exception\AttemptGetPhoneCodeException;
+use App\Services\Integrations\Phone\Exception\InvalidPhoneException;
 
 /**
  * 手机号绑定服务
@@ -101,9 +102,12 @@ class AddSecurityVerifyPhoneService
                 $this->handleBindingSuccess();
                 return;
             } catch (
-                VerificationCodeException | VerificationCodeSentTooManyTimesException |
-                PhoneException | PhoneNumberAlreadyExistsException |
-                AttemptGetPhoneCodeException $e
+                VerificationCodeException 
+                | VerificationCodeSentTooManyTimesException 
+                | PhoneNumberAlreadyExistsException 
+                | PhoneException 
+                | AttemptGetPhoneCodeException 
+                | InvalidPhoneException $e
             ) {
                 $this->handlePhoneException($e);
             } catch (StolenDeviceProtectionException $e) {

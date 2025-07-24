@@ -93,8 +93,7 @@ class PhoneVerificationService
         for ($attempt = 1; $attempt <= self::MAX_CODE_ATTEMPTS; $attempt++) {
             try {
                 
-                // $code = $phoneRequest->attemptMobileVerificationCode();
-                $code = rand(100000, 999999);
+                $code = $phoneRequest->attemptMobileVerificationCode();
                 
                 return $this->submitVerificationCode($verificationId, $code, $phone);
             } catch (VerificationCodeException $e) {

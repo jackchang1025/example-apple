@@ -8,6 +8,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Weijiajia\SaloonphpAppleClient\Exception\Phone\PhoneException;
 use Weijiajia\SaloonphpAppleClient\Exception\VerificationCodeSentTooManyTimesException;
+use App\Services\Integrations\Phone\Exception\InvalidPhoneException;
 
 uses(RefreshDatabase::class);
 
@@ -243,6 +244,20 @@ describe('PhoneManager', function () {
             expect($phone->fresh()->status)->toBe(Phone::STATUS_INVALID);
             expect($this->phoneManager->getExcludedPhoneIds())->toContain($phone->id);
         });
+
+
+        it('handles phone exception with InvalidPhoneException', function () {
+            // Arrange
+            $phone = Phone::factory()->create(['status' => Phone::STATUS_NORMAL]);
+            $exception = new InvalidPhoneException('Phone error');
+
+            // Act
+            $this->phoneManager->handlePhoneException($phone, $exception);
+
+            // Assert
+            expect($phone->fresh()->status)->toBe(Phone::STATUS_INVALID);
+        });
+
 
         it('handles VerificationCodeSentTooManyTimesException', function () {
             // Arrange
