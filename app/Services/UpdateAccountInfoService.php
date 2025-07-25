@@ -44,6 +44,9 @@ class UpdateAccountInfoService
         if (!$this->appleId->accountManager) {
             $this->updateOrCreateAccountManager();
         }
+
+        $this->appleId->syncCookies();
+
     }
 
     protected function updateOrCreateAccountManager(): void

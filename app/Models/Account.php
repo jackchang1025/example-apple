@@ -34,6 +34,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Saloon\Http\Response;
 use Weijiajia\SaloonphpAppleClient\Exception\ProxyConnectEstablishedException;
 use Illuminate\Support\Facades\Log;
+
 /**
  *
  *
@@ -123,8 +124,8 @@ class Account extends Model implements AppleIdContract
             $this->middlewarePipeline->onRequest($this->debugRequest());
             $this->middlewarePipeline->onResponse($this->debugResponse());
 
-            $this->middlewarePipeline->onResponse(function(Response $response){
-                if(ProxyConnectEstablishedException::isProxyConnectResponse($response)){
+            $this->middlewarePipeline->onResponse(function (Response $response) {
+                if (ProxyConnectEstablishedException::isProxyConnectResponse($response)) {
                     throw new ProxyConnectEstablishedException($response);
                 }
             });
@@ -134,7 +135,7 @@ class Account extends Model implements AppleIdContract
 
 
     public function log(string $message, array $data = []): void
-    { 
+    {
         $this->logs()->create(['action' => $message, 'request' => $data]);
     }
 
@@ -187,16 +188,18 @@ class Account extends Model implements AppleIdContract
     public function getCookieFilename(): string
     {
         $this->cookieFilePath ??= storage_path("/app/cookies/{$this->appleId()}.json");
-        
-        if(file_exists($this->cookieFilePath)){
+
+        if (file_exists($this->cookieFilePath)) {
             return $this->cookieFilePath;
         }
 
-        
+
         //判断目录是否存在
-        if (!mkdir($concurrentDirectory = dirname($this->cookieFilePath), 0777, true) && !is_dir(
-            $concurrentDirectory
-        )) {
+        if (
+            !file_exists(dirname($this->cookieFilePath))
+            && !mkdir($concurrentDirectory = dirname($this->cookieFilePath), 0777, true)
+            && !is_dir($concurrentDirectory)
+        ) {
             throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
         }
 
