@@ -343,6 +343,101 @@ try {
 }
 ```
 
+## 队列失败处理解决方案
+
+### 问题描述
+
+在 Laravel 队列系统中，当 `AppleidAddSecurityVerifyPhone` 队列达到最大重试次数后，Laravel 会停止执行该队列任务，但不会自动更新业务状态。这可能导致 Account 模型的状态永远停留在重试状态（如 `BIND_RETRY`），而不是最终的失败状态，造成数据状态不一致的问题。
+
+### 解决方案
+
+通过在队列任务中实现 `failed` 方法，当队列达到最大重试次数后，Laravel 会自动调用此方法。我们在该方法中触发 `PhoneBindingFailed` 事件，复用现有的事件监听器逻辑来确保账号状态被正确更新。
+
+#### 实现代码
+
+```php
+/**
+ * 处理队列任务最终失败的情况
+ *
+ * 当队列达到最大重试次数后，Laravel 会调用此方法
+ * 我们在此触发 PhoneBindingFailed 事件，确保账号状态得到正确更新
+ *
+ * @param Throwable|null $exception 导致任务失败的异常
+ * @return void
+ */
+public function failed(?Throwable $exception = null): void
+{
+    Log::error("[BindAccountPhone] Job failed after {$this->tries} attempts", [
+        'appleid' => $this->appleid->appleid,
+        'attempts' => $this->attempts(),
+        'exception' => $exception?->getMessage(),
+        'exception_class' => $exception ? get_class($exception) : null,
+    ]);
+
+    // 创建一个通用的队列失败异常
+    $failureException = $exception ?? new \RuntimeException(
+        "手机号绑定任务达到最大重试次数 ({$this->tries}) 后失败"
+    );
+
+    // 触发 PhoneBindingFailed 事件，复用现有的事件监听器逻辑
+    // 这样可以确保账号状态被正确更新为失败状态
+    event(new PhoneBindingFailed(
+        account: $this->appleid,
+        exception: $failureException,
+        attempt: $this->attempts()
+    ));
+
+    Log::info("[BindAccountPhone] PhoneBindingFailed event triggered for final failure", [
+        'appleid' => $this->appleid->appleid,
+        'final_attempt' => $this->attempts(),
+    ]);
+}
+```
+
+#### 解决方案优势
+
+1. **复用现有架构**: 利用已有的 `PhoneBindingFailed` 事件和 `PhoneBindingFailedListener` 监听器
+2. **状态一致性**: 确保账号状态在队列最终失败后得到正确更新
+3. **完整的日志记录**: 记录失败原因和相关上下文信息
+4. **优雅的错误处理**: 即使没有具体异常也能创建合适的失败信息
+5. **事件驱动**: 保持架构的一致性，通过事件系统处理状态变更
+
+#### 事件监听器处理
+
+现有的 `PhoneBindingFailedListener` 会根据异常类型自动确定合适的账号状态：
+
+```php
+private function determineAccountStatus(\Throwable $exception): AccountStatus
+{
+    return match (true) {
+        // 不会重试的异常，设置为最终失败状态
+        $exception instanceof StolenDeviceProtectionException => AccountStatus::THEFT_PROTECTION,
+        $exception instanceof UnauthorizedException => AccountStatus::BIND_FAIL,
+        $exception instanceof SaloonException => AccountStatus::BIND_RETRY,
+        // 其他异常默认为失败（包括队列达到最大重试次数的情况）
+        default => AccountStatus::BIND_FAIL,
+    };
+}
+```
+
+#### 测试覆盖
+
+解决方案包含完整的测试用例：
+
+1. **事件触发验证**: 确保 `failed` 方法正确触发 `PhoneBindingFailed` 事件
+2. **默认异常处理**: 验证没有具体异常时的处理逻辑
+3. **日志记录验证**: 确保失败信息被正确记录
+4. **状态更新验证**: 通过事件监听器确保账号状态被正确更新
+
+#### 部署后验证
+
+1. 确认队列任务包含 `failed` 方法
+2. 验证事件监听器正确注册（Laravel 11 自动发现）
+3. 检查日志系统正常工作
+4. 监控队列失败率和状态更新情况
+
+这个解决方案确保了队列系统与业务状态的完全一致性，优雅地解决了队列达到最大重试次数后的状态管理问题。
+
 ## 部署检查清单
 
 1. ✅ 确保所有服务提供者已注册

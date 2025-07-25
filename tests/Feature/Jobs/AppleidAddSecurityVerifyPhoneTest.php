@@ -12,6 +12,8 @@ use App\Services\AuthenticationService;
 use App\Services\PhoneManager;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Event;
+use App\Events\PhoneBinding\PhoneBindingFailed;
 
 uses(RefreshDatabase::class);
 
@@ -272,6 +274,66 @@ describe('AppleidAddSecurityVerifyPhone Job', function () {
             expect($this->job->timeout)->toBe(600);
             expect($this->job->tries)->toBe(6);
             expect($this->job->backoff())->toBe(600);
+        });
+    });
+
+    describe('Job Failure Handling', function () {
+
+        it('triggers PhoneBindingFailed event when job fails after max attempts', function () {
+            Event::fake();
+
+            $account = Account::factory()->create([
+                'status' => AccountStatus::BIND_RETRY,
+                'bind_phone' => null,
+            ]);
+
+            $job = new AppleidAddSecurityVerifyPhone($account);
+
+            // 模拟最终失败的情况
+            $exception = new \RuntimeException('Test failure');
+            $job->failed($exception);
+
+            // 验证事件被触发
+            Event::assertDispatched(PhoneBindingFailed::class, function ($event) use ($account, $exception) {
+                return $event->account->id === $account->id &&
+                    $event->exception->getMessage() === $exception->getMessage();
+            });
+        });
+
+        it('triggers PhoneBindingFailed event with default exception when no exception provided', function () {
+            Event::fake();
+
+            $account = Account::factory()->create([
+                'status' => AccountStatus::BIND_RETRY,
+                'bind_phone' => null,
+            ]);
+
+            $job = new AppleidAddSecurityVerifyPhone($account);
+
+            // 模拟没有具体异常的失败情况
+            $job->failed();
+
+            // 验证事件被触发，并包含默认异常信息
+            Event::assertDispatched(PhoneBindingFailed::class, function ($event) use ($account) {
+                return $event->account->id === $account->id &&
+                    str_contains($event->exception->getMessage(), "手机号绑定任务达到最大重试次数 (6) 后失败");
+            });
+        });
+
+        it('handles job failure without throwing exceptions', function () {
+            $account = Account::factory()->create([
+                'appleid' => fake()->email(),
+                'status' => AccountStatus::BIND_RETRY,
+            ]);
+
+            $job = new AppleidAddSecurityVerifyPhone($account);
+            $exception = new \RuntimeException('Test failure');
+
+            // 验证 failed 方法可以正常执行而不抛出异常
+            expect(fn() => $job->failed($exception))->not->toThrow(\Exception::class);
+
+            // 验证没有异常的情况也能正常处理  
+            expect(fn() => $job->failed())->not->toThrow(\Exception::class);
         });
     });
 });

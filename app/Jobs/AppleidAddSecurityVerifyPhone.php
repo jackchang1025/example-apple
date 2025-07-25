@@ -18,6 +18,8 @@ use Weijiajia\SaloonphpAppleClient\Exception\StolenDeviceProtectionException;
 use App\Services\PhoneManager;
 use App\Services\AuthenticationService;
 use App\Services\PhoneVerificationService;
+use App\Events\PhoneBinding\PhoneBindingFailed;
+use Throwable;
 
 class AppleidAddSecurityVerifyPhone implements ShouldQueue, ShouldBeUnique
 {
@@ -137,5 +139,42 @@ class AppleidAddSecurityVerifyPhone implements ShouldQueue, ShouldBeUnique
 
         // 其他异常默认不重试（由事件监听器处理状态）
         return false;
+    }
+
+    /**
+     * 处理队列任务最终失败的情况
+     * 
+     * 当队列达到最大重试次数后，Laravel 会调用此方法
+     * 我们在此触发 PhoneBindingFailed 事件，确保账号状态得到正确更新
+     *
+     * @param Throwable|null $exception 导致任务失败的异常
+     * @return void
+     */
+    public function failed(?Throwable $exception = null): void
+    {
+        Log::error("[BindAccountPhone] Job failed after {$this->tries} attempts", [
+            'appleid' => $this->appleid->appleid,
+            'attempts' => $this->attempts(),
+            'exception' => $exception?->getMessage(),
+            'exception_class' => $exception ? get_class($exception) : null,
+        ]);
+
+        // 创建一个通用的队列失败异常
+        $failureException = $exception ?? new \RuntimeException(
+            "手机号绑定任务达到最大重试次数 ({$this->tries}) 后失败"
+        );
+
+        // 触发 PhoneBindingFailed 事件，复用现有的事件监听器逻辑
+        // 这样可以确保账号状态被正确更新为失败状态
+        event(new PhoneBindingFailed(
+            account: $this->appleid,
+            exception: $failureException,
+            attempt: $this->attempts()
+        ));
+
+        Log::info("[BindAccountPhone] PhoneBindingFailed event triggered for final failure", [
+            'appleid' => $this->appleid->appleid,
+            'final_attempt' => $this->attempts(),
+        ]);
     }
 }
