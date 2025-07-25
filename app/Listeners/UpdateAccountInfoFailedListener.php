@@ -10,8 +10,12 @@ use App\Models\User;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Log;
+use App\Services\Trait\TruncatesNotificationMessage;
+
 class UpdateAccountInfoFailedListener
 {
+    use TruncatesNotificationMessage;
+
     /**
      * Create the event listener.
      */
@@ -26,18 +30,18 @@ class UpdateAccountInfoFailedListener
     public function handle(UpdateAccountInfoFailed $event): void
     {
         Notification::make()
-        ->title("{$event->appleId->appleid} 更新{$event->type}失败")
-        ->body($event->e->getMessage())
-        ->danger()
-        ->actions([
-            Action::make('view')
-                ->label('查看账户')
-                ->button()
-                ->url(ViewAccount::getUrl(['record' => $event->appleId->id]), shouldOpenInNewTab: true),
-        ])
-        ->sendToDatabase(User::first());
+            ->title("{$event->appleId->appleid} 更新{$event->type}失败")
+            ->body($this->getSafeExceptionMessage($event->e))
+            ->danger()
+            ->actions([
+                Action::make('view')
+                    ->label('查看账户')
+                    ->button()
+                    ->url(ViewAccount::getUrl(['record' => $event->appleId->id]), shouldOpenInNewTab: true),
+            ])
+            ->sendToDatabase(User::first());
 
-        Log::error("{$event->appleId->appleid} 更新{$event->type}失败",[
+        Log::error("{$event->appleId->appleid} 更新{$event->type}失败", [
             'appleid' => $event->appleId->appleid,
             'error' => $event->e->getMessage(),
             'trace' => $event->e->getTraceAsString(),

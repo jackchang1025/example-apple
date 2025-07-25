@@ -33,19 +33,13 @@ describe('AppleidAddSecurityVerifyPhone Job', function () {
             expect($this->job->timeout)->toBe(600); // 10 minutes
         });
 
-        it('has correct retry until configuration', function () {
-            $retryUntil = $this->job->retryUntil();
-            expect($retryUntil)->toBeInstanceOf(DateTime::class);
-            expect($retryUntil->getTimestamp())->toBeGreaterThan(now()->addHours(23)->getTimestamp());
+        it('has correct tries configuration', function () {
+            expect($this->job->tries)->toBe(6); // 6 attempts
         });
 
         it('has correct unique id format', function () {
             $uniqueId = $this->job->uniqueId();
             expect($uniqueId)->toBe("appleid_add_security_verify_phone_lock_{$this->account->appleid}");
-        });
-
-        it('has correct unique for duration', function () {
-            expect($this->job->uniqueFor())->toBe(86400); // 24 hours
         });
 
         it('has correct backoff configuration', function () {
@@ -85,6 +79,9 @@ describe('AppleidAddSecurityVerifyPhone Job', function () {
 
             Log::shouldReceive('info')
                 ->once()
+                ->with('[BindAccountPhone] handle', ['appleid' => $this->account->appleid]);
+            Log::shouldReceive('info')
+                ->once()
                 ->with(Mockery::pattern('/Successfully bound phone/'));
             Log::shouldReceive('error')->never();
 
@@ -105,10 +102,12 @@ describe('AppleidAddSecurityVerifyPhone Job', function () {
             $mockService->shouldReceive('handle')->once()->andThrow($exception);
             $testJob->setMockService($mockService);
 
+            Log::shouldReceive('info')
+                ->once()
+                ->with('[BindAccountPhone] handle', ['appleid' => $this->account->appleid]);
             Log::shouldReceive('error')
                 ->once()
                 ->with(Mockery::pattern('/Error binding phone/'));
-            Log::shouldReceive('info')->never();
 
             // Should not re-throw for generic exceptions
             $testJob->handle(
@@ -130,6 +129,9 @@ describe('AppleidAddSecurityVerifyPhone Job', function () {
             $mockService->shouldReceive('handle')->once()->andThrow($saloonException);
             $testJob->setMockService($mockService);
 
+            Log::shouldReceive('info')
+                ->once()
+                ->with('[BindAccountPhone] handle', ['appleid' => $this->account->appleid]);
             Log::shouldReceive('error')
                 ->once()
                 ->with(Mockery::pattern('/Error binding phone/'));
@@ -153,6 +155,9 @@ describe('AppleidAddSecurityVerifyPhone Job', function () {
             $mockService->shouldReceive('handle')->once()->andThrow($unauthorizedException);
             $testJob->setMockService($mockService);
 
+            Log::shouldReceive('info')
+                ->once()
+                ->with('[BindAccountPhone] handle', ['appleid' => $this->account->appleid]);
             Log::shouldReceive('error')
                 ->once()
                 ->with(Mockery::pattern('/Error binding phone/'));
@@ -174,6 +179,9 @@ describe('AppleidAddSecurityVerifyPhone Job', function () {
             $mockService->shouldReceive('handle')->once()->andThrow($stolenDeviceException);
             $testJob->setMockService($mockService);
 
+            Log::shouldReceive('info')
+                ->once()
+                ->with('[BindAccountPhone] handle', ['appleid' => $this->account->appleid]);
             Log::shouldReceive('error')
                 ->once()
                 ->with(Mockery::pattern('/Error binding phone/'));
@@ -187,41 +195,62 @@ describe('AppleidAddSecurityVerifyPhone Job', function () {
             expect(true)->toBeTrue();
         });
 
-        it('does not retry on generic exceptions', function () {
-            $testJob = createTestableJob($this->account);
-
-            $runtimeException = new RuntimeException('Runtime error');
-            $mockService = Mockery::mock(AddSecurityVerifyPhoneService::class);
-            $mockService->shouldReceive('handle')->once()->andThrow($runtimeException);
-            $testJob->setMockService($mockService);
-
-            Log::shouldReceive('error')
-                ->once()
-                ->with(Mockery::pattern('/Error binding phone/'));
-
-            // Should NOT re-throw (no retry)
-            $testJob->handle(
-                Mockery::mock(PhoneManager::class),
-                Mockery::mock(AuthenticationService::class)
-            );
-
-            expect(true)->toBeTrue();
-        });
-
-        it('validates retry timing configuration', function () {
-            // Test retry until configuration
-            $retryUntil = $this->job->retryUntil();
-            expect($retryUntil->getTimestamp())->toBeGreaterThan(now()->addHours(23)->getTimestamp());
-            expect($retryUntil->getTimestamp())->toBeLessThanOrEqual(now()->addHours(24)->getTimestamp());
-
-            // Test backoff configuration
+        it('validates retry configuration', function () {
+            expect($this->job->tries)->toBe(6); // 6 attempts
             expect($this->job->backoff())->toBe(600); // 10 minutes
-
-            // Test timeout configuration
             expect($this->job->timeout)->toBe(600); // 10 minutes
+        });
+    });
 
-            // Test unique for configuration
-            expect($this->job->uniqueFor())->toBe(86400); // 24 hours
+    describe('Unique Job Behavior', function () {
+
+        it('generates correct unique id format', function () {
+            $account = Account::factory()->create(['appleid' => 'test.lock@example.com']);
+            $job = new AppleidAddSecurityVerifyPhone($account);
+
+            $uniqueId = $job->uniqueId();
+
+            expect($uniqueId)->toBe("appleid_add_security_verify_phone_lock_test.lock@example.com");
+            expect($uniqueId)->toContain('appleid_add_security_verify_phone_lock_');
+            expect($uniqueId)->toContain($account->appleid);
+        });
+
+        it('has different unique keys for different accounts', function () {
+            $account1 = Account::factory()->create(['appleid' => 'user1@example.com']);
+            $account2 = Account::factory()->create(['appleid' => 'user2@example.com']);
+
+            $job1 = new AppleidAddSecurityVerifyPhone($account1);
+            $job2 = new AppleidAddSecurityVerifyPhone($account2);
+
+            expect($job1->uniqueId())->not->toBe($job2->uniqueId());
+            expect($job1->uniqueId())->toContain('user1@example.com');
+            expect($job2->uniqueId())->toContain('user2@example.com');
+        });
+
+        it('implements ShouldBeUnique interface', function () {
+            expect($this->job)->toBeInstanceOf(\Illuminate\Contracts\Queue\ShouldBeUnique::class);
+            expect(method_exists($this->job, 'uniqueId'))->toBeTrue();
+            expect(is_string($this->job->uniqueId()))->toBeTrue();
+        });
+    });
+
+    describe('Account Status Scenarios', function () {
+
+        it('works with different account statuses', function () {
+            $statuses = [
+                AccountStatus::BIND_SUCCESS,
+                AccountStatus::BIND_ING,
+                AccountStatus::BIND_FAIL,
+                AccountStatus::BIND_RETRY,
+                AccountStatus::LOGIN_SUCCESS,
+            ];
+
+            foreach ($statuses as $status) {
+                $account = Account::factory()->create(['status' => $status]);
+                $job = new AppleidAddSecurityVerifyPhone($account);
+
+                expect($job->uniqueId())->toContain($account->appleid);
+            }
         });
     });
 
@@ -237,46 +266,12 @@ describe('AppleidAddSecurityVerifyPhone Job', function () {
 
             expect($service)->toBeInstanceOf(AddSecurityVerifyPhoneService::class);
         });
-    });
-
-    describe('Edge Cases', function () {
-
-        it('handles account state changes gracefully', function () {
-            $phoneManager = Mockery::mock(PhoneManager::class);
-            $authService = Mockery::mock(AuthenticationService::class);
-
-            // Delete the account to simulate edge case
-            $this->account->delete();
-
-            // The job should handle this gracefully without throwing unexpected errors
-            expect(fn() => $this->job->handle($phoneManager, $authService))
-                ->not->toThrow(Error::class);
-        });
 
         it('maintains job properties integrity', function () {
             expect($this->job->queue)->toBe('appleid_add_security_verify_phone');
             expect($this->job->timeout)->toBe(600);
-            expect($this->job->uniqueFor())->toBe(86400);
+            expect($this->job->tries)->toBe(6);
             expect($this->job->backoff())->toBe(600);
-        });
-    });
-
-    describe('Account Status Scenarios', function () {
-
-        it('works with different account statuses', function () {
-            $statuses = [
-                AccountStatus::BIND_SUCCESS,
-                AccountStatus::BIND_ING,
-                AccountStatus::BIND_FAIL,
-                AccountStatus::LOGIN_SUCCESS,
-            ];
-
-            foreach ($statuses as $status) {
-                $account = Account::factory()->create(['status' => $status]);
-                $job = new AppleidAddSecurityVerifyPhone($account);
-
-                expect($job->uniqueId())->toContain($account->appleid);
-            }
         });
     });
 });

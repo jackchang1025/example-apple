@@ -40,7 +40,7 @@ class PhoneBindingSucceededListener
         ]);
 
         Notification::make()
-                ->title('添加授权号码成功')
+                ->title(sprintf('%s 添加授权号码成功', $event->account->appleid))
                 ->body($this->formatSuccessMessage($event))
                 ->success()
                 ->actions([

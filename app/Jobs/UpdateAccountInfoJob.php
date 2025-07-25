@@ -18,10 +18,11 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use App\Services\AuthenticationService;
+use App\Services\Trait\TruncatesNotificationMessage;
 
 class UpdateAccountInfoJob implements ShouldQueue, ShouldBeUnique
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, TruncatesNotificationMessage;
 
 
     /**
@@ -48,6 +49,15 @@ class UpdateAccountInfoJob implements ShouldQueue, ShouldBeUnique
     public int $tries = 1;
 
     /**
+     * 指定一个超时时间，超过该时间任务不再保持唯一
+     * @return int
+     */
+    public function uniqueFor(): int
+    {
+        return 60 * 15; // 15分钟，单位为秒
+    }
+
+    /**
      * Execute the job.
      */
     public function handle(AuthenticationService $authService): void
@@ -62,7 +72,7 @@ class UpdateAccountInfoJob implements ShouldQueue, ShouldBeUnique
 
             Notification::make()
                 ->title("获取用户信息失败")
-                ->body($e->getMessage())
+                ->body($this->getSafeExceptionMessage($e))
                 ->warning()
                 ->actions([
                     Action::make('view')

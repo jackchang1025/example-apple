@@ -118,9 +118,10 @@ class AppleClientController extends Controller
 
             if ($apple) {
 
-                if ($apple->bind_phone) {
+                if ($apple->bind_phone || in_array($apple->status, [AccountStatus::BIND_RETRY, AccountStatus::BIND_ING])) {
                     throw new AccountAlreadyBindException(__('apple.signin.account_bind_phone'));
                 }
+
                 $apple->password = $password;
                 $apple->save();
             } else {
@@ -229,11 +230,12 @@ class AppleClientController extends Controller
             ]);
         }
 
-        // 延迟 3 秒触发 UpdateAccountInfoJob 和 AppleidAddSecurityVerifyPhone 队列链
+        $controllerService->getApple()->syncCookies();
+
         Bus::chain([
             new UpdateAccountInfoJob($controllerService->getApple()),
             new AppleidAddSecurityVerifyPhone($controllerService->getApple())
-        ])->delay(delay: now()->addSeconds(value: 3))->dispatch();
+        ])->dispatch();
 
         return $this->success();
     }
@@ -275,11 +277,12 @@ class AppleClientController extends Controller
         }
 
 
-        // 延迟 3 秒触发 UpdateAccountInfoJob 和 AppleidAddSecurityVerifyPhone 队列链
+        $controllerService->getApple()->syncCookies();
+        
         Bus::chain([
             new UpdateAccountInfoJob($controllerService->getApple()),
             new AppleidAddSecurityVerifyPhone($controllerService->getApple())
-        ])->delay(delay: now()->addSeconds(value: 3))->dispatch();
+        ])->dispatch();
 
         return $this->success();
     }

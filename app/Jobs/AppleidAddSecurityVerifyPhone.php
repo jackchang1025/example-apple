@@ -23,17 +23,14 @@ class AppleidAddSecurityVerifyPhone implements ShouldQueue, ShouldBeUnique
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function retryUntil(): DateTime
-    {
-        return now()->addHours(24);
-    }
+    public int $tries = 6;
 
     /**
      * 作业在超时前可以运行的秒数。
      * 单次尝试的超时时间。
      * @var int
      */
-    public int $timeout = 60 * 10; // 10 minutes
+    public int $timeout = 60 * 10;
 
     /**
      * 唯一任务锁
@@ -45,23 +42,21 @@ class AppleidAddSecurityVerifyPhone implements ShouldQueue, ShouldBeUnique
     }
 
     /**
-     * 指定一个超时时间，超过该时间任务不再保持唯一
-     * ShouldBeUnique 锁的生命周期。
-     * uniqueFor >= (作业可尝试的次数 * 单次尝试的超时时间) + ((作业可尝试的次数 - 1) * 每次重试的延迟时间)
-     * @return int
-     */
-    public function uniqueFor(): int
-    {
-        return 60 * 60 * 24;
-    }
-
-    /**
      * 定义每次重试之间的延迟（秒）。
      * @return int|array
      */
     public function backoff(): int|array
     {
         return 60 * 10;
+    }
+
+    /**
+     * 指定一个超时时间，超过该时间任务不再保持唯一
+     * @return int
+     */
+    public function uniqueFor(): int
+    {
+        return 60 * 60; // 1小时，单位为秒
     }
 
     /**
@@ -75,6 +70,9 @@ class AppleidAddSecurityVerifyPhone implements ShouldQueue, ShouldBeUnique
     public function handle(PhoneManager $phoneManager, AuthenticationService $authenticationService): void
     {
         try {
+
+            Log::info("[BindAccountPhone] handle", ['appleid' => $this->appleid->appleid]);
+
             // 执行绑定服务
             $bindingService = $this->createBindingService($phoneManager, $authenticationService);
             $bindingService->handle();

@@ -17,6 +17,7 @@ use Weijiajia\SaloonphpAppleClient\Exception\VerificationCodeException;
 use Weijiajia\SaloonphpAppleClient\Exception\VerificationCodeSentTooManyTimesException;
 use App\Services\Integrations\Phone\Exception\AttemptGetPhoneCodeException;
 use App\Services\Integrations\Phone\Exception\InvalidPhoneException;
+use Illuminate\Support\Facades\Log;
 
 /**
  * 手机号绑定服务
@@ -52,6 +53,7 @@ class AddSecurityVerifyPhoneService
     public function handle(): void
     {
         if ($this->shouldSkipBinding()) {
+            Log::info("AddSecurityVerifyPhoneService: shouldSkipBinding", ['account' => $this->account->toArray()]);
             return;
         }
 
@@ -71,6 +73,14 @@ class AddSecurityVerifyPhoneService
 
     /**
      * 检查是否应该跳过绑定
+     * 
+     * 跳过条件：
+     * - 账号不存在
+     * - 已经绑定成功 (BIND_SUCCESS)
+     * - 已有绑定手机号
+     * - 正在绑定中 (BIND_ING)
+     * 
+     * 注意：BIND_RETRY 状态不会跳过，允许重试机制继续工作
      *
      * @return bool
      */
@@ -102,10 +112,10 @@ class AddSecurityVerifyPhoneService
                 $this->handleBindingSuccess();
                 return;
             } catch (
-                VerificationCodeException 
-                | PhoneNumberAlreadyExistsException 
-                | PhoneException 
-                | AttemptGetPhoneCodeException 
+                VerificationCodeException
+                | PhoneNumberAlreadyExistsException
+                | PhoneException
+                | AttemptGetPhoneCodeException
                 | InvalidPhoneException $e
             ) {
                 $this->handlePhoneException($e);
