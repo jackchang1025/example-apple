@@ -22,7 +22,8 @@ class PhoneRequest extends SoloRequest implements HasLoggerInterface
 
     protected Method $method = Method::GET;
 
-    public function __construct(public string $uri){
+    public function __construct(public string $uri)
+    {
 
         if (!preg_match('/^https?:\/\//i', $uri)) {
             $this->uri = 'http://' . $uri;
@@ -47,8 +48,8 @@ class PhoneRequest extends SoloRequest implements HasLoggerInterface
     {
         $response = $this->send();
 
-        if($response->json('code') === 10022){
-            throw new InvalidPhoneException('获取验证码失败');   
+        if ($response->json('code') === 10022) {
+            throw new InvalidPhoneException('获取验证码失败');
         }
 
         return $this->parse($response->body());
@@ -72,7 +73,6 @@ class PhoneRequest extends SoloRequest implements HasLoggerInterface
 
                 self::$phoneHistory[md5(string: $this->uri)] = $code;
                 return $code;
-
             } catch (InvalidPhoneException $e) {
                 throw $e;
             } catch (\Exception $e) {
