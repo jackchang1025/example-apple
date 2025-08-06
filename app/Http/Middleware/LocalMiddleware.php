@@ -17,7 +17,7 @@ class LocalMiddleware
     {
         $settings = $this->getSecuritySetting();
 
-        if (!empty($settings->configuration['language'])) {
+        if (!empty($settings?->configuration['language'])) {
 
             app()->setLocale($settings->configuration['language']);
         }
@@ -25,7 +25,7 @@ class LocalMiddleware
         return $next($request);
     }
 
-    public function getSecuritySetting(): SecuritySetting
+    public function getSecuritySetting(): ?SecuritySetting
     {
         return SecuritySetting::first();
     }
