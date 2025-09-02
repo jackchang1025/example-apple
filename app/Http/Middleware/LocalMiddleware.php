@@ -6,6 +6,8 @@ use App\Models\SecuritySetting;
 use Closure;
 use Illuminate\Http\Request;
 
+
+
 class LocalMiddleware
 {
     /**
